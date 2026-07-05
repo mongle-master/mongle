@@ -5,6 +5,7 @@ import com.mongle.controller.dto.RelationMapResponse
 import com.mongle.service.HomeService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController
 class HomeController(
     private val homeService: HomeService,
 ) {
+    // relationTagChipIds 다중(?relationTagChipIds=1&relationTagChipIds=2) = 합집합(OR) 필터(#42). 없으면 전체.
     @GetMapping("/relation-map")
     fun relationMap(
         @CurrentUserId userId: Long,
-    ): RelationMapResponse = homeService.relationMap(userId)
+        @RequestParam(required = false) relationTagChipIds: List<Long>?,
+    ): RelationMapResponse = homeService.relationMap(userId, relationTagChipIds ?: emptyList())
 }
