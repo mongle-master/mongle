@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:430px;height:900px;}
+  body{font-family:"Apple SD Gothic Neo","Pretendard",-apple-system,sans-serif;background:#fcfcfb;color:#1c1c1c;overflow:hidden;position:relative;}
+  .blob{position:absolute;filter:blur(3px);opacity:.45;z-index:0;}
+  .b1{width:90px;height:64px;background:#e7ddfb;border-radius:45% 55% 60% 40%;right:-18px;top:120px;}
+  .b2{width:66px;height:66px;background:#d9ecff;border-radius:50%;left:-22px;bottom:250px;}
+  .status{position:relative;z-index:2;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:700;}
+  .status .dots{letter-spacing:2px;}
+  .hd{position:relative;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;padding:2px 22px 6px;}
+  .hd .logo{font-size:12px;font-weight:800;letter-spacing:1px;color:#9a9a9a;}
+  .hd h1{font-size:22px;font-weight:800;letter-spacing:-.4px;margin-top:2px;}
+  .toggle{display:flex;border:1.5px solid #ddd;border-radius:10px;overflow:hidden;margin-top:6px;}
+  .toggle .tg{width:34px;height:30px;display:flex;align-items:center;justify-content:center;color:#b0b0b0;}
+  .toggle .tg.on{background:#1c1c1c;color:#fff;}
+  .toggle .tg svg{width:16px;height:16px;}
+
+  .map{position:relative;z-index:2;height:470px;margin:2px 8px 0;}
+  .map svg.lines{position:absolute;inset:0;width:100%;height:100%;}
+  .node{position:absolute;border-radius:50%;background:#fff;border:2px solid #1c1c1c;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;}
+  .node .mono{font-size:16px;}
+  .node .lbl{position:absolute;bottom:-18px;font-size:11px;font-weight:700;white-space:nowrap;color:#6a6a6a;}
+  .me{width:74px;height:74px;left:170px;top:200px;background:#1c1c1c;color:#fff;border:none;z-index:3;box-shadow:0 8px 20px rgba(0,0,0,.28);}
+  .me .mono{font-size:17px;}
+  .add{width:66px;height:66px;left:288px;top:204px;border:2px dashed #9a9a9a;color:#9a9a9a;z-index:3;}
+  .add .mono{font-size:30px;font-weight:400;}
+  .add .lbl{color:#9a9a9a;font-weight:800;}
+  .p1{width:58px;height:58px;left:56px;top:70px;}
+  .p2{width:50px;height:50px;left:176px;top:44px;border-color:#c4c4c4;color:#b0b0b0;}
+  .p3{width:56px;height:56px;left:300px;top:78px;}
+  .p3.fav{box-shadow:0 0 0 3px #fff,0 0 0 5px #1c1c1c;}
+  .p3 .star{position:absolute;top:-8px;right:-6px;font-size:15px;}
+  .p4{width:60px;height:60px;left:262px;top:300px;}
+  .p5{width:46px;height:46px;left:84px;top:300px;border-color:#c8c8c8;color:#b6b6b6;}
+  .p6{width:44px;height:44px;left:180px;top:330px;border-color:#d0d0d0;color:#bcbcbc;}
+  .faded .lbl{color:#b6b6b6;}
+
+  .float{position:absolute;z-index:3;left:16px;right:16px;bottom:92px;background:#1c1c1c;color:#fff;border-radius:18px;padding:13px 15px;display:flex;align-items:center;gap:13px;box-shadow:0 12px 28px rgba(0,0,0,.24);}
+  .float .yy{width:44px;height:44px;border-radius:12px;background:#c9f0c2;color:#256b1e;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;flex:none;}
+  .float .yy .ck{font-size:13px;line-height:1;}
+  .float .yy .yl{font-size:13px;line-height:1.1;margin-top:1px;}
+  .float .ft{font-size:14.5px;font-weight:800;}
+  .float .fs{font-size:12px;opacity:.75;margin-top:2px;}
+  .float .x{margin-left:auto;opacity:.5;font-size:16px;font-weight:700;}
+
+  .nav{position:absolute;z-index:3;left:0;right:0;bottom:0;height:76px;background:#fff;border-top:1.5px solid #eee;display:flex;align-items:center;justify-content:space-around;padding-bottom:12px;}
+  .nav a{font-size:11px;font-weight:700;color:#b3b3b3;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .nav a.on{color:#1c1c1c;}
+  .nav .ic{width:21px;height:21px;border:2px solid currentColor;border-radius:6px;}
+  .nav a.on .ic{background:#1c1c1c;border-color:#1c1c1c;}
+  .nav .plus{width:48px;height:48px;border-radius:50%;background:#1c1c1c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;margin-top:-22px;box-shadow:0 6px 16px rgba(0,0,0,.3);}
+</style></head><body>
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="status"><span>9:41</span><span class="dots">● ● ●</span></div>
+  <div class="hd">
+    <div><div class="logo">관계도감</div><h1>지우님의 관계 지도</h1></div>
+    <div class="toggle">
+      <span class="tg on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="7" r="2.5"/><circle cx="12" cy="17" r="2.5"/><path d="M8 7l3 8M16 8l-3 7"/></svg></span>
+      <span class="tg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+    </div>
+  </div>
+
+  <div class="map">
+    <svg class="lines"><g stroke="#c8c8c8" stroke-width="1.6" fill="none">
+      <line x1="207" y1="230" x2="85" y2="99"/>
+      <line x1="207" y1="230" x2="328" y2="106"/>
+      <line x1="207" y1="230" x2="292" y2="330"/>
+      <line x1="207" y1="230" x2="201" y2="69" stroke="#d8d8d8" stroke-dasharray="3 5"/>
+      <line x1="207" y1="230" x2="107" y2="323" stroke="#d8d8d8" stroke-dasharray="3 5"/>
+      <line x1="207" y1="230" x2="202" y2="352" stroke="#dcdcdc" stroke-dasharray="3 5"/>
+      <path d="M244 232 h34" stroke="#9a9a9a" stroke-width="1.8" marker-end="url(#a)"/>
+      <defs><marker id="a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L6 3.5 L0 7 z" fill="#9a9a9a"/></marker></defs>
+    </g></svg>
+    <div class="node me"><span class="mono">나</span></div>
+    <div class="node add"><span class="mono">＋</span><span class="lbl">사람 추가</span></div>
+    <div class="node p1"><span class="mono">현</span><span class="lbl">현우</span></div>
+    <div class="node p2 faded"><span class="mono">할</span><span class="lbl">할머니</span></div>
+    <div class="node p3 fav"><span class="star">★</span><span class="mono">서</span><span class="lbl">서연</span></div>
+    <div class="node p4"><span class="mono">민</span><span class="lbl">민지</span></div>
+    <div class="node p5 faded"><span class="mono">태</span><span class="lbl">태호</span></div>
+    <div class="node p6 faded"><span class="mono">김</span><span class="lbl">김대리</span></div>
+  </div>
+
+  <div class="float">
+    <div class="yy"><span class="ck">✓</span><span class="yl">1y</span></div>
+    <div><div class="ft">1년 전 오늘, 서연님과</div><div class="fs">남산 야경 보러 갔던 날, 기억나요?</div></div>
+    <div class="x">×</div>
+  </div>
+
+  <div class="nav">
+    <a class="on"><span class="ic"></span>홈</a>
+    <a><span class="ic"></span>타임라인</a>
+    <a class="plus">＋</a>
+    <a><span class="ic"></span>인사이트</a>
+    <a><span class="ic"></span>설정</a>
+  </div>
+</body></html>

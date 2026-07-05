@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:430px;height:900px;}
+  body{font-family:"Apple SD Gothic Neo","Pretendard",-apple-system,sans-serif;background:#fcfcfb;color:#1c1c1c;overflow:hidden;position:relative;}
+  .status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:700;}
+  .status .dots{letter-spacing:2px;}
+  .bar{display:flex;align-items:center;gap:12px;padding:2px 20px 6px;}
+  .bar .bk{font-size:19px;font-weight:800;color:#5a5a5a;}
+  .bar h1{font-size:18px;font-weight:800;}
+  .bar .sub{font-size:11.5px;color:#9a9a9a;font-weight:600;margin-top:1px;}
+
+  .hl{margin:2px 18px 0;background:#fff;border:1.5px solid #eee;border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;}
+  .hl::before{content:"";position:absolute;left:52px;right:14px;top:15px;height:16px;background:#fdf0a8;border-radius:4px;z-index:0;opacity:.85;transform:rotate(-1deg);}
+  .hl .av{width:38px;height:38px;border-radius:50%;background:#eee;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;z-index:1;}
+  .hl .s{display:flex;gap:22px;z-index:1;}
+  .hl .s b{font-size:16px;font-weight:800;}
+  .hl .s span{font-size:11px;color:#7a7a7a;font-weight:700;}
+
+  .chart{margin:12px 18px 0;background:#fff;border:1.5px solid #eee;border-radius:16px;padding:14px 15px;}
+  .chart .ct{font-size:13px;font-weight:800;}
+  .chart .cs{font-size:11px;color:#9a9a9a;font-weight:600;margin-top:1px;margin-bottom:10px;}
+  .lane{display:flex;align-items:center;margin-bottom:9px;}
+  .lane .ll{width:34px;font-size:11px;font-weight:700;color:#8c8c8c;}
+  .lane .track{flex:1;display:flex;justify-content:space-between;align-items:center;position:relative;}
+  .lane .track::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#f0f0f0;}
+  .dot{width:11px;height:11px;border-radius:50%;background:#1c1c1c;z-index:1;}
+  .dot.g{background:#c4c4c4;}
+  .dot.o{background:#fff;border:2px solid #1c1c1c;width:14px;height:14px;}
+  .dot.e{background:transparent;}
+  .xax{display:flex;justify-content:space-between;padding-left:34px;font-size:10px;color:#b0b0b0;font-weight:700;margin-top:2px;}
+  .legend{display:flex;gap:14px;margin-top:9px;padding-left:34px;font-size:10.5px;font-weight:700;color:#7a7a7a;}
+  .legend span{display:flex;align-items:center;gap:4px;}
+  .legend i{width:9px;height:9px;border-radius:50%;background:#1c1c1c;display:inline-block;}
+  .legend i.g{background:#c4c4c4;}
+  .legend i.o{background:#fff;border:1.5px solid #1c1c1c;}
+
+  .feed{margin-top:12px;}
+  .row{position:relative;display:flex;padding:0 18px 0 0;}
+  .rail{width:70px;flex:none;position:relative;padding-top:4px;}
+  .rail .dt{text-align:center;font-size:10.5px;font-weight:800;color:#8c8c8c;line-height:1.35;}
+  .rail .dt .y{color:#bcbcbc;font-size:10px;}
+  .rail .badge{width:32px;height:32px;border-radius:50%;border:1.5px solid #1c1c1c;background:#fff;display:flex;align-items:center;justify-content:center;margin:6px auto 0;position:relative;z-index:2;}
+  .rail .badge svg{width:17px;height:17px;}
+  .rail::before{content:"";position:absolute;left:50%;top:40px;bottom:-14px;border-left:2px dotted #d4d4d4;transform:translateX(-.5px);}
+  .card{flex:1;background:#fff;border:1.5px solid #eee;border-radius:16px;padding:12px 13px;box-shadow:0 5px 14px rgba(60,50,90,.05);position:relative;margin-bottom:14px;min-height:104px;}
+  .card .ttl{display:flex;align-items:center;gap:7px;}
+  .card .ttl h3{font-size:15.5px;font-weight:800;}
+  .card .tag{font-size:10px;font-weight:800;color:#7a7a7a;background:#f1f1f1;border-radius:6px;padding:2px 7px;}
+  .card .field{font-size:11.5px;margin-top:6px;display:flex;gap:9px;}
+  .card .field .k{color:#b0b0b0;font-weight:700;width:76px;flex:none;white-space:nowrap;}
+  .card .field .v{color:#3a3a3a;font-weight:600;}
+  .card .illu{position:absolute;right:11px;top:30px;opacity:.9;}
+  .mark{position:absolute;right:9px;bottom:-9px;background:#c9f0c2;border-radius:14px;padding:4px 10px;font-size:11px;font-weight:800;color:#256b1e;box-shadow:0 3px 8px rgba(80,150,70,.2);display:flex;align-items:center;gap:4px;transform:rotate(-2deg);}
+  .fab{position:absolute;right:20px;bottom:22px;width:50px;height:50px;border-radius:50%;background:#1c1c1c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 8px 20px rgba(0,0,0,.3);}
+</style></head><body>
+  <div class="status"><span>9:41</span><span class="dots">● ● ●</span></div>
+  <div class="bar"><span class="bk">‹</span><div><h1>민지와의 이야기</h1><div class="sub">2019년부터 · 24번 만남</div></div></div>
+
+  <div class="hl">
+    <div class="av">민</div>
+    <div class="s"><div><b>18개</b><br><span>함께한 기록</span></div><div><b>6일 전</b><br><span>마지막 만남</span></div></div>
+  </div>
+
+  <div class="chart">
+    <div class="ct">활동 흐름</div><div class="cs">점을 눌러 그날 기록만 보기</div>
+    <div class="lane"><span class="ll">만남</span><span class="track"><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i></span></div>
+    <div class="lane"><span class="ll">연락</span><span class="track"><i class="dot g"></i><i class="dot g"></i><i class="dot e"></i><i class="dot g"></i><i class="dot g"></i><i class="dot g"></i></span></div>
+    <div class="lane"><span class="ll">추억</span><span class="track"><i class="dot e"></i><i class="dot e"></i><i class="dot o"></i><i class="dot e"></i><i class="dot e"></i><i class="dot e"></i></span></div>
+    <div class="xax"><span>2월</span><span>3월</span><span>4월</span><span>5월</span><span>6월</span><span>7월</span></div>
+    <div class="legend"><span><i></i>만남</span><span><i class="g"></i>연락</span><span><i class="o"></i>추억</span></div>
+  </div>
+
+  <div class="feed">
+    <div class="row">
+      <div class="rail"><div class="dt"><span class="y">2024</span><br>05.26</div>
+        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="#1c1c1c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16v-8H4z"/><path d="M4 12c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2"/><path d="M12 7V4M9 4h6"/></svg></div></div>
+      <div class="card">
+        <div class="ttl"><h3>유진 결혼식</h3><span class="tag">기념일</span></div>
+        <div class="field"><span class="k">언제</span><span class="v">2024.05.26 (일)</span></div>
+        <div class="field"><span class="k">왜 만났는지</span><span class="v">결혼식 참석</span></div>
+        <div class="field"><span class="k">무엇을 했는지</span><span class="v">축하해주고 맛있는 거 많이 먹기</span></div>
+        <div class="illu"><svg width="84" height="70" viewBox="0 0 84 70" fill="none" stroke="#1c1c1c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="30" cy="18" r="7"/><path d="M22 64q0-22 8-24q8 2 8 8l-6 16z"/><circle cx="56" cy="18" r="7"/><path d="M49 64V30q0-6 7-7q7 1 7 7v34z"/><path d="M40 8l1 4 4 1-4 1-1 4-1-4-4-1 4-1z" stroke-width="1"/></svg></div>
+        <div class="mark">🔒 축의 10만원</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="rail"><div class="dt"><span class="y">2024</span><br>04.13</div>
+        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="#1c1c1c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h11v3a5 5 0 0 1-11 0z"/><path d="M17 11h2a2 2 0 0 1 0 4h-2"/><path d="M6 19h11"/></svg></div></div>
+      <div class="card">
+        <div class="ttl"><h3>카페 약속</h3><span class="tag">만남</span></div>
+        <div class="field"><span class="k">언제</span><span class="v">2024.04.13 (토) 15:00</span></div>
+        <div class="field"><span class="k">왜 만났는지</span><span class="v">오랜만에 수다</span></div>
+        <div class="field"><span class="k">무엇을 했는지</span><span class="v">근황 토크 + 신상 카페 발견</span></div>
+        <div class="illu"><svg width="84" height="70" viewBox="0 0 84 70" fill="none" stroke="#1c1c1c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="26" cy="24" r="8"/><path d="M18 24q8-11 16-1"/><path d="M15 60q0-16 11-18q11 2 11 18"/><circle cx="58" cy="24" r="8"/><path d="M50 24q8-11 16-1"/><path d="M47 60q0-16 11-18q11 2 11 18"/><path d="M6 62h72"/><path d="M34 58h8v-5h-8z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="rail"><div class="dt"><span class="y">2024</span><br>02.17</div>
+        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="#1c1c1c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19a5 5 0 0 1 10 0M11 19a5 5 0 0 1 10 0"/></svg></div></div>
+      <div class="card">
+        <div class="ttl"><h3>개발 모임</h3><span class="tag">프로젝트</span></div>
+        <div class="field"><span class="k">언제</span><span class="v">2024.02.17 (토) 13:00</span></div>
+        <div class="field"><span class="k">무엇을 했는지</span><span class="v">코드 리뷰 + 아키텍처 이야기</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fab">＋</div>
+</body></html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:430px;height:900px;}
+  body{font-family:"Apple SD Gothic Neo","Pretendard",-apple-system,sans-serif;background:#ffffff;color:#141414;overflow:hidden;position:relative;}
+  .status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:700;}
+  .status .dots{letter-spacing:2px;}
+
+  .head{display:flex;align-items:center;gap:14px;padding:6px 22px 12px;}
+  .head .av{width:60px;height:60px;border-radius:50%;background:#141414;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;}
+  .head .nm{font-size:23px;font-weight:800;letter-spacing:-.4px;}
+  .head .sub{font-size:12.5px;color:#8c8c8c;font-weight:600;margin-top:3px;}
+
+  .insight{margin:4px 18px 0;background:#141414;color:#fff;border-radius:22px;padding:18px 20px;}
+  .insight .k{font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:.6;}
+  .insight .big{font-size:22px;font-weight:800;margin-top:7px;line-height:1.35;letter-spacing:-.4px;}
+  .insight .big u{text-underline-offset:4px;text-decoration-thickness:2px;}
+  .insight .s{font-size:12.5px;opacity:.72;margin-top:8px;line-height:1.5;}
+
+  .stats{display:flex;gap:9px;margin:12px 18px;}
+  .stat{flex:1;background:#fafafa;border:1.5px solid #ececec;border-radius:15px;padding:12px 8px;text-align:center;}
+  .stat .n{font-size:22px;font-weight:800;}
+  .stat .l{font-size:11px;font-weight:700;color:#8c8c8c;margin-top:2px;}
+
+  .sec{font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#9a9a9a;margin:16px 20px 10px;}
+
+  .bars{margin:0 18px;}
+  .bar{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .bar .bl{width:96px;font-size:13px;font-weight:700;}
+  .bar .track{flex:1;height:9px;border-radius:6px;background:#eee;overflow:hidden;}
+  .bar .track i{display:block;height:100%;background:#141414;border-radius:6px;}
+  .bar .bv{width:44px;text-align:right;font-size:11.5px;font-weight:800;color:#8c8c8c;}
+
+  .emos{display:flex;flex-wrap:wrap;gap:8px;margin:0 18px;}
+  .emo{font-size:13px;font-weight:700;padding:8px 13px;border-radius:999px;border:1.5px solid #dcdcdc;color:#141414;display:flex;align-items:center;gap:7px;}
+  .emo b{background:#141414;color:#fff;border-radius:999px;font-size:11px;padding:1px 7px;}
+
+  .thanks{margin:14px 18px 0;background:#fafafa;border:1.5px solid #ececec;border-radius:16px;padding:14px 16px;}
+  .thanks .tl{font-size:11.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#9a9a9a;margin-bottom:7px;}
+  .thanks .q{font-size:14.5px;font-weight:700;line-height:1.45;}
+  .thanks .w{font-size:12px;color:#8c8c8c;margin-top:5px;font-weight:600;}
+
+  .nav{position:absolute;left:0;right:0;bottom:0;height:78px;background:#fff;border-top:1.5px solid #ececec;display:flex;align-items:center;justify-content:space-around;padding-bottom:12px;}
+  .nav a{font-size:11px;font-weight:700;color:#b0b0b0;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .nav a.on{color:#141414;}
+  .nav .ic{width:22px;height:22px;border:2px solid currentColor;border-radius:6px;}
+  .nav a.on .ic{background:#141414;border-color:#141414;}
+  .nav .plus{width:50px;height:50px;border-radius:50%;background:#141414;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;margin-top:-24px;box-shadow:0 6px 16px rgba(0,0,0,.3);}
+</style></head><body>
+  <div class="status"><span>9:44</span><span class="dots">● ● ●</span></div>
+
+  <div class="head">
+    <div class="av">나</div>
+    <div>
+      <div class="nm">지우</div>
+      <div class="sub">관계도감 4년차 · 함께한 사람 27명</div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="k">나의 관계 성향</div>
+    <div class="big">당신은 <u>오래된 관계를 오래 지키는</u> 사람이에요.</div>
+    <div class="s">새 인연을 넓히기보다, 곁의 사람을 깊게 챙깁니다. 최근 3개월은 조금 뜸했어요.</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n">27</div><div class="l">함께한 사람</div></div>
+    <div class="stat"><div class="n">142</div><div class="l">새긴 기록</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">이번 달 챙김</div></div>
+  </div>
+
+  <div class="sec">성향 자세히</div>
+  <div class="bars">
+    <div class="bar"><span class="bl">오래된 관계 유지</span><span class="track"><i style="width:88%"></i></span><span class="bv">강함</span></div>
+    <div class="bar"><span class="bl">새 관계 확장</span><span class="track"><i style="width:28%"></i></span><span class="bv">낮음</span></div>
+    <div class="bar"><span class="bl">먼저 연락</span><span class="track"><i style="width:62%"></i></span><span class="bv">보통</span></div>
+    <div class="bar"><span class="bl">기록 꾸준함</span><span class="track"><i style="width:94%"></i></span><span class="bv">매우</span></div>
+  </div>
+
+  <div class="sec">자주 느낀 감정</div>
+  <div class="emos">
+    <span class="emo">반가움 <b>38</b></span>
+    <span class="emo">고마움 <b>24</b></span>
+    <span class="emo">편안 <b>19</b></span>
+    <span class="emo">뭉클 <b>11</b></span>
+  </div>
+
+  <div class="thanks">
+    <div class="tl">이번 주 감사일기</div>
+    <div class="q">"여행 내내 운전해준 현우, 진짜 고마웠다."</div>
+    <div class="w">6월 넷째 주 · 현우에게</div>
+  </div>
+
+  <div class="nav">
+    <a><span class="ic"></span>연대기</a>
+    <a><span class="ic"></span>사람</a>
+    <a class="plus">＋</a>
+    <a class="on"><span class="ic"></span>인사이트</a>
+    <a><span class="ic"></span>설정</a>
+  </div>
+</body></html>
