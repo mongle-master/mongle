@@ -1,12 +1,17 @@
 package com.mongle.controller
 
 import com.mongle.common.context.CurrentUserId
+import com.mongle.controller.dto.ChipCreateRequest
 import com.mongle.controller.dto.ChipResponse
 import com.mongle.domain.ChipType
 import com.mongle.service.ChipService
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -19,4 +24,11 @@ class ChipController(
         @CurrentUserId userId: Long,
         @RequestParam type: ChipType,
     ): List<ChipResponse> = chipService.visibleChips(userId, type).map(ChipResponse::from)
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    fun create(
+        @CurrentUserId userId: Long,
+        @RequestBody request: ChipCreateRequest,
+    ): ChipResponse = ChipResponse.from(chipService.create(userId, request.type, request.label))
 }
