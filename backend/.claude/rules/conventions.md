@@ -30,7 +30,7 @@
 
 ## 3. API
 
-- 경로: `/api/{복수 자원}` + kebab-case (`/api/home/relation-map`). 하위 자원은 중첩(`/api/persons/{id}/timeline`).
+- 경로: **`/api/v1/{복수 자원}`** — 버전 프리픽스 필수 + kebab-case (`/api/v1/home/relation-map`). 하위 자원은 중첩(`/api/v1/persons/{id}/timeline`).
 - 쿼리 파라미터: camelCase, 칩 id 필터는 `{종류}ChipIds`(예: `relationTagChipIds`, `categoryChipIds`), 검색어는 `query`, 정렬은 `sort`(enum UPPER).
 - 다중 필터는 축 안 OR, 축 간 AND.
 - 성공 응답은 봉투 없이 DTO 그대로, 에러는 `{code, message}` (§12.5 문구). 생성 201, 빈 단건 204.
@@ -40,7 +40,7 @@
 
 - 유저 식별은 **JWT Bearer 토큰**에서만 얻는다: `Authorization: Bearer {token}`, HS256, claim `sub` = userId.
 - 컨트롤러에서는 `@CurrentUserId userId: Long` 파라미터로 주입받는다(리졸버가 토큰 파싱·검증).
-- 토큰 없음/무효 = 401 `UNAUTHORIZED`. 발급은 `POST /api/auth/token` (데모: username만으로 발급).
+- 토큰 없음/무효 = 401 `UNAUTHORIZED`. 발급은 `POST /api/v1/auth/token` (데모: username만으로 발급).
 - 고정 데모 유저 하드코딩 금지.
 
 ## 5. Swagger (springdoc)
