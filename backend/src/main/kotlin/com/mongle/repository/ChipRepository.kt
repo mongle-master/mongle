@@ -29,4 +29,7 @@ interface ChipRepository : JpaRepository<Chip, Long> {
 
     // 종류별 개인 칩 개수(상한 판정) — 소프트삭제 제외.
     fun countByTypeAndOwnerIdAndDeletedAtIsNull(type: ChipType, ownerId: Long): Int
+
+    // 이름변경 대상 — 내 소유·active 개인 칩만. 공통(ownerId null)·타인·이미 지운 칩은 안 잡힌다.
+    fun findByIdAndOwnerIdAndDeletedAtIsNull(id: Long, ownerId: Long): Chip?
 }

@@ -3,6 +3,8 @@ package com.mongle.service
 import com.mongle.common.Messages
 import com.mongle.common.ValidationLimits
 import com.mongle.common.Validators
+import com.mongle.common.exception.BusinessException
+import com.mongle.common.exception.ErrorCode
 import com.mongle.domain.Chip
 import com.mongle.domain.ChipType
 import com.mongle.repository.ChipHideRepository
@@ -40,6 +42,19 @@ class ChipService(
 
         val nextOrder = (chipRepository.findFirstByTypeAndOwnerIdOrderByDisplayOrderDesc(type, userId)?.displayOrder ?: -1) + 1
         return chipRepository.save(Chip(type = type, ownerId = userId, label = label, displayOrder = nextOrder))
+    }
+
+    @Transactional
+    fun rename(userId: Long, chipId: Long, rawLabel: String): Chip {
+        // 개인 칩만 이름을 바꾼다 — 공통·타인·없는 칩은 여기서 잡히지 않아 NOT_FOUND.
+        val chip = chipRepository.findByIdAndOwnerIdAndDeletedAtIsNull(chipId, userId)
+            ?: throw BusinessException(ErrorCode.NOT_FOUND)
+        val label = rawLabel.trim()
+        Validators.requireNotBlank(label, Messages.REQUIRED_CHIP_NAME)
+        Validators.maxLength(label, ValidationLimits.CHIP_NAME_MAX)
+        assertNoDuplicate(userId, chip.type, label, excludeId = chipId)
+        chip.rename(label)
+        return chip
     }
 
     /** 같은 종류 안 중복(공통 전체 + 내 개인 active). excludeId 는 이름변경 시 자기 자신 제외. */

@@ -2,11 +2,14 @@ package com.mongle.controller
 
 import com.mongle.common.context.CurrentUserId
 import com.mongle.controller.dto.ChipCreateRequest
+import com.mongle.controller.dto.ChipRenameRequest
 import com.mongle.controller.dto.ChipResponse
 import com.mongle.domain.ChipType
 import com.mongle.service.ChipService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -31,4 +34,11 @@ class ChipController(
         @CurrentUserId userId: Long,
         @RequestBody request: ChipCreateRequest,
     ): ChipResponse = ChipResponse.from(chipService.create(userId, request.type, request.label))
+
+    @PatchMapping("/{id}")
+    fun rename(
+        @CurrentUserId userId: Long,
+        @PathVariable id: Long,
+        @RequestBody request: ChipRenameRequest,
+    ): ChipResponse = ChipResponse.from(chipService.rename(userId, id, request.label))
 }
