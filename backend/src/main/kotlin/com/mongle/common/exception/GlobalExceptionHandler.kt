@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
 private val log = KotlinLogging.logger {}
 
@@ -35,6 +36,10 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException::class)
     fun handleUploadSize(e: MaxUploadSizeExceededException): ResponseEntity<ErrorResponse> = ErrorCode.IMAGE_TOO_LARGE.toResponse()
+
+    // 정적 리소스 폴백까지 매칭 실패한 미존재 경로. 500(INTERNAL_ERROR)로 새지 않게 404로 응답한다.
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResource(e: NoResourceFoundException): ResponseEntity<ErrorResponse> = ErrorCode.NOT_FOUND.toResponse()
 
     @ExceptionHandler(Exception::class)
     fun handleUnexpected(e: Exception): ResponseEntity<ErrorResponse> {
