@@ -11,6 +11,7 @@ object Messages {
     // 필수 누락 — 대상 명사에 맞춰 골라 쓴다.
     const val REQUIRED_NAME = "이름을 입력해 주세요."
     const val REQUIRED_CHIP_NAME = "칩 이름을 입력해 주세요."
+    const val REQUIRED_PERSON = "함께한 사람을 한 명 이상 선택해 주세요."
 
     // 날짜
     const val FUTURE_DATE = "오늘보다 미래일 수는 없어요."

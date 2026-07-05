@@ -11,4 +11,7 @@ interface PersonRepository : JpaRepository<Person, Long> {
     fun findByOwnerIdAndDeletedAtIsNull(ownerId: Long): List<Person>
 
     fun findByIdAndOwnerIdAndDeletedAtIsNull(id: Long, ownerId: Long): Person?
+
+    // 기록 연결 인물 검증·파생 갱신용 — 요청 id 중 내 소유·active 인 것만 한 번에 로드(#33 #36).
+    fun findByIdInAndOwnerIdAndDeletedAtIsNull(ids: Collection<Long>, ownerId: Long): List<Person>
 }
