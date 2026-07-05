@@ -3,6 +3,8 @@ package com.mongle.service
 import com.mongle.common.Messages
 import com.mongle.common.ValidationLimits
 import com.mongle.common.Validators
+import com.mongle.common.exception.BusinessException
+import com.mongle.common.exception.ErrorCode
 import com.mongle.controller.dto.PersonRequest
 import com.mongle.controller.dto.PersonResponse
 import com.mongle.domain.ChipType
@@ -24,6 +26,15 @@ class PersonService(
         val person = Person(ownerId = userId, name = request.name)
         applyRequest(userId, person, request)
         return toResponse(personRepository.save(person))
+    }
+
+    /** 전체 수정(PUT) — 등록과 같은 입력·검증을 재사용한다. 내 소유·active 인물만, 아니면 NOT_FOUND. */
+    @Transactional
+    fun update(userId: Long, personId: Long, request: PersonRequest): PersonResponse {
+        val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
+            ?: throw BusinessException(ErrorCode.NOT_FOUND)
+        applyRequest(userId, person, request)
+        return toResponse(person)
     }
 
     /**
