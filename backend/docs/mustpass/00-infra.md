@@ -10,8 +10,9 @@
 - 성공 응답은 봉투로 감싸지 않는다 — 도메인 DTO를 그대로 반환한다(기존 Sample 컨벤션).
 - `message` 는 사용자에게 그대로 보여줄 수 있는 §12.5 문구다(개발자 문구·스택트레이스 금지).
 - 소프트삭제된 라벨(칩 등)은 **선택 목록에서만** 빠지고, 이미 그 라벨을 참조하는 과거 기록에는 값이 남는다.
-- 소유 컨텍스트: `ownerId == null` 이면 공통(모든 사용자 공유), `ownerId == 데모 사용자`면 개인.
+- 소유 컨텍스트: `ownerId == null` 이면 공통(모든 사용자 공유), `ownerId == 그 사용자 id`면 개인.
   선택 목록 = 공통 + 그 사용자 개인.
+- 사용자 식별은 **JWT Bearer 토큰**에서만 온다(고정 데모 사용자 하드코딩 없음). 아래 인증 절 참조.
 - 글자수·개수 한도를 넘기면 저장하지 않고 §12.5 문구로 거절한다.
 - 업로드 이미지는 각 10MB 이하, 확장자 jpg·jpeg·png·heic·webp 만 허용한다.
 
@@ -28,11 +29,30 @@
 | `SELECTION_LIMIT` | 400 | 선택할 수 있는 최대 개수를 넘었어요. | 감정 5 / 관계태그 10 등 선택 상한 |
 | `CHIP_LIMIT` | 400 | 칩은 종류별로 최대 30개까지 만들 수 있어요. | 개인 칩 종류별 상한 |
 | `CATEGORY_REQUIRED` | 400 | 카테고리는 최소 1개가 필요해요. | 카테고리 마지막 1개 삭제 시 |
+| `UNAUTHORIZED` | 401 | 로그인이 필요해요. | 토큰 없음·형식 오류·서명/만료 무효 |
 | `NOT_FOUND` | 404 | 리소스를 찾을 수 없습니다. | 없는 리소스 조회 |
 | `UNSUPPORTED_IMAGE_TYPE` | 400 | jpg·png·heic·webp 이미지만 올릴 수 있어요. | 허용 외 확장자 |
 | `IMAGE_TOO_LARGE` | 400 | 이미지는 각 10MB 이하만 올릴 수 있어요. | 10MB 초과 |
 | `SAVE_FAILED` | 500 | 저장에 실패했어요. 잠시 후 다시 시도해 주세요. | 저장 실패 |
 | `INTERNAL_ERROR` | 500 | 서버 오류가 발생했습니다. | 예기치 못한 예외 |
+
+## 인증 (JWT)
+
+- 발급: `POST /api/v1/auth/token` body `{ "username": string }` → `{ token, userId, username }`.
+  데모 로그인이라 비밀번호가 없다 — 없는 username 이면 사용자를 만들어 발급한다.
+- 사용: 이후 모든 보호 API 는 `Authorization: Bearer {token}` 를 보낸다. HS256, claim `sub` = userId 문자열.
+- 주입: 컨트롤러가 `@CurrentUserId userId: Long` 을 받으면 리졸버가 헤더의 토큰을 파싱·검증해 채운다.
+  이 파라미터를 쓰는 엔드포인트만 토큰을 요구한다(별도 보안 필터 없음).
+- 무인증 경로(토큰 불요): `/api/v1/auth/**`, `/actuator/**`, 정적 이미지 서빙(`/images/**`), 스웨거(`/swagger-ui/**`, `/v3/api-docs/**`).
+  이들은 `@CurrentUserId` 를 받지 않아 자연히 열린다.
+- 실패: 토큰 없음·Bearer 형식 아님·서명/만료/형식 무효는 모두 401 `UNAUTHORIZED` "로그인이 필요해요.".
+- 데모 사용자 시드: username `demo` 를 만들어 그 id 로 시드 인물·기록을 소유한다(고정 id 하드코딩 없음).
+
+| 상황 | 입력 | 기대 결과 |
+|---|---|---|
+| 토큰 없이 보호 API | GET /api/v1/persons | 401 `UNAUTHORIZED` |
+| 데모 로그인 | POST /api/v1/auth/token `{"username":"demo"}` | 200 `{ token, userId, username }` |
+| 발급 토큰으로 조회 | GET /api/v1/persons + Bearer | 200, demo 소유 시드 인물 목록 |
 
 ## 검증 한도 (ValidationLimits) — §12.3 / §12.2 / §12.6
 
@@ -69,6 +89,6 @@
 
 - 서비스 계층 검증: `com.mongle.common.Validators` (length/required/notFuture/dateOrder/selectionCount/chipKindCount).
 - DTO 글자수: `@field:Size(max = ValidationLimits.X, message = "최대 {max}자까지 쓸 수 있어요.")`.
-- 현재 사용자: 컨트롤러 파라미터 `@CurrentUserId userId: Long` 또는 `CurrentUserProvider.userId()`.
+- 현재 사용자: 컨트롤러 파라미터 `@CurrentUserId userId: Long` (JWT Bearer 토큰에서 해석 — 위 인증 절).
 - 이미지: `ImageStorageService.store(file): StoredImage(filename, url)` — 용도별 개수는 도메인이 강제.
 - 소프트삭제 엔티티: `com.mongle.domain.SoftDeletableEntity` 상속 → `softDelete()` / `deleted`.
