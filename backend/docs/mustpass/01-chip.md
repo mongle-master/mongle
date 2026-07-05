@@ -52,16 +52,16 @@
 
 | 상황 | 입력 | 기대 결과 |
 |---|---|---|
-| 종류별 조회 | GET /api/chips?type=EMOTION | 공통(안 숨김)+개인(active), 공통 먼저·order 순 |
-| 라벨 빈값 | POST /api/chips | 400 `REQUIRED_FIELD` "칩 이름을 입력해 주세요." |
-| 라벨 11자 | POST /api/chips | 400 `LENGTH_EXCEEDED` "최대 10자까지 쓸 수 있어요." |
-| 공통 라벨과 동일 | POST /api/chips | 409 `DUPLICATE` |
-| 같은 종류 개인 칩 31번째 | POST /api/chips | 400 `CHIP_LIMIT` |
-| 다른 종류엔 같은 라벨 | POST /api/chips | 201 (종류 독립) |
-| 개인 칩 이름 변경 | PATCH /api/chips/{id} | 200, id 유지·label 변경 |
-| 공통 칩 이름 변경 | PATCH /api/chips/{공통id} | 404 `NOT_FOUND` |
-| 개인 칩 삭제 | DELETE /api/chips/{개인id} | 204, deletedAt 세팅, 목록서 제외 |
-| 공통 칩 삭제 | DELETE /api/chips/{공통id} | 204, 나만 숨김, 타인 목록 불변 |
-| 마지막 카테고리 삭제/숨김 | DELETE /api/chips/{카테고리id} | 400 `CATEGORY_REQUIRED` |
+| 종류별 조회 | GET /api/v1/chips?type=EMOTION | 공통(안 숨김)+개인(active), 공통 먼저·order 순 |
+| 라벨 빈값 | POST /api/v1/chips | 400 `REQUIRED_FIELD` "칩 이름을 입력해 주세요." |
+| 라벨 11자 | POST /api/v1/chips | 400 `LENGTH_EXCEEDED` "최대 10자까지 쓸 수 있어요." |
+| 공통 라벨과 동일 | POST /api/v1/chips | 409 `DUPLICATE` |
+| 같은 종류 개인 칩 31번째 | POST /api/v1/chips | 400 `CHIP_LIMIT` |
+| 다른 종류엔 같은 라벨 | POST /api/v1/chips | 201 (종류 독립) |
+| 개인 칩 이름 변경 | PATCH /api/v1/chips/{id} | 200, id 유지·label 변경 |
+| 공통 칩 이름 변경 | PATCH /api/v1/chips/{공통id} | 404 `NOT_FOUND` |
+| 개인 칩 삭제 | DELETE /api/v1/chips/{개인id} | 204, deletedAt 세팅, 목록서 제외 |
+| 공통 칩 삭제 | DELETE /api/v1/chips/{공통id} | 204, 나만 숨김, 타인 목록 불변 |
+| 마지막 카테고리 삭제/숨김 | DELETE /api/v1/chips/{카테고리id} | 400 `CATEGORY_REQUIRED` |
 | 기본 카테고리(만남) 숨김 후 조회 | GET ?type=CATEGORY | 다음 순서(연락)가 기본으로 표시 |
 | 소프트삭제된 칩 참조 기록 조회 | (기록 도메인) | 라벨 값 그대로 보임(00-infra) |

@@ -60,9 +60,9 @@
 | 같은 종류 칩 이름 중복 | 칩 생성 | 409 `DUPLICATE` |
 | 개인 칩 31번째 생성 | 칩 생성 | 400 `CHIP_LIMIT` |
 | 감정 6개 선택 | 기록 저장 | 400 `SELECTION_LIMIT` |
-| 12MB png 업로드 | POST /api/images | 400 `IMAGE_TOO_LARGE` |
-| gif 업로드 | POST /api/images | 400 `UNSUPPORTED_IMAGE_TYPE` |
-| jpg 업로드 | POST /api/images | 201 `{ url }`, urlPath 로 정적 서빙됨 |
+| 12MB png 업로드 | POST /api/v1/images | 400 `IMAGE_TOO_LARGE` |
+| gif 업로드 | POST /api/v1/images | 400 `UNSUPPORTED_IMAGE_TYPE` |
+| jpg 업로드 | POST /api/v1/images | 201 `{ url }`, urlPath 로 정적 서빙됨 |
 | 소프트삭제된 칩 참조 기록 조회 | GET 기록 | 라벨 값이 그대로 보인다 |
 
 ## 후속 에이전트 사용법 (재사용 진입점)
@@ -71,4 +71,4 @@
 - DTO 글자수: `@field:Size(max = ValidationLimits.X, message = "최대 {max}자까지 쓸 수 있어요.")`.
 - 현재 사용자: 컨트롤러 파라미터 `@CurrentUserId userId: Long` 또는 `CurrentUserProvider.userId()`.
 - 이미지: `ImageStorageService.store(file): StoredImage(filename, url)` — 용도별 개수는 도메인이 강제.
-- 소프트삭제 엔티티: `com.mongle.domain.SoftDeletableEntity` 상속 → `softDelete()` / `isDeleted`.
+- 소프트삭제 엔티티: `com.mongle.domain.SoftDeletableEntity` 상속 → `softDelete()` / `deleted`.

@@ -31,7 +31,7 @@
 ## 사진 (must, #35)
 
 - 기록당 **최대 5장**(`EVENT_PHOTO_MAX`). 초과면 400 `SELECTION_LIMIT`.
-- 미리 업로드된 경로(url) 참조 방식(`POST /api/images`, 프로필 사진과 동일 컨벤션). **첨부 순서 보존**.
+- 미리 업로드된 경로(url) 참조 방식(`POST /api/v1/images`, 프로필 사진과 동일 컨벤션). **첨부 순서 보존**.
 
 ## 자동 제목 (must, #37)
 
@@ -66,34 +66,34 @@
 
 ## 단건 조회 · 수정 (must, #38)
 
-- `GET /api/events/{id}` — 수정 모드 재사용용 상세: 연결 인물(id+이름)·칩(id+라벨, 감정/날씨/카테고리)·사진·왜·무엇을·날짜·시간·(계산된)제목. 내 소유·active 만, 아니면 404 `NOT_FOUND`.
-- `PUT /api/events/{id}` — 등록과 **동일 검증**으로 전체 수정. 칩·인물·사진은 보낸 값으로 **교체**. 내 소유·active 만, 아니면 404 `NOT_FOUND`.
+- `GET /api/v1/events/{id}` — 수정 모드 재사용용 상세: 연결 인물(id+이름)·칩(id+라벨, 감정/날씨/카테고리)·사진·왜·무엇을·날짜·시간·(계산된)제목. 내 소유·active 만, 아니면 404 `NOT_FOUND`.
+- `PUT /api/v1/events/{id}` — 등록과 **동일 검증**으로 전체 수정. 칩·인물·사진은 보낸 값으로 **교체**. 내 소유·active 만, 아니면 404 `NOT_FOUND`.
 - **수정 파생 일관성 한계(의도적):** 수정으로 만남 날짜가 **더 과거로** 바뀌어도 인물의 `마지막 만남`을 **되돌리지 않는다**(updateLastMetIfNewer 는 전진만). #30 파생 계산이 조회 시 이벤트 기준으로 다시 계산하므로 여기서 역계산까지 하지 않는다(과설계 회피).
 
 ## 계약 · 엣지 (표)
 
 | 상황 | 입력 | 기대 결과 |
 |---|---|---|
-| 연결 인물 0명 | POST /api/events | 400 `REQUIRED_FIELD` "함께한 사람을 한 명 이상 선택해 주세요." |
-| 타인/없는/삭제된 인물 id | POST /api/events | 404 `NOT_FOUND` |
-| 인물 1명만·나머지 미입력 | POST /api/events | 201, 카테고리=만남·날짜=오늘·제목 자동 |
-| 제목 41자 | POST /api/events | 400 `LENGTH_EXCEEDED` |
-| 왜/무엇을 101자 | POST /api/events | 400 `LENGTH_EXCEEDED` |
-| 감정 6개 | POST /api/events | 400 `SELECTION_LIMIT` |
-| 사진 6장 | POST /api/events | 400 `SELECTION_LIMIT` |
-| 감정 자리에 날씨 칩 id | POST /api/events | 404 `NOT_FOUND` |
-| 없는·타인 칩 id | POST /api/events | 404 `NOT_FOUND` |
-| 카테고리 미지정 | POST /api/events | 201, 기본 카테고리(만남) |
-| 날짜 미지정 | POST /api/events | 201, 오늘 |
-| 날짜 = 내일 | POST /api/events | 400 `FUTURE_DATE` |
-| 날짜 = 과거 | POST /api/events | 201 |
-| 만남 기록 저장(날짜 최신) | POST /api/events | 201, 각 인물 마지막 만남 = 기록 날짜 |
-| 만남 기록 저장(날짜 과거) | POST /api/events | 201, 인물 마지막 만남 불변 |
-| 제목 미입력·단일 인물 | GET /api/events/{id} | title = `{이름} · {카테고리}` |
-| 제목 미입력·3명 | GET /api/events/{id} | title = `{대표 이름} 외 2명 · {카테고리}` |
-| 인물/칩 rename 후 조회 | GET /api/events/{id} | 바뀐 이름·라벨로 보임(id 참조) |
-| 타인/없는 기록 조회·수정 | GET·PUT /api/events/{id} | 404 `NOT_FOUND` |
-| 소프트삭제된 칩 참조 조회 | GET /api/events/{id} | 라벨 값 그대로([00-infra](00-infra.md)) |
+| 연결 인물 0명 | POST /api/v1/events | 400 `REQUIRED_FIELD` "함께한 사람을 한 명 이상 선택해 주세요." |
+| 타인/없는/삭제된 인물 id | POST /api/v1/events | 404 `NOT_FOUND` |
+| 인물 1명만·나머지 미입력 | POST /api/v1/events | 201, 카테고리=만남·날짜=오늘·제목 자동 |
+| 제목 41자 | POST /api/v1/events | 400 `LENGTH_EXCEEDED` |
+| 왜/무엇을 101자 | POST /api/v1/events | 400 `LENGTH_EXCEEDED` |
+| 감정 6개 | POST /api/v1/events | 400 `SELECTION_LIMIT` |
+| 사진 6장 | POST /api/v1/events | 400 `SELECTION_LIMIT` |
+| 감정 자리에 날씨 칩 id | POST /api/v1/events | 404 `NOT_FOUND` |
+| 없는·타인 칩 id | POST /api/v1/events | 404 `NOT_FOUND` |
+| 카테고리 미지정 | POST /api/v1/events | 201, 기본 카테고리(만남) |
+| 날짜 미지정 | POST /api/v1/events | 201, 오늘 |
+| 날짜 = 내일 | POST /api/v1/events | 400 `FUTURE_DATE` |
+| 날짜 = 과거 | POST /api/v1/events | 201 |
+| 만남 기록 저장(날짜 최신) | POST /api/v1/events | 201, 각 인물 마지막 만남 = 기록 날짜 |
+| 만남 기록 저장(날짜 과거) | POST /api/v1/events | 201, 인물 마지막 만남 불변 |
+| 제목 미입력·단일 인물 | GET /api/v1/events/{id} | title = `{이름} · {카테고리}` |
+| 제목 미입력·3명 | GET /api/v1/events/{id} | title = `{대표 이름} 외 2명 · {카테고리}` |
+| 인물/칩 rename 후 조회 | GET /api/v1/events/{id} | 바뀐 이름·라벨로 보임(id 참조) |
+| 타인/없는 기록 조회·수정 | GET·PUT /api/v1/events/{id} | 404 `NOT_FOUND` |
+| 소프트삭제된 칩 참조 조회 | GET /api/v1/events/{id} | 라벨 값 그대로([00-infra](00-infra.md)) |
 
 ## 후속 에이전트가 소비하는 EventRepository 쿼리 (열어둠)
 

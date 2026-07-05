@@ -54,7 +54,7 @@
 
 - 필수는 **이름뿐**. 나머지(생일·처음/마지막 만난 날·프로필 사진·관계 유형·관계 태그·취향·즐겨찾기)는 모두 선택.
 - 날짜(#31)·글자수(§12.3)·관계 태그(#22)·취향(#23) 규칙을 모두 통과해야 저장한다.
-- 프로필 사진은 미리 업로드된 경로(url) 1장을 참조한다(업로드는 `POST /api/images`, [00-infra](00-infra.md)).
+- 프로필 사진은 미리 업로드된 경로(url) 1장을 참조한다(업로드는 `POST /api/v1/images`, [00-infra](00-infra.md)).
 
 ## 수정 (must, #26)
 
@@ -77,25 +77,25 @@
 
 | 상황 | 입력 | 기대 결과 |
 |---|---|---|
-| 이름 없음/공백 | POST /api/persons | 400 `REQUIRED_FIELD` "이름을 입력해 주세요." |
-| 이름 21자 | POST /api/persons | 400 `LENGTH_EXCEEDED` "최대 20자까지 쓸 수 있어요." |
-| 관계 유형 21자 | POST /api/persons | 400 `LENGTH_EXCEEDED` |
-| 처음 만난 날 = 내일 | POST /api/persons | 400 `FUTURE_DATE` |
-| 마지막 만난 날 < 처음 만난 날 | POST /api/persons | 400 `DATE_ORDER` |
-| 마지막 만난 날 = 내일 | POST /api/persons | 400 `FUTURE_DATE` |
-| 생일 연도 포함·미래 | POST /api/persons | 400 `FUTURE_DATE` |
-| 생일 연도 없이 월·일만 | POST /api/persons | 201 (미래 검사 없음) |
-| 관계 태그 11개 | POST /api/persons | 400 `SELECTION_LIMIT` |
-| 관계 태그에 감정 칩 id | POST /api/persons | 404 `NOT_FOUND` |
-| 좋아하는 것 항목 31자 | POST /api/persons | 400 `LENGTH_EXCEEDED` |
-| 좋아하는 것 21개 | POST /api/persons | 400 `SELECTION_LIMIT` |
-| 같은 목록 중복 항목 | POST /api/persons | 409 `DUPLICATE` |
-| 이름만 | POST /api/persons | 201, 즐겨찾기 false·빈 목록 |
-| 타인/없는 인물 수정 | PUT /api/persons/{id} | 404 `NOT_FOUND` |
-| 즐겨찾기 토글 | PATCH /api/persons/{id}/favorite | 200, favorite 반전 |
-| 이름순 조회 | GET /api/persons | 즐겨찾기 먼저, 그 안 이름 오름차순 |
-| 최근 만남순 조회 | GET /api/persons?sort=RECENT | 즐겨찾기 먼저, 그 안 마지막 만난 날 최신·null 뒤 |
-| 이름/관계유형 부분 검색 | GET /api/persons?query=김 | 대소문자 무시 부분 일치만 |
+| 이름 없음/공백 | POST /api/v1/persons | 400 `REQUIRED_FIELD` "이름을 입력해 주세요." |
+| 이름 21자 | POST /api/v1/persons | 400 `LENGTH_EXCEEDED` "최대 20자까지 쓸 수 있어요." |
+| 관계 유형 21자 | POST /api/v1/persons | 400 `LENGTH_EXCEEDED` |
+| 처음 만난 날 = 내일 | POST /api/v1/persons | 400 `FUTURE_DATE` |
+| 마지막 만난 날 < 처음 만난 날 | POST /api/v1/persons | 400 `DATE_ORDER` |
+| 마지막 만난 날 = 내일 | POST /api/v1/persons | 400 `FUTURE_DATE` |
+| 생일 연도 포함·미래 | POST /api/v1/persons | 400 `FUTURE_DATE` |
+| 생일 연도 없이 월·일만 | POST /api/v1/persons | 201 (미래 검사 없음) |
+| 관계 태그 11개 | POST /api/v1/persons | 400 `SELECTION_LIMIT` |
+| 관계 태그에 감정 칩 id | POST /api/v1/persons | 404 `NOT_FOUND` |
+| 좋아하는 것 항목 31자 | POST /api/v1/persons | 400 `LENGTH_EXCEEDED` |
+| 좋아하는 것 21개 | POST /api/v1/persons | 400 `SELECTION_LIMIT` |
+| 같은 목록 중복 항목 | POST /api/v1/persons | 409 `DUPLICATE` |
+| 이름만 | POST /api/v1/persons | 201, 즐겨찾기 false·빈 목록 |
+| 타인/없는 인물 수정 | PUT /api/v1/persons/{id} | 404 `NOT_FOUND` |
+| 즐겨찾기 토글 | PATCH /api/v1/persons/{id}/favorite | 200, favorite 반전 |
+| 이름순 조회 | GET /api/v1/persons | 즐겨찾기 먼저, 그 안 이름 오름차순 |
+| 최근 만남순 조회 | GET /api/v1/persons?sort=RECENT | 즐겨찾기 먼저, 그 안 마지막 만난 날 최신·null 뒤 |
+| 이름/관계유형 부분 검색 | GET /api/v1/persons?query=김 | 대소문자 무시 부분 일치만 |
 | 관계 태그 참조 칩 이름 변경 | (칩 이름 변경 후) 인물 조회 | 바뀐 라벨로 보임(id 참조) |
 
 ## 파생 스탯 (must, #30)
@@ -111,7 +111,7 @@
 
 ## 상세 조회 (must, #25)
 
-- `GET /api/persons/{id}` — 내 소유·active 만, 아니면 404 `NOT_FOUND`.
+- `GET /api/v1/persons/{id}` — 내 소유·active 만, 아니면 404 `NOT_FOUND`.
 - 응답 = 기본 정보(이름·생일·처음 만난 날·프로필 사진·관계 유형·즐겨찾기) + 관계 태그(id+라벨) + 취향(좋아하는 것/조심할 것) + **파생 스탯 섹션**(#30).
 - 상세의 `lastMetDate` 는 **재계산값**(수기+이벤트 max)을 내려, 표시 truth 를 단일화한다. (디렉토리 목록의 정렬용 `lastMetDate` 는 저장 필드 그대로 — 별개 관심사.)
 - 스탯 섹션 필드: 만난 횟수·새긴 기록 수·경과일(N일째)·알고 지낸 기간(표시 문자열)·마지막 만남 상대시간. 값이 없으면 null(프론트가 해당 행을 숨김 — §7).
@@ -119,7 +119,7 @@
 
 ## 삭제 (must, #27)
 
-- `DELETE /api/persons/{id}` → 204. **소프트삭제**. 내 소유·active 만, 아니면 404 `NOT_FOUND`.
+- `DELETE /api/v1/persons/{id}` → 204. **소프트삭제**. 내 소유·active 만, 아니면 404 `NOT_FOUND`.
 - **연결된 기록 처리:** 그 인물이 연결된 **active** 기록마다 이 인물을 **연결에서 제거**하고, 그 결과 **연결 인물이 0명이 되면**(마지막 연결이었으면) 그 기록도 **소프트삭제**한다.
   - 근거: PRD §7 은 "연결된 기록도 함께 사라진다"만 명시하고 **다인 연결 기록의 처리는 명시하지 않는다.** 데이터 보존 철학([00-infra](00-infra.md): 과거 참조 보존)과 #33 "연결 인물 ≥1" 불변식상, **다른 사람과도 함께한 기록을 그 사람 타임라인에서까지 지우는 통삭제는 부적절**하다 → 연결만 해제, 마지막 연결이면 삭제.
   - 대표(첫 번째) 인물이 제거되면 다음 인물이 대표가 되어 자동 제목(#37)이 조회 시 자연히 갱신된다(id 참조 철학과 일치).

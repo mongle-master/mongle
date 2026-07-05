@@ -7,7 +7,7 @@
 
 ## 관계 지도 구성 (must, #40)
 
-- `GET /api/home/relation-map` — 내 소유·active 인물만 대상. 응답 = `me`(중심 "나" 노드) + `nodes`(인물) + `edges`(나↔인물).
+- `GET /api/v1/home/relation-map` — 내 소유·active 인물만 대상. 응답 = `me`(중심 "나" 노드) + `nodes`(인물) + `edges`(나↔인물).
 - **노드** = 인물: id·이름·프로필 사진·즐겨찾기·관계태그(id+라벨)·친밀도(#41). 관계태그 라벨은 칩 id 로 해석(소프트삭제 칩도 라벨 유지, [00-infra](00-infra.md)).
 - **엣지** = 나↔각 인물 1개씩. 인물 간 연결은 PRD 미정의라 만들지 않는다. `distant` = 그 인물이 멀어진 관계인지(#41).
 - **노드 정렬:** 즐겨찾기 먼저 → 이름 가나다(대소문자 무시). 그래프 표시 결정성을 위한 것(관계 점수화·서열화 아님).
@@ -24,13 +24,13 @@
 
 ## 관계태그 필터 (must, #42)
 
-- `GET /api/home/relation-map?relationTagChipIds=1&relationTagChipIds=2` — 관계태그 chipId **다중 필터**.
+- `GET /api/v1/home/relation-map?relationTagChipIds=1&relationTagChipIds=2` — 관계태그 chipId **다중 필터**.
 - **합집합(OR):** 인물의 관계태그 중 **하나라도** 필터에 들면 포함(좁히기 아니라 넓혀 보기, PRD §5).
 - **빈 필터 = 전체.** 필터로 빠진 인물은 노드·엣지에서 **제외**(숨김 — 흐린 표시는 멀어진 관계 전용이라 섞지 않는다).
 
 ## 1년 전 오늘 회고 (must, #43)
 
-- `GET /api/home/throwback` — 기록의 `occurredDate` 가 **정확히 1년 전(같은 월·일, 연도 = 올해−1)** 인 기록. 카드 문구가 "1년 전 오늘"이라 여러 해 전 기록은 대상이 아니다.
+- `GET /api/v1/home/throwback` — 기록의 `occurredDate` 가 **정확히 1년 전(같은 월·일, 연도 = 올해−1)** 인 기록. 카드 문구가 "1년 전 오늘"이라 여러 해 전 기록은 대상이 아니다.
 - **윤년 2/29:** 오늘이 2/29 여도 작년(비윤년)에는 2/29 기록이 존재할 수 없다 → 연도 필터로 자연히 **빈 결과**(PRD §5: 해당 연도에 없으면 미노출). 별도 분기 불필요.
 - **복수면 1건 선정 우선순위:** ① 즐겨찾기 인물이 연결된 기록 → ② 사진 있는 기록 → ③ 카테고리가 `기념일` → ④ 그날 **이른 시각**(시간 없으면 뒤) → ⑤ 먼저 남긴 것(id 오름차순).
 - **없으면 빈 결과** → `204 No Content`(프론트 플로팅 미노출).
@@ -41,19 +41,19 @@
 
 | 상황 | 입력 | 기대 결과 |
 |---|---|---|
-| 인물 0명 | GET /api/home/relation-map | 200, nodes·edges 빈 배열, me 포함 |
+| 인물 0명 | GET /api/v1/home/relation-map | 200, nodes·edges 빈 배열, me 포함 |
 | 만남 날짜 1개 이하 인물 | (관계 지도) | intimacy.status = UNKNOWN, edge.distant = false |
 | 평균 주기 30일·마지막 만남 90일 전 | (관계 지도) | status = DISTANT (90 > 30×2) |
 | 평균 주기 30일·마지막 만남 40일 전 | (관계 지도) | status = NORMAL (40 ≤ 60) |
 | 태그 A·B 다중 선택 | ?relationTagChipIds=A&relationTagChipIds=B | A 또는 B 가진 인물 모두(OR) |
 | 태그 필터 결과 0명 | (관계 지도) | 200, nodes·edges 빈 배열 |
-| 1년 전 같은 월·일 기록 없음 | GET /api/home/throwback | 204 No Content |
-| 1년 전 오늘 복수 기록 | GET /api/home/throwback | 200, 우선순위로 1건 |
-| 오늘이 2/29·작년 비윤년 | GET /api/home/throwback | 204 No Content |
-| 기록 제목 미입력 | GET /api/home/throwback | 200, title = null |
+| 1년 전 같은 월·일 기록 없음 | GET /api/v1/home/throwback | 204 No Content |
+| 1년 전 오늘 복수 기록 | GET /api/v1/home/throwback | 200, 우선순위로 1건 |
+| 오늘이 2/29·작년 비윤년 | GET /api/v1/home/throwback | 204 No Content |
+| 기록 제목 미입력 | GET /api/v1/home/throwback | 200, title = null |
 
 ## 재사용 진입점 (열어둠)
 
-- `Intimacy.of(meetingDatesDesc, today)` — 친밀도 판정 정책(#41). 임계값 상수는 `Intimacy` companion.
+- `IntimacyCalculator.of(meetingDatesDesc, today)` — 친밀도 판정 정책(#41). 임계값 상수는 `IntimacyCalculator`.
 - `ChipService.anniversaryCategoryId()` — 회고 우선순위 ③(기념일) 판정용. `meetingCategoryId()` 와 동형(공통 칩 라벨 앵커).
 </content>
