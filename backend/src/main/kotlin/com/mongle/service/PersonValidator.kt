@@ -1,5 +1,6 @@
 package com.mongle.service
 
+import com.mongle.common.ValidationLimits
 import com.mongle.common.Validators
 import com.mongle.common.exception.BusinessException
 import com.mongle.common.exception.ErrorCode
@@ -31,6 +32,16 @@ object PersonValidator {
             Validators.notFuture(it, today)
             Validators.dateOrder(firstMetDate, it)
         }
+    }
+
+    /**
+     * 관계 태그(#22): 인물당 최대 10개, 그리고 실제로 고를 수 있는 RELATION_TAG 칩(allowedIds)만.
+     * allowedIds 는 서비스가 ChipService.visibleChips(RELATION_TAG) 로 만들어 넘긴다 —
+     * 존재하지 않거나 다른 종류·타인 칩이면 여기 없어 NOT_FOUND.
+     */
+    fun validateRelationTags(chipIds: List<Long>, allowedIds: Set<Long>) {
+        Validators.maxSelection(chipIds.size, ValidationLimits.RELATION_TAG_PER_PERSON_MAX)
+        if (chipIds.any { it !in allowedIds }) throw BusinessException(ErrorCode.NOT_FOUND)
     }
 
     /** 월·일은 함께 있거나 함께 없다. 실제 달력에 없는 날은 거절. 연도가 있으면 그 날짜가 미래일 수 없다. */

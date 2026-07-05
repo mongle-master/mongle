@@ -1,11 +1,14 @@
 package com.mongle.domain
 
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
 import java.time.LocalDate
 
@@ -48,6 +51,18 @@ class Person(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
+
+    // 관계 태그: RELATION_TAG 칩 id 만 참조(라벨은 칩에서 해석). 홈 그룹화·필터의 근거. #22
+    @ElementCollection
+    @CollectionTable(name = "person_relation_tag", joinColumns = [JoinColumn(name = "person_id")])
+    @Column(name = "chip_id")
+    val relationTagChipIds: MutableList<Long> = mutableListOf()
+
+    /** 관계 태그 전체 교체(수정 시 보낸 값으로 갈아끼움). */
+    fun replaceRelationTags(chipIds: List<Long>) {
+        relationTagChipIds.clear()
+        relationTagChipIds.addAll(chipIds)
+    }
 
     /**
      * 기록(event)이 더 최근 만남을 반영하는 진입점(파생 단계 #30). 더 최근일 때만 앞당긴다.
