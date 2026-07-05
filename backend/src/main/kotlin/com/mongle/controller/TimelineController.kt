@@ -3,6 +3,7 @@ package com.mongle.controller
 import com.mongle.common.context.CurrentUserId
 import com.mongle.controller.dto.ActivityFlowResponse
 import com.mongle.controller.dto.EventResponse
+import com.mongle.controller.dto.MyTimelineResponse
 import com.mongle.service.TimelineService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -29,4 +30,11 @@ class TimelineController(
         @CurrentUserId userId: Long,
         @PathVariable personId: Long,
     ): ActivityFlowResponse = timelineService.activityFlow(userId, personId)
+
+    @GetMapping("/api/timeline")
+    fun myTimeline(
+        @CurrentUserId userId: Long,
+        @RequestParam(required = false) categoryChipIds: List<Long>?,
+        @RequestParam(required = false) personIds: List<Long>?,
+    ): MyTimelineResponse = timelineService.myTimeline(userId, categoryChipIds.orEmpty(), personIds.orEmpty())
 }
