@@ -23,14 +23,17 @@ data class ChipResponse(
     // 개인 칩 여부(공통=false). 클라이언트가 이름변경·삭제 가능 여부를 판단한다.
     val personal: Boolean,
     val order: Int,
+    // 카테고리에서만 의미 — 기록 작성 시 기본 선택할 칩. 다른 종류는 항상 false.
+    val default: Boolean,
 ) {
     companion object {
-        fun from(chip: Chip): ChipResponse = ChipResponse(
+        fun from(chip: Chip, defaultChipId: Long? = null): ChipResponse = ChipResponse(
             id = requireNotNull(chip.id) { "저장되지 않은 Chip은 응답으로 변환할 수 없습니다." },
             type = chip.type,
             label = chip.label,
             personal = !chip.isCommon,
             order = chip.displayOrder,
+            default = chip.id == defaultChipId,
         )
     }
 }

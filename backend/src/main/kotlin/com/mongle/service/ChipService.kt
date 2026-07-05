@@ -66,10 +66,26 @@ class ChipService(
     @Transactional
     fun delete(userId: Long, chipId: Long) {
         val chip = chipRepository.findById(chipId).orElseThrow { BusinessException(ErrorCode.NOT_FOUND) }
+        assertCategoryMinimum(userId, chip)
         when {
             chip.isCommon -> hideCommon(userId, chip)
             chip.ownerId == userId -> chip.softDelete()
             else -> throw BusinessException(ErrorCode.NOT_FOUND)
+        }
+    }
+
+    /**
+     * 기록 작성 시 기본 선택할 카테고리 = 사용자 시점 카테고리 목록의 첫 칩(공통 먼저·order 순).
+     * 시드상 `만남` 이 기본이고, 그게 삭제·숨김되면 다음 순서가 자연히 승계된다.
+     */
+    fun defaultCategoryId(userId: Long): Long? = visibleChips(userId, ChipType.CATEGORY).firstOrNull()?.id
+
+    /** 카테고리는 사용자 시점 목록이 최소 1개 유지 — 현재 보이는 마지막 1개를 지우려 하면 거절. */
+    private fun assertCategoryMinimum(userId: Long, chip: Chip) {
+        if (chip.type != ChipType.CATEGORY) return
+        val visible = visibleChips(userId, ChipType.CATEGORY)
+        if (visible.size <= 1 && visible.any { it.id == chip.id }) {
+            throw BusinessException(ErrorCode.CATEGORY_REQUIRED)
         }
     }
 

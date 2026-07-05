@@ -27,7 +27,10 @@ class ChipController(
     fun list(
         @CurrentUserId userId: Long,
         @RequestParam type: ChipType,
-    ): List<ChipResponse> = chipService.visibleChips(userId, type).map(ChipResponse::from)
+    ): List<ChipResponse> {
+        val defaultId = if (type == ChipType.CATEGORY) chipService.defaultCategoryId(userId) else null
+        return chipService.visibleChips(userId, type).map { ChipResponse.from(it, defaultId) }
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
