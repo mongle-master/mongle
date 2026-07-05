@@ -14,7 +14,7 @@
 
 ## 연결 인물 (must, #33)
 
-- 기록↔인물 다대다를 **id 참조 컬렉션**(`personIds`, 순서 보존)으로 표현한다. 대표 인물 = **첫 번째** 연결 인물.
+- 기록↔인물 다대다는 **명시적 조인 엔티티**(`EventPerson`, id 참조·순서 보존)로 표현한다. 대표 인물 = **displayOrder 0**(첫 번째) 연결 인물.
 - **최소 1명 필수.** 비면 400 `REQUIRED_FIELD` "함께한 사람을 한 명 이상 선택해 주세요.".
 - **내 소유·active(미삭제) 인물만** 연결. 없거나·타인·삭제된 인물 id 가 섞이면 404 `NOT_FOUND`.
 - 다중 연결 시 각 인물이 모두 파생 갱신 대상(아래 #36).
@@ -106,4 +106,4 @@
 - `findByPersonIdAndOccurredDateBetween(personId, from, to)` — 날짜 범위(#41 친밀도).
 - `findByOwnerIdAndMonthDay(ownerId, month, day)` — 1년 전 오늘 회고(#43, 같은 월·일).
 
-> 인물별 쿼리는 `personIds` element-collection JOIN(JPQL) 기반이다 — 파생·홈·타임라인이 이 진입점을 확장한다.
+> 인물별 쿼리는 `EventPerson` 조인 엔티티 JOIN(JPQL) 기반이다 — 파생·홈·타임라인이 이 진입점을 확장한다.
