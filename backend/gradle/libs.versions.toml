@@ -13,6 +13,9 @@ ktlint-plugin = "14.2.0"
 # Logging
 kotlin-logging = "7.0.3"
 
+# Auth
+jjwt = "0.12.6"
+
 # Testing
 spring-mockk = "4.0.2"
 
@@ -40,6 +43,11 @@ jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-
 
 # Logging
 kotlin-logging-jvm = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging" }
+
+# Auth (JWT)
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
 
 # Database drivers
 h2 = { module = "com.h2database:h2" }

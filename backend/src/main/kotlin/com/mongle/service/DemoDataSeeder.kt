@@ -1,6 +1,5 @@
 package com.mongle.service
 
-import com.mongle.common.context.DEMO_USER_ID
 import com.mongle.domain.Chip
 import com.mongle.domain.ChipType
 import com.mongle.domain.Event
@@ -8,12 +7,14 @@ import com.mongle.domain.EventEmotion
 import com.mongle.domain.EventPerson
 import com.mongle.domain.Person
 import com.mongle.domain.PersonRelationTag
+import com.mongle.domain.User
 import com.mongle.repository.ChipRepository
 import com.mongle.repository.EventEmotionRepository
 import com.mongle.repository.EventPersonRepository
 import com.mongle.repository.EventRepository
 import com.mongle.repository.PersonRelationTagRepository
 import com.mongle.repository.PersonRepository
+import com.mongle.repository.UserRepository
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.core.annotation.Order
@@ -22,12 +23,18 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalTime
 
+/** 데모 로그인 username. POST /api/v1/auth/token {"username":"demo"} 로 이 시드를 소유한 사용자에 접속한다. */
+private const val DEMO_USERNAME = "demo"
+
 /**
- * 데모 사용자(DEMO_USER_ID) 소유의 데모 인물·기록 시드 (#13).
+ * 데모 사용자('demo') 소유의 데모 인물·기록 시드 (#13).
  *
- * 왜 항상 실행하나(개발 프로파일 게이팅 없음): 이 저장소는 로컬 단일 사용자 데모다.
+ * 왜 항상 실행하나(개발 프로파일 게이팅 없음): 이 저장소는 로컬 데모다.
  * 앱을 처음 켠 사람이 곧바로 관계지도·타임라인·1년 전 오늘·친밀도를 볼 수 있어야 데모가 성립한다.
  * 공통 칩 시드(ChipSeeder)도 같은 이유로 프로파일 없이 항상 멱등 실행하므로 그 컨벤션을 따른다.
+ *
+ * 소유자 id 는 고정하지 않는다 — 데모 사용자를 먼저 만들고(없으면) 그 id 로 시드 소유를 지정한다.
+ * 유저 식별은 JWT 로 하며, 이 사용자는 그 토큰이 가리키는 실제 사용자 레코드다.
  *
  * 멱등: 데모 사용자에게 인물이 이미 하나라도 있으면 통째로 스킵한다(파일 H2 재기동 시 중복 금지).
  * 관계태그 개인 칩도 라벨 존재로 재사용한다.
@@ -40,6 +47,7 @@ import java.time.LocalTime
 @Order(2)
 @Component
 class DemoDataSeeder(
+    private val userRepository: UserRepository,
     private val personRepository: PersonRepository,
     private val eventRepository: EventRepository,
     private val chipRepository: ChipRepository,
@@ -49,12 +57,13 @@ class DemoDataSeeder(
 ) : ApplicationRunner {
     @Transactional
     override fun run(args: ApplicationArguments?) {
-        if (personRepository.findByOwnerIdAndDeletedAtIsNull(DEMO_USER_ID).isNotEmpty()) return
+        val ownerId = demoUserId()
+        if (personRepository.findByOwnerIdAndDeletedAtIsNull(ownerId).isNotEmpty()) return
 
         val today = LocalDate.now()
 
         // 관계태그는 공통용이 없어(01-chip) 데모 사용자 개인 칩으로 먼저 시드한다. 라벨→id 로 인물이 참조.
-        val relationTagIds = ensureRelationTags(listOf("가족", "친구", "직장", "대학동기", "동네"))
+        val relationTagIds = ensureRelationTags(ownerId, listOf("가족", "친구", "직장", "대학동기", "동네"))
 
         // 기록·인물이 참조할 공통 칩(감정·날씨·카테고리)을 라벨→id 로 해석.
         val category = commonChipIds(ChipType.CATEGORY)
@@ -64,7 +73,7 @@ class DemoDataSeeder(
         // 인물 3~5명: 관계유형·태그·취향·생일(연도 유무 섞음)·처음/마지막 만난 날 다양하게.
         val seoyeon = personRepository.save(
             Person(
-                ownerId = DEMO_USER_ID,
+                ownerId = ownerId,
                 name = "김서연",
                 relationType = "대학 친구",
                 birthYear = 1995, birthMonth = 4, birthDay = 12,
@@ -79,7 +88,7 @@ class DemoDataSeeder(
         saveRelationTags(seoyeon.id!!, tagIds(relationTagIds, "친구", "대학동기"))
         val junho = personRepository.save(
             Person(
-                ownerId = DEMO_USER_ID,
+                ownerId = ownerId,
                 name = "이준호",
                 relationType = "회사 동료",
                 // 생일 연도 생략(월·일만) — 연도-선택 케이스 데모.
@@ -94,7 +103,7 @@ class DemoDataSeeder(
         saveRelationTags(junho.id!!, tagIds(relationTagIds, "직장"))
         val minji = personRepository.save(
             Person(
-                ownerId = DEMO_USER_ID,
+                ownerId = ownerId,
                 name = "박민지",
                 relationType = "동생",
                 birthYear = 2000,
@@ -108,7 +117,7 @@ class DemoDataSeeder(
         saveRelationTags(minji.id!!, tagIds(relationTagIds, "가족"))
         val yunseo = personRepository.save(
             Person(
-                ownerId = DEMO_USER_ID,
+                ownerId = ownerId,
                 name = "최윤서",
                 relationType = "동네 친구",
                 // 생일 없음.
@@ -122,7 +131,7 @@ class DemoDataSeeder(
         saveRelationTags(yunseo.id!!, tagIds(relationTagIds, "동네", "친구"))
         val hajun = personRepository.save(
             Person(
-                ownerId = DEMO_USER_ID,
+                ownerId = ownerId,
                 name = "정하준",
                 relationType = "동아리 후배",
                 birthYear = 1998,
@@ -136,39 +145,46 @@ class DemoDataSeeder(
 
         // 기록 8건: 만남/연락/기념일 섞고 감정·날씨·왜·무엇을 다양하게, 과거 여러 달에 분산.
         // '정확히 1년 전 오늘' 1건 포함(1년 전 오늘·활동흐름·친밀도 데모 성립 조건, #13).
-        seedEvent(today.minusYears(1), category["만남"]!!, weather["맑음"], listOf(hajun.id!!), emotionIds(emotion, "반가움", "즐거움")) {
+        seedEvent(ownerId, today.minusYears(1), category["만남"]!!, weather["맑음"], listOf(hajun.id!!), emotionIds(emotion, "반가움", "즐거움")) {
             why = "오랜만에 얼굴 보고 싶어서"
             what = "한강 피크닉"
         }
-        seedEvent(today.minusDays(3), category["만남"]!!, weather["흐림"], listOf(seoyeon.id!!), emotionIds(emotion, "편안", "고마움")) {
+        seedEvent(ownerId, today.minusDays(3), category["만남"]!!, weather["흐림"], listOf(seoyeon.id!!), emotionIds(emotion, "편안", "고마움")) {
             occurredTime = LocalTime.of(15, 0)
             title = "서연이랑 카페"
             why = "시험 끝나고 기분전환"
             what = "홍대 카페에서 수다"
         }
-        seedEvent(today.minusDays(10), category["만남"]!!, weather["더움"], listOf(yunseo.id!!), emotionIds(emotion, "즐거움")) {
+        seedEvent(ownerId, today.minusDays(10), category["만남"]!!, weather["더움"], listOf(yunseo.id!!), emotionIds(emotion, "즐거움")) {
             what = "동네 저녁 산책"
         }
-        seedEvent(today.minusMonths(1), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
+        seedEvent(ownerId, today.minusMonths(1), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
             why = "문득 생각나서"
             what = "오랜만에 안부 전화"
         }
-        seedEvent(today.minusMonths(2), category["만남"]!!, weather["맑음"], listOf(minji.id!!, seoyeon.id!!), emotionIds(emotion, "반가움", "편안", "즐거움")) {
+        seedEvent(ownerId, today.minusMonths(2), category["만남"]!!, weather["맑음"], listOf(minji.id!!, seoyeon.id!!), emotionIds(emotion, "반가움", "편안", "즐거움")) {
             why = "엄마 생신"
             what = "가족 모임 겸 저녁"
         }
-        seedEvent(today.minusMonths(4), category["기념일"]!!, weather["쌀쌀"], listOf(seoyeon.id!!), emotionIds(emotion, "뭉클", "고마움")) {
+        seedEvent(ownerId, today.minusMonths(4), category["기념일"]!!, weather["쌀쌀"], listOf(seoyeon.id!!), emotionIds(emotion, "뭉클", "고마움")) {
             title = "서연 생일"
             why = "10년지기 생일"
             what = "생일 축하 저녁"
         }
-        seedEvent(today.minusMonths(7), category["만남"]!!, weather["비"], listOf(hajun.id!!, yunseo.id!!), emotionIds(emotion, "즐거움", "그냥")) {
+        seedEvent(ownerId, today.minusMonths(7), category["만남"]!!, weather["비"], listOf(hajun.id!!, yunseo.id!!), emotionIds(emotion, "즐거움", "그냥")) {
             what = "동아리 번개 모임"
         }
-        seedEvent(today.minusMonths(9), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
+        seedEvent(ownerId, today.minusMonths(9), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
             why = "협업 논의"
             what = "프로젝트 관련 메시지"
         }
+    }
+
+    /** 데모 사용자를 보장(없으면 생성)하고 그 id 를 돌려준다. 이 id 가 시드 소유자다. */
+    private fun demoUserId(): Long {
+        val user = userRepository.findByUsername(DEMO_USERNAME)
+            ?: userRepository.save(User(username = DEMO_USERNAME))
+        return user.id!!
     }
 
     /** 데모 사용자 관계태그 조인 행을 순서대로 심는다. */
@@ -179,14 +195,14 @@ class DemoDataSeeder(
     }
 
     /** 데모 사용자 개인 관계태그 칩을 라벨로 보장(있으면 재사용)하고 라벨→id 를 돌려준다. */
-    private fun ensureRelationTags(labels: List<String>): Map<String, Long> {
+    private fun ensureRelationTags(ownerId: Long, labels: List<String>): Map<String, Long> {
         val existing = chipRepository
-            .findByTypeAndOwnerIdAndDeletedAtIsNullOrderByDisplayOrderAsc(ChipType.RELATION_TAG, DEMO_USER_ID)
+            .findByTypeAndOwnerIdAndDeletedAtIsNullOrderByDisplayOrderAsc(ChipType.RELATION_TAG, ownerId)
             .associateBy { it.label }
         var order = existing.values.maxOfOrNull { it.displayOrder }?.plus(1) ?: 0
         return labels.associateWith { label ->
             val chip = existing[label] ?: chipRepository.save(
-                Chip(type = ChipType.RELATION_TAG, ownerId = DEMO_USER_ID, label = label, displayOrder = order++),
+                Chip(type = ChipType.RELATION_TAG, ownerId = ownerId, label = label, displayOrder = order++),
             )
             chip.id!!
         }
@@ -202,6 +218,7 @@ class DemoDataSeeder(
 
     /** 기록 1건을 저장하고 연결 인물·감정 조인 행을 순서대로 심는다(대표 인물 = personIds 첫 번째). */
     private fun seedEvent(
+        ownerId: Long,
         date: LocalDate,
         categoryChipId: Long,
         weatherChipId: Long?,
@@ -211,7 +228,7 @@ class DemoDataSeeder(
     ) {
         val event = eventRepository.save(
             Event(
-                ownerId = DEMO_USER_ID,
+                ownerId = ownerId,
                 occurredDate = date,
                 categoryChipId = categoryChipId,
                 weatherChipId = weatherChipId,

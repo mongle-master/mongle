@@ -35,6 +35,10 @@ mongle:
     url-path: /images
     max-bytes: 10MB
     allowed-extensions: jpg,jpeg,png,heic,webp
+  # 데모 JWT. secret 은 HS256 최소 길이(32바이트) 이상. 데모라 만료를 길게(30일) 둔다.
+  jwt:
+    secret: mongle-demo-hs256-secret-key-please-change-in-prod
+    expiration: 30d
 
 management:
   endpoints:

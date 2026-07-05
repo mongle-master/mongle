@@ -35,6 +35,11 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.actuator)
 
+    // Auth (JWT) — api 는 컴파일, impl·jackson 은 런타임 구현체.
+    implementation(libs.jjwt.api)
+    runtimeOnly(libs.jjwt.impl)
+    runtimeOnly(libs.jjwt.jackson)
+
     // Config metadata (application.yml auto-completion)
     annotationProcessor(libs.spring.boot.configuration.processor)
 
