@@ -4,9 +4,15 @@ import com.mongle.common.context.DEMO_USER_ID
 import com.mongle.domain.Chip
 import com.mongle.domain.ChipType
 import com.mongle.domain.Event
+import com.mongle.domain.EventEmotion
+import com.mongle.domain.EventPerson
 import com.mongle.domain.Person
+import com.mongle.domain.PersonRelationTag
 import com.mongle.repository.ChipRepository
+import com.mongle.repository.EventEmotionRepository
+import com.mongle.repository.EventPersonRepository
 import com.mongle.repository.EventRepository
+import com.mongle.repository.PersonRelationTagRepository
 import com.mongle.repository.PersonRepository
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -37,6 +43,9 @@ class SampleDataSeeder(
     private val personRepository: PersonRepository,
     private val eventRepository: EventRepository,
     private val chipRepository: ChipRepository,
+    private val personRelationTagRepository: PersonRelationTagRepository,
+    private val eventPersonRepository: EventPersonRepository,
+    private val eventEmotionRepository: EventEmotionRepository,
 ) : ApplicationRunner {
     @Transactional
     override fun run(args: ApplicationArguments?) {
@@ -63,11 +72,11 @@ class SampleDataSeeder(
                 lastMetDate = today.minusDays(3),
                 favorite = true,
             ).apply {
-                replaceRelationTags(tagIds(relationTagIds, "친구", "대학동기"))
                 replaceLikes(listOf("카페 투어", "산책"))
                 replaceCautions(listOf("매운 음식"))
             },
         )
+        saveRelationTags(seoyeon.id!!, tagIds(relationTagIds, "친구", "대학동기"))
         val junho = personRepository.save(
             Person(
                 ownerId = DEMO_USER_ID,
@@ -79,10 +88,10 @@ class SampleDataSeeder(
                 firstMetDate = today.minusMonths(14),
                 lastMetDate = today.minusMonths(1),
             ).apply {
-                replaceRelationTags(tagIds(relationTagIds, "직장"))
                 replaceLikes(listOf("커피", "러닝"))
             },
         )
+        saveRelationTags(junho.id!!, tagIds(relationTagIds, "직장"))
         val minji = personRepository.save(
             Person(
                 ownerId = DEMO_USER_ID,
@@ -94,10 +103,9 @@ class SampleDataSeeder(
                 // 가족이라 처음 만난 날은 비워 둠(선택 필드) — lastMet 만 있는 케이스.
                 lastMetDate = today.minusMonths(2),
                 favorite = true,
-            ).apply {
-                replaceRelationTags(tagIds(relationTagIds, "가족"))
-            },
+            ),
         )
+        saveRelationTags(minji.id!!, tagIds(relationTagIds, "가족"))
         val yunseo = personRepository.save(
             Person(
                 ownerId = DEMO_USER_ID,
@@ -107,11 +115,11 @@ class SampleDataSeeder(
                 firstMetDate = today.minusYears(1).minusMonths(2),
                 lastMetDate = today.minusDays(10),
             ).apply {
-                replaceRelationTags(tagIds(relationTagIds, "동네", "친구"))
                 replaceLikes(listOf("떡볶이"))
                 replaceCautions(listOf("늦은 약속"))
             },
         )
+        saveRelationTags(yunseo.id!!, tagIds(relationTagIds, "동네", "친구"))
         val hajun = personRepository.save(
             Person(
                 ownerId = DEMO_USER_ID,
@@ -122,53 +130,52 @@ class SampleDataSeeder(
                 birthDay = 30,
                 firstMetDate = today.minusYears(2),
                 lastMetDate = today.minusYears(1),
-            ).apply {
-                replaceRelationTags(tagIds(relationTagIds, "대학동기", "친구"))
-            },
+            ),
         )
+        saveRelationTags(hajun.id!!, tagIds(relationTagIds, "대학동기", "친구"))
 
         // 기록 8건: 만남/연락/기념일 섞고 감정·날씨·왜·무엇을 다양하게, 과거 여러 달에 분산.
         // '정확히 1년 전 오늘' 1건 포함(1년 전 오늘·활동흐름·친밀도 데모 성립 조건, #13).
-        val events = listOf(
-            newEvent(today.minusYears(1), category["만남"]!!, weather["맑음"], listOf(hajun.id!!), emotionIds(emotion, "반가움", "즐거움"))
-                .apply {
-                    why = "오랜만에 얼굴 보고 싶어서"
-                    what = "한강 피크닉"
-                },
-            newEvent(today.minusDays(3), category["만남"]!!, weather["흐림"], listOf(seoyeon.id!!), emotionIds(emotion, "편안", "고마움"))
-                .apply {
-                    occurredTime = LocalTime.of(15, 0)
-                    title = "서연이랑 카페"
-                    why = "시험 끝나고 기분전환"
-                    what = "홍대 카페에서 수다"
-                },
-            newEvent(today.minusDays(10), category["만남"]!!, weather["더움"], listOf(yunseo.id!!), emotionIds(emotion, "즐거움"))
-                .apply { what = "동네 저녁 산책" },
-            newEvent(today.minusMonths(1), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥"))
-                .apply {
-                    why = "문득 생각나서"
-                    what = "오랜만에 안부 전화"
-                },
-            newEvent(today.minusMonths(2), category["만남"]!!, weather["맑음"], listOf(minji.id!!, seoyeon.id!!), emotionIds(emotion, "반가움", "편안", "즐거움"))
-                .apply {
-                    why = "엄마 생신"
-                    what = "가족 모임 겸 저녁"
-                },
-            newEvent(today.minusMonths(4), category["기념일"]!!, weather["쌀쌀"], listOf(seoyeon.id!!), emotionIds(emotion, "뭉클", "고마움"))
-                .apply {
-                    title = "서연 생일"
-                    why = "10년지기 생일"
-                    what = "생일 축하 저녁"
-                },
-            newEvent(today.minusMonths(7), category["만남"]!!, weather["비"], listOf(hajun.id!!, yunseo.id!!), emotionIds(emotion, "즐거움", "그냥"))
-                .apply { what = "동아리 번개 모임" },
-            newEvent(today.minusMonths(9), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥"))
-                .apply {
-                    why = "협업 논의"
-                    what = "프로젝트 관련 메시지"
-                },
-        )
-        eventRepository.saveAll(events)
+        seedEvent(today.minusYears(1), category["만남"]!!, weather["맑음"], listOf(hajun.id!!), emotionIds(emotion, "반가움", "즐거움")) {
+            why = "오랜만에 얼굴 보고 싶어서"
+            what = "한강 피크닉"
+        }
+        seedEvent(today.minusDays(3), category["만남"]!!, weather["흐림"], listOf(seoyeon.id!!), emotionIds(emotion, "편안", "고마움")) {
+            occurredTime = LocalTime.of(15, 0)
+            title = "서연이랑 카페"
+            why = "시험 끝나고 기분전환"
+            what = "홍대 카페에서 수다"
+        }
+        seedEvent(today.minusDays(10), category["만남"]!!, weather["더움"], listOf(yunseo.id!!), emotionIds(emotion, "즐거움")) {
+            what = "동네 저녁 산책"
+        }
+        seedEvent(today.minusMonths(1), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
+            why = "문득 생각나서"
+            what = "오랜만에 안부 전화"
+        }
+        seedEvent(today.minusMonths(2), category["만남"]!!, weather["맑음"], listOf(minji.id!!, seoyeon.id!!), emotionIds(emotion, "반가움", "편안", "즐거움")) {
+            why = "엄마 생신"
+            what = "가족 모임 겸 저녁"
+        }
+        seedEvent(today.minusMonths(4), category["기념일"]!!, weather["쌀쌀"], listOf(seoyeon.id!!), emotionIds(emotion, "뭉클", "고마움")) {
+            title = "서연 생일"
+            why = "10년지기 생일"
+            what = "생일 축하 저녁"
+        }
+        seedEvent(today.minusMonths(7), category["만남"]!!, weather["비"], listOf(hajun.id!!, yunseo.id!!), emotionIds(emotion, "즐거움", "그냥")) {
+            what = "동아리 번개 모임"
+        }
+        seedEvent(today.minusMonths(9), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
+            why = "협업 논의"
+            what = "프로젝트 관련 메시지"
+        }
+    }
+
+    /** 데모 사용자 관계태그 조인 행을 순서대로 심는다. */
+    private fun saveRelationTags(personId: Long, chipIds: List<Long>) {
+        chipIds.forEachIndexed { order, chipId ->
+            personRelationTagRepository.save(PersonRelationTag(personId = personId, chipId = chipId, displayOrder = order))
+        }
     }
 
     /** 데모 사용자 개인 관계태그 칩을 라벨로 보장(있으면 재사용)하고 라벨→id 를 돌려준다. */
@@ -193,19 +200,29 @@ class SampleDataSeeder(
 
     private fun emotionIds(all: Map<String, Long>, vararg labels: String): List<Long> = labels.map { all.getValue(it) }
 
-    private fun newEvent(
+    /** 기록 1건을 저장하고 연결 인물·감정 조인 행을 순서대로 심는다(대표 인물 = personIds 첫 번째). */
+    private fun seedEvent(
         date: LocalDate,
         categoryChipId: Long,
         weatherChipId: Long?,
         personIds: List<Long>,
         emotionChipIds: List<Long>,
-    ): Event = Event(
-        ownerId = DEMO_USER_ID,
-        occurredDate = date,
-        categoryChipId = categoryChipId,
-        weatherChipId = weatherChipId,
-    ).apply {
-        replacePersons(personIds)
-        replaceEmotions(emotionChipIds)
+        configure: Event.() -> Unit,
+    ) {
+        val event = eventRepository.save(
+            Event(
+                ownerId = DEMO_USER_ID,
+                occurredDate = date,
+                categoryChipId = categoryChipId,
+                weatherChipId = weatherChipId,
+            ).apply(configure),
+        )
+        val eventId = event.id!!
+        personIds.forEachIndexed { order, personId ->
+            eventPersonRepository.save(EventPerson(eventId = eventId, personId = personId, displayOrder = order))
+        }
+        emotionChipIds.forEachIndexed { order, chipId ->
+            eventEmotionRepository.save(EventEmotion(eventId = eventId, chipId = chipId, displayOrder = order))
+        }
     }
 }

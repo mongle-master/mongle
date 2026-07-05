@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 /**
  * 조회는 항상 소유자·active(deletedAt IS NULL)로 거른다(SoftDeletableEntity 규약).
- * 인물별 집계는 personIds element-collection 을 JOIN 하는 JPQL 로 연다 —
+ * 인물별 집계는 EventPerson 조인 엔티티를 JOIN 하는 JPQL 로 연다(컨벤션 §1) —
  * 파생 스탯(#30)·홈(#41 #43)·타임라인(#44~46)이 이 진입점을 확장한다.
  */
 interface EventRepository : JpaRepository<Event, Long> {
@@ -19,8 +19,8 @@ interface EventRepository : JpaRepository<Event, Long> {
 
     // 사람별 피드(#44) — 대표/비대표 구분 없이 연결된 모든 기록.
     @Query(
-        "SELECT e FROM Event e JOIN e.personIds pid " +
-            "WHERE pid = :personId AND e.deletedAt IS NULL ORDER BY e.occurredDate DESC, e.id DESC",
+        "SELECT e FROM Event e, EventPerson ep WHERE ep.eventId = e.id " +
+            "AND ep.personId = :personId AND e.deletedAt IS NULL ORDER BY e.occurredDate DESC, e.id DESC",
     )
     fun findByPersonId(
         @Param("personId") personId: Long,
@@ -28,8 +28,8 @@ interface EventRepository : JpaRepository<Event, Long> {
 
     // 카테고리 필터(#46) / 만난 횟수 기초(#30).
     @Query(
-        "SELECT e FROM Event e JOIN e.personIds pid " +
-            "WHERE pid = :personId AND e.categoryChipId = :categoryChipId AND e.deletedAt IS NULL " +
+        "SELECT e FROM Event e, EventPerson ep WHERE ep.eventId = e.id " +
+            "AND ep.personId = :personId AND e.categoryChipId = :categoryChipId AND e.deletedAt IS NULL " +
             "ORDER BY e.occurredDate DESC, e.id DESC",
     )
     fun findByPersonIdAndCategoryChipId(
@@ -38,15 +38,18 @@ interface EventRepository : JpaRepository<Event, Long> {
     ): List<Event>
 
     // 함께한 기록 수(#30).
-    @Query("SELECT COUNT(e) FROM Event e JOIN e.personIds pid WHERE pid = :personId AND e.deletedAt IS NULL")
+    @Query(
+        "SELECT COUNT(e) FROM Event e, EventPerson ep WHERE ep.eventId = e.id " +
+            "AND ep.personId = :personId AND e.deletedAt IS NULL",
+    )
     fun countByPersonId(
         @Param("personId") personId: Long,
     ): Long
 
     // 만난 횟수(#30): 만남 카테고리 기록의 고유 날짜 수(같은 날 여러 건은 1회).
     @Query(
-        "SELECT COUNT(DISTINCT e.occurredDate) FROM Event e JOIN e.personIds pid " +
-            "WHERE pid = :personId AND e.categoryChipId = :categoryChipId AND e.deletedAt IS NULL",
+        "SELECT COUNT(DISTINCT e.occurredDate) FROM Event e, EventPerson ep WHERE ep.eventId = e.id " +
+            "AND ep.personId = :personId AND e.categoryChipId = :categoryChipId AND e.deletedAt IS NULL",
     )
     fun countDistinctOccurredDateByPersonIdAndCategoryChipId(
         @Param("personId") personId: Long,
@@ -55,8 +58,8 @@ interface EventRepository : JpaRepository<Event, Long> {
 
     // 만남 카테고리 고유 날짜(최신 먼저) — 만난 횟수·마지막 만남·만남 주기(#30 #41)의 단일 근거.
     @Query(
-        "SELECT DISTINCT e.occurredDate FROM Event e JOIN e.personIds pid " +
-            "WHERE pid = :personId AND e.categoryChipId = :categoryChipId AND e.deletedAt IS NULL " +
+        "SELECT DISTINCT e.occurredDate FROM Event e, EventPerson ep WHERE ep.eventId = e.id " +
+            "AND ep.personId = :personId AND e.categoryChipId = :categoryChipId AND e.deletedAt IS NULL " +
             "ORDER BY e.occurredDate DESC",
     )
     fun findDistinctMeetingDatesDesc(
@@ -66,8 +69,8 @@ interface EventRepository : JpaRepository<Event, Long> {
 
     // 날짜 범위(#41 친밀도).
     @Query(
-        "SELECT e FROM Event e JOIN e.personIds pid " +
-            "WHERE pid = :personId AND e.occurredDate BETWEEN :from AND :to AND e.deletedAt IS NULL " +
+        "SELECT e FROM Event e, EventPerson ep WHERE ep.eventId = e.id " +
+            "AND ep.personId = :personId AND e.occurredDate BETWEEN :from AND :to AND e.deletedAt IS NULL " +
             "ORDER BY e.occurredDate DESC, e.id DESC",
     )
     fun findByPersonIdAndOccurredDateBetween(

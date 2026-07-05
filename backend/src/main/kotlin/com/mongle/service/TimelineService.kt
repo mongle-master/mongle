@@ -10,7 +10,6 @@ import com.mongle.controller.dto.MyTimelineCard
 import com.mongle.controller.dto.MyTimelineMonthGroup
 import com.mongle.controller.dto.MyTimelineResponse
 import com.mongle.controller.dto.TimelinePersonRef
-import com.mongle.domain.Event
 import com.mongle.domain.Person
 import com.mongle.repository.EventRepository
 import com.mongle.repository.PersonRepository
@@ -74,12 +73,15 @@ class TimelineService(
 
     /** #46 전체 타임라인. 카테고리(OR)·사람(OR) 필터, 축간 AND. 월 그룹, 카드에 연결 사람(대표 우선). */
     fun myTimeline(userId: Long, categoryChipIds: List<Long>, personIds: List<Long>): MyTimelineResponse {
-        val events = eventRepository.findByOwnerIdAndDeletedAtIsNullOrderByOccurredDateDescIdDesc(userId)
+        val afterCategory = eventRepository.findByOwnerIdAndDeletedAtIsNullOrderByOccurredDateDescIdDesc(userId)
             .filter { categoryChipIds.isEmpty() || it.categoryChipId in categoryChipIds }
-            .filter { personIds.isEmpty() || it.personIds.any { pid -> pid in personIds } }
+        // 연결 인물(조인 엔티티)은 사람 필터·카드 표현 양쪽에 쓰이므로 한 번에 로드한다.
+        val personIdsByEvent = eventService.personIdsByEvent(afterCategory)
+        val events = afterCategory
+            .filter { personIds.isEmpty() || personIdsByEvent[it.id].orEmpty().any { pid -> pid in personIds } }
 
         val bases = eventService.toResponses(events)
-        val personById = personRepository.findAllById(events.flatMap { it.personIds }.distinct())
+        val personById = personRepository.findAllById(events.flatMap { personIdsByEvent[it.id].orEmpty() }.distinct())
             .mapNotNull { p -> p.id?.let { it to p } }.toMap()
 
         // findByOwnerId...OrderBy 가 이미 최신순이라 groupBy 가 삽입 순서(최신 월 먼저)를 보존한다.
@@ -90,7 +92,7 @@ class TimelineService(
                     year = ym.year,
                     month = ym.monthValue,
                     label = "${ym.year}년 ${ym.monthValue}월",
-                    cards = pairs.map { (event, base) -> MyTimelineCard.from(base, representativePersons(event, personById)) },
+                    cards = pairs.map { (event, base) -> MyTimelineCard.from(base, representativePersons(personIdsByEvent[event.id].orEmpty(), personById)) },
                 )
             }
         return MyTimelineResponse(groups)
@@ -100,7 +102,7 @@ class TimelineService(
      * 카드의 연결 사람들을 대표 우선으로 정렬(#46, PRD 05 §4): 즐겨찾기 → 가나다.
      * 소프트삭제된 인물도 findAllById 로 잡혀 이름이 유지된다(과거 참조 보존). 한글 완성형은 코드포인트 순이 곧 가나다.
      */
-    private fun representativePersons(event: Event, personById: Map<Long, Person>): List<TimelinePersonRef> = event.personIds.mapNotNull { personById[it] }
+    private fun representativePersons(personIds: List<Long>, personById: Map<Long, Person>): List<TimelinePersonRef> = personIds.mapNotNull { personById[it] }
         .sortedWith(compareByDescending<Person> { it.favorite }.thenBy { it.name })
         .map { TimelinePersonRef(requireNotNull(it.id), it.name, it.profileImageUrl, it.favorite) }
 

@@ -51,20 +51,27 @@ data class EventResponse(
 ) {
     companion object {
         /**
-         * chipLabels·personNames 는 서비스가 id 로 해석한 (id→라벨/이름) 맵.
-         * 소프트삭제된 칩·인물도 라벨·이름은 보인다(과거 참조 보존, 00-infra). 순서는 저장 컬렉션 순서를 따른다.
+         * personIds·emotionChipIds 는 EventPerson·EventEmotion 조인 엔티티에서 서비스가 읽은 (순서 보존) id 목록,
+         * chipLabels·personNames 는 그 id 로 해석한 (id→라벨/이름) 맵.
+         * 소프트삭제된 칩·인물도 라벨·이름은 보인다(과거 참조 보존, 00-infra). personIds 의 첫 번째가 대표 인물.
          */
-        fun from(event: Event, chipLabels: Map<Long, String>, personNames: Map<Long, String>): EventResponse = EventResponse(
+        fun from(
+            event: Event,
+            personIds: List<Long>,
+            emotionChipIds: List<Long>,
+            chipLabels: Map<Long, String>,
+            personNames: Map<Long, String>,
+        ): EventResponse = EventResponse(
             id = requireNotNull(event.id) { "저장되지 않은 Event는 응답으로 변환할 수 없습니다." },
-            title = event.title ?: autoTitle(event, chipLabels, personNames),
+            title = event.title ?: autoTitle(event, personIds, chipLabels, personNames),
             why = event.why,
             what = event.what,
             occurredDate = event.occurredDate,
             occurredTime = event.occurredTime,
             category = chipLabels[event.categoryChipId]?.let { ChipRefDto(event.categoryChipId, it) },
             weather = event.weatherChipId?.let { id -> chipLabels[id]?.let { ChipRefDto(id, it) } },
-            emotions = event.emotionChipIds.mapNotNull { id -> chipLabels[id]?.let { ChipRefDto(id, it) } },
-            persons = event.personIds.mapNotNull { id -> personNames[id]?.let { PersonRefDto(id, it) } },
+            emotions = emotionChipIds.mapNotNull { id -> chipLabels[id]?.let { ChipRefDto(id, it) } },
+            persons = personIds.mapNotNull { id -> personNames[id]?.let { PersonRefDto(id, it) } },
             photoUrls = event.photoUrls.toList(),
             createdAt = event.createdAt,
         )
@@ -73,10 +80,10 @@ data class EventResponse(
          * 자동 제목(#37): 대표(첫 번째) 인물 이름과 카테고리로 조합. 단일 `{이름} · {카테고리}`,
          * 다중 `{대표 이름} 외 N명 · {카테고리}`(N = 인물 수 − 1). 저장하지 않고 조회 시 계산하므로 rename 이 자동 반영된다.
          */
-        private fun autoTitle(event: Event, chipLabels: Map<Long, String>, personNames: Map<Long, String>): String {
+        private fun autoTitle(event: Event, personIds: List<Long>, chipLabels: Map<Long, String>, personNames: Map<Long, String>): String {
             val category = chipLabels[event.categoryChipId].orEmpty()
-            val representative = event.personIds.firstOrNull()?.let { personNames[it] }.orEmpty()
-            val others = event.personIds.size - 1
+            val representative = personIds.firstOrNull()?.let { personNames[it] }.orEmpty()
+            val others = personIds.size - 1
             val who = if (others > 0) "$representative 외 ${others}명" else representative
             return "$who · $category"
         }

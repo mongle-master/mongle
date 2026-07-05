@@ -25,6 +25,8 @@ class HomeService(
     private val chipRepository: ChipRepository,
     private val personStatsService: PersonStatsService,
     private val eventRepository: EventRepository,
+    private val personService: PersonService,
+    private val eventService: EventService,
 ) {
     /**
      * 관계 지도(#40 #41 #42). 내 소유·active 인물을 노드로, 나↔인물을 엣지로 낸다.
@@ -35,11 +37,14 @@ class HomeService(
     fun relationMap(userId: Long, filterTagChipIds: List<Long>): RelationMapResponse {
         val today = LocalDate.now()
         val filter = filterTagChipIds.toSet()
-        val persons = personRepository.findByOwnerIdAndDeletedAtIsNull(userId)
-            .filter { filter.isEmpty() || it.relationTagChipIds.any(filter::contains) }
+        // 관계태그(조인 엔티티)는 필터·표시 양쪽에 쓰이므로 전체 인물분을 한 번에 로드한 뒤 필터한다.
+        val all = personRepository.findByOwnerIdAndDeletedAtIsNull(userId)
+        val tagChipIdsByPerson = personService.relationTagChipIdsByPerson(all)
+        val persons = all
+            .filter { filter.isEmpty() || tagChipIdsByPerson[it.id].orEmpty().any(filter::contains) }
             .sortedWith(compareByDescending<Person> { it.favorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name })
 
-        val tagLabels = resolveTagLabels(persons)
+        val tagLabels = resolveTagLabels(tagChipIdsByPerson.values.flatten())
         val nodes = persons.map { person ->
             val intimacy = Intimacy.of(personStatsService.statsOf(person).meetingDatesDesc, today)
             PersonNode(
@@ -47,7 +52,7 @@ class HomeService(
                 name = person.name,
                 profileImageUrl = person.profileImageUrl,
                 favorite = person.favorite,
-                relationTags = person.relationTagChipIds.mapNotNull { id -> tagLabels[id]?.let { RelationTagDto(id, it) } },
+                relationTags = tagChipIdsByPerson[person.id].orEmpty().mapNotNull { id -> tagLabels[id]?.let { RelationTagDto(id, it) } },
                 intimacy = IntimacyDto(intimacy.status, intimacy.averageIntervalDays, intimacy.daysSinceLastMeet),
             )
         }
@@ -68,21 +73,23 @@ class HomeService(
             .filter { it.occurredDate.year == lastYear }
         if (candidates.isEmpty()) return null
 
+        // 후보 기록의 연결 인물(순서 보존)을 한 번에 로드 — 우선순위 판정(즐겨찾기)·대표 이름에 재사용.
+        val personIdsByEvent = eventService.personIdsByEvent(candidates)
         // 우선순위 판정에 필요한 인물(즐겨찾기·대표 이름)을 후보 전체 인물 id 로 한 번에 로드(소프트삭제 포함, 과거 참조 이름 보존).
-        val persons = personRepository.findAllById(candidates.flatMap { it.personIds }.distinct())
+        val persons = personRepository.findAllById(personIdsByEvent.values.flatten().distinct())
             .mapNotNull { p -> p.id?.let { it to p } }.toMap()
         val favoriteIds = persons.filterValues { it.favorite }.keys
         val anniversaryChipId = chipRepository.findByTypeAndOwnerIdIsNullAndLabelAndDeletedAtIsNull(ChipType.CATEGORY, ANNIVERSARY_CATEGORY_LABEL)?.id
 
         val selected = candidates.sortedWith(
-            compareByDescending<Event> { ev -> ev.personIds.any(favoriteIds::contains) }
+            compareByDescending<Event> { ev -> personIdsByEvent[ev.id].orEmpty().any(favoriteIds::contains) }
                 .thenByDescending { it.photoUrls.isNotEmpty() }
                 .thenByDescending { anniversaryChipId != null && it.categoryChipId == anniversaryChipId }
                 .thenBy(nullsLast<LocalTime>()) { it.occurredTime }
                 .thenBy { it.id },
         ).first()
 
-        val representativeId = selected.personIds.first()
+        val representativeId = personIdsByEvent.getValue(requireNotNull(selected.id)).first()
         return ThrowbackResponse(
             eventId = requireNotNull(selected.id),
             personId = representativeId,
@@ -94,13 +101,10 @@ class HomeService(
     }
 
     /**
-     * 여러 인물의 관계태그 라벨을 한 번에 해석한다 — id 참조라 rename 이 자동 반영되고,
+     * 관계태그 칩 id 목록의 라벨을 한 번에 해석한다 — id 참조라 rename 이 자동 반영되고,
      * 소프트삭제된 칩도 findAllById 로 잡혀 라벨이 유지된다(과거 참조 보존, 00-infra).
      */
-    private fun resolveTagLabels(persons: List<Person>): Map<Long, String> {
-        val tagIds = persons.flatMap { it.relationTagChipIds }.distinct()
-        return chipRepository.findAllById(tagIds).mapNotNull { chip -> chip.id?.let { it to chip.label } }.toMap()
-    }
+    private fun resolveTagLabels(chipIds: List<Long>): Map<Long, String> = chipRepository.findAllById(chipIds.distinct()).mapNotNull { chip -> chip.id?.let { it to chip.label } }.toMap()
 
     companion object {
         // 회고 우선순위 ③(기념일) 판정용 공통 카테고리 라벨. ChipSeeder 의 CATEGORY 시드와 동일해야 한다.

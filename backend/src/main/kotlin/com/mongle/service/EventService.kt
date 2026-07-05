@@ -8,8 +8,12 @@ import com.mongle.controller.dto.EventRequest
 import com.mongle.controller.dto.EventResponse
 import com.mongle.domain.ChipType
 import com.mongle.domain.Event
+import com.mongle.domain.EventEmotion
+import com.mongle.domain.EventPerson
 import com.mongle.domain.Person
 import com.mongle.repository.ChipRepository
+import com.mongle.repository.EventEmotionRepository
+import com.mongle.repository.EventPersonRepository
 import com.mongle.repository.EventRepository
 import com.mongle.repository.PersonRepository
 import org.springframework.stereotype.Service
@@ -23,6 +27,8 @@ class EventService(
     private val personRepository: PersonRepository,
     private val chipRepository: ChipRepository,
     private val chipService: ChipService,
+    private val eventPersonRepository: EventPersonRepository,
+    private val eventEmotionRepository: EventEmotionRepository,
 ) {
     @Transactional
     fun create(userId: Long, request: EventRequest): EventResponse {
@@ -30,6 +36,8 @@ class EventService(
         val event = Event(ownerId = userId, occurredDate = LocalDate.now(), categoryChipId = 0L)
         val persons = applyRequest(userId, event, request)
         val saved = eventRepository.save(event)
+        syncPersons(requireNotNull(saved.id), request.personIds)
+        syncEmotions(requireNotNull(saved.id), request.emotionChipIds)
         applyDerived(persons, saved)
         return toResponse(saved)
     }
@@ -46,6 +54,8 @@ class EventService(
     fun update(userId: Long, eventId: Long, request: EventRequest): EventResponse {
         val event = loadOwned(userId, eventId)
         val persons = applyRequest(userId, event, request)
+        syncPersons(eventId, request.personIds)
+        syncEmotions(eventId, request.emotionChipIds)
         applyDerived(persons, event)
         return toResponse(event)
     }
@@ -54,6 +64,7 @@ class EventService(
 
     /**
      * 등록·수정이 공유하는 입력 반영. 검증(인물·칩·사진·글자수·날짜)을 모두 통과한 뒤에만 필드를 세팅한다.
+     * 사진은 엔티티에 바로 교체하고, 인물·감정은 조인 엔티티라 저장(id 확보) 후 호출자가 syncPersons/syncEmotions 로 교체한다.
      * 반환값(연결 인물)은 파생 갱신(applyDerived)에서 재사용한다 — 같은 트랜잭션의 관리 엔티티라 dirty checking 으로 반영.
      */
     private fun applyRequest(userId: Long, event: Event, request: EventRequest): List<Person> {
@@ -81,10 +92,24 @@ class EventService(
         event.title = title
         event.why = why
         event.what = what
-        event.replacePersons(request.personIds)
-        event.replaceEmotions(request.emotionChipIds)
         event.replacePhotos(request.photoUrls.map { it.trim() }.filter { it.isNotBlank() })
         return persons
+    }
+
+    /** 연결 인물 조인 행 전체 교체 — 하드삭제 후 순서대로 재삽입(displayOrder 0 = 대표 인물). */
+    private fun syncPersons(eventId: Long, personIds: List<Long>) {
+        eventPersonRepository.deleteByEventId(eventId)
+        personIds.forEachIndexed { order, personId ->
+            eventPersonRepository.save(EventPerson(eventId = eventId, personId = personId, displayOrder = order))
+        }
+    }
+
+    /** 감정 칩 조인 행 전체 교체 — 하드삭제 후 선택 순서대로 재삽입. */
+    private fun syncEmotions(eventId: Long, chipIds: List<Long>) {
+        eventEmotionRepository.deleteByEventId(eventId)
+        chipIds.forEachIndexed { order, chipId ->
+            eventEmotionRepository.save(EventEmotion(eventId = eventId, chipId = chipId, displayOrder = order))
+        }
     }
 
     /**
@@ -109,16 +134,37 @@ class EventService(
      */
     fun toResponses(events: List<Event>): List<EventResponse> {
         if (events.isEmpty()) return emptyList()
-        val chipIds = events.flatMap { collectChipIds(it) }.distinct()
-        val personIds = events.flatMap { it.personIds }.distinct()
+        val personIdsByEvent = personIdsByEvent(events)
+        val emotionIdsByEvent = emotionIdsByEvent(events)
+        val chipIds = events.flatMap { collectChipIds(it, emotionIdsByEvent[it.id].orEmpty()) }.distinct()
+        val personIds = personIdsByEvent.values.flatten().distinct()
         val chipLabels = chipRepository.findAllById(chipIds).mapNotNull { chip -> chip.id?.let { it to chip.label } }.toMap()
         val personNames = personRepository.findAllById(personIds).mapNotNull { person -> person.id?.let { it to person.name } }.toMap()
-        return events.map { EventResponse.from(it, chipLabels, personNames) }
+        return events.map {
+            EventResponse.from(it, personIdsByEvent[it.id].orEmpty(), emotionIdsByEvent[it.id].orEmpty(), chipLabels, personNames)
+        }
     }
 
-    private fun collectChipIds(event: Event): List<Long> = buildList {
+    /** 여러 기록의 연결 인물 id 를 한 번에 로드(순서 보존, 첫 번째가 대표) — 홈·타임라인이 재사용해 N+1 을 막는다. */
+    fun personIdsByEvent(events: List<Event>): Map<Long, List<Long>> {
+        val eventIds = events.mapNotNull { it.id }
+        if (eventIds.isEmpty()) return emptyMap()
+        return eventPersonRepository.findByEventIdInOrderByEventIdAscDisplayOrderAsc(eventIds)
+            .groupBy { it.eventId }
+            .mapValues { (_, rows) -> rows.map { it.personId } }
+    }
+
+    private fun emotionIdsByEvent(events: List<Event>): Map<Long, List<Long>> {
+        val eventIds = events.mapNotNull { it.id }
+        if (eventIds.isEmpty()) return emptyMap()
+        return eventEmotionRepository.findByEventIdInOrderByEventIdAscDisplayOrderAsc(eventIds)
+            .groupBy { it.eventId }
+            .mapValues { (_, rows) -> rows.map { it.chipId } }
+    }
+
+    private fun collectChipIds(event: Event, emotionChipIds: List<Long>): List<Long> = buildList {
         add(event.categoryChipId)
         event.weatherChipId?.let { add(it) }
-        addAll(event.emotionChipIds)
+        addAll(emotionChipIds)
     }
 }

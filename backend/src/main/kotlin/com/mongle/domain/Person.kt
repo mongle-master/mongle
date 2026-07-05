@@ -53,11 +53,7 @@ class Person(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    // 관계 태그: RELATION_TAG 칩 id 만 참조(라벨은 칩에서 해석). 홈 그룹화·필터의 근거. #22
-    @ElementCollection
-    @CollectionTable(name = "person_relation_tag", joinColumns = [JoinColumn(name = "person_id")])
-    @Column(name = "chip_id")
-    val relationTagChipIds: MutableList<Long> = mutableListOf()
+    // 관계 태그(RELATION_TAG 칩)는 PersonRelationTag 조인 엔티티로 연결한다(#22, 컨벤션 §1) — 이 엔티티는 id 만 보유.
 
     // 취향 2종(좋아하는 것·조심할 것). 입력 순서를 보존한다. #23
     @ElementCollection
@@ -71,12 +67,6 @@ class Person(
     @OrderColumn(name = "item_order")
     @Column(name = "item")
     val cautions: MutableList<String> = mutableListOf()
-
-    /** 관계 태그 전체 교체(수정 시 보낸 값으로 갈아끼움). */
-    fun replaceRelationTags(chipIds: List<Long>) {
-        relationTagChipIds.clear()
-        relationTagChipIds.addAll(chipIds)
-    }
 
     fun replaceLikes(items: List<String>) {
         likes.clear()

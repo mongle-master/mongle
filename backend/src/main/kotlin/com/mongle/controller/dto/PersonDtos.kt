@@ -63,8 +63,11 @@ data class PersonResponse(
     val createdAt: LocalDateTime?,
 ) {
     companion object {
-        /** tagLabels 는 서비스가 칩에서 해석한 (id→라벨) 맵. 소프트삭제된 칩도 라벨은 보인다. */
-        fun from(person: Person, tagLabels: Map<Long, String>): PersonResponse = PersonResponse(
+        /**
+         * relationTagChipIds 는 PersonRelationTag 조인 엔티티에서 서비스가 읽은 (순서 보존) 칩 id 목록,
+         * tagLabels 는 그 칩에서 해석한 (id→라벨) 맵. 소프트삭제된 칩도 라벨은 보인다.
+         */
+        fun from(person: Person, relationTagChipIds: List<Long>, tagLabels: Map<Long, String>): PersonResponse = PersonResponse(
             id = requireNotNull(person.id) { "저장되지 않은 Person은 응답으로 변환할 수 없습니다." },
             name = person.name,
             birthday = BirthdayDto.from(person),
@@ -72,7 +75,7 @@ data class PersonResponse(
             lastMetDate = person.lastMetDate,
             profileImageUrl = person.profileImageUrl,
             relationType = person.relationType,
-            relationTags = person.relationTagChipIds.mapNotNull { id ->
+            relationTags = relationTagChipIds.mapNotNull { id ->
                 tagLabels[id]?.let { RelationTagDto(id, it) }
             },
             likes = person.likes.toList(),
@@ -128,6 +131,7 @@ data class PersonDetailResponse(
         fun from(
             person: Person,
             stats: PersonStats,
+            relationTagChipIds: List<Long>,
             tagLabels: Map<Long, String>,
             today: LocalDate,
         ): PersonDetailResponse = PersonDetailResponse(
@@ -138,7 +142,7 @@ data class PersonDetailResponse(
             lastMetDate = stats.lastMetDate,
             profileImageUrl = person.profileImageUrl,
             relationType = person.relationType,
-            relationTags = person.relationTagChipIds.mapNotNull { id -> tagLabels[id]?.let { RelationTagDto(id, it) } },
+            relationTags = relationTagChipIds.mapNotNull { id -> tagLabels[id]?.let { RelationTagDto(id, it) } },
             likes = person.likes.toList(),
             cautions = person.cautions.toList(),
             favorite = person.favorite,

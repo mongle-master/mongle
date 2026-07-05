@@ -51,18 +51,8 @@ class Event(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    // 연결 인물: id 참조 컬렉션, 순서 보존(대표 인물 = 첫 번째). 인물별 집계는 이 컬렉션 JOIN 으로 연다.
-    @ElementCollection
-    @CollectionTable(name = "event_person", joinColumns = [JoinColumn(name = "event_id")])
-    @OrderColumn(name = "person_order")
-    @Column(name = "person_id")
-    val personIds: MutableList<Long> = mutableListOf()
-
-    // 감정: 다중 ≤5, 칩 id 참조.
-    @ElementCollection
-    @CollectionTable(name = "event_emotion", joinColumns = [JoinColumn(name = "event_id")])
-    @Column(name = "chip_id")
-    val emotionChipIds: MutableList<Long> = mutableListOf()
+    // 연결 인물·감정 칩은 EventPerson·EventEmotion 조인 엔티티로 연결한다(컨벤션 §1) — 이 엔티티는 id 만 보유.
+    // 인물별 집계는 EventPerson 을 JOIN 하는 쿼리(EventRepository)로 연다.
 
     // 사진: 미리 업로드된 url 참조, 첨부 순서 보존, ≤5.
     @ElementCollection
@@ -71,17 +61,7 @@ class Event(
     @Column(name = "url")
     val photoUrls: MutableList<String> = mutableListOf()
 
-    /** 연결 인물·감정·사진은 수정 시 보낸 값으로 전체 교체한다(PUT 시맨틱). */
-    fun replacePersons(ids: List<Long>) {
-        personIds.clear()
-        personIds.addAll(ids)
-    }
-
-    fun replaceEmotions(ids: List<Long>) {
-        emotionChipIds.clear()
-        emotionChipIds.addAll(ids)
-    }
-
+    /** 사진은 수정 시 보낸 값으로 전체 교체한다(PUT 시맨틱). 인물·감정 교체는 조인 엔티티 repository 가 담당. */
     fun replacePhotos(urls: List<String>) {
         photoUrls.clear()
         photoUrls.addAll(urls)

@@ -11,8 +11,11 @@ import com.mongle.controller.dto.PersonResponse
 import com.mongle.controller.dto.PersonSort
 import com.mongle.domain.ChipType
 import com.mongle.domain.Person
+import com.mongle.domain.PersonRelationTag
 import com.mongle.repository.ChipRepository
+import com.mongle.repository.EventPersonRepository
 import com.mongle.repository.EventRepository
+import com.mongle.repository.PersonRelationTagRepository
 import com.mongle.repository.PersonRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,12 +29,16 @@ class PersonService(
     private val chipRepository: ChipRepository,
     private val personStatsService: PersonStatsService,
     private val eventRepository: EventRepository,
+    private val personRelationTagRepository: PersonRelationTagRepository,
+    private val eventPersonRepository: EventPersonRepository,
 ) {
     @Transactional
     fun register(userId: Long, request: PersonRequest): PersonResponse {
         val person = Person(ownerId = userId, name = request.name)
-        applyRequest(userId, person, request)
-        return toResponse(personRepository.save(person))
+        val relationTagChipIds = applyRequest(userId, person, request)
+        val saved = personRepository.save(person)
+        syncRelationTags(requireNotNull(saved.id), relationTagChipIds)
+        return toResponse(saved)
     }
 
     /** 전체 수정(PUT) — 등록과 같은 입력·검증을 재사용한다. 내 소유·active 인물만, 아니면 NOT_FOUND. */
@@ -39,7 +46,8 @@ class PersonService(
     fun update(userId: Long, personId: Long, request: PersonRequest): PersonResponse {
         val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
-        applyRequest(userId, person, request)
+        val relationTagChipIds = applyRequest(userId, person, request)
+        syncRelationTags(requireNotNull(person.id), relationTagChipIds)
         return toResponse(person)
     }
 
@@ -56,10 +64,13 @@ class PersonService(
             PersonSort.RECENT -> Comparator.comparing(Person::lastMetDate, Comparator.nullsLast(Comparator.reverseOrder<LocalDate>()))
         }
         val order = compareByDescending<Person> { it.favorite }.then(within)
-        return personRepository.findByOwnerIdAndDeletedAtIsNull(userId)
+        val persons = personRepository.findByOwnerIdAndDeletedAtIsNull(userId)
             .filter { keyword == null || it.matches(keyword) }
             .sortedWith(order)
-            .map { toResponse(it) }
+        // 관계태그·라벨을 한 번에 로드해 인물별 N+1 을 막는다.
+        val tagChipIdsByPerson = relationTagChipIdsByPerson(persons)
+        val tagLabels = resolveTagLabels(tagChipIdsByPerson.values.flatten())
+        return persons.map { PersonResponse.from(it, tagChipIdsByPerson[it.id].orEmpty(), tagLabels) }
     }
 
     private fun Person.matches(keyword: String): Boolean = name.lowercase().contains(keyword) || relationType?.lowercase()?.contains(keyword) == true
@@ -69,7 +80,8 @@ class PersonService(
         val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
         val stats = personStatsService.statsOf(person)
-        return PersonDetailResponse.from(person, stats, resolveTagLabels(person), LocalDate.now())
+        val tagChipIds = relationTagChipIdsOf(person)
+        return PersonDetailResponse.from(person, stats, tagChipIds, resolveTagLabels(tagChipIds), LocalDate.now())
     }
 
     /** 즐겨찾기 토글(#28). 내 소유·active 인물만, 아니면 NOT_FOUND. */
@@ -91,18 +103,22 @@ class PersonService(
     fun delete(userId: Long, personId: Long) {
         val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
+        // active 기록에서만 이 인물 연결을 끊는다(소프트삭제된 기록은 findByPersonId 가 걸러 과거 참조 보존).
+        // 연결이 0명이 된(마지막 연결이었던) 기록은 소프트삭제. 인물의 관계태그 행은 소프트삭제 시 남긴다(과거 참조 보존).
         eventRepository.findByPersonId(personId).forEach { event ->
-            event.personIds.remove(personId)
-            if (event.personIds.isEmpty()) event.softDelete()
+            val eventId = requireNotNull(event.id)
+            eventPersonRepository.deleteByEventIdAndPersonId(eventId, personId)
+            if (eventPersonRepository.countByEventId(eventId) == 0L) event.softDelete()
         }
         person.softDelete()
     }
 
     /**
      * 등록·수정이 공유하는 입력 반영. 검증(글자수·날짜·태그·취향)을 모두 통과한 뒤에만 필드를 세팅한다.
-     * 관계 태그·취향 목록은 보낸 값으로 전체 교체한다(PUT 시맨틱).
+     * 취향 목록은 엔티티에 바로 교체하고, 관계 태그는 조인 엔티티라 검증된 칩 id 목록만 돌려줘
+     * 저장(id 확보) 후 호출자가 syncRelationTags 로 교체한다(PUT 시맨틱).
      */
-    private fun applyRequest(userId: Long, person: Person, request: PersonRequest) {
+    private fun applyRequest(userId: Long, person: Person, request: PersonRequest): List<Long> {
         val name = request.name.trim()
         Validators.requireNotBlank(name, Messages.REQUIRED_NAME)
         Validators.maxLength(name, ValidationLimits.NAME_MAX)
@@ -136,19 +152,41 @@ class PersonService(
         person.profileImageUrl = request.profileImageUrl?.trim()?.ifBlank { null }
         person.relationType = relationType
         person.favorite = request.favorite
-        person.replaceRelationTags(request.relationTagChipIds)
         person.replaceLikes(likes)
         person.replaceCautions(cautions)
+        return request.relationTagChipIds
+    }
+
+    /** 관계 태그 조인 행 전체 교체(수정 시 보낸 값으로 갈아끼움) — 하드삭제 후 순서대로 재삽입. */
+    private fun syncRelationTags(personId: Long, chipIds: List<Long>) {
+        personRelationTagRepository.deleteByPersonId(personId)
+        chipIds.forEachIndexed { order, chipId ->
+            personRelationTagRepository.save(PersonRelationTag(personId = personId, chipId = chipId, displayOrder = order))
+        }
+    }
+
+    private fun relationTagChipIdsOf(person: Person): List<Long> = personRelationTagRepository
+        .findByPersonIdOrderByDisplayOrderAsc(requireNotNull(person.id)).map { it.chipId }
+
+    /** 여러 인물의 관계태그 칩 id 를 한 번에 로드(순서 보존) — 목록·홈이 재사용해 N+1 을 막는다. */
+    fun relationTagChipIdsByPerson(persons: List<Person>): Map<Long, List<Long>> {
+        val personIds = persons.mapNotNull { it.id }
+        if (personIds.isEmpty()) return emptyMap()
+        return personRelationTagRepository.findByPersonIdInOrderByPersonIdAscDisplayOrderAsc(personIds)
+            .groupBy { it.personId }
+            .mapValues { (_, rows) -> rows.map { it.chipId } }
     }
 
     /**
      * 관계 태그 라벨은 칩에서 해석한다 — id 참조라 이름이 바뀌면 자동 반영되고,
      * 소프트삭제된 칩도 findAllById 로 잡혀 라벨이 유지된다(과거 참조 보존, 00-infra).
-     * 컬렉션 접근이 트랜잭션 안에서 일어나도록 응답 변환을 서비스에서 마친다(지연 로딩 안전).
      */
-    private fun toResponse(person: Person): PersonResponse = PersonResponse.from(person, resolveTagLabels(person))
+    private fun toResponse(person: Person): PersonResponse {
+        val tagChipIds = relationTagChipIdsOf(person)
+        return PersonResponse.from(person, tagChipIds, resolveTagLabels(tagChipIds))
+    }
 
-    private fun resolveTagLabels(person: Person): Map<Long, String> = chipRepository.findAllById(person.relationTagChipIds)
+    private fun resolveTagLabels(chipIds: List<Long>): Map<Long, String> = chipRepository.findAllById(chipIds)
         .mapNotNull { chip -> chip.id?.let { it to chip.label } }
         .toMap()
 }
