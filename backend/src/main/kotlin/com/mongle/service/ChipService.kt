@@ -85,7 +85,13 @@ class ChipService(
      * 기본 카테고리(defaultCategoryId, 사용자 시점 첫 칩)와 개념이 다르다 — 그건 폼 기본 선택,
      * 이건 "만남으로 세는 카테고리"의 고정 앵커다. 공통 만남 칩은 이름변경·삭제가 막혀 있어 id 가 안정적이다.
      */
-    fun meetingCategoryId(): Long? = chipRepository.findByTypeAndOwnerIdIsNullAndLabelAndDeletedAtIsNull(ChipType.CATEGORY, MEETING_CATEGORY_LABEL)?.id
+    fun meetingCategoryId(): Long? = commonCategoryId(MEETING_CATEGORY_LABEL)
+
+    /**
+     * 공통 카테고리 칩 라벨 → id. 활동 흐름 레인(만남/연락/기념일) 앵커 해석용(#45).
+     * 공통 칩은 전 사용자 공유라 userId 무관이며, 숨김(ChipHide)과 무관하게 레인 개념 자체는 고정이다.
+     */
+    fun commonCategoryId(label: String): Long? = chipRepository.findByTypeAndOwnerIdIsNullAndLabelAndDeletedAtIsNull(ChipType.CATEGORY, label)?.id
 
     companion object {
         // 시드(ChipSeeder)의 첫 카테고리 라벨과 동일해야 한다.
