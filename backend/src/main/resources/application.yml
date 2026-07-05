@@ -1,0 +1,29 @@
+# =============================================================================
+# 애플리케이션 설정 — 템플릿에서는 비워둡니다.
+# 프로젝트에 맞게 채워 넣으세요. (아래는 참고용 구조, 주석 처리됨)
+# =============================================================================
+#
+# spring:
+#   application:
+#     name:
+#   datasource:
+#     url:
+#     username:
+#     password:
+#     driver-class-name:
+#   jpa:
+#     hibernate:
+#       ddl-auto:
+#     open-in-view: false          # OSIV 비활성화 권장 (커넥션 풀 고갈 방지)
+#     properties:
+#       hibernate:
+#         format_sql: true
+#
+# server:
+#   port:
+#
+# management:
+#   endpoints:
+#     web:
+#       exposure:
+#         include: health,info
