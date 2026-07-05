@@ -99,18 +99,26 @@ class EventService(
 
     private fun visibleChipIds(userId: Long, type: ChipType): Set<Long> = chipService.visibleChips(userId, type).mapNotNull { it.id }.toSet()
 
+    private fun toResponse(event: Event): EventResponse = toResponses(listOf(event)).first()
+
     /**
      * 칩 라벨·인물 이름은 id 로 해석한다 — rename 이 자동 반영되고, 소프트삭제된 칩·인물도
      * findAllById 로 잡혀 값이 유지된다(과거 참조 보존, 00-infra). 컬렉션 접근이 트랜잭션 안에서 끝나도록 서비스에서 변환한다.
+     * 타임라인 피드(#44 #46)가 여러 기록을 한 번에 카드로 변환할 때 이 진입점을 재사용한다 —
+     * 자동 제목(#37)·라벨 해석 규칙이 한곳에 있어야 화면 간 drift 가 안 난다. id 조회는 배치(findAllById)로 묶는다.
      */
-    private fun toResponse(event: Event): EventResponse {
-        val chipIds = buildList {
-            add(event.categoryChipId)
-            event.weatherChipId?.let { add(it) }
-            addAll(event.emotionChipIds)
-        }
+    fun toResponses(events: List<Event>): List<EventResponse> {
+        if (events.isEmpty()) return emptyList()
+        val chipIds = events.flatMap { collectChipIds(it) }.distinct()
+        val personIds = events.flatMap { it.personIds }.distinct()
         val chipLabels = chipRepository.findAllById(chipIds).mapNotNull { chip -> chip.id?.let { it to chip.label } }.toMap()
-        val personNames = personRepository.findAllById(event.personIds).mapNotNull { person -> person.id?.let { it to person.name } }.toMap()
-        return EventResponse.from(event, chipLabels, personNames)
+        val personNames = personRepository.findAllById(personIds).mapNotNull { person -> person.id?.let { it to person.name } }.toMap()
+        return events.map { EventResponse.from(it, chipLabels, personNames) }
+    }
+
+    private fun collectChipIds(event: Event): List<Long> = buildList {
+        add(event.categoryChipId)
+        event.weatherChipId?.let { add(it) }
+        addAll(event.emotionChipIds)
     }
 }

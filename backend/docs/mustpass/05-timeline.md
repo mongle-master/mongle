@@ -52,4 +52,3 @@
 | 전 기록 조회 | GET /api/timeline | 최신순, 월 그룹, 카드에 연결 사람 |
 | 카테고리+사람 동시 필터 | GET /api/timeline?categoryChipIds=a&personIds=1 | (a) AND (인물1) |
 | 다인 연결 카드 | GET /api/timeline | persons 대표(즐겨찾기→가나다) 우선, 외 N명 |
-</content>
