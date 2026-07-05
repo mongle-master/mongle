@@ -6,12 +6,17 @@ import com.mongle.controller.dto.PersonNode
 import com.mongle.controller.dto.RelationEdge
 import com.mongle.controller.dto.RelationMapResponse
 import com.mongle.controller.dto.RelationTagDto
+import com.mongle.controller.dto.ThrowbackResponse
+import com.mongle.domain.ChipType
+import com.mongle.domain.Event
 import com.mongle.domain.Person
 import com.mongle.repository.ChipRepository
+import com.mongle.repository.EventRepository
 import com.mongle.repository.PersonRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.LocalTime
 
 @Service
 @Transactional(readOnly = true)
@@ -19,6 +24,7 @@ class HomeService(
     private val personRepository: PersonRepository,
     private val chipRepository: ChipRepository,
     private val personStatsService: PersonStatsService,
+    private val eventRepository: EventRepository,
 ) {
     /**
      * 관계 지도(#40 #41 #42). 내 소유·active 인물을 노드로, 나↔인물을 엣지로 낸다.
@@ -50,11 +56,54 @@ class HomeService(
     }
 
     /**
+     * 1년 전 오늘 회고(#43). 기록 occurredDate 가 정확히 1년 전(같은 월·일, 연도=올해−1)인 기록만 대상.
+     * 카드 문구가 "1년 전 오늘"이라 여러 해 전 기록은 포함하지 않는다.
+     * 윤년 2/29: 오늘이 2/29 여도 작년(비윤년)엔 2/29 기록이 있을 수 없어 연도 필터로 자연히 빈 결과가 된다(PRD §5 미노출).
+     * 복수면 우선순위 ①즐겨찾기 인물 →②사진 →③기념일 카테고리 →④이른 시각(없으면 뒤) →⑤먼저 남긴 것(id) 로 1건.
+     */
+    fun throwback(userId: Long): ThrowbackResponse? {
+        val today = LocalDate.now()
+        val lastYear = today.year - 1
+        val candidates = eventRepository.findByOwnerIdAndMonthDay(userId, today.monthValue, today.dayOfMonth)
+            .filter { it.occurredDate.year == lastYear }
+        if (candidates.isEmpty()) return null
+
+        // 우선순위 판정에 필요한 인물(즐겨찾기·대표 이름)을 후보 전체 인물 id 로 한 번에 로드(소프트삭제 포함, 과거 참조 이름 보존).
+        val persons = personRepository.findAllById(candidates.flatMap { it.personIds }.distinct())
+            .mapNotNull { p -> p.id?.let { it to p } }.toMap()
+        val favoriteIds = persons.filterValues { it.favorite }.keys
+        val anniversaryChipId = chipRepository.findByTypeAndOwnerIdIsNullAndLabelAndDeletedAtIsNull(ChipType.CATEGORY, ANNIVERSARY_CATEGORY_LABEL)?.id
+
+        val selected = candidates.sortedWith(
+            compareByDescending<Event> { ev -> ev.personIds.any(favoriteIds::contains) }
+                .thenByDescending { it.photoUrls.isNotEmpty() }
+                .thenByDescending { anniversaryChipId != null && it.categoryChipId == anniversaryChipId }
+                .thenBy(nullsLast<LocalTime>()) { it.occurredTime }
+                .thenBy { it.id },
+        ).first()
+
+        val representativeId = selected.personIds.first()
+        return ThrowbackResponse(
+            eventId = requireNotNull(selected.id),
+            personId = representativeId,
+            personName = persons[representativeId]?.name.orEmpty(),
+            title = selected.title,
+            occurredDate = selected.occurredDate,
+            photoUrl = selected.photoUrls.firstOrNull(),
+        )
+    }
+
+    /**
      * 여러 인물의 관계태그 라벨을 한 번에 해석한다 — id 참조라 rename 이 자동 반영되고,
      * 소프트삭제된 칩도 findAllById 로 잡혀 라벨이 유지된다(과거 참조 보존, 00-infra).
      */
     private fun resolveTagLabels(persons: List<Person>): Map<Long, String> {
         val tagIds = persons.flatMap { it.relationTagChipIds }.distinct()
         return chipRepository.findAllById(tagIds).mapNotNull { chip -> chip.id?.let { it to chip.label } }.toMap()
+    }
+
+    companion object {
+        // 회고 우선순위 ③(기념일) 판정용 공통 카테고리 라벨. ChipSeeder 의 CATEGORY 시드와 동일해야 한다.
+        private const val ANNIVERSARY_CATEGORY_LABEL = "기념일"
     }
 }

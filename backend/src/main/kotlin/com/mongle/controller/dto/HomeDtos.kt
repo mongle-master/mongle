@@ -1,6 +1,7 @@
 package com.mongle.controller.dto
 
 import com.mongle.service.IntimacyStatus
+import java.time.LocalDate
 
 /**
  * 관계 지도(#40) 응답 — 프론트가 그래프로 그린다.
@@ -41,4 +42,18 @@ data class IntimacyDto(
     val status: IntimacyStatus,
     val averageIntervalDays: Int?,
     val daysSinceLastMeet: Int?,
+)
+
+/**
+ * 1년 전 오늘 회고(#43) — 조건 충족 시 1건, 없으면 컨트롤러가 204.
+ * title 은 사용자가 입력한 제목만(없으면 null). 자동 제목(#37)을 쓰지 않는다 —
+ * 회고 카드 폴백 문구가 자동 제목과 달라 프론트가 null 을 직접 폴백 처리한다(PRD 01 §5).
+ */
+data class ThrowbackResponse(
+    val eventId: Long,
+    val personId: Long,
+    val personName: String,
+    val title: String?,
+    val occurredDate: LocalDate,
+    val photoUrl: String?,
 )
