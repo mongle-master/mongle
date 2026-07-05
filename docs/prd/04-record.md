@@ -2,7 +2,7 @@
 
 > **SSOT:** 상황 기록 작성(제목·왜·무엇을·언제 + 감정·날씨·카테고리 칩 + 연결할 사람 + 사진, 저장→타임라인 반영)의 단일 기준.
 > 상위 배경·목표: [개요](./README.md) · 관련 화면: [02 사람 프로필](./02-person.md), [03 타임라인](./03-timeline.md) · 공통 규칙: [공통 기준](./README.md#12-공통-기준-전-화면-공유)
-> 백엔드: [#4 기록(이벤트) 도메인 API](https://github.com/mongle-master/mongle/issues/4)
+> 백엔드: [기록(event) 이슈](https://github.com/mongle-master/mongle/labels/event)
 
 ## 1. 목적
 
@@ -68,8 +68,8 @@
 
 ## 7. 데이터 · 백엔드 연동
 
-- 저장하면 기록(이벤트)이 새로 생성된다([§4](#4-입력필드-상세-스펙)의 입력이 원천). — [#4](https://github.com/mongle-master/mongle/issues/4)
-- 저장 후 연결된 **각 인물**의 파생값이 갱신되고 타임라인에 즉시 반영된다. — [#4](https://github.com/mongle-master/mongle/issues/4) · [03](./03-timeline.md)
+- 저장하면 기록(이벤트)이 새로 생성된다([§4](#4-입력필드-상세-스펙)의 입력이 원천). — [event](https://github.com/mongle-master/mongle/labels/event)
+- 저장 후 연결된 **각 인물**의 파생값이 갱신되고 타임라인에 즉시 반영된다. — [event](https://github.com/mongle-master/mongle/labels/event) · [03](./03-timeline.md)
   - **마지막 만남:** 이 기록의 날짜가 더 최근이면 갱신.
   - **함께한 기록 수:** 그 사람과 연결된 전체 기록 개수.
   - **만난 횟수:** `만남` 카테고리 기록의 **고유 날짜 수**(같은 날 여러 건은 1회로 센다).

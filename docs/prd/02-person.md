@@ -3,7 +3,7 @@
 > **SSOT:** 인물 등록/수정, 사람 프로필(관계 요약·취향·태그·통계), 즐겨찾기의 단일 기준.
 > 상위 배경·목표: [개요](./README.md) · 관련 화면: [01 홈](./01-home-dashboard.md), [03 타임라인](./03-timeline.md), [04 기록 작성](./04-record.md)
 > 공통 규칙(이미지·칩·글자수·날짜 표시·에러/빈상태 문구·접근성): [공통 기준](./README.md#12-공통-기준-전-화면-공유) — 이 문서는 재정의하지 않고 참조한다.
-> 백엔드: [#3 인물 도메인 API](https://github.com/mongle-master/mongle/issues/3)
+> 백엔드: [인물(person) 이슈](https://github.com/mongle-master/mongle/labels/person)
 
 이 문서는 **등록/수정 화면(7.2)** 과 **조회 화면(7.3)** 을 함께 다룬다. 두 화면은 같은 인물 데이터를 공유하므로 필드 정의를 여기 한곳에 둔다.
 
@@ -128,7 +128,7 @@
 
 ## 8. 데이터 · 백엔드 연동
 
-- 인물 등록·조회·수정, 즐겨찾기 켜고 끄기, 관계 태그·좋아하는것/조심할것 관리, 요약 통계·기본 정보 계산 — 백엔드 [#3](https://github.com/mongle-master/mongle/issues/3)
+- 인물 등록·조회·수정, 즐겨찾기 켜고 끄기, 관계 태그·좋아하는것/조심할것 관리, 요약 통계·기본 정보 계산 — 백엔드 [person](https://github.com/mongle-master/mongle/labels/person)
 
 ## 9. 관련 사용자 흐름
 

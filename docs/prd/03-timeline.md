@@ -3,7 +3,7 @@
 > **SSOT:** 사람별 타임라인(이벤트 타임블록, 활동 흐름 시각화, 카테고리 필터)의 단일 기준.
 > 상위 배경·목표: [개요](./README.md) · 관련 화면: [02 사람 프로필](./02-person.md), [04 기록 작성](./04-record.md), [05 전체 타임라인](./05-my-timeline.md)
 > 공통 규칙(내비·칩·날짜·글자수·문구·이미지·접근성): [공통 기준](./README.md#12-공통-기준-전-화면-공유)
-> 백엔드: [#6 사람별 타임라인 & 활동 흐름 API](https://github.com/mongle-master/mongle/issues/6)
+> 백엔드: [타임라인(timeline) 이슈](https://github.com/mongle-master/mongle/labels/timeline)
 
 ## 1. 목적
 
@@ -64,7 +64,7 @@
 
 ## 6. 데이터 · 백엔드 연동
 
-- 사람별 타임라인 피드(요약 + 기록 시간순)와 활동 흐름 집계 — 백엔드 [#6](https://github.com/mongle-master/mongle/issues/6)
+- 사람별 타임라인 피드(요약 + 기록 시간순)와 활동 흐름 집계 — 백엔드 [timeline](https://github.com/mongle-master/mongle/labels/timeline)
 - 기록 원천: [04 기록 작성](./04-record.md)에서 생성·저장
 
 ## 7. 열린 질문 / 리스크

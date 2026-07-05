@@ -9,13 +9,13 @@
 
 | 문서 | 담당 화면 | SSOT 범위 | 백엔드 |
 |---|---|---|---|
-| [01. 홈 · 관계 대시보드](./01-home-dashboard.md) | 7.1 | 그래프/리스트뷰, 태그 필터, 1년 전 오늘 플로팅, 하단 내비 | [#5](https://github.com/mongle-master/mongle/issues/5) |
-| [02. 사람 (등록 · 프로필)](./02-person.md) | 7.2, 7.3 | 인물 등록/수정, 프로필 요약·취향·태그·통계, 즐겨찾기 | [#3](https://github.com/mongle-master/mongle/issues/3) |
-| [03. 사람별 타임라인](./03-timeline.md) | 7.4 | 이벤트 타임블록, 활동 흐름 시각화, 카테고리 필터 | [#6](https://github.com/mongle-master/mongle/issues/6) |
-| [04. 상황 기록 작성](./04-record.md) | 7.5 | 제목·왜·무엇을 + 감정·날씨·카테고리 칩, 연결할 사람, 저장→타임라인 반영 | [#4](https://github.com/mongle-master/mongle/issues/4) |
-| [05. 전체 타임라인](./05-my-timeline.md) | 신규 | 나의 통합 연대기(전 인물 기록을 시간순), 카테고리·사람 필터 | [#6](https://github.com/mongle-master/mongle/issues/6) |
+| [01. 홈 · 관계 대시보드](./01-home-dashboard.md) | 7.1 | 그래프/리스트뷰, 태그 필터, 1년 전 오늘 플로팅, 하단 내비 | [home](https://github.com/mongle-master/mongle/labels/home) |
+| [02. 사람 (등록 · 프로필)](./02-person.md) | 7.2, 7.3 | 인물 등록/수정, 프로필 요약·취향·태그·통계, 즐겨찾기 | [person](https://github.com/mongle-master/mongle/labels/person) |
+| [03. 사람별 타임라인](./03-timeline.md) | 7.4 | 이벤트 타임블록, 활동 흐름 시각화, 카테고리 필터 | [timeline](https://github.com/mongle-master/mongle/labels/timeline) |
+| [04. 상황 기록 작성](./04-record.md) | 7.5 | 제목·왜·무엇을 + 감정·날씨·카테고리 칩, 연결할 사람, 저장→타임라인 반영 | [event](https://github.com/mongle-master/mongle/labels/event) |
+| [05. 전체 타임라인](./05-my-timeline.md) | 신규 | 나의 통합 연대기(전 인물 기록을 시간순), 카테고리·사람 필터 | [timeline](https://github.com/mongle-master/mongle/labels/timeline) |
 
-> 공통 기반·도메인 모델은 백엔드 이슈 [#1](https://github.com/mongle-master/mongle/issues/1)·[#2](https://github.com/mongle-master/mongle/issues/2) 참조.
+> 공통 기반·도메인 모델은 백엔드 [infra](https://github.com/mongle-master/mongle/labels/infra)·[chip](https://github.com/mongle-master/mongle/labels/chip) 라벨 참조.
 
 ---
 

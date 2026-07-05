@@ -4,7 +4,7 @@
 > 상위 배경·목표: [개요](./README.md) · 관련 화면: [02 사람](./02-person.md), [03 타임라인](./03-timeline.md), [04 기록 작성](./04-record.md)
 > 참고: 즐겨찾기 **토글 정의**는 [02 사람](./02-person.md#5-즐겨찾기), 이 문서는 관계도 맵에서의 **표시** 만 다룬다.
 > 공통 정의(내비·칩·날짜·표시 포맷·문구·이미지·접근성): [공통 기준](./README.md#12-공통-기준-전-화면-공유) — 각 항목은 여기서 재정의하지 않고 참조한다.
-> 백엔드: [#5 홈 관계 지도 & 회고 API](https://github.com/mongle-master/mongle/issues/5)
+> 백엔드: [홈(home) 이슈](https://github.com/mongle-master/mongle/labels/home)
 
 ## 1. 목적
 
@@ -83,8 +83,8 @@
 
 ## 7. 데이터 · 백엔드 연동
 
-- 관계 지도: 인물 노드(이름·즐겨찾기·친밀도)와 연결을 받아 그린다 — 백엔드 [#5](https://github.com/mongle-master/mongle/issues/5)
-- 1년 전 오늘: 오늘로부터 1년 전 기록을 조회한다 — 백엔드 [#5](https://github.com/mongle-master/mongle/issues/5)
+- 관계 지도: 인물 노드(이름·즐겨찾기·친밀도)와 연결을 받아 그린다 — 백엔드 [home](https://github.com/mongle-master/mongle/labels/home)
+- 1년 전 오늘: 오늘로부터 1년 전 기록을 조회한다 — 백엔드 [home](https://github.com/mongle-master/mongle/labels/home)
 
 ## 8. 관련 사용자 흐름
 

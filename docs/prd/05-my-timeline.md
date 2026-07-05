@@ -48,7 +48,7 @@
 ## 6. 데이터 · 백엔드 연동
 
 - 전체 타임라인 피드: 모든 인물의 기록을 하나의 시간축으로 시간순 집계. 기록 원천은 [04 기록 작성](./04-record.md)에서 생성/저장.
-- 사람별 타임라인·활동 흐름은 [03](./03-timeline.md) — [#6](https://github.com/mongle-master/mongle/issues/6).
+- 사람별 타임라인·활동 흐름은 [03](./03-timeline.md) — [timeline](https://github.com/mongle-master/mongle/labels/timeline).
 
 ## 7. 열린 질문 / 리스크
 
