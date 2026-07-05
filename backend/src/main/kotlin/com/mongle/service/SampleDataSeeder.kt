@@ -1,0 +1,211 @@
+package com.mongle.service
+
+import com.mongle.common.context.DEMO_USER_ID
+import com.mongle.domain.Chip
+import com.mongle.domain.ChipType
+import com.mongle.domain.Event
+import com.mongle.domain.Person
+import com.mongle.repository.ChipRepository
+import com.mongle.repository.EventRepository
+import com.mongle.repository.PersonRepository
+import org.springframework.boot.ApplicationArguments
+import org.springframework.boot.ApplicationRunner
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
+import java.time.LocalTime
+
+/**
+ * 데모 사용자(DEMO_USER_ID) 소유의 샘플 인물·기록 시드 (#13).
+ *
+ * 왜 항상 실행하나(개발 프로파일 게이팅 없음): 이 저장소는 로컬 단일 사용자 데모다.
+ * 앱을 처음 켠 사람이 곧바로 관계지도·타임라인·1년 전 오늘·친밀도를 볼 수 있어야 데모가 성립한다.
+ * 공통 칩 시드(ChipSeeder)도 같은 이유로 프로파일 없이 항상 멱등 실행하므로 그 컨벤션을 따른다.
+ *
+ * 멱등: 데모 사용자에게 인물이 이미 하나라도 있으면 통째로 스킵한다(파일 H2 재기동 시 중복 금지).
+ * 관계태그 개인 칩도 라벨 존재로 재사용한다.
+ *
+ * 도메인 서비스(사용자 컨텍스트·검증)를 거치지 않고 리포지토리를 직접 쓴다 — 단 mustpass 불변식
+ * (이름 필수·날짜 순서/미래·감정 ≤5·연결 인물 ≥1·관계태그 id 참조 등)은 시드 값에서 지킨다.
+ *
+ * @Order: 공통 칩(ChipSeeder @Order(1)) 이후 실행돼 시드된 칩을 라벨로 조회할 수 있어야 한다.
+ */
+@Order(2)
+@Component
+class SampleDataSeeder(
+    private val personRepository: PersonRepository,
+    private val eventRepository: EventRepository,
+    private val chipRepository: ChipRepository,
+) : ApplicationRunner {
+    @Transactional
+    override fun run(args: ApplicationArguments?) {
+        if (personRepository.findByOwnerIdAndDeletedAtIsNull(DEMO_USER_ID).isNotEmpty()) return
+
+        val today = LocalDate.now()
+
+        // 관계태그는 공통용이 없어(01-chip) 데모 사용자 개인 칩으로 먼저 시드한다. 라벨→id 로 인물이 참조.
+        val relationTagIds = ensureRelationTags(listOf("가족", "친구", "직장", "대학동기", "동네"))
+
+        // 기록·인물이 참조할 공통 칩(감정·날씨·카테고리)을 라벨→id 로 해석.
+        val category = commonChipIds(ChipType.CATEGORY)
+        val weather = commonChipIds(ChipType.WEATHER)
+        val emotion = commonChipIds(ChipType.EMOTION)
+
+        // 인물 3~5명: 관계유형·태그·취향·생일(연도 유무 섞음)·처음/마지막 만난 날 다양하게.
+        val seoyeon = personRepository.save(
+            Person(
+                ownerId = DEMO_USER_ID,
+                name = "김서연",
+                relationType = "대학 친구",
+                birthYear = 1995, birthMonth = 4, birthDay = 12,
+                firstMetDate = today.minusYears(3),
+                lastMetDate = today.minusDays(3),
+                favorite = true,
+            ).apply {
+                replaceRelationTags(tagIds(relationTagIds, "친구", "대학동기"))
+                replaceLikes(listOf("카페 투어", "산책"))
+                replaceCautions(listOf("매운 음식"))
+            },
+        )
+        val junho = personRepository.save(
+            Person(
+                ownerId = DEMO_USER_ID,
+                name = "이준호",
+                relationType = "회사 동료",
+                // 생일 연도 생략(월·일만) — 연도-선택 케이스 데모.
+                birthMonth = 9,
+                birthDay = 23,
+                firstMetDate = today.minusMonths(14),
+                lastMetDate = today.minusMonths(1),
+            ).apply {
+                replaceRelationTags(tagIds(relationTagIds, "직장"))
+                replaceLikes(listOf("커피", "러닝"))
+            },
+        )
+        val minji = personRepository.save(
+            Person(
+                ownerId = DEMO_USER_ID,
+                name = "박민지",
+                relationType = "동생",
+                birthYear = 2000,
+                birthMonth = 11,
+                birthDay = 5,
+                // 가족이라 처음 만난 날은 비워 둠(선택 필드) — lastMet 만 있는 케이스.
+                lastMetDate = today.minusMonths(2),
+                favorite = true,
+            ).apply {
+                replaceRelationTags(tagIds(relationTagIds, "가족"))
+            },
+        )
+        val yunseo = personRepository.save(
+            Person(
+                ownerId = DEMO_USER_ID,
+                name = "최윤서",
+                relationType = "동네 친구",
+                // 생일 없음.
+                firstMetDate = today.minusYears(1).minusMonths(2),
+                lastMetDate = today.minusDays(10),
+            ).apply {
+                replaceRelationTags(tagIds(relationTagIds, "동네", "친구"))
+                replaceLikes(listOf("떡볶이"))
+                replaceCautions(listOf("늦은 약속"))
+            },
+        )
+        val hajun = personRepository.save(
+            Person(
+                ownerId = DEMO_USER_ID,
+                name = "정하준",
+                relationType = "동아리 후배",
+                birthYear = 1998,
+                birthMonth = 7,
+                birthDay = 30,
+                firstMetDate = today.minusYears(2),
+                lastMetDate = today.minusYears(1),
+            ).apply {
+                replaceRelationTags(tagIds(relationTagIds, "대학동기", "친구"))
+            },
+        )
+
+        // 기록 8건: 만남/연락/기념일 섞고 감정·날씨·왜·무엇을 다양하게, 과거 여러 달에 분산.
+        // '정확히 1년 전 오늘' 1건 포함(1년 전 오늘·활동흐름·친밀도 데모 성립 조건, #13).
+        val events = listOf(
+            newEvent(today.minusYears(1), category["만남"]!!, weather["맑음"], listOf(hajun.id!!), emotionIds(emotion, "반가움", "즐거움"))
+                .apply {
+                    why = "오랜만에 얼굴 보고 싶어서"
+                    what = "한강 피크닉"
+                },
+            newEvent(today.minusDays(3), category["만남"]!!, weather["흐림"], listOf(seoyeon.id!!), emotionIds(emotion, "편안", "고마움"))
+                .apply {
+                    occurredTime = LocalTime.of(15, 0)
+                    title = "서연이랑 카페"
+                    why = "시험 끝나고 기분전환"
+                    what = "홍대 카페에서 수다"
+                },
+            newEvent(today.minusDays(10), category["만남"]!!, weather["더움"], listOf(yunseo.id!!), emotionIds(emotion, "즐거움"))
+                .apply { what = "동네 저녁 산책" },
+            newEvent(today.minusMonths(1), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥"))
+                .apply {
+                    why = "문득 생각나서"
+                    what = "오랜만에 안부 전화"
+                },
+            newEvent(today.minusMonths(2), category["만남"]!!, weather["맑음"], listOf(minji.id!!, seoyeon.id!!), emotionIds(emotion, "반가움", "편안", "즐거움"))
+                .apply {
+                    why = "엄마 생신"
+                    what = "가족 모임 겸 저녁"
+                },
+            newEvent(today.minusMonths(4), category["기념일"]!!, weather["쌀쌀"], listOf(seoyeon.id!!), emotionIds(emotion, "뭉클", "고마움"))
+                .apply {
+                    title = "서연 생일"
+                    why = "10년지기 생일"
+                    what = "생일 축하 저녁"
+                },
+            newEvent(today.minusMonths(7), category["만남"]!!, weather["비"], listOf(hajun.id!!, yunseo.id!!), emotionIds(emotion, "즐거움", "그냥"))
+                .apply { what = "동아리 번개 모임" },
+            newEvent(today.minusMonths(9), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥"))
+                .apply {
+                    why = "협업 논의"
+                    what = "프로젝트 관련 메시지"
+                },
+        )
+        eventRepository.saveAll(events)
+    }
+
+    /** 데모 사용자 개인 관계태그 칩을 라벨로 보장(있으면 재사용)하고 라벨→id 를 돌려준다. */
+    private fun ensureRelationTags(labels: List<String>): Map<String, Long> {
+        val existing = chipRepository
+            .findByTypeAndOwnerIdAndDeletedAtIsNullOrderByDisplayOrderAsc(ChipType.RELATION_TAG, DEMO_USER_ID)
+            .associateBy { it.label }
+        var order = existing.values.maxOfOrNull { it.displayOrder }?.plus(1) ?: 0
+        return labels.associateWith { label ->
+            val chip = existing[label] ?: chipRepository.save(
+                Chip(type = ChipType.RELATION_TAG, ownerId = DEMO_USER_ID, label = label, displayOrder = order++),
+            )
+            chip.id!!
+        }
+    }
+
+    private fun commonChipIds(type: ChipType): Map<String, Long> = chipRepository
+        .findByTypeAndOwnerIdIsNullAndDeletedAtIsNullOrderByDisplayOrderAsc(type)
+        .associate { it.label to it.id!! }
+
+    private fun tagIds(all: Map<String, Long>, vararg labels: String): List<Long> = labels.map { all.getValue(it) }
+
+    private fun emotionIds(all: Map<String, Long>, vararg labels: String): List<Long> = labels.map { all.getValue(it) }
+
+    private fun newEvent(
+        date: LocalDate,
+        categoryChipId: Long,
+        weatherChipId: Long?,
+        personIds: List<Long>,
+        emotionChipIds: List<Long>,
+    ): Event = Event(
+        ownerId = DEMO_USER_ID,
+        occurredDate = date,
+        categoryChipId = categoryChipId,
+        weatherChipId = weatherChipId,
+    ).apply {
+        replacePersons(personIds)
+        replaceEmotions(emotionChipIds)
+    }
+}

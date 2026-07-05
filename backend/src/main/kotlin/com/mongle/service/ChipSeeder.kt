@@ -4,6 +4,7 @@ import com.mongle.domain.Chip
 import com.mongle.domain.ChipType
 import com.mongle.repository.ChipRepository
 import org.springframework.boot.ApplicationRunner
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -12,7 +13,10 @@ import org.springframework.transaction.annotation.Transactional
  * (파일 H2 는 재기동에도 남으므로 중복 삽입 방지가 필수).
  * 관계태그는 공통용이 없어 시드하지 않는다(모두 개인).
  * 카테고리의 첫 순서 `만남` 이 기본값이다(승계 로직은 ChipService).
+ *
+ * @Order: 샘플 데이터 시드(SampleDataSeeder)가 이 공통 칩을 라벨로 참조하므로 반드시 먼저 실행돼야 한다.
  */
+@Order(1)
 @Component
 class ChipSeeder(
     private val chipRepository: ChipRepository,
