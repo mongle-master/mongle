@@ -7,6 +7,7 @@ import com.mongle.controller.dto.ChipResponse
 import com.mongle.domain.ChipType
 import com.mongle.service.ChipService
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -41,4 +42,11 @@ class ChipController(
         @PathVariable id: Long,
         @RequestBody request: ChipRenameRequest,
     ): ChipResponse = ChipResponse.from(chipService.rename(userId, id, request.label))
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(
+        @CurrentUserId userId: Long,
+        @PathVariable id: Long,
+    ) = chipService.delete(userId, id)
 }

@@ -6,6 +6,7 @@ import com.mongle.common.Validators
 import com.mongle.common.exception.BusinessException
 import com.mongle.common.exception.ErrorCode
 import com.mongle.domain.Chip
+import com.mongle.domain.ChipHide
 import com.mongle.domain.ChipType
 import com.mongle.repository.ChipHideRepository
 import com.mongle.repository.ChipRepository
@@ -55,6 +56,28 @@ class ChipService(
         assertNoDuplicate(userId, chip.type, label, excludeId = chipId)
         chip.rename(label)
         return chip
+    }
+
+    /**
+     * 하나의 삭제 요청을 소유에 따라 분기한다:
+     * 공통 칩 → 그 사용자에게만 숨김(원본 불변, 타인 무관), 개인 칩 → 소프트삭제(과거 기록 값 유지).
+     * 타인 개인 칩·없는 칩은 NOT_FOUND. 이미 지운/숨긴 칩 재요청은 멱등.
+     */
+    @Transactional
+    fun delete(userId: Long, chipId: Long) {
+        val chip = chipRepository.findById(chipId).orElseThrow { BusinessException(ErrorCode.NOT_FOUND) }
+        when {
+            chip.isCommon -> hideCommon(userId, chip)
+            chip.ownerId == userId -> chip.softDelete()
+            else -> throw BusinessException(ErrorCode.NOT_FOUND)
+        }
+    }
+
+    private fun hideCommon(userId: Long, chip: Chip) {
+        val chipId = requireNotNull(chip.id)
+        if (!chipHideRepository.existsByOwnerIdAndChipId(userId, chipId)) {
+            chipHideRepository.save(ChipHide(ownerId = userId, chipId = chipId))
+        }
     }
 
     /** 같은 종류 안 중복(공통 전체 + 내 개인 active). excludeId 는 이름변경 시 자기 자신 제외. */
