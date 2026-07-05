@@ -40,6 +40,9 @@ dependencies {
     runtimeOnly(libs.jjwt.impl)
     runtimeOnly(libs.jjwt.jackson)
 
+    // API 문서 (OpenAPI 3 스펙 생성 + Swagger UI)
+    implementation(libs.springdoc.openapi.starter.webmvc.ui)
+
     // Config metadata (application.yml auto-completion)
     annotationProcessor(libs.spring.boot.configuration.processor)
 

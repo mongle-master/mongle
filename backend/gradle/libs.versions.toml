@@ -16,6 +16,9 @@ kotlin-logging = "7.0.3"
 # Auth
 jjwt = "0.12.6"
 
+# API 문서 (OpenAPI/Swagger)
+springdoc = "2.8.6"
+
 # Testing
 spring-mockk = "4.0.2"
 
@@ -48,6 +51,9 @@ kotlin-logging-jvm = { module = "io.github.oshai:kotlin-logging-jvm", version.re
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
 jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
+
+# API 문서 (OpenAPI/Swagger UI)
+springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
 
 # Database drivers
 h2 = { module = "com.h2database:h2" }
