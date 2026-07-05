@@ -36,7 +36,8 @@ data class PersonRefDto(
 
 data class EventResponse(
     val id: Long,
-    val title: String?,
+    // 표시용 최종 제목: 사용자가 입력했으면 그 값, 미입력이면 조회 시점에 계산한 자동 제목(#37).
+    val title: String,
     val why: String?,
     val what: String?,
     val occurredDate: LocalDate,
@@ -55,7 +56,7 @@ data class EventResponse(
          */
         fun from(event: Event, chipLabels: Map<Long, String>, personNames: Map<Long, String>): EventResponse = EventResponse(
             id = requireNotNull(event.id) { "저장되지 않은 Event는 응답으로 변환할 수 없습니다." },
-            title = event.title,
+            title = event.title ?: autoTitle(event, chipLabels, personNames),
             why = event.why,
             what = event.what,
             occurredDate = event.occurredDate,
@@ -67,5 +68,17 @@ data class EventResponse(
             photoUrls = event.photoUrls.toList(),
             createdAt = event.createdAt,
         )
+
+        /**
+         * 자동 제목(#37): 대표(첫 번째) 인물 이름과 카테고리로 조합. 단일 `{이름} · {카테고리}`,
+         * 다중 `{대표 이름} 외 N명 · {카테고리}`(N = 인물 수 − 1). 저장하지 않고 조회 시 계산하므로 rename 이 자동 반영된다.
+         */
+        private fun autoTitle(event: Event, chipLabels: Map<Long, String>, personNames: Map<Long, String>): String {
+            val category = chipLabels[event.categoryChipId].orEmpty()
+            val representative = event.personIds.firstOrNull()?.let { personNames[it] }.orEmpty()
+            val others = event.personIds.size - 1
+            val who = if (others > 0) "$representative 외 ${others}명" else representative
+            return "$who · $category"
+        }
     }
 }
