@@ -16,6 +16,9 @@ interface ChipRepository : JpaRepository<Chip, Long> {
     // 시드 멱등성: 공통 라벨이 이미 있으면 스킵.
     fun existsByTypeAndOwnerIdIsNullAndLabel(type: ChipType, label: String): Boolean
 
+    // 만남 카테고리 앵커(기록 파생 갱신 #36) — 공통 CATEGORY 칩은 rename·삭제 불가라 안정적 식별자.
+    fun findByTypeAndOwnerIdIsNullAndLabelAndDeletedAtIsNull(type: ChipType, label: String): Chip?
+
     // 중복 검사(생성) — 공통 전체 + 내 개인 active.
     fun existsByTypeAndOwnerIdIsNullAndLabelAndDeletedAtIsNull(type: ChipType, label: String): Boolean
 

@@ -80,6 +80,18 @@ class ChipService(
      */
     fun defaultCategoryId(userId: Long): Long? = visibleChips(userId, ChipType.CATEGORY).firstOrNull()?.id
 
+    /**
+     * 만남 카테고리 칩 id(기록의 마지막 만남 파생 판정용 #36). 공통·전 사용자 공유라 userId 무관.
+     * 기본 카테고리(defaultCategoryId, 사용자 시점 첫 칩)와 개념이 다르다 — 그건 폼 기본 선택,
+     * 이건 "만남으로 세는 카테고리"의 고정 앵커다. 공통 만남 칩은 이름변경·삭제가 막혀 있어 id 가 안정적이다.
+     */
+    fun meetingCategoryId(): Long? = chipRepository.findByTypeAndOwnerIdIsNullAndLabelAndDeletedAtIsNull(ChipType.CATEGORY, MEETING_CATEGORY_LABEL)?.id
+
+    companion object {
+        // 시드(ChipSeeder)의 첫 카테고리 라벨과 동일해야 한다.
+        const val MEETING_CATEGORY_LABEL = "만남"
+    }
+
     /** 카테고리는 사용자 시점 목록이 최소 1개 유지 — 현재 보이는 마지막 1개를 지우려 하면 거절. */
     private fun assertCategoryMinimum(userId: Long, chip: Chip) {
         if (chip.type != ChipType.CATEGORY) return
