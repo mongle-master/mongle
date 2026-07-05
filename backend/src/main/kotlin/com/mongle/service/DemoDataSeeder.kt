@@ -23,7 +23,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 /**
- * 데모 사용자(DEMO_USER_ID) 소유의 샘플 인물·기록 시드 (#13).
+ * 데모 사용자(DEMO_USER_ID) 소유의 데모 인물·기록 시드 (#13).
  *
  * 왜 항상 실행하나(개발 프로파일 게이팅 없음): 이 저장소는 로컬 단일 사용자 데모다.
  * 앱을 처음 켠 사람이 곧바로 관계지도·타임라인·1년 전 오늘·친밀도를 볼 수 있어야 데모가 성립한다.
@@ -39,7 +39,7 @@ import java.time.LocalTime
  */
 @Order(2)
 @Component
-class SampleDataSeeder(
+class DemoDataSeeder(
     private val personRepository: PersonRepository,
     private val eventRepository: EventRepository,
     private val chipRepository: ChipRepository,
