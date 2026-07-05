@@ -37,4 +37,9 @@ object EventValidator {
         if (chipId == null) throw BusinessException(ErrorCode.CATEGORY_REQUIRED)
         if (chipId !in allowedIds) throw BusinessException(ErrorCode.NOT_FOUND)
     }
+
+    /** 사진(#35): 최대 5장. url 유효성·업로드는 이미지 도메인 소관이라 여기선 개수만 본다. */
+    fun validatePhotos(urls: List<String>) {
+        Validators.maxSelection(urls.size, ValidationLimits.EVENT_PHOTO_MAX)
+    }
 }
