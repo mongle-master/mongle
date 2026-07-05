@@ -2,28 +2,41 @@ package com.mongle.controller.dto
 
 import com.mongle.domain.Chip
 import com.mongle.domain.ChipType
+import io.swagger.v3.oas.annotations.media.Schema
 
 /**
  * 라벨의 빈값·글자수·중복 검증은 서비스 계층 Validators 로 미룬다(REQUIRED_FIELD·LENGTH_EXCEEDED·DUPLICATE 코드가 필요).
  * DTO @Size 로 걸면 @Valid 실패가 INVALID_INPUT 으로 뭉뚱그려지기 때문.
  */
+@Schema(description = "개인 칩 생성 요청. 칩 종류와 라벨을 받는다.")
 data class ChipCreateRequest(
+    @field:Schema(description = "칩 종류(카테고리·감정·날씨·관계태그).", example = "RELATION_TAG")
     val type: ChipType,
+    @field:Schema(description = "칩에 표시할 라벨. 종류 안에서 중복될 수 없다.", example = "대학 친구")
     val label: String,
 )
 
+@Schema(description = "칩 이름 변경 요청. 개인 칩만 변경할 수 있다.")
 data class ChipRenameRequest(
+    @field:Schema(description = "새 라벨. 종류 안에서 중복될 수 없다.", example = "동네 친구")
     val label: String,
 )
 
+@Schema(description = "칩 응답. 공통 칩과 개인 칩을 함께 담는다.")
 data class ChipResponse(
+    @field:Schema(description = "칩 id.", example = "12")
     val id: Long,
+    @field:Schema(description = "칩 종류(카테고리·감정·날씨·관계태그).", example = "RELATION_TAG")
     val type: ChipType,
+    @field:Schema(description = "칩 라벨. 소프트삭제된 칩도 과거 기록 표시를 위해 라벨은 유지된다.", example = "대학 친구")
     val label: String,
     // 개인 칩 여부(공통=false). 클라이언트가 이름변경·삭제 가능 여부를 판단한다.
+    @field:Schema(description = "개인 칩 여부. 공통 칩은 false 이며 이름변경·삭제가 불가하다.", example = "true")
     val personal: Boolean,
+    @field:Schema(description = "같은 종류 안에서의 표시 순서(오름차순).", example = "0")
     val order: Int,
     // 카테고리에서만 의미 — 기록 작성 시 기본 선택할 칩. 다른 종류는 항상 false.
+    @field:Schema(description = "기록 작성 시 기본 선택될 카테고리 칩인지 여부. 카테고리 외 종류는 항상 false.", example = "false")
     val default: Boolean,
 ) {
     companion object {

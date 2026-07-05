@@ -2,6 +2,7 @@ package com.mongle.common.image
 
 import com.mongle.common.exception.BusinessException
 import com.mongle.common.exception.ErrorCode
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Files
@@ -13,8 +14,11 @@ import java.util.UUID
 /**
  * 저장 결과. url 은 클라이언트가 바로 참조·표시할 수 있는 정적 서빙 경로.
  */
+@Schema(description = "이미지 저장 결과. url 을 도메인(프로필·기록)이 저장·연결한다.")
 data class StoredImage(
+    @field:Schema(description = "저장된 파일명(UUID.확장자).", example = "a1b2c3d4.jpg")
     val filename: String,
+    @field:Schema(description = "정적 서빙 URL. 프로필·기록의 이미지 필드에 그대로 넣는다.", example = "/images/a1b2c3d4.jpg")
     val url: String,
 )
 

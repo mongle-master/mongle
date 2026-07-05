@@ -1,6 +1,7 @@
 package com.mongle.common.exception
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -10,8 +11,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException
 
 private val log = KotlinLogging.logger {}
 
+@Schema(description = "공통 에러 응답. code 는 ErrorCode 이름, message 는 사용자에게 그대로 노출 가능한 문구(§12.5).")
 data class ErrorResponse(
+    @field:Schema(description = "에러 코드(ErrorCode enum 이름).", example = "REQUIRED_FIELD")
     val code: String,
+    @field:Schema(description = "사용자 노출용 에러 문구.", example = "이름을 입력해 주세요.")
     val message: String,
 )
 
