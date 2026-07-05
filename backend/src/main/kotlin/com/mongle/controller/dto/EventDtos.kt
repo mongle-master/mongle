@@ -23,17 +23,6 @@ data class EventRequest(
     val photoUrls: List<String> = emptyList(),
 )
 
-/** 칩·인물을 조회에 실을 때의 표현 — id 로 참조하되 라벨·이름을 함께 실어 클라이언트가 바로 그린다(수정 모드 재사용). */
-data class ChipRefDto(
-    val id: Long,
-    val label: String,
-)
-
-data class PersonRefDto(
-    val id: Long,
-    val name: String,
-)
-
 data class EventResponse(
     val id: Long,
     // 표시용 최종 제목: 사용자가 입력했으면 그 값, 미입력이면 조회 시점에 계산한 자동 제목(#37).
@@ -42,10 +31,10 @@ data class EventResponse(
     val what: String?,
     val occurredDate: LocalDate,
     val occurredTime: LocalTime?,
-    val category: ChipRefDto?,
-    val weather: ChipRefDto?,
-    val emotions: List<ChipRefDto>,
-    val persons: List<PersonRefDto>,
+    val category: ChipRef?,
+    val weather: ChipRef?,
+    val emotions: List<ChipRef>,
+    val persons: List<PersonRef>,
     val photoUrls: List<String>,
     val createdAt: LocalDateTime?,
 ) {
@@ -68,10 +57,10 @@ data class EventResponse(
             what = event.what,
             occurredDate = event.occurredDate,
             occurredTime = event.occurredTime,
-            category = chipLabels[event.categoryChipId]?.let { ChipRefDto(event.categoryChipId, it) },
-            weather = event.weatherChipId?.let { id -> chipLabels[id]?.let { ChipRefDto(id, it) } },
-            emotions = emotionChipIds.mapNotNull { id -> chipLabels[id]?.let { ChipRefDto(id, it) } },
-            persons = personIds.mapNotNull { id -> personNames[id]?.let { PersonRefDto(id, it) } },
+            category = chipLabels[event.categoryChipId]?.let { ChipRef(event.categoryChipId, it) },
+            weather = event.weatherChipId?.let { id -> chipLabels[id]?.let { ChipRef(id, it) } },
+            emotions = emotionChipIds.mapNotNull { id -> chipLabels[id]?.let { ChipRef(id, it) } },
+            persons = personIds.mapNotNull { id -> personNames[id]?.let { PersonRef(id, it) } },
             photoUrls = event.photoUrls.toList(),
             createdAt = event.createdAt,
         )

@@ -28,7 +28,7 @@ enum class ActivityLane {
 }
 
 /** 전체 타임라인 카드에 붙는 연결 인물(#46) — 아바타(profileImageUrl)까지 실어 클라이언트가 바로 그린다(전역 전용). */
-data class TimelinePersonRef(
+data class TimelinePerson(
     val id: Long,
     val name: String,
     val profileImageUrl: String?,
@@ -39,21 +39,21 @@ data class TimelinePersonRef(
  * 전체 타임라인 카드(#46) — 카드 표시·자동 제목은 [EventResponse] 를 그대로 재사용하고,
  * 전역 화면 전용인 '연결된 사람들'만 대표(즐겨찾기→가나다) 우선 정렬로 덧붙인다.
  */
-data class MyTimelineCard(
+data class TimelineCard(
     val id: Long,
     val title: String,
     val why: String?,
     val what: String?,
     val occurredDate: LocalDate,
     val occurredTime: LocalTime?,
-    val category: ChipRefDto?,
-    val weather: ChipRefDto?,
-    val emotions: List<ChipRefDto>,
+    val category: ChipRef?,
+    val weather: ChipRef?,
+    val emotions: List<ChipRef>,
     val photoUrls: List<String>,
-    val persons: List<TimelinePersonRef>,
+    val persons: List<TimelinePerson>,
 ) {
     companion object {
-        fun from(base: EventResponse, persons: List<TimelinePersonRef>): MyTimelineCard = MyTimelineCard(
+        fun from(base: EventResponse, persons: List<TimelinePerson>): TimelineCard = TimelineCard(
             id = base.id,
             title = base.title,
             why = base.why,
@@ -70,13 +70,13 @@ data class MyTimelineCard(
 }
 
 /** 월 단위 그룹(#46). 그룹도 카드도 최신→과거. label 은 `YYYY년 M월`. */
-data class MyTimelineMonthGroup(
+data class TimelineMonthGroup(
     val year: Int,
     val month: Int,
     val label: String,
-    val cards: List<MyTimelineCard>,
+    val cards: List<TimelineCard>,
 )
 
-data class MyTimelineResponse(
-    val groups: List<MyTimelineMonthGroup>,
+data class TimelineResponse(
+    val groups: List<TimelineMonthGroup>,
 )

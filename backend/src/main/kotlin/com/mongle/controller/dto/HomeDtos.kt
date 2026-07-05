@@ -1,6 +1,5 @@
 package com.mongle.controller.dto
 
-import com.mongle.service.IntimacyStatus
 import java.time.LocalDate
 
 /**
@@ -27,8 +26,8 @@ data class PersonNode(
     val name: String,
     val profileImageUrl: String?,
     val favorite: Boolean,
-    val relationTags: List<RelationTagDto>,
-    val intimacy: IntimacyDto,
+    val relationTags: List<ChipRef>,
+    val intimacy: Intimacy,
 )
 
 /** 나↔인물 연결. distant=멀어진 관계면 프론트가 연결선·이름을 흐리게(#41). */
@@ -37,8 +36,15 @@ data class RelationEdge(
     val distant: Boolean,
 )
 
-/** 친밀도(#41). status 외 원시값을 함께 실어 프론트가 재활용할 여지를 남긴다. */
-data class IntimacyDto(
+/** 친밀도 판정 상태(#41). UNKNOWN=주기를 알 수 없어 판정 보류(멀어짐 아님). */
+enum class IntimacyStatus {
+    UNKNOWN,
+    NORMAL,
+    DISTANT,
+}
+
+/** 친밀도(#41). status 외 원시값을 함께 실어 프론트가 재활용할 여지를 남긴다. 판정은 IntimacyCalculator. */
+data class Intimacy(
     val status: IntimacyStatus,
     val averageIntervalDays: Int?,
     val daysSinceLastMeet: Int?,

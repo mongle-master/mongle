@@ -17,7 +17,7 @@ abstract class SoftDeletableEntity : BaseEntity() {
     var deletedAt: LocalDateTime? = null
         protected set
 
-    val isDeleted: Boolean
+    val deleted: Boolean
         get() = deletedAt != null
 
     fun softDelete() {

@@ -31,7 +31,7 @@ data class ChipResponse(
             id = requireNotNull(chip.id) { "저장되지 않은 Chip은 응답으로 변환할 수 없습니다." },
             type = chip.type,
             label = chip.label,
-            personal = !chip.isCommon,
+            personal = !chip.common,
             order = chip.displayOrder,
             default = chip.id == defaultChipId,
         )

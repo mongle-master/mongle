@@ -1,11 +1,11 @@
 package com.mongle.service
 
-import com.mongle.controller.dto.IntimacyDto
+import com.mongle.controller.dto.ChipRef
+import com.mongle.controller.dto.IntimacyStatus
 import com.mongle.controller.dto.MeNode
 import com.mongle.controller.dto.PersonNode
 import com.mongle.controller.dto.RelationEdge
 import com.mongle.controller.dto.RelationMapResponse
-import com.mongle.controller.dto.RelationTagDto
 import com.mongle.controller.dto.ThrowbackResponse
 import com.mongle.domain.ChipType
 import com.mongle.domain.Event
@@ -46,14 +46,14 @@ class HomeService(
 
         val tagLabels = resolveTagLabels(tagChipIdsByPerson.values.flatten())
         val nodes = persons.map { person ->
-            val intimacy = Intimacy.of(personStatsService.statsOf(person).meetingDatesDesc, today)
+            val intimacy = IntimacyCalculator.of(personStatsService.statsOf(person).meetingDatesDesc, today)
             PersonNode(
                 id = requireNotNull(person.id),
                 name = person.name,
                 profileImageUrl = person.profileImageUrl,
                 favorite = person.favorite,
-                relationTags = tagChipIdsByPerson[person.id].orEmpty().mapNotNull { id -> tagLabels[id]?.let { RelationTagDto(id, it) } },
-                intimacy = IntimacyDto(intimacy.status, intimacy.averageIntervalDays, intimacy.daysSinceLastMeet),
+                relationTags = tagChipIdsByPerson[person.id].orEmpty().mapNotNull { id -> tagLabels[id]?.let { ChipRef(id, it) } },
+                intimacy = intimacy,
             )
         }
         val edges = nodes.map { RelationEdge(personId = it.id, distant = it.intimacy.status == IntimacyStatus.DISTANT) }

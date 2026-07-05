@@ -40,7 +40,7 @@ class Chip(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    val isCommon: Boolean
+    val common: Boolean
         get() = ownerId == null
 
     fun rename(label: String) {

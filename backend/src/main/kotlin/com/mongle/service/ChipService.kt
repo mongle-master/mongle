@@ -68,7 +68,7 @@ class ChipService(
         val chip = chipRepository.findById(chipId).orElseThrow { BusinessException(ErrorCode.NOT_FOUND) }
         assertCategoryMinimum(userId, chip)
         when {
-            chip.isCommon -> hideCommon(userId, chip)
+            chip.common -> hideCommon(userId, chip)
             chip.ownerId == userId -> chip.softDelete()
             else -> throw BusinessException(ErrorCode.NOT_FOUND)
         }
