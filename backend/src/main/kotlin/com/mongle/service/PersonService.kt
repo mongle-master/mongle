@@ -37,6 +37,15 @@ class PersonService(
         return toResponse(person)
     }
 
+    /** 즐겨찾기 토글(#28). 내 소유·active 인물만, 아니면 NOT_FOUND. */
+    @Transactional
+    fun toggleFavorite(userId: Long, personId: Long): PersonResponse {
+        val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
+            ?: throw BusinessException(ErrorCode.NOT_FOUND)
+        person.toggleFavorite()
+        return toResponse(person)
+    }
+
     /**
      * 등록·수정이 공유하는 입력 반영. 검증(글자수·날짜·태그·취향)을 모두 통과한 뒤에만 필드를 세팅한다.
      * 관계 태그·취향 목록은 보낸 값으로 전체 교체한다(PUT 시맨틱).

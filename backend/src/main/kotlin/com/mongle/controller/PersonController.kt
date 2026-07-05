@@ -5,6 +5,7 @@ import com.mongle.controller.dto.PersonRequest
 import com.mongle.controller.dto.PersonResponse
 import com.mongle.service.PersonService
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -31,4 +32,10 @@ class PersonController(
         @PathVariable id: Long,
         @RequestBody request: PersonRequest,
     ): PersonResponse = personService.update(userId, id, request)
+
+    @PatchMapping("/{id}/favorite")
+    fun toggleFavorite(
+        @CurrentUserId userId: Long,
+        @PathVariable id: Long,
+    ): PersonResponse = personService.toggleFavorite(userId, id)
 }

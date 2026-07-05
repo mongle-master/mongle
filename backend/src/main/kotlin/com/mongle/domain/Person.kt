@@ -88,6 +88,11 @@ class Person(
         cautions.addAll(items)
     }
 
+    /** 즐겨찾기 on/off 토글(별도 확인 없음). #28 */
+    fun toggleFavorite() {
+        favorite = !favorite
+    }
+
     /**
      * 기록(event)이 더 최근 만남을 반영하는 진입점(파생 단계 #30). 더 최근일 때만 앞당긴다.
      * 여기서 열어두어 이후 event 연동이 이 필드를 막지 않게 한다.
