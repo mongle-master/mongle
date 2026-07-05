@@ -44,6 +44,16 @@ object PersonValidator {
         if (chipIds.any { it !in allowedIds }) throw BusinessException(ErrorCode.NOT_FOUND)
     }
 
+    /**
+     * 취향 목록(#23): 항목당 30자, 목록당 최대 20개, 같은 목록 안 중복 금지.
+     * 좋아하는 것·조심할 것 각각에 적용한다(둘 사이 중복은 막지 않음).
+     */
+    fun validatePreferences(items: List<String>) {
+        Validators.maxSelection(items.size, ValidationLimits.PREFERENCE_LIST_MAX)
+        items.forEach { Validators.maxLength(it, ValidationLimits.PREFERENCE_ITEM_MAX) }
+        Validators.rejectDuplicate(items.size != items.toSet().size)
+    }
+
     /** 월·일은 함께 있거나 함께 없다. 실제 달력에 없는 날은 거절. 연도가 있으면 그 날짜가 미래일 수 없다. */
     private fun validateBirthday(year: Int?, month: Int?, day: Int?, today: LocalDate) {
         if (month == null && day == null) return

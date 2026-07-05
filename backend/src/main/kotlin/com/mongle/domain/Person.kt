@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.OrderColumn
 import jakarta.persistence.Table
 import java.time.LocalDate
 
@@ -58,10 +59,33 @@ class Person(
     @Column(name = "chip_id")
     val relationTagChipIds: MutableList<Long> = mutableListOf()
 
+    // 취향 2종(좋아하는 것·조심할 것). 입력 순서를 보존한다. #23
+    @ElementCollection
+    @CollectionTable(name = "person_like", joinColumns = [JoinColumn(name = "person_id")])
+    @OrderColumn(name = "item_order")
+    @Column(name = "item")
+    val likes: MutableList<String> = mutableListOf()
+
+    @ElementCollection
+    @CollectionTable(name = "person_caution", joinColumns = [JoinColumn(name = "person_id")])
+    @OrderColumn(name = "item_order")
+    @Column(name = "item")
+    val cautions: MutableList<String> = mutableListOf()
+
     /** 관계 태그 전체 교체(수정 시 보낸 값으로 갈아끼움). */
     fun replaceRelationTags(chipIds: List<Long>) {
         relationTagChipIds.clear()
         relationTagChipIds.addAll(chipIds)
+    }
+
+    fun replaceLikes(items: List<String>) {
+        likes.clear()
+        likes.addAll(items)
+    }
+
+    fun replaceCautions(items: List<String>) {
+        cautions.clear()
+        cautions.addAll(items)
     }
 
     /**
