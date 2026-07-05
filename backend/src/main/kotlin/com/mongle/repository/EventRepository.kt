@@ -53,6 +53,17 @@ interface EventRepository : JpaRepository<Event, Long> {
         @Param("categoryChipId") categoryChipId: Long,
     ): Long
 
+    // 만남 카테고리 고유 날짜(최신 먼저) — 만난 횟수·마지막 만남·만남 주기(#30 #41)의 단일 근거.
+    @Query(
+        "SELECT DISTINCT e.occurredDate FROM Event e JOIN e.personIds pid " +
+            "WHERE pid = :personId AND e.categoryChipId = :categoryChipId AND e.deletedAt IS NULL " +
+            "ORDER BY e.occurredDate DESC",
+    )
+    fun findDistinctMeetingDatesDesc(
+        @Param("personId") personId: Long,
+        @Param("categoryChipId") categoryChipId: Long,
+    ): List<LocalDate>
+
     // 날짜 범위(#41 친밀도).
     @Query(
         "SELECT e FROM Event e JOIN e.personIds pid " +
