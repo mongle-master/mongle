@@ -1,29 +1,43 @@
-# =============================================================================
-# 애플리케이션 설정 — 템플릿에서는 비워둡니다.
-# 프로젝트에 맞게 채워 넣으세요. (아래는 참고용 구조, 주석 처리됨)
-# =============================================================================
-#
-# spring:
-#   application:
-#     name:
-#   datasource:
-#     url:
-#     username:
-#     password:
-#     driver-class-name:
-#   jpa:
-#     hibernate:
-#       ddl-auto:
-#     open-in-view: false          # OSIV 비활성화 권장 (커넥션 풀 고갈 방지)
-#     properties:
-#       hibernate:
-#         format_sql: true
-#
-# server:
-#   port:
-#
-# management:
-#   endpoints:
-#     web:
-#       exposure:
-#         include: health,info
+spring:
+  application:
+    name: mongle
+  # 로컬 데모용 파일 기반 H2 — 재시작해도 데이터가 남는다.
+  # AUTO_SERVER=TRUE: 앱과 H2 콘솔이 같은 파일을 동시에 열 수 있게 한다.
+  datasource:
+    url: jdbc:h2:file:./data/mongle;AUTO_SERVER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+  jackson:
+    time-zone: Asia/Seoul
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 55MB
+
+server:
+  port: 8080
+
+# 이미지 로컬 저장(#12) — baseDir 아래에 저장하고 urlPath 로 정적 서빙.
+mongle:
+  image:
+    base-dir: ./data/images
+    url-path: /images
+    max-bytes: 10MB
+    allowed-extensions: jpg,jpeg,png,heic,webp
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

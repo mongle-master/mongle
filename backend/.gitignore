@@ -27,6 +27,9 @@ bin/
 *.log
 logs/
 
+# 로컬 데모 데이터 — 파일 H2 DB + 업로드 이미지
+data/
+
 # Env / secrets
 .env
 *.local.yml
