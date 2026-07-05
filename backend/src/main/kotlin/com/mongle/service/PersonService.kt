@@ -12,6 +12,7 @@ import com.mongle.controller.dto.PersonSort
 import com.mongle.domain.ChipType
 import com.mongle.domain.Person
 import com.mongle.repository.ChipRepository
+import com.mongle.repository.EventRepository
 import com.mongle.repository.PersonRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,6 +25,7 @@ class PersonService(
     private val chipService: ChipService,
     private val chipRepository: ChipRepository,
     private val personStatsService: PersonStatsService,
+    private val eventRepository: EventRepository,
 ) {
     @Transactional
     fun register(userId: Long, request: PersonRequest): PersonResponse {
@@ -77,6 +79,23 @@ class PersonService(
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
         person.toggleFavorite()
         return toResponse(person)
+    }
+
+    /**
+     * 삭제(#27). 인물을 소프트삭제하고, 연결된 active 기록마다 이 인물을 연결에서 제거한다 —
+     * 그 결과 연결 인물이 0명이 되면(마지막 연결이었으면) 그 기록도 소프트삭제한다.
+     * 다인 연결 기록은 통삭제하지 않는다(다른 사람 타임라인 보존, 판단 근거는 mustpass 02 §삭제).
+     * 이미 소프트삭제된 기록은 findByPersonId 가 걸러 과거 참조를 보존한다.
+     */
+    @Transactional
+    fun delete(userId: Long, personId: Long) {
+        val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
+            ?: throw BusinessException(ErrorCode.NOT_FOUND)
+        eventRepository.findByPersonId(personId).forEach { event ->
+            event.personIds.remove(personId)
+            if (event.personIds.isEmpty()) event.softDelete()
+        }
+        person.softDelete()
     }
 
     /**

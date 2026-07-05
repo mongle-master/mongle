@@ -7,6 +7,7 @@ import com.mongle.controller.dto.PersonResponse
 import com.mongle.controller.dto.PersonSort
 import com.mongle.service.PersonService
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -55,4 +56,11 @@ class PersonController(
         @CurrentUserId userId: Long,
         @PathVariable id: Long,
     ): PersonResponse = personService.toggleFavorite(userId, id)
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(
+        @CurrentUserId userId: Long,
+        @PathVariable id: Long,
+    ) = personService.delete(userId, id)
 }
