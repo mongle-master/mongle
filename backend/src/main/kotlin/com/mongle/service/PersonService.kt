@@ -7,12 +7,14 @@ import com.mongle.common.exception.BusinessException
 import com.mongle.common.exception.ErrorCode
 import com.mongle.controller.dto.PersonRequest
 import com.mongle.controller.dto.PersonResponse
+import com.mongle.controller.dto.PersonSort
 import com.mongle.domain.ChipType
 import com.mongle.domain.Person
 import com.mongle.repository.ChipRepository
 import com.mongle.repository.PersonRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 @Transactional(readOnly = true)
@@ -36,6 +38,27 @@ class PersonService(
         applyRequest(userId, person, request)
         return toResponse(person)
     }
+
+    /**
+     * 디렉토리 목록(#29). 즐겨찾기를 항상 상단 그룹으로 두고 그 안에서 정렬한다:
+     * 이름순(대소문자 무시) / 최근 만남순(마지막 만난 날 최신 먼저·없는 사람은 뒤).
+     * 검색은 이름·관계 유형 부분 일치(대소문자 무시). 즐겨찾기 상단 조건이 있어 in-memory 로 조합한다.
+     * (최근 만남순의 마지막 만난 날은 이후 파생 단계에서 event 반영으로 갱신된다.)
+     */
+    fun directory(userId: Long, sort: PersonSort, query: String?): List<PersonResponse> {
+        val keyword = query?.trim()?.lowercase()?.ifBlank { null }
+        val within = when (sort) {
+            PersonSort.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { p: Person -> p.name }
+            PersonSort.RECENT -> Comparator.comparing(Person::lastMetDate, Comparator.nullsLast(Comparator.reverseOrder<LocalDate>()))
+        }
+        val order = compareByDescending<Person> { it.favorite }.then(within)
+        return personRepository.findByOwnerIdAndDeletedAtIsNull(userId)
+            .filter { keyword == null || it.matches(keyword) }
+            .sortedWith(order)
+            .map { toResponse(it) }
+    }
+
+    private fun Person.matches(keyword: String): Boolean = name.lowercase().contains(keyword) || relationType?.lowercase()?.contains(keyword) == true
 
     /** 즐겨찾기 토글(#28). 내 소유·active 인물만, 아니면 NOT_FOUND. */
     @Transactional

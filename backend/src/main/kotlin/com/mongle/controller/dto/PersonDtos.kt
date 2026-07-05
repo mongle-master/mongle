@@ -22,6 +22,12 @@ data class PersonRequest(
     val favorite: Boolean = false,
 )
 
+/** 디렉토리 정렬. 어느 정렬이든 즐겨찾기는 항상 상단 그룹으로 뜬다(#29). */
+enum class PersonSort {
+    NAME,
+    RECENT,
+}
+
 /** 생일 연도-선택: 월·일은 함께, 연도는 생략 가능. 셋 다 없으면 요청에서 birthday 자체를 null 로 보낸다. */
 data class BirthdayDto(
     val year: Int? = null,
