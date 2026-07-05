@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/events")
+@RequestMapping("/api/v1/events")
 class EventController(
     private val eventService: EventService,
 ) {

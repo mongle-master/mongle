@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/chips")
+@RequestMapping("/api/v1/chips")
 class ChipController(
     private val chipService: ChipService,
 ) {

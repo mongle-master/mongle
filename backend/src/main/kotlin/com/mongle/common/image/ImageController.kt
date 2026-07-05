@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile
  * 공통 단건 이미지 업로드. 반환한 url 을 도메인(프로필·기록)이 저장·연결한다.
  */
 @RestController
-@RequestMapping("/api/images")
+@RequestMapping("/api/v1/images")
 class ImageController(
     private val imageStorageService: ImageStorageService,
 ) {

@@ -17,7 +17,9 @@ class WebConfig(
         resolvers.add(currentUserIdArgumentResolver)
     }
 
-    // 업로드 이미지를 baseDir 에서 urlPath 로 정적 서빙(#12).
+    // 업로드 이미지를 baseDir 에서 urlPath(=/images) 로 정적 서빙(#12).
+    // 정적 리소스라 API 버전 프리픽스(/api/v1) 밖에 둔다 — 버저닝 대상은 API 계약이지 파일 URL 이 아니다.
+    // (업로드 엔드포인트 ImageController 자체는 /api/v1/images 로 버전 안에 있다.)
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         val base = Paths.get(imageProperties.baseDir).toAbsolutePath().normalize().toUri().toString()
         val location = if (base.endsWith("/")) base else "$base/"
