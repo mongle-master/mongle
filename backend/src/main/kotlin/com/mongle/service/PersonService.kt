@@ -5,6 +5,7 @@ import com.mongle.common.ValidationLimits
 import com.mongle.common.Validators
 import com.mongle.common.exception.BusinessException
 import com.mongle.common.exception.ErrorCode
+import com.mongle.controller.dto.PersonDetailResponse
 import com.mongle.controller.dto.PersonRequest
 import com.mongle.controller.dto.PersonResponse
 import com.mongle.controller.dto.PersonSort
@@ -22,6 +23,7 @@ class PersonService(
     private val personRepository: PersonRepository,
     private val chipService: ChipService,
     private val chipRepository: ChipRepository,
+    private val personStatsService: PersonStatsService,
 ) {
     @Transactional
     fun register(userId: Long, request: PersonRequest): PersonResponse {
@@ -59,6 +61,14 @@ class PersonService(
     }
 
     private fun Person.matches(keyword: String): Boolean = name.lowercase().contains(keyword) || relationType?.lowercase()?.contains(keyword) == true
+
+    /** 상세 조회(#25). 기본 정보 + 파생 스탯(#30). 내 소유·active 인물만, 아니면 NOT_FOUND. */
+    fun detail(userId: Long, personId: Long): PersonDetailResponse {
+        val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
+            ?: throw BusinessException(ErrorCode.NOT_FOUND)
+        val stats = personStatsService.statsOf(person)
+        return PersonDetailResponse.from(person, stats, resolveTagLabels(person), LocalDate.now())
+    }
 
     /** 즐겨찾기 토글(#28). 내 소유·active 인물만, 아니면 NOT_FOUND. */
     @Transactional
@@ -117,10 +127,9 @@ class PersonService(
      * 소프트삭제된 칩도 findAllById 로 잡혀 라벨이 유지된다(과거 참조 보존, 00-infra).
      * 컬렉션 접근이 트랜잭션 안에서 일어나도록 응답 변환을 서비스에서 마친다(지연 로딩 안전).
      */
-    private fun toResponse(person: Person): PersonResponse {
-        val tagLabels = chipRepository.findAllById(person.relationTagChipIds)
-            .mapNotNull { chip -> chip.id?.let { it to chip.label } }
-            .toMap()
-        return PersonResponse.from(person, tagLabels)
-    }
+    private fun toResponse(person: Person): PersonResponse = PersonResponse.from(person, resolveTagLabels(person))
+
+    private fun resolveTagLabels(person: Person): Map<Long, String> = chipRepository.findAllById(person.relationTagChipIds)
+        .mapNotNull { chip -> chip.id?.let { it to chip.label } }
+        .toMap()
 }

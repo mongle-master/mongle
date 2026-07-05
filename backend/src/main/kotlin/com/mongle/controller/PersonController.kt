@@ -1,6 +1,7 @@
 package com.mongle.controller
 
 import com.mongle.common.context.CurrentUserId
+import com.mongle.controller.dto.PersonDetailResponse
 import com.mongle.controller.dto.PersonRequest
 import com.mongle.controller.dto.PersonResponse
 import com.mongle.controller.dto.PersonSort
@@ -28,6 +29,12 @@ class PersonController(
         @RequestParam(defaultValue = "NAME") sort: PersonSort,
         @RequestParam(required = false) query: String?,
     ): List<PersonResponse> = personService.directory(userId, sort, query)
+
+    @GetMapping("/{id}")
+    fun detail(
+        @CurrentUserId userId: Long,
+        @PathVariable id: Long,
+    ): PersonDetailResponse = personService.detail(userId, id)
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
