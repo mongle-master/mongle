@@ -67,11 +67,14 @@ class EventService(
         EventValidator.validateEmotions(request.emotionChipIds, visibleChipIds(userId, ChipType.EMOTION))
         EventValidator.validatePhotos(request.photoUrls)
 
+        val date = request.occurredDate ?: LocalDate.now()
+        EventValidator.validateDate(date)
+
         val title = request.title?.trim()?.ifBlank { null }?.also { Validators.maxLength(it, ValidationLimits.EVENT_TITLE_MAX) }
         val why = request.why?.trim()?.ifBlank { null }?.also { Validators.maxLength(it, ValidationLimits.WHY_MAX) }
         val what = request.what?.trim()?.ifBlank { null }?.also { Validators.maxLength(it, ValidationLimits.WHAT_MAX) }
 
-        event.occurredDate = request.occurredDate ?: LocalDate.now()
+        event.occurredDate = date
         event.occurredTime = request.occurredTime
         event.categoryChipId = requireNotNull(categoryChipId) // validateCategory 가 non-null 을 보장
         event.weatherChipId = request.weatherChipId

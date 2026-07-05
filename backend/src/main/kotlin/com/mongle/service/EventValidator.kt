@@ -5,6 +5,7 @@ import com.mongle.common.ValidationLimits
 import com.mongle.common.Validators
 import com.mongle.common.exception.BusinessException
 import com.mongle.common.exception.ErrorCode
+import java.time.LocalDate
 
 /**
  * 기록 입력의 순수 검증(DB 조회 없음). 등록(#36)·수정(#38)이 공유한다.
@@ -41,5 +42,10 @@ object EventValidator {
     /** 사진(#35): 최대 5장. url 유효성·업로드는 이미지 도메인 소관이라 여기선 개수만 본다. */
     fun validatePhotos(urls: List<String>) {
         Validators.maxSelection(urls.size, ValidationLimits.EVENT_PHOTO_MAX)
+    }
+
+    /** 날짜(#39): 미래 불가·과거 허용. 미지정 시 오늘 기본값은 서비스가 채운 뒤 넘긴다(시간은 날짜와 독립이라 검사 안 함). */
+    fun validateDate(date: LocalDate, today: LocalDate = LocalDate.now()) {
+        Validators.notFuture(date, today)
     }
 }
