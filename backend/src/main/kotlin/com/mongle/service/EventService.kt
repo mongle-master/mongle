@@ -2,6 +2,8 @@ package com.mongle.service
 
 import com.mongle.common.ValidationLimits
 import com.mongle.common.Validators
+import com.mongle.common.exception.BusinessException
+import com.mongle.common.exception.ErrorCode
 import com.mongle.controller.dto.EventRequest
 import com.mongle.controller.dto.EventResponse
 import com.mongle.domain.ChipType
@@ -31,6 +33,24 @@ class EventService(
         applyDerived(persons, saved)
         return toResponse(saved)
     }
+
+    /** 단건 상세(#38) — 수정 모드 재사용용. 내 소유·active 만, 아니면 NOT_FOUND. */
+    fun detail(userId: Long, eventId: Long): EventResponse = toResponse(loadOwned(userId, eventId))
+
+    /**
+     * 전체 수정(#38) — 등록과 같은 입력·검증을 재사용한다. 칩·인물·사진은 보낸 값으로 교체.
+     * 파생 일관성 한계(의도적): 수정으로 만남 날짜가 과거로 바뀌어도 인물 마지막 만남은 되돌리지 않는다
+     * (updateLastMetIfNewer 는 전진만). #30 파생 계산이 조회 시 이벤트 기준으로 재계산하므로 여기서 역계산하지 않는다.
+     */
+    @Transactional
+    fun update(userId: Long, eventId: Long, request: EventRequest): EventResponse {
+        val event = loadOwned(userId, eventId)
+        val persons = applyRequest(userId, event, request)
+        applyDerived(persons, event)
+        return toResponse(event)
+    }
+
+    private fun loadOwned(userId: Long, eventId: Long): Event = eventRepository.findByIdAndOwnerIdAndDeletedAtIsNull(eventId, userId) ?: throw BusinessException(ErrorCode.NOT_FOUND)
 
     /**
      * 등록·수정이 공유하는 입력 반영. 검증(인물·칩·사진·글자수·날짜)을 모두 통과한 뒤에만 필드를 세팅한다.
