@@ -42,7 +42,8 @@ class HomeService(
         val tagChipIdsByPerson = personService.relationTagChipIdsByPerson(all)
         val persons = all
             .filter { filter.isEmpty() || tagChipIdsByPerson[it.id].orEmpty().any(filter::contains) }
-            .sortedWith(compareByDescending<Person> { it.favorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name })
+            // 최종 타이브레이커 id 오름차순 — 동명이인이 있어도 조회마다 노드 순서가 흔들리지 않게(표시 결정성).
+            .sortedWith(compareByDescending<Person> { it.favorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }.thenBy { it.id })
 
         val tagLabels = resolveTagLabels(tagChipIdsByPerson.values.flatten())
         val nodes = persons.map { person ->

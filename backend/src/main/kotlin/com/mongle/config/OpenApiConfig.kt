@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration
  * OpenAPI(Swagger) 전역 구성.
  *
  * 인증은 JWT Bearer 하나뿐이라 securityScheme 을 전역 요구사항으로 건다 —
- * 토큰이 없어도 되는 발급 API(`POST /api/v1/auth/token`)와 이미지 업로드는
- * 각 메서드에서 `@SecurityRequirements`(빈) 로 자물쇠를 끈다.
+ * 토큰이 없어도 되는 발급 API(`POST /api/v1/auth/token`)는
+ * 메서드에서 `@SecurityRequirements`(빈) 로 자물쇠를 끈다.
  * 실제 인증 경계는 컨트롤러의 `@AuthUser` 유무이므로(AuthUserArgumentResolver),
  * 문서의 자물쇠 표시도 그 경계와 일치시킨다.
  */

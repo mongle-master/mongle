@@ -45,7 +45,7 @@
   `UserPrincipal(id, username)` 은 토큰 클레임만으로 구성 — 요청당 DB 조회 없음. 컨트롤러는 id·username 중 필요한 것만 골라 쓴다.
   이 파라미터를 쓰는 엔드포인트만 토큰을 요구한다(별도 보안 필터 없음).
 - 무인증 경로(토큰 불요): `/api/v1/auth/**`, `/actuator/**`, 정적 이미지 서빙(`/images/**`), 스웨거(`/swagger-ui/**`, `/v3/api-docs/**`).
-  이들은 `@AuthUser` 를 받지 않아 자연히 열린다.
+  이들은 `@AuthUser` 를 받지 않아 자연히 열린다. **이미지 업로드(`POST /api/v1/images`)는 보호 API 다**(토큰 필요 — 무인증은 정적 서빙 GET 만).
 - 실패: 토큰 없음·Bearer 형식 아님·서명/만료/형식 무효·username 클레임 없는 옛 토큰은 모두 401 `UNAUTHORIZED` "로그인이 필요해요." (옛 토큰은 재로그인 한 번으로 새 토큰을 받아 해소).
 - 데모 사용자 시드: username `demo` 를 만들어 그 id 로 시드 인물·기록을 소유한다(고정 id 하드코딩 없음).
 

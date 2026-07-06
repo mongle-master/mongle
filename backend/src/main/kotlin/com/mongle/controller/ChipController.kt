@@ -83,7 +83,12 @@ class ChipController(
         @AuthUser user: UserPrincipal,
         @Parameter(description = "칩 id.", example = "12") @PathVariable id: Long,
         @RequestBody request: ChipRenameRequest,
-    ): ChipResponse = ChipResponse.from(chipService.rename(user.id, id, request.label))
+    ): ChipResponse {
+        val chip = chipService.rename(user.id, id, request.label)
+        // 목록 조회와 같은 규칙으로 default 를 채운다 — 개인 카테고리 칩이 기본(공통 전부 숨김)일 때 이름변경 응답만 어긋나지 않게.
+        val defaultId = if (chip.type == ChipType.CATEGORY) chipService.defaultCategoryId(user.id) else null
+        return ChipResponse.from(chip, defaultId)
+    }
 
     @Operation(
         summary = "칩 삭제(숨김)",

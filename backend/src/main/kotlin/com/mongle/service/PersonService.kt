@@ -145,10 +145,13 @@ class PersonService(
         PersonValidator.validatePreferences(likes)
         PersonValidator.validatePreferences(cautions)
 
+        // 월·일 없는 생일은 연도까지 무시한다(전부 null) — Birthday.from 이 월·일 기준으로 '생일 없음'을 판정하므로 연도만 남으면 응답에 안 보이는 유령 값이 된다.
+        val effectiveBirthday = birthday?.takeIf { it.month != null && it.day != null }
+
         person.name = name
-        person.birthYear = birthday?.year
-        person.birthMonth = birthday?.month
-        person.birthDay = birthday?.day
+        person.birthYear = effectiveBirthday?.year
+        person.birthMonth = effectiveBirthday?.month
+        person.birthDay = effectiveBirthday?.day
         person.firstMetDate = request.firstMetDate
         person.lastMetDate = request.lastMetDate
         person.profileImageUrl = request.profileImageUrl?.trim()?.ifBlank { null }
