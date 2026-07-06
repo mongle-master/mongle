@@ -39,9 +39,9 @@ object Validators {
         }
     }
 
-    /** 한 번에 고를 수 있는 최대 개수(감정 5·관계태그 10 등). */
-    fun maxSelection(size: Int, max: Int) {
-        if (size > max) throw BusinessException(ErrorCode.SELECTION_LIMIT)
+    /** 한 번에 고를 수 있는 최대 개수(감정 5·관계태그 10 등). 대상별 확정 문구(Messages.xxxSelectionLimit)가 있으면 넘긴다. */
+    fun maxSelection(size: Int, max: Int, message: String = Messages.SELECTION_LIMIT) {
+        if (size > max) throw BusinessException(ErrorCode.SELECTION_LIMIT, message)
     }
 
     /** 개인 칩 종류별 개수 상한. currentCount 는 만들기 전 기존 개수. */

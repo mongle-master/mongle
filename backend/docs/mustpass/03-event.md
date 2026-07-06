@@ -22,7 +22,7 @@
 
 ## 칩 연결 (must, #34)
 
-- 감정: **다중 ≤5**(`EMOTION_PER_EVENT_MAX`). 초과면 400 `SELECTION_LIMIT`.
+- 감정: **다중 ≤5**(`EMOTION_PER_EVENT_MAX`). 초과면 400 `SELECTION_LIMIT` "감정은 최대 5개까지 고를 수 있어요."(PRD 04 §6).
 - 요청에 같은 감정 칩 id 가 중복되면 **첫 등장 기준 1건으로 정규화**해 저장한다(개수 상한 판단도 정규화 이후 개수 기준).
 - 날씨: **단일 0~1개**. 2개 이상은 애초에 단일 필드라 불가.
 - 카테고리: **단일·필수**. 미지정이면 **기본 카테고리**(ChipService 사용자 시점 카테고리 목록의 첫 칩, 시드상 `만남`)로 채운다.
@@ -32,7 +32,7 @@
 
 ## 사진 (must, #35)
 
-- 기록당 **최대 5장**(`EVENT_PHOTO_MAX`). 초과면 400 `SELECTION_LIMIT`.
+- 기록당 **최대 5장**(`EVENT_PHOTO_MAX`). 초과면 400 `SELECTION_LIMIT` "사진은 최대 5장까지 넣을 수 있어요."(PRD 04 §6).
 - 미리 업로드된 경로(url) 참조 방식(`POST /api/v1/images`, 프로필 사진과 동일 컨벤션). **첨부 순서 보존**.
 
 ## 자동 제목 (must, #37)
@@ -81,8 +81,8 @@
 | 인물 1명만·나머지 미입력 | POST /api/v1/events | 201, 카테고리=만남·날짜=오늘·제목 자동 |
 | 제목 41자 | POST /api/v1/events | 400 `LENGTH_EXCEEDED` |
 | 왜/무엇을 101자 | POST /api/v1/events | 400 `LENGTH_EXCEEDED` |
-| 감정 6개 | POST /api/v1/events | 400 `SELECTION_LIMIT` |
-| 사진 6장 | POST /api/v1/events | 400 `SELECTION_LIMIT` |
+| 감정 6개 | POST /api/v1/events | 400 `SELECTION_LIMIT` "감정은 최대 5개까지 고를 수 있어요." |
+| 사진 6장 | POST /api/v1/events | 400 `SELECTION_LIMIT` "사진은 최대 5장까지 넣을 수 있어요." |
 | 감정 자리에 날씨 칩 id | POST /api/v1/events | 404 `NOT_FOUND` |
 | 없는·타인 칩 id | POST /api/v1/events | 404 `NOT_FOUND` |
 | 카테고리 미지정 | POST /api/v1/events | 201, 기본 카테고리(만남) |

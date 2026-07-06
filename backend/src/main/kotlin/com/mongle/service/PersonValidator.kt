@@ -1,5 +1,6 @@
 package com.mongle.service
 
+import com.mongle.common.Messages
 import com.mongle.common.ValidationLimits
 import com.mongle.common.Validators
 import com.mongle.common.exception.BusinessException
@@ -40,7 +41,7 @@ object PersonValidator {
      * 존재하지 않거나 다른 종류·타인 칩이면 여기 없어 NOT_FOUND.
      */
     fun validateRelationTags(chipIds: List<Long>, allowedIds: Set<Long>) {
-        Validators.maxSelection(chipIds.size, ValidationLimits.RELATION_TAG_PER_PERSON_MAX)
+        Validators.maxSelection(chipIds.size, ValidationLimits.RELATION_TAG_PER_PERSON_MAX, Messages.relationTagSelectionLimit(ValidationLimits.RELATION_TAG_PER_PERSON_MAX))
         if (chipIds.any { it !in allowedIds }) throw BusinessException(ErrorCode.NOT_FOUND)
     }
 
@@ -49,7 +50,7 @@ object PersonValidator {
      * 좋아하는 것·조심할 것 각각에 적용한다(둘 사이 중복은 막지 않음).
      */
     fun validatePreferences(items: List<String>) {
-        Validators.maxSelection(items.size, ValidationLimits.PREFERENCE_LIST_MAX)
+        Validators.maxSelection(items.size, ValidationLimits.PREFERENCE_LIST_MAX, Messages.preferenceSelectionLimit(ValidationLimits.PREFERENCE_LIST_MAX))
         items.forEach { Validators.maxLength(it, ValidationLimits.PREFERENCE_ITEM_MAX) }
         Validators.rejectDuplicate(items.size != items.toSet().size)
     }

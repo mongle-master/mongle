@@ -24,7 +24,7 @@ object EventValidator {
 
     /** 감정(#34): 다중 ≤5, 그리고 보이는 EMOTION 칩(allowedIds)만. */
     fun validateEmotions(chipIds: List<Long>, allowedIds: Set<Long>) {
-        Validators.maxSelection(chipIds.size, ValidationLimits.EMOTION_PER_EVENT_MAX)
+        Validators.maxSelection(chipIds.size, ValidationLimits.EMOTION_PER_EVENT_MAX, Messages.emotionSelectionLimit(ValidationLimits.EMOTION_PER_EVENT_MAX))
         if (chipIds.any { it !in allowedIds }) throw BusinessException(ErrorCode.NOT_FOUND)
     }
 
@@ -41,7 +41,7 @@ object EventValidator {
 
     /** 사진(#35): 최대 5장. url 유효성·업로드는 이미지 도메인 소관이라 여기선 개수만 본다. */
     fun validatePhotos(urls: List<String>) {
-        Validators.maxSelection(urls.size, ValidationLimits.EVENT_PHOTO_MAX)
+        Validators.maxSelection(urls.size, ValidationLimits.EVENT_PHOTO_MAX, Messages.photoSelectionLimit(ValidationLimits.EVENT_PHOTO_MAX))
     }
 
     /** 날짜(#39): 미래 불가·과거 허용. 미지정 시 오늘 기본값은 서비스가 채운 뒤 넘긴다(시간은 날짜와 독립이라 검사 안 함). */

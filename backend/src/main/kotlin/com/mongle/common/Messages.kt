@@ -32,4 +32,13 @@ object Messages {
     fun lengthExceeded(max: Int) = "최대 ${max}자까지 쓸 수 있어요."
 
     fun chipKindLimitExceeded(max: Int) = "칩은 종류별로 최대 ${max}개까지 만들 수 있어요."
+
+    // 개수 초과 — 대상별 확정 문구(PRD 02 §7 · 04 §6). 대상 없는 일반 상한은 SELECTION_LIMIT 만.
+    fun emotionSelectionLimit(max: Int) = "감정은 최대 ${max}개까지 고를 수 있어요."
+
+    fun photoSelectionLimit(max: Int) = "사진은 최대 ${max}장까지 넣을 수 있어요."
+
+    fun relationTagSelectionLimit(max: Int) = "관계 태그는 최대 ${max}개까지 담을 수 있어요."
+
+    fun preferenceSelectionLimit(max: Int) = "최대 ${max}개까지 담을 수 있어요."
 }
