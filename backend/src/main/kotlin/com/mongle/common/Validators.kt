@@ -8,8 +8,8 @@ import java.time.LocalDateTime
 /**
  * 서비스 계층 공통 검증. 위반 시 §12.5 문구를 담은 BusinessException 을 던진다.
  *
- * DTO 로 표현 가능한 글자수는 @Size 로(위 ValidationLimits 주석), 여기서는
- * 개수 상한·날짜 순서·중복처럼 요청 하나로 판단할 수 없는(또는 DB 조회가 필요한) 규칙을 다룬다.
+ * 글자수 검증도 DTO @Size 가 아니라 여기서 한다 — @Valid 실패는 INVALID_INPUT 으로
+ * 뭉뚱그려져 LENGTH_EXCEEDED 코드를 잃는다(ValidationLimits 주석 참조).
  */
 object Validators {
     /** 필수 값. 대상에 맞는 §12.5 문구(예: Messages.REQUIRED_NAME)를 넘긴다. */
@@ -17,7 +17,7 @@ object Validators {
         if (value.isNullOrBlank()) throw BusinessException(ErrorCode.REQUIRED_FIELD, message)
     }
 
-    /** 글자수 한도. DTO @Size 로 못 거른 경로(도메인 로직 내부)에서 쓴다. */
+    /** 글자수 한도(LENGTH_EXCEEDED). 모든 글자수 검증의 단일 경로. */
     fun maxLength(value: String, max: Int) {
         if (value.length > max) {
             throw BusinessException(ErrorCode.LENGTH_EXCEEDED, Messages.lengthExceeded(max))

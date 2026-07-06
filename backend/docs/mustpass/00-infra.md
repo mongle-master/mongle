@@ -89,7 +89,7 @@
 ## 후속 에이전트 사용법 (재사용 진입점)
 
 - 서비스 계층 검증: `com.mongle.common.Validators` (length/required/notFuture/dateOrder/selectionCount/chipKindCount).
-- DTO 글자수: `@field:Size(max = ValidationLimits.X, message = "최대 {max}자까지 쓸 수 있어요.")`.
+- 글자수: 서비스에서 `Validators.maxLength(value, ValidationLimits.X)` — **DTO `@field:Size` 금지**(@Valid 실패가 INVALID_INPUT 으로 뭉개져 LENGTH_EXCEEDED 를 잃음).
 - 현재 사용자: 컨트롤러 파라미터 `@AuthUser user: UserPrincipal` (id·username 자유 선택, JWT Bearer 토큰에서 해석 — 위 인증 절). 서비스에는 `user.id` 를 넘긴다.
 - 이미지: `ImageStorageService.store(file): StoredImage(filename, url)` — 용도별 개수는 도메인이 강제.
 - 소프트삭제 엔티티: `com.mongle.domain.SoftDeletableEntity` 상속 → `softDelete()` / `deleted`.

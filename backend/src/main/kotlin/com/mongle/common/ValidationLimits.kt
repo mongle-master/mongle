@@ -3,10 +3,9 @@ package com.mongle.common
 /**
  * 입력 검증 한도(§12.3 글자수 · §12.2 개수 · §12.6 이미지 개수)의 SSOT.
  *
- * `const val` 이므로 DTO Bean Validation 에서도 그대로 참조한다:
- *   `@field:Size(max = ValidationLimits.EVENT_TITLE_MAX, message = "최대 {max}자까지 쓸 수 있어요.")`
- * ({max} 는 Bean Validation 이 max 속성값으로 치환한다.)
- * 서비스 계층의 개수·날짜·중복 검사는 Validators 를 쓴다.
+ * 글자수를 포함한 모든 검증은 서비스 계층 Validators 로 한다.
+ * DTO `@field:Size` 는 쓰지 않는다 — @Valid 실패가 INVALID_INPUT 으로 뭉뚱그려져
+ * LENGTH_EXCEEDED 등 도메인 에러코드(§12.5 문구)를 잃기 때문.
  */
 object ValidationLimits {
     // 글자수 (§12.3)

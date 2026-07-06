@@ -36,6 +36,13 @@ if ! command -v jq >/dev/null; then
   brew install jq
 fi
 
+# 커밋 메시지 훅(Conventional Commits 검증) 활성화 — 멱등
+repo_root="$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -n "$repo_root" && -d "$repo_root/.githooks" ]]; then
+  git -C "$repo_root" config core.hooksPath .githooks
+  echo "ok: git hooks (.githooks) 활성화"
+fi
+
 echo
 echo "완료. 다음 단계: backend/docs/runbook/local.md"
 echo "  cd backend && docker compose up -d --build"

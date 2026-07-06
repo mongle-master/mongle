@@ -39,6 +39,7 @@ curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/persons
 ```bash
 docker compose down                              # 중지 (데이터 유지)
 docker compose down && rm -rf data && docker compose up -d   # 데이터 초기화 후 재기동 (시드가 다시 깔린다)
+docker compose up -d --build backend             # 코드 수정 반영 — --build 없이는 옛 이미지로 뜬다
 ```
 
 ## 도커 없이 (JDK 21 있을 때)

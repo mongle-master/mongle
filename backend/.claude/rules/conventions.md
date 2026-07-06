@@ -55,4 +55,5 @@
 - 주석: 코드로 표현 못 하는 암묵지·의도만(왜 이 임계값인지 등). PRD 중복 금지. (CLAUDE.md)
 - 테스트 코드 금지 — mustpass 문서로 대체 ([testing.md](./testing.md)).
 - 커밋: Conventional Commits, 헤더 `type(backend): 한국어 요약`, 이슈 연결 시 `(#N)` + 본문 `Closes #N`.
+  훅 활성화(클론 후 1회): `git config core.hooksPath .githooks` (→ [.githooks/README](../../../.githooks/README.md), setup-macos.sh가 자동 설정).
 - 커밋 전 `./gradlew ktlintFormat compileKotlin` 통과 필수.
