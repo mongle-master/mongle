@@ -48,6 +48,7 @@
 - **모든** 컨트롤러: 클래스 `@Tag(name, description)`, 메서드 `@Operation(summary, description)`.
 - **모든** DTO 필드: `@Schema(description, example)`. 에러 케이스는 `@ApiResponse`로 code·상황 명시.
 - 설명은 한국어, PRD 용어 그대로(칩·기록·관계태그…). 문서 안 단 API는 리뷰에서 반려 대상.
+- 접근 경로(무인증 고정): Swagger UI `/swagger-ui/index.html`, OpenAPI JSON `/v3/api-docs`.
 
 ## 6. 기타
 
