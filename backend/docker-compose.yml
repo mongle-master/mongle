@@ -1,0 +1,44 @@
+# 로컬 실행 절차·환경변수 설명은 docs/runbook/local.md 참조
+# 도커 실행 = MySQL, 도커 없는 ./gradlew bootRun = H2 파일(application.yml 기본값)
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: mongle
+      MYSQL_USER: mongle
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mongle}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      TZ: Asia/Seoul
+    ports:
+      - "13306:3306" # 호스트 로컬 mysql과 충돌 피하려 13306으로 노출(디버깅용)
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+
+  backend:
+    build: .
+    image: mongle-backend:local
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data # 업로드 이미지 영속화 (DB는 db 서비스가 담당)
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mongle?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: mongle
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-mongle}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      # 데모 기본값을 덮어쓸 때만 지정 (application.yml이 기본)
+      MONGLE_JWT_SECRET: ${MONGLE_JWT_SECRET:-mongle-demo-hs256-secret-key-please-change-in-prod}
+    healthcheck:
+      # 런타임 이미지(temurin-jre)에 curl/wget이 없어 bash /dev/tcp 포트 체크를 쓴다.
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080'"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
