@@ -32,12 +32,13 @@ class EventService(
 ) {
     @Transactional
     fun create(userId: Long, request: EventRequest): EventResponse {
+        val normalized = normalize(request)
         // occurredDate·categoryChipId 는 applyRequest 에서 확정되므로 생성자 값은 즉시 덮인다.
         val event = Event(ownerId = userId, occurredDate = LocalDate.now(), categoryChipId = 0L)
-        val persons = applyRequest(userId, event, request)
+        val persons = applyRequest(userId, event, normalized)
         val saved = eventRepository.save(event)
-        syncPersons(requireNotNull(saved.id), request.personIds)
-        syncEmotions(requireNotNull(saved.id), request.emotionChipIds)
+        syncPersons(requireNotNull(saved.id), normalized.personIds)
+        syncEmotions(requireNotNull(saved.id), normalized.emotionChipIds)
         applyDerived(persons, saved)
         return toResponse(saved)
     }
@@ -52,13 +53,23 @@ class EventService(
      */
     @Transactional
     fun update(userId: Long, eventId: Long, request: EventRequest): EventResponse {
+        val normalized = normalize(request)
         val event = loadOwned(userId, eventId)
-        val persons = applyRequest(userId, event, request)
-        syncPersons(eventId, request.personIds)
-        syncEmotions(eventId, request.emotionChipIds)
+        val persons = applyRequest(userId, event, normalized)
+        syncPersons(eventId, normalized.personIds)
+        syncEmotions(eventId, normalized.emotionChipIds)
         applyDerived(persons, event)
         return toResponse(event)
     }
+
+    /**
+     * 요청 id 목록의 중복을 첫 등장 기준 1건으로 정규화한다 — 대표 인물(첫 번째)이 유지되고
+     * 조인 행 displayOrder 도 정규화 순서로 재부여된다. 검증(개수 상한)도 정규화 이후 개수로 판단한다.
+     */
+    private fun normalize(request: EventRequest): EventRequest = request.copy(
+        personIds = request.personIds.distinct(),
+        emotionChipIds = request.emotionChipIds.distinct(),
+    )
 
     private fun loadOwned(userId: Long, eventId: Long): Event = eventRepository.findByIdAndOwnerIdAndDeletedAtIsNull(eventId, userId) ?: throw BusinessException(ErrorCode.NOT_FOUND)
 
@@ -68,8 +79,8 @@ class EventService(
      * 반환값(연결 인물)은 파생 갱신(applyDerived)에서 재사용한다 — 같은 트랜잭션의 관리 엔티티라 dirty checking 으로 반영.
      */
     private fun applyRequest(userId: Long, event: Event, request: EventRequest): List<Person> {
-        // 인물: 요청 id 중 내 소유·active 만 로드해 검증(없는·타인·삭제 id 는 여기서 걸러져 NOT_FOUND).
-        val persons = personRepository.findByIdInAndOwnerIdAndDeletedAtIsNull(request.personIds.distinct(), userId)
+        // 인물: 요청 id(정규화 완료) 중 내 소유·active 만 로드해 검증(없는·타인·삭제 id 는 여기서 걸러져 NOT_FOUND).
+        val persons = personRepository.findByIdInAndOwnerIdAndDeletedAtIsNull(request.personIds, userId)
         EventValidator.validatePersons(request.personIds, persons.mapNotNull { it.id }.toSet())
 
         val categoryChipId = request.categoryChipId ?: chipService.defaultCategoryId(userId)

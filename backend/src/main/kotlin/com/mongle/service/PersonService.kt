@@ -135,8 +135,10 @@ class PersonService(
             lastMetDate = request.lastMetDate,
         )
 
+        // 관계태그 id 중복은 첫 등장 기준 1건으로 정규화한다 — 개수 상한도 정규화 이후 개수로 판단.
+        val relationTagChipIds = request.relationTagChipIds.distinct()
         val allowedTagIds = chipService.visibleChips(userId, ChipType.RELATION_TAG).mapNotNull { it.id }.toSet()
-        PersonValidator.validateRelationTags(request.relationTagChipIds, allowedTagIds)
+        PersonValidator.validateRelationTags(relationTagChipIds, allowedTagIds)
 
         val likes = request.likes.map { it.trim() }.filter { it.isNotBlank() }
         val cautions = request.cautions.map { it.trim() }.filter { it.isNotBlank() }
@@ -154,7 +156,7 @@ class PersonService(
         person.favorite = request.favorite
         person.replaceLikes(likes)
         person.replaceCautions(cautions)
-        return request.relationTagChipIds
+        return relationTagChipIds
     }
 
     /** 관계 태그 조인 행 전체 교체(수정 시 보낸 값으로 갈아끼움) — 하드삭제 후 순서대로 재삽입. */
