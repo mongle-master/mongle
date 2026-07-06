@@ -26,7 +26,10 @@ class PersonStatsService(
             ?: emptyList()
 
         // 마지막 만남 = 수기 입력값과 만남 기록 최신 날짜 중 더 최근. 이벤트가 과거로 수정·삭제돼도 조회 시 다시 맞춰진다.
-        val lastMetDate = listOfNotNull(person.lastMetDate, meetingDates.firstOrNull()).maxOrNull()
+        // 재계산도 저장 가드(Person.updateLastMetIfNewer)와 같은 불변식을 지킨다 — 처음 만난 날보다 앞선 후보는 제외('마지막 ≥ 처음').
+        val lastMetDate = listOfNotNull(person.lastMetDate, meetingDates.firstOrNull())
+            .filterNot { person.firstMetDate?.isAfter(it) == true }
+            .maxOrNull()
 
         return PersonStats(
             meetingDatesDesc = meetingDates,

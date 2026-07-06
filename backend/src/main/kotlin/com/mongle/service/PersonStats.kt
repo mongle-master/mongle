@@ -11,7 +11,7 @@ import java.time.LocalDate
 data class PersonStats(
     val meetingDatesDesc: List<LocalDate>,
     val recordCount: Int,
-    // max(person.lastMetDate, 만남 기록 최신 날짜). 둘 다 없으면 null.
+    // max(person.lastMetDate, 만남 기록 최신 날짜). 처음 만난 날보다 앞선 후보는 제외, 둘 다 없으면 null.
     val lastMetDate: LocalDate?,
 ) {
     val meetCount: Int get() = meetingDatesDesc.size
