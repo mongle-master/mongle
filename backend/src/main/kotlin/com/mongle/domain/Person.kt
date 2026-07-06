@@ -88,6 +88,8 @@ class Person(
      * 여기서 열어두어 이후 event 연동이 이 필드를 막지 않게 한다.
      */
     fun updateLastMetIfNewer(date: LocalDate) {
+        // 파생 갱신이 사용자가 확정한 '처음 만난 날'을 침범하지 않는다 — 처음보다 앞선 기록 날짜는 무시(불변식 '마지막 ≥ 처음' 유지).
+        if (firstMetDate != null && date.isBefore(firstMetDate)) return
         if (lastMetDate == null || date.isAfter(lastMetDate)) {
             lastMetDate = date
         }
