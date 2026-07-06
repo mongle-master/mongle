@@ -1,6 +1,7 @@
 # 로컬 실행 (도커)
 
-> 전제: Docker (Compose v2 포함). 그 외 아무것도 필요 없다.
+> 전제: Docker (Compose v2 포함). 그 외 아무것도 필요 없다 — **로컬 자바 불필요**(자바는 이미지 안에서만 쓴다).
+> 맥 첫 세팅이면: `./scripts/setup-macos.sh` (Docker·jq 설치, 멱등. 비도커 실행까지 원하면 `--with-jdk`로 JDK 21 추가)
 
 ## 실행
 
