@@ -30,6 +30,6 @@ class AuthService(
         val user = userRepository.findByUsername(username)
             ?: userRepository.save(User(username = username))
         val userId = requireNotNull(user.id) { "저장되지 않은 User 로는 토큰을 발급할 수 없습니다." }
-        return TokenResponse(token = jwtProvider.issue(userId), userId = userId, username = user.username)
+        return TokenResponse(token = jwtProvider.issue(userId, user.username), userId = userId, username = user.username)
     }
 }

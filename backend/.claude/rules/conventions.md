@@ -38,9 +38,9 @@
 
 ## 4. 인증 (JWT)
 
-- 유저 식별은 **JWT Bearer 토큰**에서만 얻는다: `Authorization: Bearer {token}`, HS256, claim `sub` = userId.
-- 컨트롤러에서는 `@CurrentUserId userId: Long` 파라미터로 주입받는다(리졸버가 토큰 파싱·검증).
-- 토큰 없음/무효 = 401 `UNAUTHORIZED`. 발급은 `POST /api/v1/auth/token` (데모: username만으로 발급).
+- 유저 식별은 **JWT Bearer 토큰**에서만 얻는다: `Authorization: Bearer {token}`, HS256, claim `sub` = userId, claim `username` = 로그인 이름.
+- 컨트롤러에서는 `@AuthUser user: UserPrincipal` 파라미터로 주입받는다(리졸버가 토큰 파싱·검증). `UserPrincipal(id, username)` 은 토큰 클레임만으로 구성 — 요청당 DB 조회 없음. 컨트롤러는 필요한 것(id·username)만 골라 쓰고, 서비스에는 `user.id` 를 넘긴다(서비스 시그니처는 id 기준).
+- 토큰 없음/무효/username 클레임 누락 = 401 `UNAUTHORIZED`. 발급은 `POST /api/v1/auth/token` (데모: username만으로 발급).
 - 고정 데모 유저 하드코딩 금지.
 
 ## 5. Swagger (springdoc)

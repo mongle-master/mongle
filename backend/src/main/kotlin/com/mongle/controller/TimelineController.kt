@@ -1,6 +1,7 @@
 package com.mongle.controller
 
-import com.mongle.common.context.CurrentUserId
+import com.mongle.common.context.AuthUser
+import com.mongle.common.context.UserPrincipal
 import com.mongle.common.exception.ErrorResponse
 import com.mongle.controller.dto.ActivityFlowResponse
 import com.mongle.controller.dto.EventResponse
@@ -40,11 +41,11 @@ class TimelineController(
     )
     @GetMapping("/api/v1/persons/{personId}/timeline")
     fun personFeed(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "인물 id.", example = "7") @PathVariable personId: Long,
         @Parameter(description = "카테고리 칩 id 필터. 여러 개면 합집합(OR). 없으면 전체.", example = "[3, 4]")
         @RequestParam(required = false) categoryChipIds: List<Long>?,
-    ): List<EventResponse> = timelineService.personFeed(userId, personId, categoryChipIds.orEmpty())
+    ): List<EventResponse> = timelineService.personFeed(user.id, personId, categoryChipIds.orEmpty())
 
     @Operation(
         summary = "사람별 활동 흐름",
@@ -56,9 +57,9 @@ class TimelineController(
     )
     @GetMapping("/api/v1/persons/{personId}/activity-flow")
     fun activityFlow(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "인물 id.", example = "7") @PathVariable personId: Long,
-    ): ActivityFlowResponse = timelineService.activityFlow(userId, personId)
+    ): ActivityFlowResponse = timelineService.activityFlow(user.id, personId)
 
     @Operation(
         summary = "나의 통합 연대기(전체 타임라인)",
@@ -69,10 +70,10 @@ class TimelineController(
     )
     @GetMapping("/api/v1/timeline")
     fun myTimeline(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "카테고리 칩 id 필터. 여러 개면 합집합(OR). 없으면 전체.", example = "[3, 4]")
         @RequestParam(required = false) categoryChipIds: List<Long>?,
         @Parameter(description = "인물 id 필터. 여러 개면 합집합(OR). 없으면 전체.", example = "[7, 9]")
         @RequestParam(required = false) personIds: List<Long>?,
-    ): TimelineResponse = timelineService.myTimeline(userId, categoryChipIds.orEmpty(), personIds.orEmpty())
+    ): TimelineResponse = timelineService.myTimeline(user.id, categoryChipIds.orEmpty(), personIds.orEmpty())
 }

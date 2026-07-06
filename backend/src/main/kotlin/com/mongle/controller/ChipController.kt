@@ -1,6 +1,7 @@
 package com.mongle.controller
 
-import com.mongle.common.context.CurrentUserId
+import com.mongle.common.context.AuthUser
+import com.mongle.common.context.UserPrincipal
 import com.mongle.common.exception.ErrorResponse
 import com.mongle.controller.dto.ChipCreateRequest
 import com.mongle.controller.dto.ChipRenameRequest
@@ -44,11 +45,11 @@ class ChipController(
     )
     @GetMapping
     fun list(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "칩 종류.", example = "RELATION_TAG") @RequestParam type: ChipType,
     ): List<ChipResponse> {
-        val defaultId = if (type == ChipType.CATEGORY) chipService.defaultCategoryId(userId) else null
-        return chipService.visibleChips(userId, type).map { ChipResponse.from(it, defaultId) }
+        val defaultId = if (type == ChipType.CATEGORY) chipService.defaultCategoryId(user.id) else null
+        return chipService.visibleChips(user.id, type).map { ChipResponse.from(it, defaultId) }
     }
 
     @Operation(
@@ -63,9 +64,9 @@ class ChipController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @RequestBody request: ChipCreateRequest,
-    ): ChipResponse = ChipResponse.from(chipService.create(userId, request.type, request.label))
+    ): ChipResponse = ChipResponse.from(chipService.create(user.id, request.type, request.label))
 
     @Operation(
         summary = "칩 이름 변경",
@@ -79,10 +80,10 @@ class ChipController(
     )
     @PatchMapping("/{id}")
     fun rename(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "칩 id.", example = "12") @PathVariable id: Long,
         @RequestBody request: ChipRenameRequest,
-    ): ChipResponse = ChipResponse.from(chipService.rename(userId, id, request.label))
+    ): ChipResponse = ChipResponse.from(chipService.rename(user.id, id, request.label))
 
     @Operation(
         summary = "칩 삭제(숨김)",
@@ -96,7 +97,7 @@ class ChipController(
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "칩 id.", example = "12") @PathVariable id: Long,
-    ) = chipService.delete(userId, id)
+    ) = chipService.delete(user.id, id)
 }

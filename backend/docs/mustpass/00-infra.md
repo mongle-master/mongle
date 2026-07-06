@@ -40,12 +40,13 @@
 
 - 발급: `POST /api/v1/auth/token` body `{ "username": string }` → `{ token, userId, username }`.
   데모 로그인이라 비밀번호가 없다 — 없는 username 이면 사용자를 만들어 발급한다.
-- 사용: 이후 모든 보호 API 는 `Authorization: Bearer {token}` 를 보낸다. HS256, claim `sub` = userId 문자열.
-- 주입: 컨트롤러가 `@CurrentUserId userId: Long` 을 받으면 리졸버가 헤더의 토큰을 파싱·검증해 채운다.
+- 사용: 이후 모든 보호 API 는 `Authorization: Bearer {token}` 를 보낸다. HS256, claim `sub` = userId 문자열, claim `username` = 로그인 이름.
+- 주입: 컨트롤러가 `@AuthUser user: UserPrincipal` 을 받으면 리졸버가 헤더의 토큰을 파싱·검증해 채운다.
+  `UserPrincipal(id, username)` 은 토큰 클레임만으로 구성 — 요청당 DB 조회 없음. 컨트롤러는 id·username 중 필요한 것만 골라 쓴다.
   이 파라미터를 쓰는 엔드포인트만 토큰을 요구한다(별도 보안 필터 없음).
 - 무인증 경로(토큰 불요): `/api/v1/auth/**`, `/actuator/**`, 정적 이미지 서빙(`/images/**`), 스웨거(`/swagger-ui/**`, `/v3/api-docs/**`).
-  이들은 `@CurrentUserId` 를 받지 않아 자연히 열린다.
-- 실패: 토큰 없음·Bearer 형식 아님·서명/만료/형식 무효는 모두 401 `UNAUTHORIZED` "로그인이 필요해요.".
+  이들은 `@AuthUser` 를 받지 않아 자연히 열린다.
+- 실패: 토큰 없음·Bearer 형식 아님·서명/만료/형식 무효·username 클레임 없는 옛 토큰은 모두 401 `UNAUTHORIZED` "로그인이 필요해요." (옛 토큰은 재로그인 한 번으로 새 토큰을 받아 해소).
 - 데모 사용자 시드: username `demo` 를 만들어 그 id 로 시드 인물·기록을 소유한다(고정 id 하드코딩 없음).
 
 | 상황 | 입력 | 기대 결과 |
@@ -89,6 +90,6 @@
 
 - 서비스 계층 검증: `com.mongle.common.Validators` (length/required/notFuture/dateOrder/selectionCount/chipKindCount).
 - DTO 글자수: `@field:Size(max = ValidationLimits.X, message = "최대 {max}자까지 쓸 수 있어요.")`.
-- 현재 사용자: 컨트롤러 파라미터 `@CurrentUserId userId: Long` (JWT Bearer 토큰에서 해석 — 위 인증 절).
+- 현재 사용자: 컨트롤러 파라미터 `@AuthUser user: UserPrincipal` (id·username 자유 선택, JWT Bearer 토큰에서 해석 — 위 인증 절). 서비스에는 `user.id` 를 넘긴다.
 - 이미지: `ImageStorageService.store(file): StoredImage(filename, url)` — 용도별 개수는 도메인이 강제.
 - 소프트삭제 엔티티: `com.mongle.domain.SoftDeletableEntity` 상속 → `softDelete()` / `deleted`.

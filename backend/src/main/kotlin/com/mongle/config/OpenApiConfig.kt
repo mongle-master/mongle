@@ -1,6 +1,6 @@
 package com.mongle.config
 
-import com.mongle.common.context.CurrentUserId
+import com.mongle.common.context.AuthUser
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
@@ -16,14 +16,14 @@ import org.springframework.context.annotation.Configuration
  * 인증은 JWT Bearer 하나뿐이라 securityScheme 을 전역 요구사항으로 건다 —
  * 토큰이 없어도 되는 발급 API(`POST /api/v1/auth/token`)와 이미지 업로드는
  * 각 메서드에서 `@SecurityRequirements`(빈) 로 자물쇠를 끈다.
- * 실제 인증 경계는 컨트롤러의 `@CurrentUserId` 유무이므로(CurrentUserIdArgumentResolver),
+ * 실제 인증 경계는 컨트롤러의 `@AuthUser` 유무이므로(AuthUserArgumentResolver),
  * 문서의 자물쇠 표시도 그 경계와 일치시킨다.
  */
 @Configuration
 class OpenApiConfig {
     init {
-        // @CurrentUserId 는 토큰에서 주입되는 서버 내부 값이라 스웨거 파라미터로 노출하지 않는다.
-        SpringDocUtils.getConfig().addAnnotationsToIgnore(CurrentUserId::class.java)
+        // @AuthUser 는 토큰에서 주입되는 서버 내부 값이라 스웨거 파라미터로 노출하지 않는다.
+        SpringDocUtils.getConfig().addAnnotationsToIgnore(AuthUser::class.java)
     }
 
     @Bean

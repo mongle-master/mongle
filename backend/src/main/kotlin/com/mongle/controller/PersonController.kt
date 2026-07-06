@@ -1,6 +1,7 @@
 package com.mongle.controller
 
-import com.mongle.common.context.CurrentUserId
+import com.mongle.common.context.AuthUser
+import com.mongle.common.context.UserPrincipal
 import com.mongle.common.exception.ErrorResponse
 import com.mongle.controller.dto.PersonDetailResponse
 import com.mongle.controller.dto.PersonRequest
@@ -45,12 +46,12 @@ class PersonController(
     )
     @GetMapping
     fun directory(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "정렬(NAME=가나다, RECENT=최근). 즐겨찾기는 항상 상단.", example = "NAME")
         @RequestParam(defaultValue = "NAME") sort: PersonSort,
         @Parameter(description = "이름 검색어(선택).", example = "김")
         @RequestParam(required = false) query: String?,
-    ): List<PersonResponse> = personService.directory(userId, sort, query)
+    ): List<PersonResponse> = personService.directory(user.id, sort, query)
 
     @Operation(
         summary = "인물 상세 조회",
@@ -62,9 +63,9 @@ class PersonController(
     )
     @GetMapping("/{id}")
     fun detail(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "인물 id.", example = "7") @PathVariable id: Long,
-    ): PersonDetailResponse = personService.detail(userId, id)
+    ): PersonDetailResponse = personService.detail(user.id, id)
 
     @Operation(
         summary = "인물 등록",
@@ -78,9 +79,9 @@ class PersonController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun register(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @RequestBody request: PersonRequest,
-    ): PersonResponse = personService.register(userId, request)
+    ): PersonResponse = personService.register(user.id, request)
 
     @Operation(
         summary = "인물 수정",
@@ -93,10 +94,10 @@ class PersonController(
     )
     @PutMapping("/{id}")
     fun update(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "인물 id.", example = "7") @PathVariable id: Long,
         @RequestBody request: PersonRequest,
-    ): PersonResponse = personService.update(userId, id, request)
+    ): PersonResponse = personService.update(user.id, id, request)
 
     @Operation(
         summary = "즐겨찾기 토글",
@@ -108,9 +109,9 @@ class PersonController(
     )
     @PatchMapping("/{id}/favorite")
     fun toggleFavorite(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "인물 id.", example = "7") @PathVariable id: Long,
-    ): PersonResponse = personService.toggleFavorite(userId, id)
+    ): PersonResponse = personService.toggleFavorite(user.id, id)
 
     @Operation(
         summary = "인물 삭제",
@@ -123,7 +124,7 @@ class PersonController(
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "인물 id.", example = "7") @PathVariable id: Long,
-    ) = personService.delete(userId, id)
+    ) = personService.delete(user.id, id)
 }

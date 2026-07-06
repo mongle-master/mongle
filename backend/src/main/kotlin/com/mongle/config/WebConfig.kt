@@ -1,6 +1,6 @@
 package com.mongle.config
 
-import com.mongle.common.context.CurrentUserIdArgumentResolver
+import com.mongle.common.context.AuthUserArgumentResolver
 import com.mongle.common.image.ImageProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
@@ -10,11 +10,11 @@ import java.nio.file.Paths
 
 @Configuration
 class WebConfig(
-    private val currentUserIdArgumentResolver: CurrentUserIdArgumentResolver,
+    private val authUserArgumentResolver: AuthUserArgumentResolver,
     private val imageProperties: ImageProperties,
 ) : WebMvcConfigurer {
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-        resolvers.add(currentUserIdArgumentResolver)
+        resolvers.add(authUserArgumentResolver)
     }
 
     // 업로드 이미지를 baseDir 에서 urlPath(=/images) 로 정적 서빙(#12).

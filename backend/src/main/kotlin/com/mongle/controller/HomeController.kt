@@ -1,6 +1,7 @@
 package com.mongle.controller
 
-import com.mongle.common.context.CurrentUserId
+import com.mongle.common.context.AuthUser
+import com.mongle.common.context.UserPrincipal
 import com.mongle.common.exception.ErrorResponse
 import com.mongle.controller.dto.RelationMapResponse
 import com.mongle.controller.dto.ThrowbackResponse
@@ -37,10 +38,10 @@ class HomeController(
     )
     @GetMapping("/relation-map")
     fun relationMap(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "관계태그 칩 id 필터. 여러 개면 합집합(OR). 없으면 전체.", example = "[11, 12]")
         @RequestParam(required = false) relationTagChipIds: List<Long>?,
-    ): RelationMapResponse = homeService.relationMap(userId, relationTagChipIds ?: emptyList())
+    ): RelationMapResponse = homeService.relationMap(user.id, relationTagChipIds ?: emptyList())
 
     // 1년 전 오늘 기록이 없으면 204 — 프론트가 플로팅을 띄우지 않는다(#43).
     @Operation(
@@ -54,6 +55,6 @@ class HomeController(
     )
     @GetMapping("/throwback")
     fun throwback(
-        @CurrentUserId userId: Long,
-    ): ResponseEntity<ThrowbackResponse> = homeService.throwback(userId)?.let { ResponseEntity.ok(it) } ?: ResponseEntity.noContent().build()
+        @AuthUser user: UserPrincipal,
+    ): ResponseEntity<ThrowbackResponse> = homeService.throwback(user.id)?.let { ResponseEntity.ok(it) } ?: ResponseEntity.noContent().build()
 }

@@ -1,6 +1,7 @@
 package com.mongle.controller
 
-import com.mongle.common.context.CurrentUserId
+import com.mongle.common.context.AuthUser
+import com.mongle.common.context.UserPrincipal
 import com.mongle.common.exception.ErrorResponse
 import com.mongle.controller.dto.EventRequest
 import com.mongle.controller.dto.EventResponse
@@ -43,9 +44,9 @@ class EventController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @RequestBody request: EventRequest,
-    ): EventResponse = eventService.create(userId, request)
+    ): EventResponse = eventService.create(user.id, request)
 
     @Operation(
         summary = "기록 상세 조회",
@@ -57,9 +58,9 @@ class EventController(
     )
     @GetMapping("/{id}")
     fun detail(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "기록 id.", example = "21") @PathVariable id: Long,
-    ): EventResponse = eventService.detail(userId, id)
+    ): EventResponse = eventService.detail(user.id, id)
 
     @Operation(
         summary = "기록 수정",
@@ -72,8 +73,8 @@ class EventController(
     )
     @PutMapping("/{id}")
     fun update(
-        @CurrentUserId userId: Long,
+        @AuthUser user: UserPrincipal,
         @Parameter(description = "기록 id.", example = "21") @PathVariable id: Long,
         @RequestBody request: EventRequest,
-    ): EventResponse = eventService.update(userId, id, request)
+    ): EventResponse = eventService.update(user.id, id, request)
 }
