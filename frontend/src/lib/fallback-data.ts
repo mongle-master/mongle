@@ -80,7 +80,7 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
 export const FALLBACK_PERSONS: PersonResponse[] = [
   {
     id: 1,
-    name: '김서연',
+    name: '유진',
     birthday: { year: 1995, month: 4, day: 12 },
     firstMetDate: '2023-07-07',
     lastMetDate: '2026-07-04',
@@ -97,10 +97,10 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
   },
   {
     id: 2,
-    name: '이준호',
+    name: '재윤',
     birthday: { month: 9, day: 23 },
     firstMetDate: '2025-05-07',
-    lastMetDate: '2026-06-07',
+    lastMetDate: '2026-07-07',
     profileImageUrl: null,
     relationType: '회사 동료',
     relationTags: [{ id: 403, label: '직장' }],
@@ -111,16 +111,58 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
   },
   {
     id: 3,
-    name: '박민지',
+    name: '지훈',
     birthday: { year: 2000, month: 11, day: 5 },
     firstMetDate: null,
-    lastMetDate: '2026-05-07',
+    lastMetDate: '2026-06-30',
     profileImageUrl: null,
     relationType: '동생',
     relationTags: [{ id: 401, label: '가족' }],
     likes: [],
     cautions: [],
     favorite: true,
+    createdAt: null,
+  },
+  {
+    id: 4,
+    name: '소연',
+    birthday: { month: 2, day: 14 },
+    firstMetDate: '2024-03-01',
+    lastMetDate: '2026-07-02',
+    profileImageUrl: null,
+    relationType: '친구',
+    relationTags: [{ id: 402, label: '친구' }],
+    likes: ['전시', '산책'],
+    cautions: [],
+    favorite: false,
+    createdAt: null,
+  },
+  {
+    id: 5,
+    name: '하은',
+    birthday: { month: 6, day: 5 },
+    firstMetDate: '2024-09-01',
+    lastMetDate: '2026-06-23',
+    profileImageUrl: null,
+    relationType: '친구',
+    relationTags: [{ id: 402, label: '친구' }],
+    likes: ['카페', '영화'],
+    cautions: [],
+    favorite: false,
+    createdAt: null,
+  },
+  {
+    id: 6,
+    name: '민수',
+    birthday: { month: 12, day: 2 },
+    firstMetDate: '2023-12-11',
+    lastMetDate: '2026-06-07',
+    profileImageUrl: null,
+    relationType: '회사 동료',
+    relationTags: [{ id: 403, label: '직장' }],
+    likes: ['러닝', '커피'],
+    cautions: [],
+    favorite: false,
     createdAt: null,
   },
 ]
@@ -134,22 +176,33 @@ export const FALLBACK_RELATION_MAP: RelationMapResponse = {
     favorite: p.favorite,
     relationTags: p.relationTags,
     intimacy: {
-      status: p.id === 2 ? 'DISTANT' : 'NORMAL',
+      status: p.id === 6 ? 'DISTANT' : 'NORMAL',
       averageIntervalDays: 30,
-      daysSinceLastMeet: p.id === 1 ? 3 : 30,
+      daysSinceLastMeet:
+        p.id === 1
+          ? 3
+          : p.id === 2
+            ? 0
+            : p.id === 3
+              ? 7
+              : p.id === 4
+                ? 5
+                : p.id === 5
+                  ? 14
+                  : 30,
     },
   })),
   edges: FALLBACK_PERSONS.map((p) => ({
     personId: p.id,
-    distant: p.id === 2,
+    distant: p.id === 6,
   })),
 }
 
 export const FALLBACK_THROWBACK: ThrowbackResponse = {
   eventId: 99,
   personId: 1,
-  personName: '김서연',
-  title: '작년 이맘때 한강 산책',
+  personName: '유진',
+  title: '이친구와 제주도 여행 다녀온 날. 날씨가 정말 좋았던 하루',
   occurredDate: '2025-07-07',
   photoUrl: null,
 }
