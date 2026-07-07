@@ -38,14 +38,6 @@ function HomePage() {
   const throwback = throwbackQuery.data
   const mapData: RelationMapResponse = mapQuery.data ?? FALLBACK_RELATION_MAP
 
-  const throwbackPerson = useMemo(
-    () =>
-      throwback
-        ? mapData.nodes.find((n) => n.id === throwback.personId)
-        : undefined,
-    [mapData.nodes, throwback],
-  )
-
   const visibleNodes = useMemo(
     () =>
       mapData.nodes.filter((node) =>
