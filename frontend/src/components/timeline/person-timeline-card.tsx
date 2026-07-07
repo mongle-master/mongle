@@ -33,15 +33,6 @@ export function PersonTimelineCard({ event }: { event: EventResponse }) {
             {event.what}
           </p>
         ) : null}
-        {event.emotions.length > 0 ? (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {event.emotions.map((e) => (
-              <Badge key={e.id} variant="outline" className="text-[10px]">
-                {e.label}
-              </Badge>
-            ))}
-          </div>
-        ) : null}
       </CardContent>
     </Card>
   )

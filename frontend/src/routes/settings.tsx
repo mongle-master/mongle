@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { AppShell } from '@/components/layout/app-shell'
 import { MongleLogo } from '@/components/brand/mongle-logo'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -21,10 +20,13 @@ export const Route = createFileRoute('/settings')({
 })
 
 const CHIP_TYPE_LABELS: Record<ChipType, string> = {
-  EMOTION: '감정',
-  WEATHER: '날씨',
   CATEGORY: '카테고리',
   RELATION_TAG: '관계 태그',
+}
+const MANAGED_CHIP_TYPES = ['CATEGORY', 'RELATION_TAG'] as const
+
+function isManagedChipType(type: string): type is ChipType {
+  return (MANAGED_CHIP_TYPES as readonly string[]).includes(type)
 }
 
 function SettingsPage() {
@@ -75,13 +77,13 @@ function ChipManagementSection() {
     initialData: FALLBACK_CHIPS,
   })
 
-  const chips = chipsQuery.data
+  const chips = chipsQuery.data.filter((chip) => isManagedChipType(chip.type))
 
   return (
     <section>
       <h2 className="mb-3 text-sm font-extrabold">칩 관리</h2>
       <div className="flex flex-col gap-4">
-        {(Object.keys(CHIP_TYPE_LABELS) as ChipType[]).map((type) => (
+        {MANAGED_CHIP_TYPES.map((type) => (
           <ChipTypePanel
             key={type}
             type={type}
@@ -170,15 +172,6 @@ function ChipTypePanel({
               <>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold">{chip.label}</span>
-                  {chip.personal ? (
-                    <Badge variant="outline" className="text-[10px]">
-                      내 칩
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="text-[10px]">
-                      공통
-                    </Badge>
-                  )}
                 </div>
                 {chip.personal ? (
                   <div className="flex gap-2">

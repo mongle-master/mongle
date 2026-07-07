@@ -1,12 +1,7 @@
 import { api } from '@/lib/api/client'
 import type { ChipResponse, ChipType } from '@/lib/api/types'
 
-const CHIP_TYPES: ChipType[] = [
-  'EMOTION',
-  'WEATHER',
-  'CATEGORY',
-  'RELATION_TAG',
-]
+const CHIP_TYPES: ChipType[] = ['CATEGORY', 'RELATION_TAG']
 
 export async function fetchChips(type?: ChipType) {
   if (type) {

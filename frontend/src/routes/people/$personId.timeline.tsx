@@ -190,16 +190,16 @@ function PersonTimelinePage() {
         ) : (
           events.map((event) => {
             const { year, date } = formatEventDate(event.occurredDate)
+            const [month, day] = date.split('.')
             return (
               <div key={event.id} className="flex gap-2">
                 <div className="flex w-[4.375rem] shrink-0 flex-col items-center">
                   <p className="text-center text-[10.5px] font-extrabold text-muted-foreground leading-tight">
                     {year}
-                    <br />
-                    {date}
                   </p>
-                  <div className="mt-1.5 flex size-8 items-center justify-center rounded-full border border-foreground bg-card text-xs">
-                    ☕
+                  <div className="mt-1.5 flex size-8 flex-col items-center justify-center rounded-full border border-foreground bg-card text-[10px] leading-none font-extrabold">
+                    <span>{month}</span>
+                    <span>{day}</span>
                   </div>
                   <div className="w-px flex-1 border-l-2 border-dotted border-border" />
                 </div>

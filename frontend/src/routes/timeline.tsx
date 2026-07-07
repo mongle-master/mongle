@@ -16,6 +16,7 @@ import {
   FALLBACK_PERSONS,
   fallbackMyTimeline,
 } from '@/lib/fallback-data'
+import { formatEventDate } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 
@@ -56,11 +57,23 @@ function MyTimelinePage() {
   const categoryChips = chipsQuery.data.filter((c) => c.type === 'CATEGORY')
   const persons = personsQuery.data
   const groups = timelineQuery.data.groups
-
-  const totalCards = useMemo(
-    () => groups.reduce((sum, g) => sum + g.cards.length, 0),
-    [groups],
+  const cards = useMemo(
+    () =>
+      groups
+        .flatMap((group) => group.cards)
+        .filter((card) => {
+          const categoryOk =
+            categoryFilter.length === 0 ||
+            (card.category && categoryFilter.includes(card.category.id))
+          const personOk =
+            personFilter.length === 0 ||
+            card.persons.some((person) => personFilter.includes(person.id))
+          return categoryOk && personOk
+        }),
+    [categoryFilter, groups, personFilter],
   )
+
+  const totalCards = cards.length
 
   const toggleCategory = (chipId: number) => {
     setCategoryFilter((prev) =>
@@ -182,19 +195,26 @@ function MyTimelinePage() {
           </Button>
         </div>
       ) : (
-        <div className="flex flex-col gap-5">
-          {groups.map((group) => (
-            <section key={`${group.year}-${group.month}`}>
-              <h2 className="mb-3 text-sm font-extrabold text-muted-foreground">
-                {group.label}
-              </h2>
-              <div className="flex flex-col gap-3">
-                {group.cards.map((card) => (
-                  <MyTimelineCard key={card.id} card={card} />
-                ))}
+        <div className="flex flex-col pb-20">
+          {cards.map((card) => {
+            const { year, date } = formatEventDate(card.occurredDate)
+            const [month, day] = date.split('.')
+            return (
+              <div key={card.id} className="flex gap-2">
+                <div className="flex w-[4.375rem] shrink-0 flex-col items-center">
+                  <p className="text-center text-[10.5px] leading-tight font-extrabold text-muted-foreground">
+                    {year}
+                  </p>
+                  <div className="mt-1.5 flex size-8 flex-col items-center justify-center rounded-full border border-foreground bg-card text-[10px] leading-none font-extrabold">
+                    <span>{month}</span>
+                    <span>{day}</span>
+                  </div>
+                  <div className="w-px flex-1 border-l-2 border-dotted border-border" />
+                </div>
+                <MyTimelineCard card={card} />
               </div>
-            </section>
-          ))}
+            )
+          })}
         </div>
       )}
     </AppShell>

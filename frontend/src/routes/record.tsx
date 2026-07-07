@@ -17,7 +17,7 @@ import type { PersonResponse } from '@/lib/api/types'
 import { safeApi } from '@/lib/api/safe'
 import { FALLBACK_CHIPS } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
-import { cn } from '@/lib/utils'
+import { cn } from '#/lib/utils'
 
 export const Route = createFileRoute('/record')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -43,8 +43,6 @@ function RecordPage() {
   const [personModalDismissible, setPersonModalDismissible] = useState(true)
   const [personSelectError, setPersonSelectError] = useState(false)
   const [categoryChipId, setCategoryChipId] = useState<number | null>(null)
-  const [weatherChipId, setWeatherChipId] = useState<number | null>(null)
-  const [emotionChipIds, setEmotionChipIds] = useState<number[]>([])
   const [title, setTitle] = useState('')
   const [why, setWhy] = useState('')
   const [what, setWhat] = useState('')
@@ -69,8 +67,6 @@ function RecordPage() {
   const chipsByType = useMemo(
     () => ({
       category: chips.filter((c) => c.type === 'CATEGORY'),
-      weather: chips.filter((c) => c.type === 'WEATHER'),
-      emotion: chips.filter((c) => c.type === 'EMOTION'),
     }),
     [chips],
   )
@@ -164,14 +160,6 @@ function RecordPage() {
     },
   })
 
-  const toggleEmotion = (id: number) => {
-    setEmotionChipIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((e) => e !== id)
-        : [...prev, id].slice(0, 5),
-    )
-  }
-
   const handleSave = () => {
     if (selectedPersonIds.length === 0) {
       setPersonSelectError(true)
@@ -188,8 +176,6 @@ function RecordPage() {
       what: what.trim() || null,
       occurredDate,
       categoryChipId: categoryChipId ?? chipsByType.category[0].id,
-      weatherChipId,
-      emotionChipIds,
       personIds: selectedPersonIds,
     })
   }
@@ -336,29 +322,6 @@ function RecordPage() {
 
         <section>
           <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            오늘의 감정
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {chipsByType.emotion.map((chip) => (
-              <button
-                key={chip.id}
-                type="button"
-                onClick={() => toggleEmotion(chip.id)}
-                className={cn(
-                  'rounded-full border px-3.5 py-2 text-[13px] font-bold',
-                  emotionChipIds.includes(chip.id)
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-card text-muted-foreground',
-                )}
-              >
-                {chip.label}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
             제목
           </p>
           <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5">
@@ -370,28 +333,6 @@ function RecordPage() {
             />
             <Badge variant="secondary">{categoryLabel} ▾</Badge>
           </div>
-        </section>
-
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            날씨
-          </p>
-          <ToggleGroup
-            type="single"
-            value={weatherChipId ? String(weatherChipId) : undefined}
-            onValueChange={(v) => setWeatherChipId(v ? Number(v) : null)}
-            className="flex flex-wrap justify-start gap-2"
-          >
-            {chipsByType.weather.map((chip) => (
-              <ToggleGroupItem
-                key={chip.id}
-                value={String(chip.id)}
-                className="rounded-full border px-3.5 py-2 text-[13px] font-bold data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-              >
-                {chip.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
         </section>
 
         <section>
