@@ -9,38 +9,120 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RecordRouteImport } from './routes/record'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PeopleNewRouteImport } from './routes/people/new'
+import { Route as PeoplePersonIdRouteImport } from './routes/people/$personId'
+import { Route as PeoplePersonIdTimelineRouteImport } from './routes/people/$personId.timeline'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecordRoute = RecordRouteImport.update({
+  id: '/record',
+  path: '/record',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PeopleNewRoute = PeopleNewRouteImport.update({
+  id: '/people/new',
+  path: '/people/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PeoplePersonIdRoute = PeoplePersonIdRouteImport.update({
+  id: '/people/$personId',
+  path: '/people/$personId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PeoplePersonIdTimelineRoute = PeoplePersonIdTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => PeoplePersonIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/record': typeof RecordRoute
+  '/settings': typeof SettingsRoute
+  '/people/$personId': typeof PeoplePersonIdRouteWithChildren
+  '/people/new': typeof PeopleNewRoute
+  '/people/$personId/timeline': typeof PeoplePersonIdTimelineRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/record': typeof RecordRoute
+  '/settings': typeof SettingsRoute
+  '/people/$personId': typeof PeoplePersonIdRouteWithChildren
+  '/people/new': typeof PeopleNewRoute
+  '/people/$personId/timeline': typeof PeoplePersonIdTimelineRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/record': typeof RecordRoute
+  '/settings': typeof SettingsRoute
+  '/people/$personId': typeof PeoplePersonIdRouteWithChildren
+  '/people/new': typeof PeopleNewRoute
+  '/people/$personId/timeline': typeof PeoplePersonIdTimelineRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/record'
+    | '/settings'
+    | '/people/$personId'
+    | '/people/new'
+    | '/people/$personId/timeline'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/record'
+    | '/settings'
+    | '/people/$personId'
+    | '/people/new'
+    | '/people/$personId/timeline'
+  id:
+    | '__root__'
+    | '/'
+    | '/record'
+    | '/settings'
+    | '/people/$personId'
+    | '/people/new'
+    | '/people/$personId/timeline'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  RecordRoute: typeof RecordRoute
+  SettingsRoute: typeof SettingsRoute
+  PeoplePersonIdRoute: typeof PeoplePersonIdRouteWithChildren
+  PeopleNewRoute: typeof PeopleNewRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/record': {
+      id: '/record'
+      path: '/record'
+      fullPath: '/record'
+      preLoaderRoute: typeof RecordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +130,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/people/new': {
+      id: '/people/new'
+      path: '/people/new'
+      fullPath: '/people/new'
+      preLoaderRoute: typeof PeopleNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/people/$personId': {
+      id: '/people/$personId'
+      path: '/people/$personId'
+      fullPath: '/people/$personId'
+      preLoaderRoute: typeof PeoplePersonIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/people/$personId/timeline': {
+      id: '/people/$personId/timeline'
+      path: '/timeline'
+      fullPath: '/people/$personId/timeline'
+      preLoaderRoute: typeof PeoplePersonIdTimelineRouteImport
+      parentRoute: typeof PeoplePersonIdRoute
+    }
   }
 }
 
+interface PeoplePersonIdRouteChildren {
+  PeoplePersonIdTimelineRoute: typeof PeoplePersonIdTimelineRoute
+}
+
+const PeoplePersonIdRouteChildren: PeoplePersonIdRouteChildren = {
+  PeoplePersonIdTimelineRoute: PeoplePersonIdTimelineRoute,
+}
+
+const PeoplePersonIdRouteWithChildren = PeoplePersonIdRoute._addFileChildren(
+  PeoplePersonIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  RecordRoute: RecordRoute,
+  SettingsRoute: SettingsRoute,
+  PeoplePersonIdRoute: PeoplePersonIdRouteWithChildren,
+  PeopleNewRoute: PeopleNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -10,6 +10,12 @@ import { codeInspectorPlugin } from 'code-inspector-plugin'
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  server: {
+    proxy: {
+      '/api': { target: 'http://localhost:18080', changeOrigin: true },
+      '/images': { target: 'http://localhost:18080', changeOrigin: true },
+    },
+  },
   plugins: [
     codeInspectorPlugin({ bundler: 'vite' }),
     devtools(),

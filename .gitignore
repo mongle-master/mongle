@@ -1,3 +1,8 @@
 # 세션별 구현 계획 (문서-코드 drift 방지, CLAUDE.md 규칙 4)
 frontend/docs/temp/
 backend/docs/temp/
+
+# pnpm / Node
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*

@@ -20,7 +20,7 @@
     "prepare": "cd .. && husky frontend/.husky"
   },
   "dependencies": {
-    "@fontsource-variable/geist": "^5.2.9",
+    "@fontsource/pretendard": "^5.2.5",
     "@hookform/resolvers": "^5.4.0",
     "@suspensive/react": "^3.21.3",
     "@suspensive/react-query": "^3.21.3",
