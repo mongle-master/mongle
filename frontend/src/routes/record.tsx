@@ -17,7 +17,7 @@ import type { PersonResponse } from '@/lib/api/types'
 import { safeApi } from '@/lib/api/safe'
 import { FALLBACK_CHIPS } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
-import { cn } from '#/lib/utils'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/record')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -100,7 +100,7 @@ function RecordPage() {
             랑 어땠어요?
           </>
         ),
-        subtitle: '감정만 골라도 돼요. 세 줄이면 충분해요.',
+        subtitle: '세 줄이면 충분해요.',
       }
     }
     return {
@@ -319,7 +319,6 @@ function RecordPage() {
             </p>
           ) : null}
         </section>
-
         <section>
           <p className="mb-2 text-xs font-extrabold text-muted-foreground">
             제목
