@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { X } from 'lucide-react'
+import { motion } from 'motion/react'
 import { useMemo, useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { MongleLogo } from '@/components/brand/mongle-logo'
@@ -8,6 +9,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Card } from '@/components/ui/card'
 import { fetchRelationMap, fetchThrowback } from '@/lib/api/home'
+import type { RelationMapResponse } from '@/lib/api/types'
 import { FALLBACK_RELATION_MAP, FALLBACK_THROWBACK } from '@/lib/fallback-data'
 import { layoutOnCircle } from '@/lib/format'
 import { getDefaultHomePeriod, isNodeInHomePeriod } from '@/lib/home-period'
@@ -26,7 +28,8 @@ function HomePage() {
 
   const mapQuery = useQuery({
     queryKey: queryKeys.relationMap,
-    queryFn: () => safeApi(() => fetchRelationMap(), FALLBACK_RELATION_MAP),
+    queryFn: (): Promise<RelationMapResponse> =>
+      safeApi(() => fetchRelationMap(), FALLBACK_RELATION_MAP),
   })
 
   const throwbackQuery = useQuery({
@@ -35,7 +38,7 @@ function HomePage() {
   })
 
   const throwback = throwbackQuery.data
-  const mapData = mapQuery.data ?? FALLBACK_RELATION_MAP
+  const mapData: RelationMapResponse = mapQuery.data ?? FALLBACK_RELATION_MAP
 
   const visibleNodes = useMemo(
     () =>
@@ -73,6 +76,7 @@ function HomePage() {
         </p>
       ) : (
         <RelationMapView
+          key={period}
           me={mapData.me}
           nodes={visibleNodes}
           edges={visibleEdges}
@@ -113,7 +117,6 @@ function HomePage() {
     </AppShell>
   )
 }
-
 function RelationMapView({
   me,
   nodes,
@@ -128,22 +131,27 @@ function RelationMapView({
   const edgeByPerson = new Map(edges.map((e) => [e.personId, e.distant]))
   const center = { x: 50, y: 52 }
 
+  const spring = {
+    type: 'spring' as const,
+    stiffness: 110,
+    damping: 18,
+    mass: 0.85,
+  }
+
   return (
     <div className="relative mt-2 h-[470px]">
       <svg
-        className="pointer-events-none absolute inset-0 size-full"
+        className="pointer-events-none absolute inset-0 size-full overflow-visible"
         aria-hidden
       >
         {nodes.map((node, i) => {
           const pos = positions[i]
           const distant = edgeByPerson.get(node.id) ?? false
           return (
-            <line
+            <motion.line
               key={node.id}
               x1={`${center.x}%`}
               y1={`${center.y}%`}
-              x2={`${pos.x}%`}
-              y2={`${pos.y}%`}
               stroke="currentColor"
               strokeWidth={1.5}
               className={cn(
@@ -151,57 +159,100 @@ function RelationMapView({
                 distant && 'text-muted-foreground/40',
               )}
               strokeDasharray={distant ? '4 6' : undefined}
+              initial={{
+                x2: `${center.x}%`,
+                y2: `${center.y}%`,
+                opacity: 0,
+              }}
+              animate={{
+                x2: `${pos.x}%`,
+                y2: `${pos.y}%`,
+                opacity: 1,
+              }}
+              transition={{
+                ...spring,
+                delay: 0.08 + i * 0.045,
+              }}
             />
           )
         })}
       </svg>
 
-      <div
+      <motion.div
         className="absolute flex size-[4.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary font-extrabold text-primary-foreground shadow-lg"
         style={{ left: `${center.x}%`, top: `${center.y}%` }}
+        initial={{ scale: 0.4, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ ...spring, stiffness: 140, damping: 16 }}
       >
         {me.label}
-      </div>
+      </motion.div>
 
-      <Link
-        to="/people/new"
-        className="absolute flex size-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-2 border-dashed border-muted-foreground text-muted-foreground"
+      <motion.div
+        className="absolute -translate-x-1/2 -translate-y-1/2"
         style={{ left: '78%', top: '52%' }}
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ ...spring, delay: 0.2 + nodes.length * 0.045 }}
       >
-        <span className="text-2xl font-normal">＋</span>
-        <span className="absolute -bottom-5 text-[11px] font-extrabold whitespace-nowrap">
-          사람 추가
-        </span>
-      </Link>
+        <Link
+          to="/people/new"
+          className="flex size-16 flex-col items-center justify-center rounded-full border-2 border-dashed border-muted-foreground text-muted-foreground"
+        >
+          <span className="text-2xl font-normal">＋</span>
+          <span className="absolute -bottom-5 text-[11px] font-extrabold whitespace-nowrap">
+            사람 추가
+          </span>
+        </Link>
+      </motion.div>
 
       {nodes.map((node, i) => {
         const pos = positions[i]
         const distant = node.intimacy.status === 'DISTANT'
         return (
-          <Link
+          <motion.div
             key={node.id}
-            to="/people/$personId/timeline"
-            params={{ personId: String(node.id) }}
             className={cn(
-              'absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center',
+              'absolute -translate-x-1/2 -translate-y-1/2',
               distant && 'opacity-60',
             )}
-            style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+            initial={{
+              left: `${center.x}%`,
+              top: `${center.y}%`,
+              scale: 0.35,
+              opacity: 0,
+            }}
+            animate={{
+              left: `${pos.x}%`,
+              top: `${pos.y}%`,
+              scale: 1,
+              opacity: distant ? 0.6 : 1,
+            }}
+            transition={{
+              ...spring,
+              delay: 0.06 + i * 0.05,
+            }}
           >
-            <MonogramAvatar
-              name={node.name}
-              imageUrl={node.profileImageUrl}
-              favorite={node.favorite}
-              className={cn(
-                'size-14',
-                node.favorite &&
-                  'ring-2 ring-foreground ring-offset-2 ring-offset-background',
-              )}
-            />
-            <span className="mt-1 text-[11px] font-bold text-muted-foreground">
-              {node.name}
-            </span>
-          </Link>
+            <Link
+              to="/people/$personId/timeline"
+              params={{ personId: String(node.id) }}
+              className="flex flex-col items-center"
+            >
+              <MonogramAvatar
+                name={node.name}
+                imageUrl={node.profileImageUrl}
+                favorite={node.favorite}
+                className={cn(
+                  'size-14',
+                  node.favorite &&
+                    'ring-2 ring-foreground ring-offset-2 ring-offset-background',
+                )}
+              />
+              <span className="mt-1 text-[11px] font-bold text-muted-foreground">
+                {node.name}
+              </span>
+            </Link>
+          </motion.div>
         )
       })}
     </div>

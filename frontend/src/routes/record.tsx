@@ -1,6 +1,8 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { ChevronRight, Plus } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { PersonSelectModal } from '@/components/record/person-select-modal'
 import { AppShell } from '@/components/layout/app-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
@@ -11,8 +13,9 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { fetchChips } from '@/lib/api/chips'
 import { createEvent } from '@/lib/api/events'
 import { fetchPersons } from '@/lib/api/persons'
+import type { PersonResponse } from '@/lib/api/types'
 import { safeApi } from '@/lib/api/safe'
-import { FALLBACK_CHIPS, FALLBACK_PERSONS } from '@/lib/fallback-data'
+import { FALLBACK_CHIPS } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 
@@ -36,6 +39,9 @@ function RecordPage() {
   const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>(() =>
     presetPersonId ? [presetPersonId] : [],
   )
+  const [personModalOpen, setPersonModalOpen] = useState(false)
+  const [personModalDismissible, setPersonModalDismissible] = useState(true)
+  const [personSelectError, setPersonSelectError] = useState(false)
   const [categoryChipId, setCategoryChipId] = useState<number | null>(null)
   const [weatherChipId, setWeatherChipId] = useState<number | null>(null)
   const [emotionChipIds, setEmotionChipIds] = useState<number[]>([])
@@ -54,11 +60,10 @@ function RecordPage() {
   })
   const personsQuery = useQuery({
     queryKey: queryKeys.persons(),
-    queryFn: () => safeApi(() => fetchPersons(), FALLBACK_PERSONS),
-    initialData: FALLBACK_PERSONS,
+    queryFn: (): Promise<PersonResponse[]> => safeApi(() => fetchPersons(), []),
   })
 
-  const persons = personsQuery.data
+  const persons = personsQuery.data ?? []
   const chips = chipsQuery.data
 
   const chipsByType = useMemo(
@@ -70,12 +75,65 @@ function RecordPage() {
     [chips],
   )
 
-  const primaryPerson =
-    persons.find((p) => selectedPersonIds.includes(p.id)) ?? persons[0]
+  const selectedPersons = useMemo(
+    () => persons.filter((p) => selectedPersonIds.includes(p.id)),
+    [persons, selectedPersonIds],
+  )
+
+  const primaryPerson = selectedPersons.at(0)
 
   const categoryLabel =
     chipsByType.category.find((c) => c.id === categoryChipId)?.label ??
     chipsByType.category[0].label
+
+  const greeting = useMemo(() => {
+    if (selectedPersons.length === 0) {
+      return {
+        title: '오늘 누구와 함께였어요?',
+        subtitle: '함께한 사람을 먼저 선택해 주세요.',
+      }
+    }
+    if (selectedPersons.length === 1) {
+      return {
+        title: (
+          <>
+            오늘{' '}
+            <span className="underline underline-offset-4">
+              {selectedPersons[0].name}
+            </span>
+            랑 어땠어요?
+          </>
+        ),
+        subtitle: '감정만 골라도 돼요. 세 줄이면 충분해요.',
+      }
+    }
+    return {
+      title: '오늘 어땠어요?',
+      subtitle: `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명과 함께한 순간이에요.`,
+    }
+  }, [selectedPersons])
+
+  const autoOpenedPersonModal = useRef(false)
+
+  useEffect(() => {
+    if (autoOpenedPersonModal.current) return
+    if (personsQuery.isPending) return
+    if (presetPersonId || selectedPersonIds.length > 0) return
+    if (persons.length === 0) return
+    autoOpenedPersonModal.current = true
+    setPersonModalDismissible(false)
+    setPersonModalOpen(true)
+  }, [
+    persons.length,
+    personsQuery.isPending,
+    presetPersonId,
+    selectedPersonIds.length,
+  ])
+
+  const openPersonModal = (dismissible = true) => {
+    setPersonModalDismissible(dismissible)
+    setPersonModalOpen(true)
+  }
 
   const createMutation = useMutation({
     mutationFn: createEvent,
@@ -94,21 +152,17 @@ function RecordPage() {
     },
     onError: () => {
       setSavedLocally(true)
-      const personId = selectedPersonIds[0] ?? primaryPerson.id
-      setTimeout(() => {
-        void navigate({
-          to: '/people/$personId/timeline',
-          params: { personId: String(personId) },
-        })
-      }, 600)
+      const personId = selectedPersonIds[0]
+      if (personId) {
+        setTimeout(() => {
+          void navigate({
+            to: '/people/$personId/timeline',
+            params: { personId: String(personId) },
+          })
+        }, 600)
+      }
     },
   })
-
-  const togglePerson = (id: number) => {
-    setSelectedPersonIds((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
-    )
-  }
 
   const toggleEmotion = (id: number) => {
     setEmotionChipIds((prev) =>
@@ -119,9 +173,14 @@ function RecordPage() {
   }
 
   const handleSave = () => {
+    if (selectedPersonIds.length === 0) {
+      setPersonSelectError(true)
+      openPersonModal(false)
+      return
+    }
+
     setSavedLocally(false)
-    const personIds =
-      selectedPersonIds.length > 0 ? selectedPersonIds : [primaryPerson.id]
+    setPersonSelectError(false)
 
     createMutation.mutate({
       title: title.trim() || null,
@@ -131,8 +190,51 @@ function RecordPage() {
       categoryChipId: categoryChipId ?? chipsByType.category[0].id,
       weatherChipId,
       emotionChipIds,
-      personIds,
+      personIds: selectedPersonIds,
     })
+  }
+
+  if (personsQuery.isPending) {
+    return (
+      <AppShell activePath="/record" className="px-0">
+        <header className="grid grid-cols-3 items-center px-5 py-1">
+          <Link to="/" className="text-lg font-extrabold text-muted-foreground">
+            ‹
+          </Link>
+          <h1 className="text-center text-base font-extrabold">새 기록</h1>
+          <span />
+        </header>
+        <p className="px-5 py-20 text-center text-sm text-muted-foreground">
+          불러오는 중…
+        </p>
+      </AppShell>
+    )
+  }
+
+  if (persons.length === 0) {
+    return (
+      <AppShell activePath="/record" className="px-0">
+        <header className="grid grid-cols-3 items-center px-5 py-1">
+          <Link to="/" className="text-lg font-extrabold text-muted-foreground">
+            ‹
+          </Link>
+          <h1 className="text-center text-base font-extrabold">새 기록</h1>
+          <span />
+        </header>
+        <div className="flex flex-col items-center px-5 py-20 text-center">
+          <p className="text-sm text-muted-foreground">
+            먼저 함께한 사람을 추가해 주세요.
+          </p>
+          <Link
+            to="/people/new"
+            className="mt-5 inline-flex items-center gap-1 rounded-full border border-foreground bg-card px-4 py-2.5 text-sm font-extrabold"
+          >
+            <Plus className="size-4" />
+            인연 추가
+          </Link>
+        </div>
+      </AppShell>
+    )
   }
 
   return (
@@ -153,22 +255,83 @@ function RecordPage() {
       </header>
 
       <div className="flex flex-col gap-5 px-5">
-        <section>
-          <MonogramAvatar
-            name={primaryPerson.name}
-            imageUrl={primaryPerson.profileImageUrl}
-            className="size-9"
-          />
-          <h2 className="mt-2 text-xl font-extrabold">
-            오늘{' '}
-            <span className="underline underline-offset-4">
-              {primaryPerson.name}
-            </span>
-            랑 어땠어요?
-          </h2>
+        <button
+          type="button"
+          onClick={() => openPersonModal()}
+          className="text-left"
+        >
+          {primaryPerson ? (
+            <MonogramAvatar
+              name={primaryPerson.name}
+              imageUrl={primaryPerson.profileImageUrl}
+              className="size-9"
+            />
+          ) : (
+            <div className="flex size-9 items-center justify-center rounded-full border border-dashed border-muted-foreground text-muted-foreground">
+              ?
+            </div>
+          )}
+          <h2 className="mt-2 text-xl font-extrabold">{greeting.title}</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            감정만 골라도 돼요. 세 줄이면 충분해요.
+            {greeting.subtitle}
           </p>
+        </button>
+
+        <section>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-xs font-extrabold text-muted-foreground">
+              함께한 사람
+            </p>
+            <button
+              type="button"
+              onClick={() => openPersonModal()}
+              className="text-xs font-extrabold text-primary"
+            >
+              {selectedPersonIds.length > 0 ? '변경' : '선택'}
+            </button>
+          </div>
+          {selectedPersons.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => openPersonModal()}
+              className="flex w-full items-center gap-2 rounded-2xl border border-border bg-card p-3 text-left"
+            >
+              <div className="flex -space-x-2">
+                {selectedPersons.slice(0, 3).map((person) => (
+                  <MonogramAvatar
+                    key={person.id}
+                    name={person.name}
+                    imageUrl={person.profileImageUrl}
+                    className="size-9 ring-2 ring-card"
+                  />
+                ))}
+              </div>
+              <p className="min-w-0 flex-1 truncate text-sm font-extrabold">
+                {selectedPersons.length === 1
+                  ? selectedPersons[0].name
+                  : `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명`}
+              </p>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => openPersonModal(false)}
+              className={cn(
+                'flex w-full items-center justify-center rounded-2xl border border-dashed px-4 py-6 text-sm font-extrabold',
+                personSelectError
+                  ? 'border-destructive text-destructive'
+                  : 'border-muted-foreground text-muted-foreground',
+              )}
+            >
+              사람을 선택해 주세요
+            </button>
+          )}
+          {personSelectError ? (
+            <p className="mt-1.5 text-xs text-destructive">
+              함께한 사람을 한 명 이상 선택해 주세요.
+            </p>
+          ) : null}
         </section>
 
         <section>
@@ -255,32 +418,6 @@ function RecordPage() {
 
         <section>
           <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            함께한 사람
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {persons.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => togglePerson(p.id)}
-                className={cn(
-                  'rounded-full border px-3.5 py-2 text-[13px] font-bold',
-                  (selectedPersonIds.length
-                    ? selectedPersonIds
-                    : [primaryPerson.id]
-                  ).includes(p.id)
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-card text-muted-foreground',
-                )}
-              >
-                {p.name}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
             왜 / 무엇을
           </p>
           <Textarea
@@ -332,6 +469,19 @@ function RecordPage() {
           </p>
         ) : null}
       </div>
+
+      <PersonSelectModal
+        open={personModalOpen}
+        onOpenChange={setPersonModalOpen}
+        persons={persons}
+        selectedIds={selectedPersonIds}
+        dismissible={personModalDismissible}
+        onConfirm={(ids) => {
+          setSelectedPersonIds(ids)
+          setPersonSelectError(false)
+          setPersonModalDismissible(true)
+        }}
+      />
     </AppShell>
   )
 }
