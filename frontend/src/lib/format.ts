@@ -66,3 +66,24 @@ export function layoutOnCircle(count: number, cx = 50, cy = 52, radius = 35) {
     }
   })
 }
+
+/** 인물 노드 + 사람 추가 버튼이 링 위에서 겹치지 않도록 슬롯을 나눈다. */
+export function layoutRelationMap(
+  personCount: number,
+  cx = 50,
+  cy = 52,
+  radius = 35,
+) {
+  const totalSlots = personCount + 1
+  const slots = Array.from({ length: totalSlots }, (_, i) => {
+    const angle = (2 * Math.PI * i) / totalSlots - Math.PI / 2
+    return {
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle),
+    }
+  })
+  return {
+    persons: slots.slice(0, personCount),
+    add: slots[totalSlots - 1],
+  }
+}

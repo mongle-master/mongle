@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { X } from 'lucide-react'
-import { motion } from 'motion/react'
+import { motion, AnimatePresence } from 'motion/react'
 import { useMemo, useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { MongleLogo } from '@/components/brand/mongle-logo'
@@ -11,7 +11,8 @@ import { Card } from '@/components/ui/card'
 import { fetchRelationMap, fetchThrowback } from '@/lib/api/home'
 import type { RelationMapResponse } from '@/lib/api/types'
 import { FALLBACK_RELATION_MAP, FALLBACK_THROWBACK } from '@/lib/fallback-data'
-import { layoutOnCircle } from '@/lib/format'
+import { layoutOrganicRelationMap, burstDelay } from '@/lib/relation-map-layout'
+import { formatAbsoluteDate } from '@/lib/format'
 import { getDefaultHomePeriod, isNodeInHomePeriod } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { queryKeys } from '@/lib/query-keys'
@@ -39,6 +40,14 @@ function HomePage() {
 
   const throwback = throwbackQuery.data
   const mapData: RelationMapResponse = mapQuery.data ?? FALLBACK_RELATION_MAP
+
+  const throwbackPerson = useMemo(
+    () =>
+      throwback
+        ? mapData.nodes.find((n) => n.id === throwback.personId)
+        : undefined,
+    [mapData.nodes, throwback],
+  )
 
   const visibleNodes = useMemo(
     () =>
@@ -83,37 +92,63 @@ function HomePage() {
         />
       )}
 
-      {throwback && !dismissedThrowback ? (
-        <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40">
-          <div className="pointer-events-auto mx-auto w-full max-w-md px-5">
-            <Card className="flex items-center gap-3 rounded-2xl border border-foreground bg-white p-3.5 text-foreground shadow-lg">
-              <span className="shrink-0 text-xs font-semibold text-muted-foreground">
-                1년 전
-              </span>
-              <Link
-                to="/people/$personId/timeline"
-                params={{ personId: String(throwback.personId) }}
-                className="min-w-0 flex-1"
-              >
-                <p className="text-sm font-extrabold">
-                  {throwback.title ?? `작년 이맘때 ${throwback.personName}`}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {throwback.occurredDate} · {throwback.personName}
-                </p>
-              </Link>
-              <button
-                type="button"
-                onClick={() => setDismissedThrowback(true)}
-                className="text-muted-foreground"
-                aria-label="닫기"
-              >
-                <X className="size-4" />
-              </button>
-            </Card>
-          </div>
-        </div>
-      ) : null}
+      <AnimatePresence>
+        {throwback && !dismissedThrowback ? (
+          <motion.div
+            key="throwback-alert"
+            className="pointer-events-none fixed inset-x-0 bottom-24 z-40"
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 24,
+              mass: 0.85,
+            }}
+          >
+            <div className="pointer-events-auto mx-auto w-full max-w-md px-5">
+              <Card className="relative rounded-2xl border border-foreground bg-white p-3.5 pr-10 text-foreground shadow-lg">
+                <button
+                  type="button"
+                  onClick={() => setDismissedThrowback(true)}
+                  className="absolute top-3.5 right-3.5 text-muted-foreground"
+                  aria-label="닫기"
+                >
+                  <X className="size-4" />
+                </button>
+                <Link
+                  to="/people/$personId/timeline"
+                  params={{ personId: String(throwback.personId) }}
+                  className="flex items-stretch gap-3"
+                >
+                  <MonogramAvatar
+                    name={throwback.personName}
+                    imageUrl={throwbackPerson?.profileImageUrl}
+                    className="size-12 shrink-0"
+                  />
+                  <div
+                    className="w-px shrink-0 self-stretch bg-border"
+                    aria-hidden
+                  />
+                  <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+                    <p className="text-base font-extrabold leading-snug">
+                      1년 전 오늘, {throwback.personName}님과
+                    </p>
+                    <p className="truncate text-sm leading-snug text-foreground">
+                      {throwback.title ??
+                        `${throwback.personName}과 함께한 추억`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatAbsoluteDate(throwback.occurredDate)}
+                    </p>
+                  </div>
+                </Link>
+              </Card>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </AppShell>
   )
 }
@@ -126,16 +161,21 @@ function RelationMapView({
   nodes: (typeof FALLBACK_RELATION_MAP)['nodes']
   edges: (typeof FALLBACK_RELATION_MAP)['edges']
 }) {
-  const positions = useMemo(() => layoutOnCircle(nodes.length), [nodes.length])
+  const layout = useMemo(
+    () => layoutOrganicRelationMap(nodes.map((n) => ({ id: n.id }))),
+    [nodes],
+  )
+  const positions = layout.persons
+  const addPosition = layout.add
 
   const edgeByPerson = new Map(edges.map((e) => [e.personId, e.distant]))
   const center = { x: 50, y: 52 }
 
   const spring = {
     type: 'spring' as const,
-    stiffness: 110,
-    damping: 18,
-    mass: 0.85,
+    stiffness: 165,
+    damping: 13,
+    mass: 0.72,
   }
 
   return (
@@ -171,7 +211,7 @@ function RelationMapView({
               }}
               transition={{
                 ...spring,
-                delay: 0.08 + i * 0.045,
+                delay: burstDelay(pos, center, i),
               }}
             />
           )
@@ -181,23 +221,35 @@ function RelationMapView({
       <motion.div
         className="absolute flex size-[4.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary font-extrabold text-primary-foreground shadow-lg"
         style={{ left: `${center.x}%`, top: `${center.y}%` }}
-        initial={{ scale: 0.4, opacity: 0 }}
+        initial={{ scale: 0.15, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ ...spring, stiffness: 140, damping: 16 }}
+        transition={{ ...spring, stiffness: 200, damping: 12 }}
       >
         {me.label}
       </motion.div>
 
       <motion.div
         className="absolute -translate-x-1/2 -translate-y-1/2"
-        style={{ left: '78%', top: '52%' }}
-        initial={{ scale: 0.6, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ ...spring, delay: 0.2 + nodes.length * 0.045 }}
+        initial={{
+          left: `${center.x}%`,
+          top: `${center.y}%`,
+          scale: 0.2,
+          opacity: 0,
+        }}
+        animate={{
+          left: `${addPosition.x}%`,
+          top: `${addPosition.y}%`,
+          scale: 1,
+          opacity: 1,
+        }}
+        transition={{
+          ...spring,
+          delay: burstDelay(addPosition, center, nodes.length + 1),
+        }}
       >
         <Link
           to="/people/new"
-          className="flex size-16 flex-col items-center justify-center rounded-full border-2 border-dashed border-muted-foreground text-muted-foreground"
+          className="relative flex size-16 flex-col items-center justify-center rounded-full border-2 border-dashed border-muted-foreground text-muted-foreground"
         >
           <span className="text-2xl font-normal">＋</span>
           <span className="absolute -bottom-5 text-[11px] font-extrabold whitespace-nowrap">
@@ -212,25 +264,22 @@ function RelationMapView({
         return (
           <motion.div
             key={node.id}
-            className={cn(
-              'absolute -translate-x-1/2 -translate-y-1/2',
-              distant && 'opacity-60',
-            )}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
             initial={{
               left: `${center.x}%`,
               top: `${center.y}%`,
-              scale: 0.35,
+              scale: 0.15,
               opacity: 0,
             }}
             animate={{
               left: `${pos.x}%`,
               top: `${pos.y}%`,
               scale: 1,
-              opacity: distant ? 0.6 : 1,
+              opacity: 1,
             }}
             transition={{
               ...spring,
-              delay: 0.06 + i * 0.05,
+              delay: burstDelay(pos, center, i),
             }}
           >
             <Link
@@ -243,12 +292,18 @@ function RelationMapView({
                 imageUrl={node.profileImageUrl}
                 favorite={node.favorite}
                 className={cn(
-                  'size-14',
+                  'size-14 opacity-100',
                   node.favorite &&
                     'ring-2 ring-foreground ring-offset-2 ring-offset-background',
+                  '[&_[data-slot=avatar-fallback]]:opacity-100',
                 )}
               />
-              <span className="mt-1 text-[11px] font-bold text-muted-foreground">
+              <span
+                className={cn(
+                  'mt-1 text-[11px] font-bold text-muted-foreground',
+                  distant && 'opacity-60',
+                )}
+              >
                 {node.name}
               </span>
             </Link>
