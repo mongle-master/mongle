@@ -118,6 +118,38 @@ export type ActivityFlowResponse = {
   hasAnyActivity: boolean
 }
 
+export type TimelinePerson = {
+  id: number
+  name: string
+  profileImageUrl: string | null
+  favorite: boolean
+}
+
+export type TimelineCard = {
+  id: number
+  title: string
+  why: string | null
+  what: string | null
+  occurredDate: string
+  occurredTime: string | null
+  category: ChipRef | null
+  weather: ChipRef | null
+  emotions: ChipRef[]
+  photoUrls: string[]
+  persons: TimelinePerson[]
+}
+
+export type TimelineMonthGroup = {
+  year: number
+  month: number
+  label: string
+  cards: TimelineCard[]
+}
+
+export type TimelineResponse = {
+  groups: TimelineMonthGroup[]
+}
+
 export type ApiErrorBody = {
   code?: string
   message?: string

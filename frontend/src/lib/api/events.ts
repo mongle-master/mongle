@@ -9,8 +9,18 @@ export async function createEvent(body: EventRequest) {
   return api.post('v1/events', { json: body }).json<EventResponse>()
 }
 
-export async function fetchPersonTimeline(personId: number) {
-  return api.get(`v1/persons/${personId}/timeline`).json<EventResponse[]>()
+export async function fetchPersonTimeline(
+  personId: number,
+  categoryChipIds?: number[],
+) {
+  const searchParams = new URLSearchParams()
+  categoryChipIds?.forEach((id) =>
+    searchParams.append('categoryChipIds', String(id)),
+  )
+  const qs = searchParams.toString()
+  return api
+    .get(`v1/persons/${personId}/timeline${qs ? `?${qs}` : ''}`)
+    .json<EventResponse[]>()
 }
 
 export async function fetchActivityFlow(personId: number) {

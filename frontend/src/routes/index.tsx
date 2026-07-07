@@ -145,7 +145,10 @@ function RelationMapView({
 
   return (
     <div className="relative mt-2 h-[470px]">
-      <svg className="absolute inset-0 size-full" aria-hidden>
+      <svg
+        className="pointer-events-none absolute inset-0 size-full"
+        aria-hidden
+      >
         {data.nodes.map((node, i) => {
           const pos = positions[i]
           const distant = edgeByPerson.get(node.id) ?? false

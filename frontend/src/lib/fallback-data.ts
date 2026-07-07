@@ -6,6 +6,8 @@ import type {
   PersonResponse,
   RelationMapResponse,
   ThrowbackResponse,
+  TimelineCard,
+  TimelineResponse,
 } from '@/lib/api/types'
 
 export const FALLBACK_CHIPS: ChipResponse[] = [
@@ -332,4 +334,63 @@ export const FALLBACK_ACTIVITY_FLOW: ActivityFlowResponse = {
     },
   ],
   hasAnyActivity: true,
+}
+
+function toTimelineCard(
+  event: EventResponse,
+  person: PersonResponse,
+): TimelineCard {
+  return {
+    id: event.id,
+    title: event.title,
+    why: event.why,
+    what: event.what,
+    occurredDate: event.occurredDate,
+    occurredTime: event.occurredTime,
+    category: event.category,
+    weather: event.weather,
+    emotions: event.emotions,
+    photoUrls: event.photoUrls,
+    persons: [
+      {
+        id: person.id,
+        name: person.name,
+        profileImageUrl: person.profileImageUrl,
+        favorite: person.favorite,
+      },
+    ],
+  }
+}
+
+export function fallbackMyTimeline(): TimelineResponse {
+  const cards = FALLBACK_PERSONS.flatMap((person) =>
+    fallbackEvents(person.id, person.name).map((event) =>
+      toTimelineCard(event, person),
+    ),
+  ).sort((a, b) => b.occurredDate.localeCompare(a.occurredDate) || b.id - a.id)
+
+  const groupMap = new Map<string, TimelineCard[]>()
+  for (const card of cards) {
+    const [year, month] = card.occurredDate.split('-')
+    const key = `${year}-${month}`
+    const list = groupMap.get(key) ?? []
+    list.push(card)
+    groupMap.set(key, list)
+  }
+
+  const groups = [...groupMap.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, monthCards]) => {
+      const [yearStr, monthStr] = key.split('-')
+      const year = Number(yearStr)
+      const month = Number(monthStr)
+      return {
+        year,
+        month,
+        label: `${year}년 ${month}월`,
+        cards: monthCards,
+      }
+    })
+
+  return { groups }
 }

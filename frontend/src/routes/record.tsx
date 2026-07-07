@@ -17,14 +17,25 @@ import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/record')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    personId:
+      typeof search.personId === 'number'
+        ? search.personId
+        : typeof search.personId === 'string'
+          ? Number(search.personId) || undefined
+          : undefined,
+  }),
   component: RecordPage,
 })
 
 function RecordPage() {
+  const { personId: presetPersonId } = Route.useSearch()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>([])
+  const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>(() =>
+    presetPersonId ? [presetPersonId] : [],
+  )
   const [categoryChipId, setCategoryChipId] = useState<number | null>(null)
   const [weatherChipId, setWeatherChipId] = useState<number | null>(null)
   const [emotionChipIds, setEmotionChipIds] = useState<number[]>([])

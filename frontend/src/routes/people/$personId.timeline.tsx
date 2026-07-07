@@ -1,19 +1,25 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
 import { AppShell } from '@/components/layout/app-shell'
+import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
+import { PersonTabs } from '@/components/timeline/person-tabs'
+import { PersonTimelineCard } from '@/components/timeline/person-timeline-card'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
+import { fetchChips } from '@/lib/api/chips'
 import { fetchActivityFlow, fetchPersonTimeline } from '@/lib/api/events'
 import { fetchPerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import {
   FALLBACK_ACTIVITY_FLOW,
+  FALLBACK_CHIPS,
   fallbackPersonDetail,
   fallbackPersonTimeline,
 } from '@/lib/fallback-data'
-import { formatEventDate, formatWhen } from '@/lib/format'
+import { formatEventDate } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 
@@ -24,48 +30,80 @@ export const Route = createFileRoute('/people/$personId/timeline')({
 function PersonTimelinePage() {
   const { personId } = Route.useParams()
   const id = Number(personId)
+  const [categoryFilter, setCategoryFilter] = useState<number[]>([])
+  const [monthFilter, setMonthFilter] = useState<string | null>(null)
 
   const personQuery = useQuery({
     queryKey: queryKeys.person(id),
     queryFn: () => safeApi(() => fetchPerson(id), fallbackPersonDetail(id)),
     enabled: Number.isFinite(id),
+    initialData: fallbackPersonDetail(id),
   })
 
   const timelineQuery = useQuery({
-    queryKey: queryKeys.personTimeline(id),
+    queryKey: queryKeys.personTimeline(id, categoryFilter),
     queryFn: () =>
-      safeApi(() => fetchPersonTimeline(id), fallbackPersonTimeline(id)),
+      safeApi(
+        () => fetchPersonTimeline(id, categoryFilter),
+        fallbackPersonTimeline(id).filter(
+          (e) =>
+            categoryFilter.length === 0 ||
+            (e.category && categoryFilter.includes(e.category.id)),
+        ),
+      ),
     enabled: Number.isFinite(id),
+    initialData: fallbackPersonTimeline(id),
   })
 
   const flowQuery = useQuery({
     queryKey: queryKeys.activityFlow(id),
     queryFn: () => safeApi(() => fetchActivityFlow(id), FALLBACK_ACTIVITY_FLOW),
     enabled: Number.isFinite(id),
+    initialData: FALLBACK_ACTIVITY_FLOW,
   })
 
-  const person = personQuery.data ?? fallbackPersonDetail(id)
-  const events = timelineQuery.data ?? fallbackPersonTimeline(id)
-  const flow = flowQuery.data ?? FALLBACK_ACTIVITY_FLOW
+  const chipsQuery = useQuery({
+    queryKey: queryKeys.chips,
+    queryFn: () => safeApi(fetchChips, FALLBACK_CHIPS),
+    initialData: FALLBACK_CHIPS,
+  })
+
+  const person = personQuery.data
+  const flow = flowQuery.data
+  const categoryChips = chipsQuery.data.filter((c) => c.type === 'CATEGORY')
+
+  const events = useMemo(() => {
+    const list = timelineQuery.data
+    if (!monthFilter) return list
+    return list.filter((e) => e.occurredDate.startsWith(monthFilter))
+  }, [timelineQuery.data, monthFilter])
+
+  const toggleCategory = (chipId: number) => {
+    setCategoryFilter((prev) =>
+      prev.includes(chipId)
+        ? prev.filter((c) => c !== chipId)
+        : [...prev, chipId],
+    )
+  }
+
+  const firstMetYear = person.firstMetDate?.slice(0, 4)
 
   return (
-    <AppShell activePath="/" withNav={false} className="relative px-0">
-      <header className="mb-3 flex items-center gap-3 px-5">
-        <Link
-          to="/people/$personId"
-          params={{ personId }}
-          className="text-lg font-extrabold text-muted-foreground"
-        >
+    <AppShell activePath="/" withNav className="relative px-0">
+      <header className="mb-1 flex items-center gap-3 px-5">
+        <Link to="/" className="text-lg font-extrabold text-muted-foreground">
           ‹
         </Link>
         <div>
           <h1 className="text-lg font-extrabold">{person.name}와의 이야기</h1>
           <p className="text-[11.5px] text-muted-foreground">
-            {person.stats.acquaintancePeriod ?? '알게 된 지'} ·{' '}
+            {firstMetYear ? `${firstMetYear}년부터 · ` : ''}
             {person.stats.meetCount}번 만남
           </p>
         </div>
       </header>
+
+      <PersonTabs personId={personId} active="timeline" />
 
       <Card className="mx-5 mb-3 flex items-center gap-3 p-3">
         <MonogramAvatar
@@ -83,57 +121,75 @@ function PersonTimelinePage() {
           </div>
           <div>
             <p className="text-base font-extrabold">
-              {person.stats.lastMetRelative ?? '—'}
+              {person.stats.lastMetRelative ?? '기록 없음'}
             </p>
             <p className="text-[11px] text-muted-foreground">마지막 만남</p>
           </div>
         </div>
       </Card>
 
-      {flow.months.length > 0 ? (
-        <Card className="mx-5 mb-4 p-3.5">
-          <p className="text-[13px] font-extrabold">활동 흐름</p>
-          <p className="mb-3 text-[11px] text-muted-foreground">
-            점을 눌러 그날 기록만 보기
-          </p>
-          {flow.lanes.map((lane) => (
-            <div key={lane.lane} className="mb-2 flex items-center gap-2">
-              <span className="w-9 text-[11px] font-bold text-muted-foreground">
-                {lane.categoryLabel}
-              </span>
-              <div className="relative flex flex-1 justify-between">
-                <div className="absolute top-1/2 right-0 left-0 h-px bg-border" />
-                {lane.present.map((on, i) => (
-                  <span
-                    key={`${lane.lane}-${i}`}
-                    className={cn(
-                      'relative z-10 size-2.5 rounded-full',
-                      on
-                        ? 'bg-primary'
-                        : 'border border-muted-foreground/30 bg-background',
-                    )}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-          <div className="mt-1 flex justify-between pl-9 text-[10px] font-bold text-muted-foreground">
-            {flow.months.map((m) => (
-              <span key={m}>{m.slice(5)}월</span>
-            ))}
-          </div>
-        </Card>
+      <div className="mx-5 mb-4">
+        <ActivityFlowChart
+          flow={flow}
+          selectedMonth={monthFilter}
+          onSelectMonth={setMonthFilter}
+        />
+      </div>
+
+      {categoryChips.length > 0 ? (
+        <div className="mb-4 flex flex-wrap gap-2 px-5">
+          {categoryChips.map((chip) => {
+            const selected = categoryFilter.includes(chip.id)
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => toggleCategory(chip.id)}
+              >
+                <Badge
+                  variant={selected ? 'default' : 'outline'}
+                  className={cn(
+                    'cursor-pointer px-3 py-1.5 text-xs font-bold',
+                    !selected && 'bg-card',
+                  )}
+                >
+                  {chip.label}
+                </Badge>
+              </button>
+            )
+          })}
+          {categoryFilter.length > 0 || monthFilter ? (
+            <button
+              type="button"
+              onClick={() => {
+                setCategoryFilter([])
+                setMonthFilter(null)
+              }}
+              className="text-xs font-bold text-muted-foreground underline"
+            >
+              필터 초기화
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
-      <div className="flex flex-col px-5">
+      <div className="flex flex-col px-5 pb-20">
         {events.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            아직 함께한 기록이 없어요.
-          </p>
+          <div className="py-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              {categoryFilter.length > 0 || monthFilter
+                ? '이 조건에 맞는 기록이 없어요.'
+                : '아직 함께한 기록이 없어요. 첫 순간을 새겨보세요.'}
+            </p>
+            <Button asChild className="mt-4" variant="outline">
+              <Link to="/record" search={{ personId: id }}>
+                기록 작성
+              </Link>
+            </Button>
+          </div>
         ) : (
           events.map((event) => {
             const { year, date } = formatEventDate(event.occurredDate)
-            const when = formatWhen(event.occurredDate, event.occurredTime)
             return (
               <div key={event.id} className="flex gap-2">
                 <div className="flex w-[4.375rem] shrink-0 flex-col items-center">
@@ -147,53 +203,7 @@ function PersonTimelinePage() {
                   </div>
                   <div className="w-px flex-1 border-l-2 border-dotted border-border" />
                 </div>
-                <Card className="relative mb-3.5 flex-1 shadow-sm">
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-[15.5px] font-extrabold">
-                        {event.title}
-                      </h3>
-                      {event.category ? (
-                        <Badge variant="secondary" className="text-[10px]">
-                          {event.category.label}
-                        </Badge>
-                      ) : null}
-                    </div>
-                    <p className="mt-1.5 text-[11.5px]">
-                      <span className="text-muted-foreground">언제 </span>
-                      {when}
-                    </p>
-                    {event.why ? (
-                      <p className="mt-1 text-[11.5px]">
-                        <span className="text-muted-foreground">
-                          왜 만났는지{' '}
-                        </span>
-                        {event.why}
-                      </p>
-                    ) : null}
-                    {event.what ? (
-                      <p className="mt-1 text-[11.5px]">
-                        <span className="text-muted-foreground">
-                          무엇을 했는지{' '}
-                        </span>
-                        {event.what}
-                      </p>
-                    ) : null}
-                    {event.emotions.length > 0 ? (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {event.emotions.map((e) => (
-                          <Badge
-                            key={e.id}
-                            variant="outline"
-                            className="text-[10px]"
-                          >
-                            {e.label}
-                          </Badge>
-                        ))}
-                      </div>
-                    ) : null}
-                  </CardContent>
-                </Card>
+                <PersonTimelineCard event={event} />
               </div>
             )
           })
@@ -205,7 +215,9 @@ function PersonTimelinePage() {
         size="icon-lg"
         className="fixed right-5 bottom-6 z-40 size-12 rounded-full shadow-lg"
       >
-        <Link to="/record">＋</Link>
+        <Link to="/record" search={{ personId: id }}>
+          ＋
+        </Link>
       </Button>
     </AppShell>
   )
