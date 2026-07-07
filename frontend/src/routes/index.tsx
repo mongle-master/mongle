@@ -1,38 +1,27 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { LayoutGrid, List, Search, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { HomePeriodToggle } from '@/components/home/period-toggle'
+import { MongleLogo } from '@/components/brand/mongle-logo'
 import { AppShell } from '@/components/layout/app-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
 import { fetchRelationMap, fetchThrowback } from '@/lib/api/home'
-import { fetchPersons } from '@/lib/api/persons'
-import { safeApi } from '@/lib/api/safe'
-import {
-  FALLBACK_PERSONS,
-  FALLBACK_RELATION_MAP,
-  FALLBACK_THROWBACK,
-} from '@/lib/fallback-data'
+import { FALLBACK_RELATION_MAP, FALLBACK_THROWBACK } from '@/lib/fallback-data'
 import { layoutOnCircle } from '@/lib/format'
+import { getDefaultHomePeriod, isNodeInHomePeriod } from '@/lib/home-period'
+import type { HomePeriod } from '@/lib/home-period'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
-
-type HomeSearch = { view?: 'graph' | 'list' }
+import { safeApi } from '@/lib/api/safe'
 
 export const Route = createFileRoute('/')({
-  validateSearch: (search: Record<string, unknown>): HomeSearch => ({
-    view: search.view === 'list' ? 'list' : 'graph',
-  }),
   component: HomePage,
 })
 
 function HomePage() {
-  const { view = 'graph' } = Route.useSearch()
-  const navigate = Route.useNavigate()
-  const [listQuery, setListQuery] = useState('')
+  const [period, setPeriod] = useState<HomePeriod>(() => getDefaultHomePeriod())
   const [dismissedThrowback, setDismissedThrowback] = useState(false)
 
   const mapQuery = useQuery({
@@ -45,62 +34,54 @@ function HomePage() {
     queryFn: () => safeApi(fetchThrowback, FALLBACK_THROWBACK),
   })
 
-  const personsQuery = useQuery({
-    queryKey: queryKeys.persons(listQuery),
-    queryFn: () => safeApi(() => fetchPersons(listQuery), FALLBACK_PERSONS),
-    enabled: view === 'list',
-  })
-
-  const setView = (next: 'graph' | 'list') => {
-    void navigate({ search: { view: next === 'list' ? 'list' : undefined } })
-  }
-
   const throwback = throwbackQuery.data
+  const mapData = mapQuery.data ?? FALLBACK_RELATION_MAP
+
+  const visibleNodes = useMemo(
+    () =>
+      mapData.nodes.filter((node) =>
+        isNodeInHomePeriod(node.intimacy.daysSinceLastMeet, period),
+      ),
+    [mapData.nodes, period],
+  )
+
+  const visibleNodeIds = useMemo(
+    () => new Set(visibleNodes.map((n) => n.id)),
+    [visibleNodes],
+  )
+
+  const visibleEdges = useMemo(
+    () => mapData.edges.filter((e) => visibleNodeIds.has(e.personId)),
+    [mapData.edges, visibleNodeIds],
+  )
 
   return (
     <AppShell activePath="/">
-      <header className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-extrabold tracking-wide text-muted-foreground">
-            관계도감
-          </p>
-          <h1 className="text-[22px] font-extrabold tracking-tight">
-            나의 관계 지도
-          </h1>
-        </div>
-        <div className="flex overflow-hidden rounded-lg border border-border">
-          <Button
-            variant={view === 'graph' ? 'default' : 'ghost'}
-            size="icon-sm"
-            onClick={() => setView('graph')}
-            aria-label="그래프 보기"
-          >
-            <LayoutGrid />
-          </Button>
-          <Button
-            variant={view === 'list' ? 'default' : 'ghost'}
-            size="icon-sm"
-            onClick={() => setView('list')}
-            aria-label="리스트 보기"
-          >
-            <List />
-          </Button>
+      <header className="mb-4">
+        <MongleLogo className="text-foreground" />
+        <h1 className="mt-2 text-[22px] font-extrabold tracking-tight">
+          나의 관계 지도
+        </h1>
+        <div className="mt-3">
+          <HomePeriodToggle value={period} onChange={setPeriod} />
         </div>
       </header>
 
-      {view === 'graph' ? (
-        <RelationMapView data={mapQuery.data ?? FALLBACK_RELATION_MAP} />
+      {visibleNodes.length === 0 ? (
+        <p className="py-16 text-center text-sm text-muted-foreground">
+          이 기간에 만난 사람이 없어요.
+        </p>
       ) : (
-        <RelationListView
-          persons={personsQuery.data ?? FALLBACK_PERSONS}
-          query={listQuery}
-          onQueryChange={setListQuery}
+        <RelationMapView
+          me={mapData.me}
+          nodes={visibleNodes}
+          edges={visibleEdges}
         />
       )}
 
       {throwback && !dismissedThrowback ? (
-        <Card className="fixed right-4 bottom-24 left-4 z-40 flex items-center gap-3 border-0 bg-primary p-3.5 text-primary-foreground shadow-xl">
-          <div className="flex size-11 shrink-0 flex-col items-center justify-center rounded-xl bg-[#c9f0c2] text-[#256b1e]">
+        <Card className="fixed right-4 bottom-24 left-4 z-40 flex items-center gap-3 rounded-2xl border border-foreground bg-white p-3.5 text-foreground shadow-lg">
+          <div className="flex size-11 shrink-0 flex-col items-center justify-center rounded-xl border border-foreground bg-white text-foreground">
             <span className="text-xs font-extrabold leading-none">1년</span>
             <span className="text-xs font-extrabold leading-none">전</span>
           </div>
@@ -112,14 +93,14 @@ function HomePage() {
             <p className="text-sm font-extrabold">
               {throwback.title ?? `작년 이맘때 ${throwback.personName}`}
             </p>
-            <p className="text-xs opacity-75">
+            <p className="text-xs text-muted-foreground">
               {throwback.occurredDate} · {throwback.personName}
             </p>
           </Link>
           <button
             type="button"
             onClick={() => setDismissedThrowback(true)}
-            className="opacity-50"
+            className="text-muted-foreground"
             aria-label="닫기"
           >
             <X className="size-4" />
@@ -131,16 +112,17 @@ function HomePage() {
 }
 
 function RelationMapView({
-  data,
+  me,
+  nodes,
+  edges,
 }: {
-  data: Awaited<ReturnType<typeof fetchRelationMap>>
+  me: { label: string }
+  nodes: (typeof FALLBACK_RELATION_MAP)['nodes']
+  edges: (typeof FALLBACK_RELATION_MAP)['edges']
 }) {
-  const positions = useMemo(
-    () => layoutOnCircle(data.nodes.length),
-    [data.nodes.length],
-  )
+  const positions = useMemo(() => layoutOnCircle(nodes.length), [nodes.length])
 
-  const edgeByPerson = new Map(data.edges.map((e) => [e.personId, e.distant]))
+  const edgeByPerson = new Map(edges.map((e) => [e.personId, e.distant]))
   const center = { x: 50, y: 52 }
 
   return (
@@ -149,7 +131,7 @@ function RelationMapView({
         className="pointer-events-none absolute inset-0 size-full"
         aria-hidden
       >
-        {data.nodes.map((node, i) => {
+        {nodes.map((node, i) => {
           const pos = positions[i]
           const distant = edgeByPerson.get(node.id) ?? false
           return (
@@ -175,7 +157,7 @@ function RelationMapView({
         className="absolute flex size-[4.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary font-extrabold text-primary-foreground shadow-lg"
         style={{ left: `${center.x}%`, top: `${center.y}%` }}
       >
-        {data.me.label}
+        {me.label}
       </div>
 
       <Link
@@ -189,7 +171,7 @@ function RelationMapView({
         </span>
       </Link>
 
-      {data.nodes.map((node, i) => {
+      {nodes.map((node, i) => {
         const pos = positions[i]
         const distant = node.intimacy.status === 'DISTANT'
         return (
@@ -219,78 +201,6 @@ function RelationMapView({
           </Link>
         )
       })}
-    </div>
-  )
-}
-
-function RelationListView({
-  persons,
-  query,
-  onQueryChange,
-}: {
-  persons: Awaited<ReturnType<typeof fetchPersons>>
-  query: string
-  onQueryChange: (q: string) => void
-}) {
-  const filtered = query.trim()
-    ? persons.filter((p) => p.name.includes(query.trim()))
-    : persons
-
-  return (
-    <div className="mt-4 flex flex-col gap-4">
-      <div className="relative">
-        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          className="pl-9"
-          placeholder="이름으로 검색"
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-        />
-      </div>
-
-      {!filtered.length ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          {query.trim()
-            ? '이 조건에 맞는 사람이 없어요.'
-            : '아직 기록한 사람이 없어요.'}
-        </p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {filtered.map((person) => (
-            <Link
-              key={person.id}
-              to="/people/$personId/timeline"
-              params={{ personId: String(person.id) }}
-            >
-              <Card className="p-0 ring-0">
-                <div className="flex items-center gap-3 p-3.5">
-                  <MonogramAvatar
-                    name={person.name}
-                    imageUrl={person.profileImageUrl}
-                    favorite={person.favorite}
-                    className="size-12"
-                  />
-                  <Separator orientation="vertical" className="h-10" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <p className="font-extrabold">{person.name}</p>
-                      {person.relationType ? (
-                        <span className="text-xs text-muted-foreground">
-                          · {person.relationType}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {person.relationTags.map((t) => t.label).join(' · ') ||
-                        '태그 없음'}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
     </div>
   )
 }

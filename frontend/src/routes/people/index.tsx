@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { Star } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { AppShell } from '@/components/layout/app-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
@@ -37,11 +37,20 @@ function PeopleListPage() {
 
   return (
     <AppShell activePath="/people">
-      <header className="mb-4">
-        <h1 className="text-[22px] font-extrabold tracking-tight">사람</h1>
-        <p className="mt-1 text-xs text-muted-foreground">
-          함께한 사람을 찾고 관리해요
-        </p>
+      <header className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[22px] font-extrabold tracking-tight">사람</h1>
+          <p className="mt-1 text-xs text-muted-foreground">
+            함께한 사람을 찾고 관리해요
+          </p>
+        </div>
+        <Link
+          to="/people/new"
+          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-foreground bg-card px-3 py-1.5 text-xs font-extrabold"
+        >
+          <Plus className="size-3.5" />
+          사람 추가
+        </Link>
       </header>
 
       <Input
@@ -74,17 +83,13 @@ function PeopleListPage() {
             <MonogramAvatar
               name={person.name}
               imageUrl={person.profileImageUrl}
-              favorite={person.favorite}
-              className="size-11"
+              className="size-11 shrink-0"
             />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1">
-                <p className="truncate font-extrabold">{person.name}</p>
-                {person.favorite ? (
-                  <Star className="size-3.5 fill-foreground text-foreground" />
-                ) : null}
-              </div>
-              <p className="text-xs text-muted-foreground">
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+              <p className="truncate font-extrabold leading-tight">
+                {person.name}
+              </p>
+              <p className="text-xs leading-snug text-muted-foreground">
                 {[
                   person.relationType,
                   person.relationTags.map((t) => t.label).join(' · '),
@@ -113,16 +118,16 @@ function PeopleListPage() {
               검색 지우기
             </Button>
           ) : (
-            <Button asChild className="mt-4">
-              <Link to="/people/new">＋ 사람 추가</Link>
-            </Button>
+            <Link
+              to="/people/new"
+              className="mt-4 inline-flex items-center gap-1 rounded-full border border-foreground bg-card px-4 py-2 text-sm font-extrabold"
+            >
+              <Plus className="size-4" />
+              사람 추가
+            </Link>
           )}
         </div>
-      ) : (
-        <Button asChild className="mt-6 w-full">
-          <Link to="/people/new">＋ 사람 추가</Link>
-        </Button>
-      )}
+      ) : null}
     </AppShell>
   )
 }

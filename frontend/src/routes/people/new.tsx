@@ -59,6 +59,7 @@ function NewPersonPage() {
       <PersonForm
         initialValues={personToFormValues()}
         relationTags={relationTags}
+        avatarPicker="circle"
         submitLabel="등록하기"
         pending={createMutation.isPending}
         onCreateRelationTag={async (label) => {

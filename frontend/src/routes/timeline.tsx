@@ -2,6 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { AppShell } from '@/components/layout/app-shell'
+import { MongleLogo } from '@/components/brand/mongle-logo'
 import { MyTimelineCard } from '@/components/timeline/my-timeline-card'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
@@ -82,10 +83,10 @@ function MyTimelinePage() {
   return (
     <AppShell activePath="/timeline">
       <header className="mb-4">
-        <p className="text-xs font-extrabold tracking-wide text-muted-foreground">
-          관계도감
-        </p>
-        <h1 className="text-[22px] font-extrabold tracking-tight">타임라인</h1>
+        <MongleLogo className="text-foreground" />
+        <h1 className="mt-2 text-[22px] font-extrabold tracking-tight">
+          타임라인
+        </h1>
         <p className="mt-1 text-xs text-muted-foreground">
           모든 사람과의 기록을 시간순으로
         </p>

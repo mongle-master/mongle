@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { AppShell } from '@/components/layout/app-shell'
+import { MongleLogo } from '@/components/brand/mongle-logo'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -10,6 +12,8 @@ import { createChip, deleteChip, fetchChips, renameChip } from '@/lib/api/chips'
 import { safeApi } from '@/lib/api/safe'
 import type { ChipType } from '@/lib/api/types'
 import { FALLBACK_CHIPS } from '@/lib/fallback-data'
+import { getDefaultHomePeriod, setDefaultHomePeriod } from '@/lib/home-period'
+import type { HomePeriod } from '@/lib/home-period'
 import { queryKeys } from '@/lib/query-keys'
 
 export const Route = createFileRoute('/settings')({
@@ -26,18 +30,40 @@ const CHIP_TYPE_LABELS: Record<ChipType, string> = {
 function SettingsPage() {
   return (
     <AppShell activePath="/settings">
+      <MongleLogo className="mb-2 text-foreground" />
       <h1 className="text-[22px] font-extrabold tracking-tight">설정</h1>
       <p className="mt-1 mb-6 text-xs text-muted-foreground">
         칩 관리와 앱 정보
       </p>
 
+      <HomePeriodSettingSection />
+
       <ChipManagementSection />
 
       <Card className="mt-6 p-4">
         <p className="font-extrabold">앱 정보</p>
-        <p className="mt-1 text-sm text-muted-foreground">관계도감 MVP</p>
+        <p className="mt-1 text-sm text-muted-foreground">Mongle MVP</p>
       </Card>
     </AppShell>
+  )
+}
+
+function HomePeriodSettingSection() {
+  const [period, setPeriod] = useState<HomePeriod>(() => getDefaultHomePeriod())
+
+  const handleChange = (next: HomePeriod) => {
+    setPeriod(next)
+    setDefaultHomePeriod(next)
+  }
+
+  return (
+    <Card className="mb-6 p-4">
+      <p className="font-extrabold">홈 기본 기간</p>
+      <p className="mt-1 mb-3 text-sm text-muted-foreground">
+        홈 관계 지도에 처음 보여줄 기간을 정해요
+      </p>
+      <HomePeriodToggle value={period} onChange={handleChange} />
+    </Card>
   )
 }
 

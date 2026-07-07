@@ -79,6 +79,7 @@ export function PersonForm({
   pending,
   onSubmit,
   onDelete,
+  avatarPicker = 'button',
 }: {
   initialValues: PersonFormValues
   relationTags: Array<{ id: number; label: string }>
@@ -87,6 +88,7 @@ export function PersonForm({
   pending?: boolean
   onSubmit: (request: PersonRequest) => void
   onDelete?: () => void
+  avatarPicker?: 'button' | 'circle'
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [values, setValues] = useState(initialValues)
@@ -151,29 +153,69 @@ export function PersonForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div className="flex flex-col items-center gap-3">
-        <MonogramAvatar
-          name={values.name || '?'}
-          imageUrl={values.profileImageUrl}
-          className="size-24"
-        />
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/heic"
-          className="hidden"
-          onChange={(e) => void handlePhoto(e.target.files?.[0] ?? null)}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={uploading}
-          onClick={() => fileRef.current?.click()}
-        >
-          {uploading ? '업로드 중…' : '프로필 사진 선택'}
-        </Button>
-      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/heic"
+        className="hidden"
+        onChange={(e) => void handlePhoto(e.target.files?.[0] ?? null)}
+      />
+
+      {avatarPicker === 'circle' ? (
+        <div className="flex flex-col items-center">
+          <button
+            type="button"
+            onClick={() => patch('favorite', !values.favorite)}
+            className="mb-2"
+            aria-label="즐겨찾기"
+          >
+            <Star
+              className={cn(
+                'size-6',
+                values.favorite
+                  ? 'fill-foreground text-foreground'
+                  : 'text-muted-foreground',
+              )}
+            />
+          </button>
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+            className="relative"
+            aria-label="프로필 사진 추가"
+          >
+            {values.profileImageUrl ? (
+              <MonogramAvatar
+                name={values.name || '?'}
+                imageUrl={values.profileImageUrl}
+                className="size-24"
+              />
+            ) : (
+              <div className="flex size-24 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground bg-muted/30 text-3xl font-normal text-muted-foreground">
+                {uploading ? '…' : '＋'}
+              </div>
+            )}
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-3">
+          <MonogramAvatar
+            name={values.name || '?'}
+            imageUrl={values.profileImageUrl}
+            className="size-24"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+          >
+            {uploading ? '업로드 중…' : '프로필 사진 선택'}
+          </Button>
+        </div>
+      )}
 
       <div>
         <Label htmlFor="name">이름</Label>
@@ -296,21 +338,23 @@ export function PersonForm({
         placeholder="예: 매운 음식"
       />
 
-      <button
-        type="button"
-        onClick={() => patch('favorite', !values.favorite)}
-        className="flex items-center gap-2 text-sm font-bold"
-      >
-        <Star
-          className={cn(
-            'size-5',
-            values.favorite
-              ? 'fill-foreground text-foreground'
-              : 'text-muted-foreground',
-          )}
-        />
-        즐겨찾기 {values.favorite ? '켜짐' : '꺼짐'}
-      </button>
+      {avatarPicker === 'button' ? (
+        <button
+          type="button"
+          onClick={() => patch('favorite', !values.favorite)}
+          className="flex items-center gap-2 text-sm font-bold"
+        >
+          <Star
+            className={cn(
+              'size-5',
+              values.favorite
+                ? 'fill-foreground text-foreground'
+                : 'text-muted-foreground',
+            )}
+          />
+          즐겨찾기 {values.favorite ? '켜짐' : '꺼짐'}
+        </button>
+      ) : null}
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
