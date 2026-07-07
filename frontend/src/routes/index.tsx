@@ -80,32 +80,35 @@ function HomePage() {
       )}
 
       {throwback && !dismissedThrowback ? (
-        <Card className="fixed right-4 bottom-24 left-4 z-40 flex items-center gap-3 rounded-2xl border border-foreground bg-white p-3.5 text-foreground shadow-lg">
-          <div className="flex size-11 shrink-0 flex-col items-center justify-center rounded-xl border border-foreground bg-white text-foreground">
-            <span className="text-xs font-extrabold leading-none">1년</span>
-            <span className="text-xs font-extrabold leading-none">전</span>
+        <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40">
+          <div className="pointer-events-auto mx-auto w-full max-w-md px-5">
+            <Card className="flex items-center gap-3 rounded-2xl border border-foreground bg-white p-3.5 text-foreground shadow-lg">
+              <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+                1년 전
+              </span>
+              <Link
+                to="/people/$personId/timeline"
+                params={{ personId: String(throwback.personId) }}
+                className="min-w-0 flex-1"
+              >
+                <p className="text-sm font-extrabold">
+                  {throwback.title ?? `작년 이맘때 ${throwback.personName}`}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {throwback.occurredDate} · {throwback.personName}
+                </p>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setDismissedThrowback(true)}
+                className="text-muted-foreground"
+                aria-label="닫기"
+              >
+                <X className="size-4" />
+              </button>
+            </Card>
           </div>
-          <Link
-            to="/people/$personId/timeline"
-            params={{ personId: String(throwback.personId) }}
-            className="min-w-0 flex-1"
-          >
-            <p className="text-sm font-extrabold">
-              {throwback.title ?? `작년 이맘때 ${throwback.personName}`}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {throwback.occurredDate} · {throwback.personName}
-            </p>
-          </Link>
-          <button
-            type="button"
-            onClick={() => setDismissedThrowback(true)}
-            className="text-muted-foreground"
-            aria-label="닫기"
-          >
-            <X className="size-4" />
-          </button>
-        </Card>
+        </div>
       ) : null}
     </AppShell>
   )
