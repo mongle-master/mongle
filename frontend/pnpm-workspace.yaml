@@ -1,0 +1,3 @@
+allowBuilds:
+  '@suspensive/react-query': set this to true or false
+  unrs-resolver: set this to true or false

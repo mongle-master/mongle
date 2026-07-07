@@ -80,6 +80,7 @@ export function PersonForm({
   onSubmit,
   onDelete,
   avatarPicker = 'button',
+  showLastMetDate = true,
 }: {
   initialValues: PersonFormValues
   relationTags: Array<{ id: number; label: string }>
@@ -89,6 +90,7 @@ export function PersonForm({
   onSubmit: (request: PersonRequest) => void
   onDelete?: () => void
   avatarPicker?: 'button' | 'circle'
+  showLastMetDate?: boolean
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [values, setValues] = useState(initialValues)
@@ -270,16 +272,18 @@ export function PersonForm({
         />
       </div>
 
-      <div>
-        <Label htmlFor="lastMetDate">마지막 만난 날짜 (선택)</Label>
-        <Input
-          id="lastMetDate"
-          type="date"
-          value={values.lastMetDate}
-          onChange={(e) => patch('lastMetDate', e.target.value)}
-          className="mt-1.5"
-        />
-      </div>
+      {showLastMetDate ? (
+        <div>
+          <Label htmlFor="lastMetDate">마지막 만난 날짜 (선택)</Label>
+          <Input
+            id="lastMetDate"
+            type="date"
+            value={values.lastMetDate}
+            onChange={(e) => patch('lastMetDate', e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+      ) : null}
 
       <RelationTypeField
         value={values.relationType}
