@@ -10,6 +10,7 @@ import com.mongle.controller.dto.TimelineCard
 import com.mongle.controller.dto.TimelineMonthGroup
 import com.mongle.controller.dto.TimelinePerson
 import com.mongle.controller.dto.TimelineResponse
+import com.mongle.domain.Event
 import com.mongle.domain.Person
 import com.mongle.repository.EventRepository
 import com.mongle.repository.PersonRepository
@@ -42,9 +43,13 @@ class TimelineService(
     /** #45 활동 흐름. 만남/연락/추억 레인 × 최근 6개월 유무 매트릭스. 기타·커스텀 카테고리는 제외. */
     fun activityFlow(userId: Long, personId: Long): ActivityFlowResponse {
         requireOwnedPerson(userId, personId)
-        val events = eventRepository.findByPersonId(personId)
+        return buildActivityFlow(eventRepository.findByPersonId(personId))
+    }
 
-        // 과거→현재 순 6개월(현재월 포함).
+    // 활동 흐름(Activity Flow) 응답 객체를 생성한다. 
+    // 이 함수는 주어진 이벤트 리스트에서 활동 레인별(만남/연락/추억) 최근 6개월간 기록 유무 매트릭스와
+    // 각 레인에 해당하는 카테고리 집계 결과를 통해 ActivityFlowResponse를 만든다.
+    private fun buildActivityFlow(events: List<Event>): ActivityFlowResponse {
         val currentMonth = YearMonth.from(LocalDate.now())
         val window = (WINDOW_MONTHS - 1 downTo 0).map { currentMonth.minusMonths(it.toLong()) }
 
