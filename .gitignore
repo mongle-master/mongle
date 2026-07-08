@@ -2,6 +2,9 @@
 frontend/docs/temp/
 backend/docs/temp/
 
+# 로컬 전용 how-to 설계 문서 (git 미포함)
+docs/how-tos/rn-stack-nav.md
+
 # pnpm / Node
 node_modules/
 .pnpm-store/

@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Plus, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { AppShell } from '@/components/layout/app-shell'
+import { useAppRouter } from '@/hooks/use-app-router'
+import { isInApp } from '@/lib/app-bridge'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +21,7 @@ export const Route = createFileRoute('/people/')({
 type PersonSort = 'NAME' | 'RECENT'
 
 function PeopleListPage() {
+  const { push } = useAppRouter()
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<PersonSort>('NAME')
 
@@ -78,6 +81,12 @@ function PeopleListPage() {
             key={person.id}
             to="/people/$personId"
             params={{ personId: String(person.id) }}
+            onClick={(e) => {
+              // 앱: 사람 상세는 네이티브 스택으로 push (브라우저는 <Link> 그대로)
+              if (!isInApp()) return
+              e.preventDefault()
+              push(`/people/${person.id}`)
+            }}
             className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
           >
             <MonogramAvatar
