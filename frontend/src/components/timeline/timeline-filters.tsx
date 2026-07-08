@@ -1,9 +1,52 @@
 import type { ChipResponse, PersonResponse } from '@/lib/api/types'
-import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { tagChipClass } from '@/components/ui/tag-chip'
+import { mediaUrl } from '@/lib/api/client'
+import { monogram } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
 export const timelineFilterChipClass = (selected: boolean) =>
   tagChipClass(selected)
+
+const personFilterChipClass = (selected: boolean) =>
+  cn(
+    'inline-flex h-8 max-w-full items-center gap-1.5 rounded-full border px-1.5 pr-3 text-[13px] leading-none font-extrabold whitespace-nowrap transition-colors',
+    selected
+      ? 'border-primary/30 bg-primary/10 text-primary'
+      : 'border-border/80 bg-background text-foreground hover:bg-muted/60',
+  )
+
+function PersonFilterAvatar({
+  person,
+  selected,
+}: {
+  person: PersonResponse
+  selected: boolean
+}) {
+  const src = mediaUrl(person.profileImageUrl)
+
+  return (
+    <Avatar
+      size="sm"
+      className={cn(
+        'size-5 bg-muted after:border-0',
+        selected && 'bg-primary/15',
+      )}
+    >
+      {src ? <AvatarImage src={src} alt={person.name} /> : null}
+      <AvatarFallback
+        className={cn(
+          'text-[11px] font-extrabold',
+          selected
+            ? 'bg-primary/15 text-primary'
+            : 'bg-muted text-muted-foreground',
+        )}
+      >
+        {monogram(person.name)}
+      </AvatarFallback>
+    </Avatar>
+  )
+}
 
 export function TimelineCategoryFilters({
   chips,
@@ -60,14 +103,11 @@ export function TimelinePersonFilters({
               key={person.id}
               type="button"
               onClick={() => onToggle(person.id)}
-              className={timelineFilterChipClass(selected)}
+              aria-pressed={selected}
+              className={personFilterChipClass(selected)}
             >
-              <MonogramAvatar
-                name={person.name}
-                imageUrl={person.profileImageUrl}
-                className="size-6"
-              />
-              {person.name}
+              <PersonFilterAvatar person={person} selected={selected} />
+              <span className="truncate">{person.name}</span>
             </button>
           )
         })}
