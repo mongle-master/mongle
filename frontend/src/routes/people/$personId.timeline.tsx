@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
 import { PersonTabs } from '@/components/timeline/person-tabs'
 import { PersonTimelineCard } from '@/components/timeline/person-timeline-card'
+import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,7 +20,7 @@ import {
   fallbackPersonDetail,
   fallbackPersonTimeline,
 } from '@/lib/fallback-data'
-import { formatEventDate } from '@/lib/format'
+import { pickWaGa } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 
@@ -37,7 +38,6 @@ function PersonTimelinePage() {
     queryKey: queryKeys.person(id),
     queryFn: () => safeApi(() => fetchPerson(id), fallbackPersonDetail(id)),
     enabled: Number.isFinite(id),
-    initialData: fallbackPersonDetail(id),
   })
 
   const timelineQuery = useQuery({
@@ -52,14 +52,12 @@ function PersonTimelinePage() {
         ),
       ),
     enabled: Number.isFinite(id),
-    initialData: fallbackPersonTimeline(id),
   })
 
   const flowQuery = useQuery({
     queryKey: queryKeys.activityFlow(id),
     queryFn: () => safeApi(() => fetchActivityFlow(id), FALLBACK_ACTIVITY_FLOW),
     enabled: Number.isFinite(id),
-    initialData: FALLBACK_ACTIVITY_FLOW,
   })
 
   const chipsQuery = useQuery({
@@ -69,11 +67,11 @@ function PersonTimelinePage() {
   })
 
   const person = personQuery.data
-  const flow = flowQuery.data
+  const flow = flowQuery.data ?? FALLBACK_ACTIVITY_FLOW
   const categoryChips = chipsQuery.data.filter((c) => c.type === 'CATEGORY')
 
   const events = useMemo(() => {
-    const list = timelineQuery.data
+    const list = timelineQuery.data ?? []
     if (!monthFilter) return list
     return list.filter((e) => e.occurredDate.startsWith(monthFilter))
   }, [timelineQuery.data, monthFilter])
@@ -86,7 +84,42 @@ function PersonTimelinePage() {
     )
   }
 
-  const firstMetYear = person.firstMetDate?.slice(0, 4)
+  const firstMetYear = person?.firstMetDate?.slice(0, 4)
+
+  if (!Number.isFinite(id)) {
+    return (
+      <AppShell activePath="/" withNav className="relative px-0">
+        <p className="px-5 py-20 text-center text-sm text-muted-foreground">
+          잘못된 경로예요.
+        </p>
+      </AppShell>
+    )
+  }
+
+  if (personQuery.isPending || timelineQuery.isPending) {
+    return (
+      <AppShell activePath="/" withNav className="relative px-0">
+        <header className="mb-1 flex items-center gap-3 px-5">
+          <Link to="/" className="text-lg font-extrabold text-muted-foreground">
+            ‹
+          </Link>
+          <p className="text-lg font-extrabold text-muted-foreground">
+            불러오는 중…
+          </p>
+        </header>
+      </AppShell>
+    )
+  }
+
+  if (!person) {
+    return (
+      <AppShell activePath="/" withNav className="relative px-0">
+        <p className="px-5 py-20 text-center text-sm text-muted-foreground">
+          사람 정보를 불러오지 못했어요.
+        </p>
+      </AppShell>
+    )
+  }
 
   return (
     <AppShell activePath="/" withNav className="relative px-0">
@@ -95,7 +128,10 @@ function PersonTimelinePage() {
           ‹
         </Link>
         <div>
-          <h1 className="text-lg font-extrabold">{person.name}와의 이야기</h1>
+          <h1 className="text-lg font-extrabold">
+            {person.name}
+            {pickWaGa(person.name)}의 이야기
+          </h1>
           <p className="text-[11.5px] text-muted-foreground">
             {firstMetYear ? `${firstMetYear}년부터 · ` : ''}
             {person.stats.meetCount}번 만남
@@ -173,7 +209,7 @@ function PersonTimelinePage() {
         </div>
       ) : null}
 
-      <div className="flex flex-col px-5 pb-20">
+      <div className="px-5">
         {events.length === 0 ? (
           <div className="py-10 text-center">
             <p className="text-sm text-muted-foreground">
@@ -182,31 +218,16 @@ function PersonTimelinePage() {
                 : '아직 함께한 기록이 없어요. 첫 순간을 새겨보세요.'}
             </p>
             <Button asChild className="mt-4" variant="outline">
-              <Link to="/record" search={{ personId: id }}>
+              <Link to="/record" search={{ personId: id, eventId: undefined }}>
                 기록 작성
               </Link>
             </Button>
           </div>
         ) : (
-          events.map((event) => {
-            const { year, date } = formatEventDate(event.occurredDate)
-            const [month, day] = date.split('.')
-            return (
-              <div key={event.id} className="flex gap-2">
-                <div className="flex w-[4.375rem] shrink-0 flex-col items-center">
-                  <p className="text-center text-[10.5px] font-extrabold text-muted-foreground leading-tight">
-                    {year}
-                  </p>
-                  <div className="mt-1.5 flex size-8 flex-col items-center justify-center rounded-full border border-foreground bg-card text-[10px] leading-none font-extrabold">
-                    <span>{month}</span>
-                    <span>{day}</span>
-                  </div>
-                  <div className="w-px flex-1 border-l-2 border-dotted border-border" />
-                </div>
-                <PersonTimelineCard event={event} />
-              </div>
-            )
-          })
+          <TimelineFeed
+            items={events}
+            renderCard={(event) => <PersonTimelineCard event={event} />}
+          />
         )}
       </div>
 
@@ -215,7 +236,7 @@ function PersonTimelinePage() {
         size="icon-lg"
         className="fixed right-5 bottom-6 z-40 size-12 rounded-full shadow-lg"
       >
-        <Link to="/record" search={{ personId: id }}>
+        <Link to="/record" search={{ personId: id, eventId: undefined }}>
           ＋
         </Link>
       </Button>

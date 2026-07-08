@@ -61,6 +61,7 @@ function NewPersonPage() {
         relationTags={relationTags}
         avatarPicker="circle"
         showLastMetDate={false}
+        requireFirstMetYear
         submitLabel="등록하기"
         pending={createMutation.isPending}
         onCreateRelationTag={async (label) => {

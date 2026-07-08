@@ -40,11 +40,20 @@ export function setDefaultHomePeriod(period: HomePeriod) {
   }
 }
 
-export function isNodeInHomePeriod(
-  daysSinceLastMeet: number | null | undefined,
+function daysSinceLocalDate(isoDate: string, today = new Date()) {
+  const [y, m, d] = isoDate.split('-').map(Number)
+  const then = new Date(y, m - 1, d)
+  const now = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  return Math.floor((now.getTime() - then.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+/** 처음 만난 날이 설정 기간 안에 있는 인물만 홈에 표시한다. 날짜 없으면 기간 필터 시 제외. */
+export function isPersonInHomePeriod(
+  firstMetDate: string | null | undefined,
   period: HomePeriod,
 ) {
   if (period === 'ALL') return true
-  if (daysSinceLastMeet == null) return false
-  return daysSinceLastMeet <= PERIOD_MAX_DAYS[period]
+  if (!firstMetDate) return false
+  const days = daysSinceLocalDate(firstMetDate)
+  return days >= 0 && days <= PERIOD_MAX_DAYS[period]
 }

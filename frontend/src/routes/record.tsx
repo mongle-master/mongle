@@ -1,6 +1,6 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, Plus } from 'lucide-react'
+import { ChevronRight, Plus, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { PersonSelectModal } from '@/components/record/person-select-modal'
 import { AppShell } from '@/components/layout/app-shell'
@@ -11,12 +11,19 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { fetchChips } from '@/lib/api/chips'
-import { createEvent } from '@/lib/api/events'
+import { createEvent, fetchEvent, updateEvent } from '@/lib/api/events'
+import { uploadImage } from '@/lib/api/images'
 import { fetchPersons } from '@/lib/api/persons'
-import type { PersonResponse } from '@/lib/api/types'
+import type { EventRequest, PersonResponse } from '@/lib/api/types'
+import { mediaUrl } from '@/lib/api/client'
 import { safeApi } from '@/lib/api/safe'
-import { FALLBACK_CHIPS } from '@/lib/fallback-data'
+import { FALLBACK_CHIPS, fallbackEvent } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
+import {
+  formatOccurredTimeForApi,
+  formatOccurredTimeForInput,
+  validateRecordForm,
+} from '@/lib/record-validation'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/record')({
@@ -27,14 +34,24 @@ export const Route = createFileRoute('/record')({
         : typeof search.personId === 'string'
           ? Number(search.personId) || undefined
           : undefined,
+    eventId:
+      typeof search.eventId === 'number'
+        ? search.eventId
+        : typeof search.eventId === 'string'
+          ? Number(search.eventId) || undefined
+          : undefined,
   }),
   component: RecordPage,
 })
 
 function RecordPage() {
-  const { personId: presetPersonId } = Route.useSearch()
+  const { personId: presetPersonId, eventId: editingEventId } =
+    Route.useSearch()
+  const isEditing = Number.isFinite(editingEventId)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const photoInputRef = useRef<HTMLInputElement>(null)
+  const hydratedEventId = useRef<number | null>(null)
 
   const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>(() =>
     presetPersonId ? [presetPersonId] : [],
@@ -43,12 +60,18 @@ function RecordPage() {
   const [personModalDismissible, setPersonModalDismissible] = useState(true)
   const [personSelectError, setPersonSelectError] = useState(false)
   const [categoryChipId, setCategoryChipId] = useState<number | null>(null)
+  const [emotionChipIds, setEmotionChipIds] = useState<number[]>([])
+  const [weatherChipId, setWeatherChipId] = useState<number | null>(null)
   const [title, setTitle] = useState('')
   const [why, setWhy] = useState('')
   const [what, setWhat] = useState('')
   const [occurredDate, setOccurredDate] = useState(() =>
     new Date().toISOString().slice(0, 10),
   )
+  const [occurredTime, setOccurredTime] = useState('')
+  const [photoUrls, setPhotoUrls] = useState<string[]>([])
+  const [formError, setFormError] = useState<string | null>(null)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [savedLocally, setSavedLocally] = useState(false)
 
   const chipsQuery = useQuery({
@@ -60,6 +83,15 @@ function RecordPage() {
     queryKey: queryKeys.persons(),
     queryFn: (): Promise<PersonResponse[]> => safeApi(() => fetchPersons(), []),
   })
+  const eventQuery = useQuery({
+    queryKey: queryKeys.event(editingEventId ?? 0),
+    queryFn: () =>
+      safeApi(
+        () => fetchEvent(editingEventId!),
+        fallbackEvent(editingEventId!) ?? undefined,
+      ),
+    enabled: isEditing,
+  })
 
   const persons = personsQuery.data ?? []
   const chips = chipsQuery.data
@@ -67,14 +99,25 @@ function RecordPage() {
   const chipsByType = useMemo(
     () => ({
       category: chips.filter((c) => c.type === 'CATEGORY'),
+      emotion: chips.filter((c) => c.type === 'EMOTION'),
+      weather: chips.filter((c) => c.type === 'WEATHER'),
     }),
     [chips],
   )
 
-  const selectedPersons = useMemo(
-    () => persons.filter((p) => selectedPersonIds.includes(p.id)),
-    [persons, selectedPersonIds],
-  )
+  const selectedPersons = useMemo(() => {
+    return selectedPersonIds.map((id) => {
+      const fromDirectory = persons.find((p) => p.id === id)
+      if (fromDirectory) return fromDirectory
+      const fromEvent = eventQuery.data?.persons.find((p) => p.id === id)
+      if (fromEvent) return { ...fromEvent, profileImageUrl: null }
+      return {
+        id,
+        name: `#${id}`,
+        profileImageUrl: null,
+      } satisfies Pick<PersonResponse, 'id' | 'name' | 'profileImageUrl'>
+    })
+  }, [eventQuery.data?.persons, persons, selectedPersonIds])
 
   const primaryPerson = selectedPersons.at(0)
 
@@ -83,6 +126,12 @@ function RecordPage() {
     chipsByType.category[0].label
 
   const greeting = useMemo(() => {
+    if (isEditing) {
+      return {
+        title: '기록을 수정해요',
+        subtitle: '바뀐 내용을 저장하면 타임라인에 반영돼요.',
+      }
+    }
     if (selectedPersons.length === 0) {
       return {
         title: '오늘 누구와 함께였어요?',
@@ -100,18 +149,19 @@ function RecordPage() {
             랑 어땠어요?
           </>
         ),
-        subtitle: '세 줄이면 충분해요.',
+        subtitle: '감정만 골라도 돼요. 세 줄이면 충분해요.',
       }
     }
     return {
       title: '오늘 어땠어요?',
       subtitle: `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명과 함께한 순간이에요.`,
     }
-  }, [selectedPersons])
+  }, [isEditing, selectedPersons])
 
   const autoOpenedPersonModal = useRef(false)
 
   useEffect(() => {
+    if (isEditing) return
     if (autoOpenedPersonModal.current) return
     if (personsQuery.isPending) return
     if (presetPersonId || selectedPersonIds.length > 0) return
@@ -120,76 +170,135 @@ function RecordPage() {
     setPersonModalDismissible(false)
     setPersonModalOpen(true)
   }, [
+    isEditing,
     persons.length,
     personsQuery.isPending,
     presetPersonId,
     selectedPersonIds.length,
   ])
 
+  useEffect(() => {
+    if (!isEditing || !eventQuery.data) return
+    if (hydratedEventId.current === editingEventId) return
+    const event = eventQuery.data
+    hydratedEventId.current = editingEventId ?? null
+    setSelectedPersonIds(event.persons.map((p) => p.id))
+    setTitle(event.title)
+    setWhy(event.why ?? '')
+    setWhat(event.what ?? '')
+    setOccurredDate(event.occurredDate)
+    setOccurredTime(formatOccurredTimeForInput(event.occurredTime))
+    setCategoryChipId(event.category?.id ?? null)
+    setWeatherChipId(event.weather?.id ?? null)
+    setEmotionChipIds(event.emotions.map((e) => e.id))
+    setPhotoUrls(event.photoUrls)
+  }, [editingEventId, eventQuery.data, isEditing])
+
   const openPersonModal = (dismissible = true) => {
     setPersonModalDismissible(dismissible)
     setPersonModalOpen(true)
   }
 
-  const createMutation = useMutation({
-    mutationFn: createEvent,
+  const invalidateAfterSave = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['home'] })
+    await queryClient.invalidateQueries({ queryKey: ['persons'] })
+    await queryClient.invalidateQueries({ queryKey: ['my-timeline'] })
+    await queryClient.invalidateQueries({ queryKey: ['person-timeline'] })
+    if (isEditing) {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.event(editingEventId!),
+      })
+    }
+  }
+
+  const navigateAfterSave = (personId?: number) => {
+    if (personId) {
+      void navigate({
+        to: '/people/$personId/timeline',
+        params: { personId: String(personId) },
+      })
+      return
+    }
+    void navigate({ to: '/timeline' })
+  }
+
+  const saveMutation = useMutation({
+    mutationFn: (body: EventRequest) =>
+      isEditing ? updateEvent(editingEventId!, body) : createEvent(body),
     onSuccess: async (event) => {
-      await queryClient.invalidateQueries({ queryKey: ['home'] })
-      await queryClient.invalidateQueries({ queryKey: ['persons'] })
-      const personId = event.persons[0]?.id
-      if (personId) {
-        void navigate({
-          to: '/people/$personId/timeline',
-          params: { personId: String(personId) },
-        })
-      } else {
-        void navigate({ to: '/' })
-      }
+      await invalidateAfterSave()
+      navigateAfterSave(event.persons[0]?.id)
     },
     onError: () => {
       setSavedLocally(true)
-      const personId = selectedPersonIds[0]
-      if (personId) {
-        setTimeout(() => {
-          void navigate({
-            to: '/people/$personId/timeline',
-            params: { personId: String(personId) },
-          })
-        }, 600)
-      }
+      navigateAfterSave(selectedPersonIds[0])
     },
   })
 
+  const buildPayload = (): EventRequest => ({
+    title: title.trim() || null,
+    why: why.trim() || null,
+    what: what.trim() || null,
+    occurredDate,
+    occurredTime: formatOccurredTimeForApi(occurredTime),
+    categoryChipId: categoryChipId ?? chipsByType.category[0].id,
+    weatherChipId: weatherChipId,
+    emotionChipIds,
+    personIds: selectedPersonIds,
+    photoUrls,
+  })
+
   const handleSave = () => {
-    if (selectedPersonIds.length === 0) {
-      setPersonSelectError(true)
-      openPersonModal(false)
+    const validationError = validateRecordForm({
+      personIds: selectedPersonIds,
+      title: title.trim(),
+      why: why.trim(),
+      what: what.trim(),
+      emotionChipIds,
+      photoUrls,
+      occurredDate,
+    })
+    if (validationError) {
+      if (validationError.includes('함께한 사람')) {
+        setPersonSelectError(true)
+        openPersonModal(false)
+      }
+      setFormError(validationError)
       return
     }
 
     setSavedLocally(false)
     setPersonSelectError(false)
-
-    createMutation.mutate({
-      title: title.trim() || null,
-      why: why.trim() || null,
-      what: what.trim() || null,
-      occurredDate,
-      categoryChipId: categoryChipId ?? chipsByType.category[0].id,
-      personIds: selectedPersonIds,
-    })
+    setFormError(null)
+    saveMutation.mutate(buildPayload())
   }
 
-  if (personsQuery.isPending) {
+  const handlePhotoPick = async (file: File | null) => {
+    if (!file) return
+    if (photoUrls.length >= 5) {
+      setFormError('사진은 최대 5장까지 넣을 수 있어요.')
+      return
+    }
+    setUploadingPhoto(true)
+    setFormError(null)
+    try {
+      const { url } = await uploadImage(file)
+      setPhotoUrls((prev) => [...prev, url])
+    } catch {
+      setFormError('사진을 올리지 못했어요. 잠시 후 다시 시도해 주세요.')
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
+  const pageTitle = isEditing ? '기록 수정' : '새 기록'
+  const isLoading =
+    personsQuery.isPending || (isEditing && eventQuery.isPending)
+
+  if (isLoading) {
     return (
       <AppShell activePath="/record" className="px-0">
-        <header className="grid grid-cols-3 items-center px-5 py-1">
-          <Link to="/" className="text-lg font-extrabold text-muted-foreground">
-            ‹
-          </Link>
-          <h1 className="text-center text-base font-extrabold">새 기록</h1>
-          <span />
-        </header>
+        <RecordHeader title={pageTitle} onSave={handleSave} saving={false} />
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           불러오는 중…
         </p>
@@ -197,16 +306,10 @@ function RecordPage() {
     )
   }
 
-  if (persons.length === 0) {
+  if (!isEditing && persons.length === 0) {
     return (
       <AppShell activePath="/record" className="px-0">
-        <header className="grid grid-cols-3 items-center px-5 py-1">
-          <Link to="/" className="text-lg font-extrabold text-muted-foreground">
-            ‹
-          </Link>
-          <h1 className="text-center text-base font-extrabold">새 기록</h1>
-          <span />
-        </header>
+        <RecordHeader title={pageTitle} onSave={handleSave} saving={false} />
         <div className="flex flex-col items-center px-5 py-20 text-center">
           <p className="text-sm text-muted-foreground">
             먼저 함께한 사람을 추가해 주세요.
@@ -216,31 +319,33 @@ function RecordPage() {
             className="mt-5 inline-flex items-center gap-1 rounded-full border border-foreground bg-card px-4 py-2.5 text-sm font-extrabold"
           >
             <Plus className="size-4" />
-            인연 추가
+            사람 추가
           </Link>
         </div>
       </AppShell>
     )
   }
 
+  if (isEditing && !eventQuery.data) {
+    return (
+      <AppShell activePath="/record" className="px-0">
+        <RecordHeader title={pageTitle} onSave={handleSave} saving={false} />
+        <p className="px-5 py-20 text-center text-sm text-muted-foreground">
+          기록을 찾을 수 없어요.
+        </p>
+      </AppShell>
+    )
+  }
+
   return (
     <AppShell activePath="/record" className="px-0">
-      <header className="grid grid-cols-3 items-center px-5 py-1">
-        <Link to="/" className="text-lg font-extrabold text-muted-foreground">
-          ‹
-        </Link>
-        <h1 className="text-center text-base font-extrabold">새 기록</h1>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={createMutation.isPending}
-          className="text-right text-[15px] font-extrabold disabled:opacity-50"
-        >
-          {createMutation.isPending ? '저장 중' : '저장'}
-        </button>
-      </header>
+      <RecordHeader
+        title={pageTitle}
+        onSave={handleSave}
+        saving={saveMutation.isPending}
+      />
 
-      <div className="flex flex-col gap-5 px-5">
+      <div className="flex flex-col gap-5 px-5 pb-8">
         <button
           type="button"
           onClick={() => openPersonModal()}
@@ -280,7 +385,7 @@ function RecordPage() {
             <button
               type="button"
               onClick={() => openPersonModal()}
-              className="flex w-full items-center gap-2 rounded-2xl border border-border bg-card p-3 text-left"
+              className="flex w-full items-center gap-2 rounded-lg border border-border bg-card p-3 text-left"
             >
               <div className="flex -space-x-2">
                 {selectedPersons.slice(0, 3).map((person) => (
@@ -304,7 +409,7 @@ function RecordPage() {
               type="button"
               onClick={() => openPersonModal(false)}
               className={cn(
-                'flex w-full items-center justify-center rounded-2xl border border-dashed px-4 py-6 text-sm font-extrabold',
+                'flex w-full items-center justify-center rounded-lg border border-dashed px-4 py-6 text-sm font-extrabold',
                 personSelectError
                   ? 'border-destructive text-destructive'
                   : 'border-muted-foreground text-muted-foreground',
@@ -313,31 +418,25 @@ function RecordPage() {
               사람을 선택해 주세요
             </button>
           )}
-          {personSelectError ? (
-            <p className="mt-1.5 text-xs text-destructive">
-              함께한 사람을 한 명 이상 선택해 주세요.
-            </p>
-          ) : null}
-        </section>
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            제목
-          </p>
-          <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5">
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="border-0 bg-transparent shadow-none focus-visible:ring-0"
-              placeholder="있었던 일을 짧게 적어도 좋아요"
-            />
-            <Badge variant="secondary">{categoryLabel} ▾</Badge>
-          </div>
         </section>
 
         <section>
           <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            카테고리
+            제목
           </p>
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              maxLength={40}
+              className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+              placeholder="있었던 일을 짧게 적어도 좋아요"
+            />
+            <Badge variant="secondary">{categoryLabel}</Badge>
+          </div>
+        </section>
+
+        <ChipSection title="카테고리">
           <ToggleGroup
             type="single"
             value={categoryChipId ? String(categoryChipId) : undefined}
@@ -354,7 +453,51 @@ function RecordPage() {
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-        </section>
+        </ChipSection>
+
+        {chipsByType.emotion.length > 0 ? (
+          <ChipSection title="감정">
+            <ToggleGroup
+              type="multiple"
+              value={emotionChipIds.map(String)}
+              onValueChange={(values) =>
+                setEmotionChipIds(values.map(Number).slice(0, 5))
+              }
+              className="flex flex-wrap justify-start gap-2"
+            >
+              {chipsByType.emotion.map((chip) => (
+                <ToggleGroupItem
+                  key={chip.id}
+                  value={String(chip.id)}
+                  className="rounded-full border px-3.5 py-2 text-[13px] font-bold data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                >
+                  {chip.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </ChipSection>
+        ) : null}
+
+        {chipsByType.weather.length > 0 ? (
+          <ChipSection title="날씨">
+            <ToggleGroup
+              type="single"
+              value={weatherChipId ? String(weatherChipId) : undefined}
+              onValueChange={(v) => setWeatherChipId(v ? Number(v) : null)}
+              className="flex flex-wrap justify-start gap-2"
+            >
+              {chipsByType.weather.map((chip) => (
+                <ToggleGroupItem
+                  key={chip.id}
+                  value={String(chip.id)}
+                  className="rounded-full border px-3.5 py-2 text-[13px] font-bold data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                >
+                  {chip.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </ChipSection>
+        ) : null}
 
         <section>
           <p className="mb-2 text-xs font-extrabold text-muted-foreground">
@@ -363,12 +506,14 @@ function RecordPage() {
           <Textarea
             value={why}
             onChange={(e) => setWhy(e.target.value)}
+            maxLength={100}
             placeholder="왜 만났는지 (선택)"
             className="mb-2 min-h-16 resize-none"
           />
           <Textarea
             value={what}
             onChange={(e) => setWhat(e.target.value)}
+            maxLength={100}
             placeholder="무엇을 했는지 (선택)"
             className="min-h-16 resize-none"
           />
@@ -376,32 +521,84 @@ function RecordPage() {
 
         <section>
           <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            날짜
+            언제
           </p>
-          <Input
-            type="date"
-            value={occurredDate}
-            onChange={(e) => setOccurredDate(e.target.value)}
-          />
+          <div className="flex gap-2">
+            <Input
+              type="date"
+              value={occurredDate}
+              onChange={(e) => setOccurredDate(e.target.value)}
+              className="flex-1"
+            />
+            <Input
+              type="time"
+              value={occurredTime}
+              onChange={(e) => setOccurredTime(e.target.value)}
+              className="w-[8.5rem]"
+            />
+          </div>
         </section>
 
         <section>
           <p className="mb-2 text-xs font-extrabold text-muted-foreground">
             사진
           </p>
-          <div className="flex gap-2">
-            <div className="flex size-16 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-[10px] font-bold text-muted-foreground">
-              PHOTO
-            </div>
-            <Button
-              variant="outline"
-              className="size-16 rounded-xl border-dashed text-2xl"
-              type="button"
-            >
-              ＋
-            </Button>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            className="hidden"
+            onChange={(e) => {
+              void handlePhotoPick(e.target.files?.[0] ?? null)
+              e.target.value = ''
+            }}
+          />
+          <div className="flex flex-wrap gap-2">
+            {photoUrls.map((url) => {
+              const src = mediaUrl(url)
+              return (
+                <div key={url} className="relative size-16">
+                  {src ? (
+                    <img
+                      src={src}
+                      alt=""
+                      className="size-16 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="flex size-16 items-center justify-center rounded-lg bg-muted text-[10px] font-bold text-muted-foreground">
+                      PHOTO
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPhotoUrls((prev) => prev.filter((u) => u !== url))
+                    }
+                    className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-foreground text-background"
+                    aria-label="사진 삭제"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </div>
+              )
+            })}
+            {photoUrls.length < 5 ? (
+              <Button
+                variant="outline"
+                className="size-16 rounded-lg border-dashed text-2xl"
+                type="button"
+                disabled={uploadingPhoto}
+                onClick={() => photoInputRef.current?.click()}
+              >
+                {uploadingPhoto ? '…' : '＋'}
+              </Button>
+            ) : null}
           </div>
         </section>
+
+        {formError ? (
+          <p className="text-center text-xs text-destructive">{formError}</p>
+        ) : null}
 
         {savedLocally ? (
           <p className="text-center text-xs text-muted-foreground">
@@ -419,9 +616,54 @@ function RecordPage() {
         onConfirm={(ids) => {
           setSelectedPersonIds(ids)
           setPersonSelectError(false)
+          setFormError(null)
           setPersonModalDismissible(true)
         }}
       />
     </AppShell>
+  )
+}
+
+function RecordHeader({
+  title,
+  onSave,
+  saving,
+}: {
+  title: string
+  onSave: () => void
+  saving: boolean
+}) {
+  return (
+    <header className="grid grid-cols-3 items-center px-5 py-1">
+      <Link to="/" className="text-lg font-extrabold text-muted-foreground">
+        ‹
+      </Link>
+      <h1 className="text-center text-base font-extrabold">{title}</h1>
+      <button
+        type="button"
+        onClick={onSave}
+        disabled={saving}
+        className="text-right text-[15px] font-extrabold disabled:opacity-50"
+      >
+        {saving ? '저장 중' : '저장'}
+      </button>
+    </header>
+  )
+}
+
+function ChipSection({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <section>
+      <p className="mb-2 text-xs font-extrabold text-muted-foreground">
+        {title}
+      </p>
+      {children}
+    </section>
   )
 }

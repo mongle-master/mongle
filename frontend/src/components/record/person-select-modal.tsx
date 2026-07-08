@@ -72,7 +72,7 @@ export function PersonSelectModal({
         onClick={handleClose}
       />
       <div
-        className="relative flex max-h-[min(78dvh,560px)] w-full max-w-md flex-col rounded-t-3xl border border-border bg-background shadow-2xl"
+        className="relative flex max-h-[min(78dvh,560px)] w-full max-w-md flex-col rounded-t-xl border border-border bg-background shadow-2xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby="person-select-title"
@@ -126,7 +126,7 @@ export function PersonSelectModal({
                       type="button"
                       onClick={() => toggle(person.id)}
                       className={cn(
-                        'flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-colors',
+                        'flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors',
                         selected
                           ? 'border-primary bg-primary/5'
                           : 'border-border bg-card',
@@ -172,7 +172,7 @@ export function PersonSelectModal({
             className="inline-flex items-center justify-center gap-1 rounded-full border border-foreground bg-card py-2.5 text-sm font-extrabold"
           >
             <Plus className="size-4" />
-            인연 추가
+            사람 추가
           </Link>
           <Button
             type="button"

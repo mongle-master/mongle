@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Check, Pencil, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { AppShell } from '@/components/layout/app-shell'
@@ -9,25 +10,21 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { createChip, deleteChip, fetchChips, renameChip } from '@/lib/api/chips'
 import { safeApi } from '@/lib/api/safe'
-import type { ChipType } from '@/lib/api/types'
+import type { ChipResponse, ChipType } from '@/lib/api/types'
 import { FALLBACK_CHIPS } from '@/lib/fallback-data'
 import { getDefaultHomePeriod, setDefaultHomePeriod } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { queryKeys } from '@/lib/query-keys'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/settings')({
   component: SettingsPage,
 })
 
-const CHIP_TYPE_LABELS: Record<ChipType, string> = {
-  CATEGORY: '카테고리',
-  RELATION_TAG: '관계 태그',
-}
-const MANAGED_CHIP_TYPES = ['CATEGORY', 'RELATION_TAG'] as const
-
-function isManagedChipType(type: string): type is ChipType {
-  return (MANAGED_CHIP_TYPES as readonly string[]).includes(type)
-}
+const TAG_GROUPS = [
+  { type: 'CATEGORY' as const, label: '만남' },
+  { type: 'RELATION_TAG' as const, label: '관계' },
+] satisfies ReadonlyArray<{ type: ChipType; label: string }>
 
 function SettingsPage() {
   return (
@@ -35,12 +32,12 @@ function SettingsPage() {
       <MongleLogo className="mb-2 text-foreground" />
       <h1 className="text-[22px] font-extrabold tracking-tight">설정</h1>
       <p className="mt-1 mb-6 text-xs text-muted-foreground">
-        칩 관리와 앱 정보
+        태그 관리와 앱 정보
       </p>
 
       <HomePeriodSettingSection />
 
-      <ChipManagementSection />
+      <TagManagementSection />
 
       <Card className="mt-6 p-4">
         <p className="font-extrabold">앱 정보</p>
@@ -60,35 +57,36 @@ function HomePeriodSettingSection() {
 
   return (
     <Card className="mb-6 p-4">
-      <p className="font-extrabold">홈 기본 기간</p>
-      <p className="mt-1 mb-3 text-sm text-muted-foreground">
-        홈 관계 지도에 처음 보여줄 기간을 정해요
-      </p>
+      <p className="font-extrabold">홈에서 기본으로 보여줄 기간</p>
       <HomePeriodToggle value={period} onChange={handleChange} />
     </Card>
   )
 }
 
-function ChipManagementSection() {
+const MANAGED_TAG_TYPES = new Set<ChipType>(['CATEGORY', 'RELATION_TAG'])
+
+function TagManagementSection() {
   const queryClient = useQueryClient()
-  const chipsQuery = useQuery({
+  const chipsQuery = useQuery<ChipResponse[]>({
     queryKey: queryKeys.chips,
-    queryFn: () => safeApi(fetchChips, FALLBACK_CHIPS),
+    queryFn: (): Promise<ChipResponse[]> => safeApi(fetchChips, FALLBACK_CHIPS),
     initialData: FALLBACK_CHIPS,
   })
 
-  const chips = chipsQuery.data.filter((chip) => isManagedChipType(chip.type))
+  const chips = chipsQuery.data.filter((chip: ChipResponse) =>
+    MANAGED_TAG_TYPES.has(chip.type),
+  )
 
   return (
     <section>
-      <h2 className="mb-3 text-sm font-extrabold">칩 관리</h2>
+      <h2 className="mb-3 text-sm font-extrabold">태그 관리</h2>
       <div className="flex flex-col gap-4">
-        {MANAGED_CHIP_TYPES.map((type) => (
-          <ChipTypePanel
-            key={type}
-            type={type}
-            label={CHIP_TYPE_LABELS[type]}
-            chips={chips.filter((c) => c.type === type)}
+        {TAG_GROUPS.map((group) => (
+          <TagTypePanel
+            key={group.type}
+            type={group.type}
+            label={group.label}
+            chips={chips.filter((c: ChipResponse) => c.type === group.type)}
             onChanged={() =>
               queryClient.invalidateQueries({ queryKey: queryKeys.chips })
             }
@@ -99,7 +97,7 @@ function ChipManagementSection() {
   )
 }
 
-function ChipTypePanel({
+function TagTypePanel({
   type,
   label,
   chips,
@@ -107,7 +105,7 @@ function ChipTypePanel({
 }: {
   type: ChipType
   label: string
-  chips: typeof FALLBACK_CHIPS
+  chips: ChipResponse[]
   onChanged: () => void
 }) {
   const [draft, setDraft] = useState('')
@@ -127,6 +125,7 @@ function ChipTypePanel({
       renameChip(id, chipLabel),
     onSuccess: () => {
       setEditingId(null)
+      setEditLabel('')
       onChanged()
     },
   })
@@ -136,9 +135,25 @@ function ChipTypePanel({
     onSuccess: onChanged,
   })
 
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditLabel('')
+  }
+
+  const startEdit = (chip: ChipResponse) => {
+    setEditingId(chip.id)
+    setEditLabel(chip.label)
+  }
+
+  const saveEdit = (chipId: number) => {
+    const trimmed = editLabel.trim()
+    if (!trimmed || renameMutation.isPending) return
+    renameMutation.mutate({ id: chipId, chipLabel: trimmed })
+  }
+
   const handleDelete = (chipId: number, chipLabel: string) => {
     const ok = window.confirm(
-      `'${chipLabel}'을 목록에서 지울까요? 이미 기록한 칩은 그대로 남아요.`,
+      `'${chipLabel}' 태그를 지우면 관련된 태그 정보도 함께 삭제돼요.\n정말 지울까요?`,
     )
     if (ok) deleteMutation.mutate(chipId)
   }
@@ -150,50 +165,68 @@ function ChipTypePanel({
         {chips.map((chip) => (
           <li
             key={chip.id}
-            className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2"
+            className="flex items-center gap-2 rounded-lg border border-border px-3 py-2"
           >
             {editingId === chip.id ? (
-              <div className="flex flex-1 gap-2">
+              <div className="flex flex-1 items-center gap-2">
                 <Input
                   value={editLabel}
                   onChange={(e) => setEditLabel(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') saveEdit(chip.id)
+                    if (e.key === 'Escape') cancelEdit()
+                  }}
                   maxLength={10}
+                  autoFocus
+                  disabled={renameMutation.isPending}
                 />
-                <Button
-                  size="sm"
-                  onClick={() =>
-                    renameMutation.mutate({ id: chip.id, chipLabel: editLabel })
-                  }
+                <button
+                  type="button"
+                  onClick={() => saveEdit(chip.id)}
+                  disabled={!editLabel.trim() || renameMutation.isPending}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-md text-primary hover:bg-muted disabled:opacity-40"
+                  aria-label="저장"
                 >
-                  저장
-                </Button>
+                  <Check className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                  aria-label="수정 취소"
+                >
+                  <X className="size-4" />
+                </button>
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold">{chip.label}</span>
+                <span className="min-w-0 flex-1 truncate text-sm font-bold">
+                  {chip.label}
+                </span>
+                <div className="flex shrink-0 items-center gap-1">
+                  {chip.personal ? (
+                    <button
+                      type="button"
+                      onClick={() => startEdit(chip)}
+                      className="flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                      aria-label="이름 수정"
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(chip.id, chip.label)}
+                    disabled={deleteMutation.isPending}
+                    className={cn(
+                      'flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted',
+                      'hover:text-destructive',
+                    )}
+                    aria-label="삭제"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
                 </div>
-                {chip.personal ? (
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      className="text-xs font-bold text-muted-foreground"
-                      onClick={() => {
-                        setEditingId(chip.id)
-                        setEditLabel(chip.label)
-                      }}
-                    >
-                      이름 변경
-                    </button>
-                    <button
-                      type="button"
-                      className="text-xs font-bold text-destructive"
-                      onClick={() => handleDelete(chip.id, chip.label)}
-                    >
-                      지우기
-                    </button>
-                  </div>
-                ) : null}
               </>
             )}
           </li>
@@ -203,8 +236,17 @@ function ChipTypePanel({
         <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="새 칩 이름 (10자 이내)"
+          placeholder="새 태그 이름 (10자 이내)"
           maxLength={10}
+          onKeyDown={(e) => {
+            if (
+              e.key === 'Enter' &&
+              draft.trim() &&
+              !createMutation.isPending
+            ) {
+              createMutation.mutate(draft.trim())
+            }
+          }}
         />
         <Button
           variant="outline"

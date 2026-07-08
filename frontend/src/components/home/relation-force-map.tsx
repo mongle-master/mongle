@@ -80,6 +80,7 @@ export function RelationForceMap({
           profileImageUrl: null,
           favorite: false,
           relationTags: [],
+          firstMetDate: null,
           intimacy: {
             status: 'NORMAL',
             averageIntervalDays: null,
@@ -97,6 +98,7 @@ export function RelationForceMap({
           profileImageUrl: null,
           favorite: false,
           relationTags: [],
+          firstMetDate: null,
           intimacy: {
             status: 'UNKNOWN',
             averageIntervalDays: null,
@@ -257,12 +259,13 @@ export function RelationForceMap({
         }}
         onNodeClick={(node) => {
           if (Date.now() < suppressClickUntilRef.current) return
-          if (!node.id) return
 
           if (node.action === 'create') {
             navigate({ to: '/people/new' })
             return
           }
+
+          if (!node.id || node.id <= 0) return
 
           navigate({
             to: '/people/$personId/timeline',

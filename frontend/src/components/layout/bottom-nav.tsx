@@ -24,7 +24,7 @@ export function BottomNav({ activePath }: { activePath: string }) {
               <Link
                 key="record"
                 to="/record"
-                search={{ personId: undefined }}
+                search={{ personId: undefined, eventId: undefined }}
                 className="-mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
               >
                 <Plus className="size-6" />

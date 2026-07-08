@@ -15,7 +15,7 @@ export function ActivityFlowChart({
   const recentQuiet = !flow.lanes.some((lane) => lane.present.some(Boolean))
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-3.5">
+    <div className="rounded-lg border border-border bg-card p-3.5">
       <p className="text-[13px] font-extrabold">활동 흐름</p>
       <p className="mb-3 text-[11px] text-muted-foreground">
         점을 눌러 그달 기록만 보기

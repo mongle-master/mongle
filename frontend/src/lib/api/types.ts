@@ -1,7 +1,7 @@
 export type ChipRef = { id: number; label: string }
 export type PersonRef = { id: number; name: string }
 
-export type ChipType = 'CATEGORY' | 'RELATION_TAG'
+export type ChipType = 'CATEGORY' | 'RELATION_TAG' | 'EMOTION' | 'WEATHER'
 
 export type ChipResponse = {
   id: number
@@ -67,6 +67,7 @@ export type RelationMapResponse = {
       averageIntervalDays: number | null
       daysSinceLastMeet: number | null
     }
+    firstMetDate: string | null
   }>
   edges: Array<{ personId: number; distant: boolean }>
 }
@@ -88,6 +89,8 @@ export type EventResponse = {
   occurredDate: string
   occurredTime: string | null
   category: ChipRef | null
+  weather: ChipRef | null
+  emotions: ChipRef[]
   persons: PersonRef[]
   photoUrls: string[]
   createdAt: string | null
@@ -100,6 +103,8 @@ export type EventRequest = {
   occurredDate?: string | null
   occurredTime?: string | null
   categoryChipId?: number | null
+  weatherChipId?: number | null
+  emotionChipIds?: number[]
   personIds: number[]
   photoUrls?: string[]
 }

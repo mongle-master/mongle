@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import type { ComponentProps, FormEvent } from 'react'
 import { Star } from 'lucide-react'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Input } from '@/components/ui/input'
@@ -9,6 +10,19 @@ import type { PersonRequest } from '@/lib/api/types'
 import { validatePersonForm } from '@/lib/person-validation'
 import { cn } from '@/lib/utils'
 import { ListField, RelationTypeField } from '@/components/person/person-fields'
+import { DatePartPicker } from '@/components/person/first-met-date-picker'
+
+function FieldLabel({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof Label>) {
+  return (
+    <Label className={cn('font-extrabold', className)} {...props}>
+      {children}
+    </Label>
+  )
+}
 
 export type PersonFormValues = {
   name: string
@@ -18,11 +32,40 @@ export type PersonFormValues = {
   likes: string[]
   cautions: string[]
   favorite: boolean
-  firstMetDate: string
+  firstMetYear: string
+  firstMetMonth: string
+  firstMetDay: string
   lastMetDate: string
   birthMonth: string
   birthDay: string
   birthYear: string
+}
+
+function parseIsoDateParts(iso: string | null | undefined) {
+  if (!iso) return { year: '', month: '', day: '' }
+  const [year, month, day] = iso.split('-')
+  return {
+    year: year || '',
+    month: month ? String(Number(month)) : '',
+    day: day ? String(Number(day)) : '',
+  }
+}
+
+function composeFirstMetDate(
+  year: string,
+  month: string,
+  day: string,
+): string | null {
+  const y = year.trim()
+  const m = month.trim()
+  const d = day.trim()
+
+  if (!y && !m && !d) return null
+  if (!y) return ''
+
+  const monthPart = m ? m.padStart(2, '0') : '01'
+  const dayPart = d ? d.padStart(2, '0') : '01'
+  return `${y.padStart(4, '0')}-${monthPart}-${dayPart}`
 }
 
 export function personToFormValues(
@@ -31,6 +74,8 @@ export function personToFormValues(
     relationTags?: Array<{ id: number }>
   },
 ): PersonFormValues {
+  const firstMet = parseIsoDateParts(person?.firstMetDate)
+
   return {
     name: person?.name ?? '',
     profileImageUrl: person?.profileImageUrl ?? null,
@@ -42,7 +87,9 @@ export function personToFormValues(
     likes: person?.likes ?? [],
     cautions: person?.cautions ?? [],
     favorite: person?.favorite ?? false,
-    firstMetDate: person?.firstMetDate ?? '',
+    firstMetYear: firstMet.year,
+    firstMetMonth: firstMet.month,
+    firstMetDay: firstMet.day,
     lastMetDate: person?.lastMetDate ?? '',
     birthMonth: person?.birthday?.month ? String(person.birthday.month) : '',
     birthDay: person?.birthday?.day ? String(person.birthday.day) : '',
@@ -57,6 +104,12 @@ export function formValuesToRequest(values: PersonFormValues): PersonRequest {
   const birthday =
     month && day ? { month, day, ...(year ? { year } : {}) } : null
 
+  const firstMetDate = composeFirstMetDate(
+    values.firstMetYear,
+    values.firstMetMonth,
+    values.firstMetDay,
+  )
+
   return {
     name: values.name.trim(),
     profileImageUrl: values.profileImageUrl,
@@ -65,7 +118,7 @@ export function formValuesToRequest(values: PersonFormValues): PersonRequest {
     likes: values.likes,
     cautions: values.cautions,
     favorite: values.favorite,
-    firstMetDate: values.firstMetDate || null,
+    firstMetDate: firstMetDate === '' ? undefined : firstMetDate,
     lastMetDate: values.lastMetDate || null,
     birthday,
   }
@@ -81,6 +134,7 @@ export function PersonForm({
   onDelete,
   avatarPicker = 'button',
   showLastMetDate = true,
+  requireFirstMetYear = false,
 }: {
   initialValues: PersonFormValues
   relationTags: Array<{ id: number; label: string }>
@@ -91,6 +145,7 @@ export function PersonForm({
   onDelete?: () => void
   avatarPicker?: 'button' | 'circle'
   showLastMetDate?: boolean
+  requireFirstMetYear?: boolean
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [values, setValues] = useState(initialValues)
@@ -142,9 +197,21 @@ export function PersonForm({
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
+
+    if (requireFirstMetYear && !values.firstMetYear.trim()) {
+      setError('처음 만난 날의 연도를 입력해 주세요.')
+      return
+    }
+
     const request = formValuesToRequest(values)
+
+    if (request.firstMetDate === undefined) {
+      setError('처음 만난 날의 연도를 입력해 주세요.')
+      return
+    }
+
     const validationError = validatePersonForm(request)
     if (validationError) {
       setError(validationError)
@@ -220,7 +287,7 @@ export function PersonForm({
       )}
 
       <div>
-        <Label htmlFor="name">이름</Label>
+        <FieldLabel htmlFor="name">이름</FieldLabel>
         <Input
           id="name"
           value={values.name}
@@ -232,49 +299,45 @@ export function PersonForm({
       </div>
 
       <div>
-        <Label>생일 (선택)</Label>
-        <div className="mt-1.5 grid grid-cols-3 gap-2">
-          <Input
-            type="number"
-            min={1}
-            max={12}
-            placeholder="월"
-            value={values.birthMonth}
-            onChange={(e) => patch('birthMonth', e.target.value)}
-          />
-          <Input
-            type="number"
-            min={1}
-            max={31}
-            placeholder="일"
-            value={values.birthDay}
-            onChange={(e) => patch('birthDay', e.target.value)}
-          />
-          <Input
-            type="number"
-            min={1900}
-            max={2100}
-            placeholder="연도(선택)"
-            value={values.birthYear}
-            onChange={(e) => patch('birthYear', e.target.value)}
-          />
-        </div>
+        <FieldLabel>생일</FieldLabel>
+        <DatePartPicker
+          year={values.birthYear}
+          month={values.birthMonth}
+          day={values.birthDay}
+          onChange={({ year, month, day }) => {
+            setValues((prev) => ({
+              ...prev,
+              birthYear: year,
+              birthMonth: month,
+              birthDay: day,
+            }))
+            setError(null)
+          }}
+        />
       </div>
 
       <div>
-        <Label htmlFor="firstMetDate">처음 만난 날 (선택)</Label>
-        <Input
-          id="firstMetDate"
-          type="date"
-          value={values.firstMetDate}
-          onChange={(e) => patch('firstMetDate', e.target.value)}
-          className="mt-1.5"
+        <FieldLabel>처음 만난 날</FieldLabel>
+        <DatePartPicker
+          year={values.firstMetYear}
+          month={values.firstMetMonth}
+          day={values.firstMetDay}
+          yearRequired={requireFirstMetYear}
+          onChange={({ year, month, day }) => {
+            setValues((prev) => ({
+              ...prev,
+              firstMetYear: year,
+              firstMetMonth: month,
+              firstMetDay: day,
+            }))
+            setError(null)
+          }}
         />
       </div>
 
       {showLastMetDate ? (
         <div>
-          <Label htmlFor="lastMetDate">마지막 만난 날짜 (선택)</Label>
+          <FieldLabel htmlFor="lastMetDate">마지막 만난 날짜</FieldLabel>
           <Input
             id="lastMetDate"
             type="date"
@@ -291,7 +354,7 @@ export function PersonForm({
       />
 
       <div>
-        <Label className="mb-2 block">관계 태그</Label>
+        <FieldLabel className="mb-2 block">관계 태그</FieldLabel>
         <div className="flex flex-wrap gap-2">
           {relationTags.map((tag) => (
             <button
@@ -332,14 +395,12 @@ export function PersonForm({
         label="좋아하는 것"
         items={values.likes}
         onChange={(likes) => patch('likes', likes)}
-        placeholder="예: 카페 투어"
       />
 
       <ListField
         label="조심할 것"
         items={values.cautions}
         onChange={(cautions) => patch('cautions', cautions)}
-        placeholder="예: 매운 음식"
       />
 
       {avatarPicker === 'button' ? (

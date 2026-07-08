@@ -4,8 +4,8 @@ import { useMemo, useState } from 'react'
 import { AppShell } from '@/components/layout/app-shell'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { MyTimelineCard } from '@/components/timeline/my-timeline-card'
+import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { fetchChips } from '@/lib/api/chips'
 import { fetchMyTimeline } from '@/lib/api/timeline'
@@ -16,9 +16,16 @@ import {
   FALLBACK_PERSONS,
   fallbackMyTimeline,
 } from '@/lib/fallback-data'
-import { formatEventDate } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
+
+const filterChipClass = (selected: boolean) =>
+  cn(
+    'flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-bold',
+    selected
+      ? 'border-primary bg-primary text-primary-foreground'
+      : 'border-border bg-card text-foreground',
+  )
 
 export const Route = createFileRoute('/timeline')({
   component: MyTimelinePage,
@@ -117,16 +124,9 @@ function MyTimelinePage() {
                 key={chip.id}
                 type="button"
                 onClick={() => toggleCategory(chip.id)}
+                className={filterChipClass(selected)}
               >
-                <Badge
-                  variant={selected ? 'default' : 'outline'}
-                  className={cn(
-                    'cursor-pointer px-3 py-1.5 text-xs font-bold',
-                    !selected && 'bg-card',
-                  )}
-                >
-                  {chip.label}
-                </Badge>
+                {chip.label}
               </button>
             )
           })}
@@ -145,12 +145,7 @@ function MyTimelinePage() {
                 key={person.id}
                 type="button"
                 onClick={() => togglePerson(person.id)}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-bold',
-                  selected
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-card text-foreground',
-                )}
+                className={filterChipClass(selected)}
               >
                 <MonogramAvatar
                   name={person.name}
@@ -188,34 +183,17 @@ function MyTimelinePage() {
           <Button asChild className="mt-4" variant="outline">
             <Link
               to={persons.length === 0 ? '/people/new' : '/record'}
-              search={{ personId: undefined }}
+              search={{ personId: undefined, eventId: undefined }}
             >
               {persons.length === 0 ? '＋ 사람 추가' : '기록 작성'}
             </Link>
           </Button>
         </div>
       ) : (
-        <div className="flex flex-col pb-20">
-          {cards.map((card) => {
-            const { year, date } = formatEventDate(card.occurredDate)
-            const [month, day] = date.split('.')
-            return (
-              <div key={card.id} className="flex gap-2">
-                <div className="flex w-[4.375rem] shrink-0 flex-col items-center">
-                  <p className="text-center text-[10.5px] leading-tight font-extrabold text-muted-foreground">
-                    {year}
-                  </p>
-                  <div className="mt-1.5 flex size-8 flex-col items-center justify-center rounded-full border border-foreground bg-card text-[10px] leading-none font-extrabold">
-                    <span>{month}</span>
-                    <span>{day}</span>
-                  </div>
-                  <div className="w-px flex-1 border-l-2 border-dotted border-border" />
-                </div>
-                <MyTimelineCard card={card} />
-              </div>
-            )
-          })}
-        </div>
+        <TimelineFeed
+          items={cards}
+          renderCard={(card) => <MyTimelineCard card={card} />}
+        />
       )}
     </AppShell>
   )

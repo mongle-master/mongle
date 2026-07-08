@@ -1,20 +1,34 @@
+import type { ComponentProps } from 'react'
 import { useState } from 'react'
+import { X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
+function FieldLabel({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof Label>) {
+  return (
+    <Label className={cn('font-extrabold', className)} {...props}>
+      {children}
+    </Label>
+  )
+}
+
 export function ListField({
   label,
   items,
   onChange,
-  placeholder,
+  placeholder = '',
   maxItems = 20,
 }: {
   label: string
   items: string[]
   onChange: (items: string[]) => void
-  placeholder: string
+  placeholder?: string
   maxItems?: number
 }) {
   const [draft, setDraft] = useState('')
@@ -42,7 +56,7 @@ export function ListField({
 
   return (
     <div>
-      <Label className="mb-2 block">{label}</Label>
+      <FieldLabel className="mb-2 block">{label}</FieldLabel>
       <div className="flex gap-2">
         <Input
           value={draft}
@@ -68,15 +82,16 @@ export function ListField({
           {items.map((item) => (
             <li
               key={item}
-              className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-sm"
+              className="flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm"
             >
-              <span>{item}</span>
+              <span className="min-w-0 flex-1">{item}</span>
               <button
                 type="button"
                 onClick={() => onChange(items.filter((i) => i !== item))}
-                className="text-xs font-bold text-muted-foreground"
+                className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label={`${item} 삭제`}
               >
-                삭제
+                <X className="size-4" />
               </button>
             </li>
           ))}
@@ -105,7 +120,7 @@ export function RelationTypeField({
 }) {
   return (
     <div>
-      <Label htmlFor="relationType">관계 유형 (선택)</Label>
+      <FieldLabel htmlFor="relationType">만남 태그</FieldLabel>
       <div className="mt-2 flex flex-wrap gap-2">
         {RELATION_TYPE_SUGGESTIONS.map((suggestion) => (
           <button
@@ -127,9 +142,9 @@ export function RelationTypeField({
         id="relationType"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="직접 입력도 가능해요"
+        placeholder="새 태그(10자 이내)"
         className="mt-2"
-        maxLength={20}
+        maxLength={10}
       />
     </div>
   )

@@ -1,6 +1,8 @@
 export const queryKeys = {
-  relationMap: ['home', 'relation-map'] as const,
+  relationMap: (relationTagChipIds?: number[]) =>
+    ['home', 'relation-map', relationTagChipIds?.join(',') ?? ''] as const,
   throwback: ['home', 'throwback'] as const,
+  event: (id: number) => ['event', id] as const,
   persons: (query?: string) => ['persons', query ?? ''] as const,
   person: (id: number) => ['person', id] as const,
   personTimeline: (id: number, categoryChipIds?: number[]) =>

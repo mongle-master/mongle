@@ -3,6 +3,20 @@ export function monogram(name: string) {
   return ch ? (/[a-z]/i.test(ch) ? ch.toUpperCase() : ch) : '?'
 }
 
+function hangulHasBatchim(char: string) {
+  const code = char.codePointAt(0)
+  if (code === undefined || code < 0xac00 || code > 0xd7a3) return false
+  return (code - 0xac00) % 28 !== 0
+}
+
+/** 이름 끝 받침 유무에 따라 '와' | '과' (예: 지수와, 재윤과) */
+export function pickWaGa(word: string): '와' | '과' {
+  const trimmed = word.trim()
+  if (!trimmed) return '와'
+  const last = [...trimmed].at(-1) ?? ''
+  return hangulHasBatchim(last) ? '과' : '와'
+}
+
 export function formatEventDate(iso: string) {
   const [y, m, d] = iso.split('-')
   return { year: y, date: `${m}.${d}` }

@@ -36,7 +36,6 @@ function PersonProfilePage() {
     queryKey: queryKeys.person(id),
     queryFn: () => safeApi(() => fetchPerson(id), fallbackPersonDetail(id)),
     enabled: Number.isFinite(id),
-    initialData: fallbackPersonDetail(id),
   })
 
   const recentQuery = useQuery({
@@ -44,7 +43,6 @@ function PersonProfilePage() {
     queryFn: () =>
       safeApi(() => fetchPersonTimeline(id), fallbackPersonTimeline(id)),
     enabled: Number.isFinite(id),
-    initialData: fallbackPersonTimeline(id),
   })
 
   const favoriteMutation = useMutation({
@@ -57,7 +55,28 @@ function PersonProfilePage() {
   })
 
   const person = personQuery.data
-  const recentEvents = recentQuery.data.slice(0, 3)
+  const recentEvents = (recentQuery.data ?? []).slice(0, 3)
+
+  if (!Number.isFinite(id) || personQuery.isPending) {
+    return (
+      <AppShell activePath="/people">
+        <p className="py-20 text-center text-sm text-muted-foreground">
+          {personQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
+        </p>
+      </AppShell>
+    )
+  }
+
+  if (!person) {
+    return (
+      <AppShell activePath="/people">
+        <p className="py-20 text-center text-sm text-muted-foreground">
+          사람 정보를 불러오지 못했어요.
+        </p>
+      </AppShell>
+    )
+  }
+
   const birthdayLabel = formatBirthday(person.birthday)
 
   return (
@@ -196,7 +215,7 @@ function PersonProfilePage() {
 
       <div className="mt-6 flex flex-col gap-2">
         <Button asChild>
-          <Link to="/record" search={{ personId: id }}>
+          <Link to="/record" search={{ personId: id, eventId: undefined }}>
             상황 기록 작성
           </Link>
         </Button>

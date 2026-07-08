@@ -75,6 +75,54 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
     order: 4,
     default: false,
   },
+  {
+    id: 501,
+    type: 'EMOTION',
+    label: '기쁨',
+    personal: false,
+    order: 1,
+    default: false,
+  },
+  {
+    id: 502,
+    type: 'EMOTION',
+    label: '감사',
+    personal: false,
+    order: 2,
+    default: false,
+  },
+  {
+    id: 503,
+    type: 'EMOTION',
+    label: '편안',
+    personal: false,
+    order: 3,
+    default: false,
+  },
+  {
+    id: 601,
+    type: 'WEATHER',
+    label: '맑음',
+    personal: false,
+    order: 1,
+    default: false,
+  },
+  {
+    id: 602,
+    type: 'WEATHER',
+    label: '흐림',
+    personal: false,
+    order: 2,
+    default: false,
+  },
+  {
+    id: 603,
+    type: 'WEATHER',
+    label: '비',
+    personal: false,
+    order: 3,
+    default: false,
+  },
 ]
 
 export const FALLBACK_PERSONS: PersonResponse[] = [
@@ -175,6 +223,7 @@ export const FALLBACK_RELATION_MAP: RelationMapResponse = {
     profileImageUrl: p.profileImageUrl,
     favorite: p.favorite,
     relationTags: p.relationTags,
+    firstMetDate: p.firstMetDate,
     intimacy: {
       status: p.id === 6 ? 'DISTANT' : 'NORMAL',
       averageIntervalDays: 30,
@@ -219,6 +268,8 @@ const fallbackEvents = (
     occurredDate: '2024-05-26',
     occurredTime: null,
     category: { id: 303, label: '기념일' },
+    weather: { id: 601, label: '맑음' },
+    emotions: [{ id: 501, label: '기쁨' }],
     persons: [{ id: personId, name: personName }],
     photoUrls: [],
     createdAt: null,
@@ -231,6 +282,8 @@ const fallbackEvents = (
     occurredDate: '2024-04-13',
     occurredTime: '15:00:00',
     category: { id: 301, label: '만남' },
+    weather: { id: 601, label: '맑음' },
+    emotions: [{ id: 503, label: '편안' }],
     persons: [{ id: personId, name: personName }],
     photoUrls: [],
     createdAt: null,
@@ -243,11 +296,23 @@ const fallbackEvents = (
     occurredDate: '2024-02-17',
     occurredTime: '13:00:00',
     category: { id: 301, label: '만남' },
+    weather: null,
+    emotions: [],
     persons: [{ id: personId, name: personName }],
     photoUrls: [],
     createdAt: null,
   },
 ]
+
+export function fallbackEvent(eventId: number): EventResponse | null {
+  for (const person of FALLBACK_PERSONS) {
+    const found = fallbackEvents(person.id, person.name).find(
+      (event) => event.id === eventId,
+    )
+    if (found) return found
+  }
+  return null
+}
 
 export function fallbackPersonTimeline(personId: number) {
   const person =
