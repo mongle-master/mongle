@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Pencil, Trash2, X } from 'lucide-react'
+import { Check, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { AppShell } from '@/components/layout/app-shell'
@@ -160,16 +160,18 @@ function TagTypePanel({
   }
 
   return (
-    <Card className="p-4">
-      <p className="mb-3 font-extrabold">{label}</p>
-      <ul className="mb-3 flex flex-col gap-2">
+    <Card className="border-border/80 bg-card/60 p-4 shadow-none">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="font-extrabold">{label}</p>
+        <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-bold text-muted-foreground">
+          {chips.length}개
+        </span>
+      </div>
+      <ul className="mb-4 flex flex-wrap gap-2">
         {chips.map((chip) => (
-          <li
-            key={chip.id}
-            className="flex items-center gap-2 rounded-lg border border-border px-3 py-2"
-          >
+          <li key={chip.id} className="max-w-full">
             {editingId === chip.id ? (
-              <div className="flex flex-1 items-center gap-2">
+              <div className="flex h-9 max-w-full items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 pl-3">
                 <Input
                   value={editLabel}
                   onChange={(e) => setEditLabel(e.target.value)}
@@ -181,39 +183,38 @@ function TagTypePanel({
                   maxLength={10}
                   autoFocus
                   disabled={renameMutation.isPending}
+                  className="h-6 min-w-20 max-w-28 border-0 bg-transparent px-0 text-[13px] font-extrabold shadow-none focus-visible:ring-0 md:text-[13px]"
                 />
                 <button
                   type="button"
                   onClick={() => saveEdit(chip.id)}
                   disabled={!editLabel.trim() || renameMutation.isPending}
-                  className="flex size-8 shrink-0 items-center justify-center rounded-md text-primary hover:bg-muted disabled:opacity-40"
+                  className="flex size-6 shrink-0 items-center justify-center rounded-full text-primary hover:bg-primary/10 disabled:opacity-40"
                   aria-label="저장"
                 >
-                  <Check className="size-4" />
+                  <Check className="size-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                  className="flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
                   aria-label="수정 취소"
                 >
-                  <X className="size-4" />
+                  <X className="size-3.5" />
                 </button>
               </div>
             ) : (
-              <>
-                <span className="min-w-0 flex-1 truncate text-sm font-bold">
-                  {chip.label}
-                </span>
-                <div className="flex shrink-0 items-center gap-1">
+              <div className="group/tag inline-flex h-9 max-w-full items-center gap-1 rounded-full border border-border/80 bg-background px-3 text-[13px] font-extrabold shadow-xs transition-colors hover:border-foreground/20 hover:bg-muted/40">
+                <span className="min-w-0 truncate">{chip.label}</span>
+                <div className="-mr-1 flex shrink-0 items-center gap-0.5">
                   {chip.personal ? (
                     <button
                       type="button"
                       onClick={() => startEdit(chip)}
-                      className="flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                      className="flex size-6 items-center justify-center rounded-full text-muted-foreground hover:bg-background hover:text-foreground"
                       aria-label="이름 수정"
                     >
-                      <Pencil className="size-4" />
+                      <Pencil className="size-3.5" />
                     </button>
                   ) : null}
                   <button
@@ -221,20 +222,20 @@ function TagTypePanel({
                     onClick={() => handleDelete(chip.id, chip.label)}
                     disabled={deleteMutation.isPending}
                     className={cn(
-                      'flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted',
+                      'flex size-6 items-center justify-center rounded-full text-muted-foreground hover:bg-background',
                       'hover:text-destructive',
                     )}
                     aria-label="삭제"
                   >
-                    <Trash2 className="size-4" />
+                    <Trash2 className="size-3.5" />
                   </button>
                 </div>
-              </>
+              </div>
             )}
           </li>
         ))}
       </ul>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-background/70 p-2">
         <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -250,13 +251,17 @@ function TagTypePanel({
               createMutation.mutate(draft.trim())
             }
           }}
+          className="border-0 bg-transparent shadow-none focus-visible:ring-0"
         />
         <Button
           variant="outline"
+          size="sm"
           disabled={!draft.trim() || createMutation.isPending}
           onClick={() => createMutation.mutate(draft.trim())}
+          className="rounded-full"
         >
-          ＋ 추가
+          <Plus className="size-3.5" />
+          추가
         </Button>
       </div>
     </Card>
