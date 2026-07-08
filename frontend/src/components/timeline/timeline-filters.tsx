@@ -1,14 +1,9 @@
 import type { ChipResponse, PersonResponse } from '@/lib/api/types'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import { cn } from '@/lib/utils'
+import { tagChipClass } from '@/components/ui/tag-chip'
 
 export const timelineFilterChipClass = (selected: boolean) =>
-  cn(
-    'flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-bold',
-    selected
-      ? 'border-primary bg-primary text-primary-foreground'
-      : 'border-border bg-card text-foreground',
-  )
+  tagChipClass(selected)
 
 export function TimelineCategoryFilters({
   chips,

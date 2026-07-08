@@ -77,7 +77,7 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
               {item.title}
             </h3>
             {item.category ? (
-              <Badge variant="secondary" className="shrink-0 text-[10px]">
+              <Badge variant="secondary" className="shrink-0">
                 {item.category.label}
               </Badge>
             ) : null}
@@ -98,11 +98,7 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
           {item.emotions && item.emotions.length > 0 ? (
             <div className="mt-1.5 flex flex-wrap gap-1">
               {item.emotions.map((emotion) => (
-                <Badge
-                  key={emotion.id}
-                  variant="outline"
-                  className="text-[10px]"
-                >
+                <Badge key={emotion.id} variant="outline">
                   {emotion.label}
                 </Badge>
               ))}

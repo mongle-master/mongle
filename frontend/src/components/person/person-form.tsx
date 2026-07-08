@@ -5,6 +5,7 @@ import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { tagChipClass } from '@/components/ui/tag-chip'
 import { uploadImage } from '@/lib/api/images'
 import type { PersonRequest } from '@/lib/api/types'
 import { validatePersonForm } from '@/lib/person-validation'
@@ -361,11 +362,12 @@ export function PersonForm({
               key={tag.id}
               type="button"
               onClick={() => toggleTag(tag.id)}
-              className={cn(
-                'rounded-full border px-3 py-1.5 text-sm font-bold',
-                values.relationTagChipIds.includes(tag.id)
-                  ? 'border-foreground bg-foreground text-background'
-                  : 'border-border bg-card',
+              className={tagChipClass(
+                values.relationTagChipIds.includes(tag.id),
+                {
+                  activeClassName:
+                    'border-foreground bg-foreground text-background',
+                },
               )}
             >
               {tag.label}
@@ -395,12 +397,14 @@ export function PersonForm({
         label="좋아하는 것"
         items={values.likes}
         onChange={(likes) => patch('likes', likes)}
+        tone="green"
       />
 
       <ListField
         label="조심할 것"
         items={values.cautions}
         onChange={(cautions) => patch('cautions', cautions)}
+        tone="red"
       />
 
       {avatarPicker === 'button' ? (

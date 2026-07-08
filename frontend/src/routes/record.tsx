@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { tagChipBaseClass } from '@/components/ui/tag-chip'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { fetchChips } from '@/lib/api/chips'
 import { createEvent, fetchEvent, updateEvent } from '@/lib/api/events'
@@ -423,7 +424,10 @@ function RecordPage() {
               <ToggleGroupItem
                 key={chip.id}
                 value={String(chip.id)}
-                className="rounded-full border px-3.5 py-2 text-[13px] font-bold data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                className={cn(
+                  tagChipBaseClass,
+                  'border-border bg-card data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+                )}
               >
                 {chip.label}
               </ToggleGroupItem>

@@ -4,6 +4,8 @@ import { X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { tagChipClass } from '@/components/ui/tag-chip'
+import { isImeComposing } from '@/lib/keyboard'
 import { cn } from '@/lib/utils'
 
 function FieldLabel({
@@ -24,15 +26,23 @@ export function ListField({
   onChange,
   placeholder = '',
   maxItems = 20,
+  tone = 'neutral',
 }: {
   label: string
   items: string[]
   onChange: (items: string[]) => void
   placeholder?: string
   maxItems?: number
+  tone?: 'neutral' | 'green' | 'red'
 }) {
   const [draft, setDraft] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const chipToneClass = {
+    neutral: 'bg-muted text-foreground',
+    green:
+      'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200',
+    red: 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200',
+  }[tone]
 
   const addItem = () => {
     const value = draft.trim()
@@ -57,46 +67,54 @@ export function ListField({
   return (
     <div>
       <FieldLabel className="mb-2 block">{label}</FieldLabel>
-      <div className="flex gap-2">
-        <Input
-          value={draft}
-          onChange={(e) => {
-            setDraft(e.target.value)
-            setError(null)
-          }}
-          placeholder={placeholder}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              addItem()
-            }
-          }}
-        />
+      <div className="flex items-start gap-2">
+        <div
+          className={cn(
+            'flex min-h-10 flex-1 flex-wrap items-center gap-1.5 rounded-lg border border-input bg-background px-2 py-1.5 shadow-xs',
+            'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
+          )}
+        >
+          {items.map((item) => (
+            <span
+              key={item}
+              className={cn(
+                'inline-flex h-7 max-w-full items-center gap-1 rounded-md px-2.5 text-[13px] font-bold',
+                chipToneClass,
+              )}
+            >
+              <span className="min-w-0 truncate">{item}</span>
+              <button
+                type="button"
+                onClick={() => onChange(items.filter((i) => i !== item))}
+                className="flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-background hover:text-foreground"
+                aria-label={`${item} 삭제`}
+              >
+                <X className="size-3" />
+              </button>
+            </span>
+          ))}
+          <input
+            value={draft}
+            onChange={(e) => {
+              setDraft(e.target.value)
+              setError(null)
+            }}
+            placeholder={items.length === 0 ? placeholder : ''}
+            onKeyDown={(e) => {
+              if (isImeComposing(e)) return
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                addItem()
+              }
+            }}
+            className="h-6 min-w-24 flex-1 border-0 bg-transparent px-1 text-sm outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
         <Button type="button" variant="outline" onClick={addItem}>
           추가
         </Button>
       </div>
       {error ? <p className="mt-1 text-xs text-destructive">{error}</p> : null}
-      {items.length > 0 ? (
-        <ul className="mt-2 flex flex-col gap-1.5">
-          {items.map((item) => (
-            <li
-              key={item}
-              className="flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm"
-            >
-              <span className="min-w-0 flex-1">{item}</span>
-              <button
-                type="button"
-                onClick={() => onChange(items.filter((i) => i !== item))}
-                className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label={`${item} 삭제`}
-              >
-                <X className="size-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
     </div>
   )
 }
@@ -137,12 +155,7 @@ export function RelationTypeField({
               onChange(suggestion)
               setDraft('')
             }}
-            className={cn(
-              'rounded-full border px-3 py-1.5 text-xs font-bold',
-              value === suggestion && draft === ''
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-border bg-card',
-            )}
+            className={tagChipClass(value === suggestion && draft === '')}
           >
             {suggestion}
           </button>

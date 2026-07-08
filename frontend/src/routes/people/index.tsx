@@ -6,6 +6,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { tagChipClass } from '@/components/ui/tag-chip'
 import { fetchPersons } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import { FALLBACK_PERSONS } from '@/lib/fallback-data'
@@ -151,16 +152,7 @@ function SortButton({
   children: React.ReactNode
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'rounded-full border px-3 py-1.5 text-xs font-bold',
-        active
-          ? 'border-primary bg-primary text-primary-foreground'
-          : 'border-border bg-card',
-      )}
-    >
+    <button type="button" onClick={onClick} className={tagChipClass(active)}>
       {children}
     </button>
   )

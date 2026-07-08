@@ -1,6 +1,6 @@
 import { HOME_PERIOD_OPTIONS } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
-import { cn } from '@/lib/utils'
+import { tagChipClass } from '@/components/ui/tag-chip'
 
 export function HomePeriodToggle({
   value,
@@ -18,12 +18,11 @@ export function HomePeriodToggle({
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
-            className={cn(
-              'rounded-full border px-3 py-1.5 text-xs font-bold',
-              active
-                ? 'border-foreground bg-foreground text-background'
-                : 'border-border bg-card text-muted-foreground',
-            )}
+            className={tagChipClass(active, {
+              activeClassName:
+                'border-foreground bg-foreground text-background',
+              inactiveClassName: 'border-border bg-card text-muted-foreground',
+            })}
           >
             {option.label}
           </button>

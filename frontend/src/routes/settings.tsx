@@ -14,6 +14,7 @@ import type { ChipResponse, ChipType } from '@/lib/api/types'
 import { FALLBACK_CHIPS } from '@/lib/fallback-data'
 import { getDefaultHomePeriod, setDefaultHomePeriod } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
+import { isImeComposing } from '@/lib/keyboard'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 
@@ -173,6 +174,7 @@ function TagTypePanel({
                   value={editLabel}
                   onChange={(e) => setEditLabel(e.target.value)}
                   onKeyDown={(e) => {
+                    if (isImeComposing(e)) return
                     if (e.key === 'Enter') saveEdit(chip.id)
                     if (e.key === 'Escape') cancelEdit()
                   }}
@@ -239,6 +241,7 @@ function TagTypePanel({
           placeholder="새 태그 이름 (10자 이내)"
           maxLength={10}
           onKeyDown={(e) => {
+            if (isImeComposing(e)) return
             if (
               e.key === 'Enter' &&
               draft.trim() &&
