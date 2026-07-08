@@ -1,14 +1,17 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, Plus, X } from 'lucide-react'
+import { useFunnel } from '@use-funnel/browser'
+import {
+  ChevronLeft,
+  ChevronRight,
+  ImagePlus,
+  Plus,
+  Save,
+  X,
+} from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { PersonSelectModal } from '@/components/record/person-select-modal'
 import { AppShell } from '@/components/layout/app-shell'
-import { FormPageHeader } from '@/components/layout/form-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { tagChipBaseClass } from '@/components/ui/tag-chip'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -26,7 +29,17 @@ import {
 } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
 import {
-  formatOccurredTimeForApi,
+  EMOTION_MAX,
+  NOTE_MAX,
+  buildRecordFunnelPayload,
+  getRecordDateOptions,
+  getDefaultChipId,
+  getEmotionSentenceStem,
+  getNextRecordFunnelStep,
+  resolvePrimaryRecordPerson,
+  toggleLimitedId,
+} from '@/lib/record-funnel'
+import {
   formatOccurredTimeForInput,
   validateRecordForm,
 } from '@/lib/record-validation'
@@ -50,6 +63,13 @@ export const Route = createFileRoute('/record')({
   component: RecordPage,
 })
 
+type RecordFunnelContextMap = {
+  person: Record<string, never>
+  emotion: Record<string, never>
+  letter: Record<string, never>
+  detail: Record<string, never>
+}
+
 function RecordPage() {
   const { personId: presetPersonId, eventId: editingEventId } =
     Route.useSearch()
@@ -59,15 +79,11 @@ function RecordPage() {
   const photoInputRef = useRef<HTMLInputElement>(null)
   const hydratedEventId = useRef<number | null>(null)
 
-  const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>(() =>
-    presetPersonId ? [presetPersonId] : [],
-  )
-  const [personModalOpen, setPersonModalOpen] = useState(false)
-  const [personModalDismissible, setPersonModalDismissible] = useState(true)
-  const [personSelectError, setPersonSelectError] = useState(false)
   const [categoryChipId, setCategoryChipId] = useState<number | null>(null)
-  const [title, setTitle] = useState('')
-  const [memo, setMemo] = useState('')
+  const [selectedEmotionChipIds, setSelectedEmotionChipIds] = useState<
+    number[]
+  >([])
+  const [note, setNote] = useState('')
   const [occurredDate, setOccurredDate] = useState(() =>
     new Date().toISOString().slice(0, 10),
   )
@@ -76,6 +92,14 @@ function RecordPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [savedLocally, setSavedLocally] = useState(false)
+
+  const funnel = useFunnel<RecordFunnelContextMap>({
+    id: `record-${editingEventId ?? presetPersonId ?? 'new'}`,
+    initial: {
+      step: isEditing ? 'detail' : 'person',
+      context: {},
+    },
+  })
 
   const chipsQuery = useQuery({
     queryKey: queryKeys.chips,
@@ -86,7 +110,6 @@ function RecordPage() {
     queryKey: queryKeys.persons(),
     queryFn: (): Promise<PersonResponse[]> =>
       safeApi(() => fetchPersons(), FALLBACK_PERSONS),
-    initialData: FALLBACK_PERSONS,
   })
   const eventQuery = useQuery({
     queryKey: queryKeys.event(editingEventId ?? 0),
@@ -98,98 +121,74 @@ function RecordPage() {
     enabled: isEditing,
   })
 
-  const persons = personsQuery.data
+  const persons = personsQuery.data ?? []
   const chips = chipsQuery.data
 
   const categoryChips = useMemo(
     () => chips.filter((c) => c.type === 'CATEGORY'),
     [chips],
   )
+  const emotionChips = useMemo(
+    () => chips.filter((c) => c.type === 'EMOTION'),
+    [chips],
+  )
 
-  const selectedPersons = useMemo(() => {
-    return selectedPersonIds.map((id) => {
-      const fromDirectory = persons.find((p) => p.id === id)
-      if (fromDirectory) return fromDirectory
-      const fromEvent = eventQuery.data?.persons.find((p) => p.id === id)
-      if (fromEvent) return { ...fromEvent, profileImageUrl: null }
-      return {
-        id,
-        name: `#${id}`,
-        profileImageUrl: null,
-      } satisfies Pick<PersonResponse, 'id' | 'name' | 'profileImageUrl'>
-    })
-  }, [eventQuery.data?.persons, persons, selectedPersonIds])
+  const primaryPersonRef = useMemo(
+    () =>
+      resolvePrimaryRecordPerson({
+        presetPersonId,
+        persons,
+        eventPersons: eventQuery.data?.persons ?? [],
+      }),
+    [eventQuery.data?.persons, persons, presetPersonId],
+  )
 
-  const primaryPerson = selectedPersons.at(0)
+  const primaryPerson = useMemo(() => {
+    if (!primaryPersonRef) return null
+    const fromDirectory = persons.find((p) => p.id === primaryPersonRef.id)
+    if (fromDirectory) return fromDirectory
 
-  const categoryLabel =
-    categoryChips.find((c) => c.id === categoryChipId)?.label ??
-    categoryChips.at(0)?.label ??
-    ''
-
-  const greeting = useMemo(() => {
-    if (isEditing) {
-      return {
-        title: '기록을 수정해요',
-        subtitle: '바뀐 내용을 저장하면 타임라인에 반영돼요.',
-      }
-    }
-    // if (selectedPersons.length === 0) {
-    //   return {
-    //     title: '오늘 누구와 함께였어요?',
-    //     // subtitle: '함께한 사람을 먼저 선택해 주세요.',
-    //   }
-    // }
-    // if (selectedPersons.length === 1) {
-    //   return {
-    //     title: (
-    //       <>
-    //         오늘
-    //         <span className="underline underline-offset-4">
-    //           {selectedPersons[0].name}
-    //         </span>
-    //         랑 어땠어요?
-    //       </>
-    //     ),
-    //     subtitle: '세 줄이면 충분해요.',
-    //   }
-    // }
     return {
-      title: '오늘의 몽글, 남겨볼까요?',
-      // subtitle: `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명과 함께한 순간이에요.`,
-    }
-  }, [isEditing, selectedPersons])
+      id: primaryPersonRef.id,
+      name: primaryPersonRef.name,
+      birthday: null,
+      firstMetDate: null,
+      lastMetDate: null,
+      profileImageUrl: null,
+      relationType: null,
+      relationTags: [],
+      likes: [],
+      cautions: [],
+      favorite: false,
+      gender: null,
+      createdAt: null,
+    } satisfies PersonResponse
+  }, [persons, primaryPersonRef])
 
-  const autoOpenedPersonModal = useRef(false)
+  const selectedPersonIds = primaryPerson ? [primaryPerson.id] : []
+  const resolvedCategoryChipId =
+    categoryChipId ?? getDefaultChipId(categoryChips)
+  const currentStep = funnel.step
+  const nextStep = getNextRecordFunnelStep(currentStep)
 
   useEffect(() => {
-    if (isEditing) return
-    if (autoOpenedPersonModal.current) return
-    if (presetPersonId || selectedPersonIds.length > 0) return
-    if (persons.length === 0) return
-    autoOpenedPersonModal.current = true
-    setPersonModalDismissible(false)
-    setPersonModalOpen(true)
-  }, [isEditing, persons.length, presetPersonId, selectedPersonIds.length])
+    if (categoryChipId !== null) return
+    const defaultCategoryChipId = getDefaultChipId(categoryChips)
+    if (defaultCategoryChipId !== null) setCategoryChipId(defaultCategoryChipId)
+  }, [categoryChipId, categoryChips])
 
   useEffect(() => {
     if (!isEditing || !eventQuery.data) return
     if (hydratedEventId.current === editingEventId) return
     const event = eventQuery.data
     hydratedEventId.current = editingEventId ?? null
-    setSelectedPersonIds(event.persons.map((p) => p.id))
-    setTitle(event.title)
-    setMemo(event.memo ?? '')
+    setNote(event.memo ?? '')
     setOccurredDate(event.occurredDate)
     setOccurredTime(formatOccurredTimeForInput(event.occurredTime))
     setCategoryChipId(event.category?.id ?? null)
+    setSelectedEmotionChipIds(event.emotions.map((emotion) => emotion.id))
     setPhotoUrls(event.photoUrls)
   }, [editingEventId, eventQuery.data, isEditing])
-
-  const openPersonModal = (dismissible = true) => {
-    setPersonModalDismissible(dismissible)
-    setPersonModalOpen(true)
-  }
 
   const invalidateAfterSave = async () => {
     await queryClient.invalidateQueries({ queryKey: ['home'] })
@@ -223,43 +222,48 @@ function RecordPage() {
     },
     onError: () => {
       setSavedLocally(true)
-      navigateAfterSave(selectedPersonIds[0])
+      navigateAfterSave(primaryPerson?.id)
     },
   })
 
-  const buildPayload = (): EventRequest => ({
-    title: title.trim() || null,
-    memo: memo.trim() || null,
-    occurredDate,
-    occurredTime: formatOccurredTimeForApi(occurredTime),
-    categoryChipId: categoryChipId ?? categoryChips.at(0)?.id ?? null,
-    weatherChipId: null,
-    emotionChipIds: [],
-    personIds: selectedPersonIds,
-    photoUrls,
-  })
+  const buildPayload = (): EventRequest =>
+    buildRecordFunnelPayload({
+      personIds: selectedPersonIds,
+      occurredDate,
+      categoryChipId: resolvedCategoryChipId,
+      categoryChips,
+      emotionChipIds: selectedEmotionChipIds,
+      note,
+      occurredTime,
+      photoUrls,
+    })
 
   const handleSave = () => {
     const validationError = validateRecordForm({
       personIds: selectedPersonIds,
-      title: title.trim(),
-      memo: memo.trim(),
+      title: '',
+      memo: note.trim(),
       photoUrls,
       occurredDate,
     })
     if (validationError) {
-      if (validationError.includes('함께한 사람')) {
-        setPersonSelectError(true)
-        openPersonModal(false)
-      }
       setFormError(validationError)
       return
     }
 
     setSavedLocally(false)
-    setPersonSelectError(false)
     setFormError(null)
     saveMutation.mutate(buildPayload())
+  }
+
+  const handleNext = () => {
+    if (!nextStep) return
+    if (currentStep === 'person' && !primaryPerson) {
+      setFormError('함께한 사람을 먼저 추가해 주세요.')
+      return
+    }
+    setFormError(null)
+    void funnel.history.push(nextStep, {})
   }
 
   const handlePhotoPick = async (file: File | null) => {
@@ -280,318 +284,637 @@ function RecordPage() {
     }
   }
 
-  const pageTitle = isEditing ? '몽글 수정' : '새 몽글'
-  const isLoading = isEditing && eventQuery.isPending
-  const recordHeader = (
-    <FormPageHeader
-      back={{ to: '/' }}
-      title={pageTitle}
-      onSave={handleSave}
-      saving={saveMutation.isPending}
-      className="px-5"
-    />
-  )
-  const scrollBodyClass =
-    'min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]'
+  const toggleEmotion = (id: number) => {
+    setSelectedEmotionChipIds((prev) => toggleLimitedId(prev, id, EMOTION_MAX))
+    setFormError(null)
+  }
+
+  const isLoading =
+    personsQuery.isPending || (isEditing && eventQuery.isPending)
 
   if (isLoading) {
     return (
-      <AppShell activePath="/record" layout="fixed" className="px-0">
-        {recordHeader}
-        <p className="px-5 py-20 text-center text-sm text-muted-foreground">
+      <RecordFrame
+        headerTitle="기록"
+        onFinish={handleSave}
+        onNext={handleNext}
+        nextDisabled
+        finishDisabled
+        showNext={false}
+        saving={false}
+      >
+        <p className="py-24 text-center text-sm text-muted-foreground">
           불러오는 중…
         </p>
-      </AppShell>
+      </RecordFrame>
     )
   }
 
   if (!isEditing && persons.length === 0) {
     return (
-      <AppShell activePath="/record" layout="fixed" className="px-0">
-        {recordHeader}
-        <div className="flex flex-col items-center px-5 py-20 text-center">
-          <p className="text-sm text-muted-foreground">
-            먼저 함께한 사람을 추가해 주세요.
+      <RecordFrame
+        headerTitle="기록"
+        onFinish={handleSave}
+        onNext={handleNext}
+        nextDisabled
+        finishDisabled
+        showNext={false}
+        saving={false}
+      >
+        <div className="flex min-h-[60dvh] flex-col items-center justify-center px-5 text-center">
+          <p className="text-2xl font-extrabold tracking-tight">
+            먼저 사람을 추가해 주세요
+          </p>
+          <p className="mt-2 text-sm font-bold text-muted-foreground">
+            기록은 한 사람에게 남겨져요.
           </p>
           <Link
             to="/people/new"
-            className="mt-5 inline-flex items-center gap-1 rounded-full bg-primary/12 px-4 py-2.5 text-sm font-extrabold text-primary hover:bg-primary/18"
+            className="mt-8 inline-flex h-14 items-center justify-center gap-2 rounded-full border border-foreground bg-background px-6 text-base font-extrabold"
           >
-            <Plus className="size-4" />
+            <Plus className="size-5" />
             사람 추가
           </Link>
         </div>
-      </AppShell>
+      </RecordFrame>
     )
   }
 
   if (isEditing && !eventQuery.data) {
     return (
-      <AppShell activePath="/record" layout="fixed" className="px-0">
-        {recordHeader}
-        <p className="px-5 py-20 text-center text-sm text-muted-foreground">
+      <RecordFrame
+        headerTitle="기록"
+        onFinish={handleSave}
+        onNext={handleNext}
+        nextDisabled
+        finishDisabled
+        showNext={false}
+        saving={false}
+      >
+        <p className="py-24 text-center text-sm text-muted-foreground">
           기록을 찾을 수 없어요.
         </p>
-      </AppShell>
+      </RecordFrame>
     )
   }
 
   return (
-    <AppShell activePath="/record" layout="fixed" className="px-0">
-      {recordHeader}
+    <RecordFrame
+      headerTitle={primaryPerson ? `${primaryPerson.name}님` : '기록'}
+      onFinish={handleSave}
+      onNext={handleNext}
+      nextDisabled={currentStep === 'person' && !primaryPerson}
+      finishDisabled={!primaryPerson}
+      showNext={Boolean(nextStep)}
+      saving={saveMutation.isPending}
+      error={formError}
+      savedLocally={savedLocally}
+    >
+      <funnel.Render
+        person={() => <PersonStep person={primaryPerson} />}
+        emotion={() => (
+          <EmotionStep
+            chips={emotionChips}
+            selectedIds={selectedEmotionChipIds}
+            onToggle={toggleEmotion}
+          />
+        )}
+        letter={() => (
+          <LetterStep
+            note={note}
+            onChange={setNote}
+            photoUrls={photoUrls}
+            uploadingPhoto={uploadingPhoto}
+            photoInputRef={photoInputRef}
+            onPhotoPick={handlePhotoPick}
+            onPhotoRemove={(url) =>
+              setPhotoUrls((prev) => prev.filter((u) => u !== url))
+            }
+          />
+        )}
+        detail={() => (
+          <DetailStep
+            categoryChips={categoryChips}
+            categoryChipId={resolvedCategoryChipId}
+            onCategoryChange={setCategoryChipId}
+            occurredDate={occurredDate}
+            onOccurredDateChange={setOccurredDate}
+            occurredTime={occurredTime}
+            onOccurredTimeChange={setOccurredTime}
+          />
+        )}
+      />
+    </RecordFrame>
+  )
+}
 
-      <div className={scrollBodyClass}>
-        <div className="flex flex-col gap-5 px-5 pb-8">
+function RecordFrame({
+  headerTitle,
+  children,
+  onFinish,
+  onNext,
+  nextDisabled,
+  finishDisabled,
+  showNext,
+  saving,
+  error,
+  savedLocally,
+}: {
+  headerTitle: string
+  children: React.ReactNode
+  onFinish: () => void
+  onNext: () => void
+  nextDisabled: boolean
+  finishDisabled: boolean
+  showNext: boolean
+  saving: boolean
+  error?: string | null
+  savedLocally?: boolean
+}) {
+  return (
+    <AppShell activePath="/record" withNav={false} className="px-0 pt-0 pb-0">
+      <div className="flex min-h-dvh flex-col bg-[#fbfaf7]">
+        <div className="grid grid-cols-[2.5rem_1fr_3.25rem] items-center px-5 pt-[max(1rem,env(safe-area-inset-top))]">
+          <Link
+            to="/"
+            className="flex size-10 items-center justify-center rounded-full text-muted-foreground"
+            aria-label="닫기"
+          >
+            <ChevronLeft className="size-6" />
+          </Link>
+          <p className="font-record-hand truncate text-center text-lg leading-[1.35] text-foreground">
+            {headerTitle}
+          </p>
           <button
             type="button"
-            onClick={() => openPersonModal()}
-            className="text-left"
+            aria-label={saving ? '저장 중' : '저장'}
+            disabled={saving || finishDisabled}
+            onClick={onFinish}
+            className="ml-auto flex size-10 items-center justify-center rounded-full text-foreground disabled:text-muted-foreground"
           >
-            {primaryPerson ? (
-              <MonogramAvatar
-                name={primaryPerson.name}
-                imageUrl={primaryPerson.profileImageUrl}
-                gender={'gender' in primaryPerson ? primaryPerson.gender : null}
-                personId={primaryPerson.id}
-                className="size-9"
-              />
-            ) : (
-              <div className="flex size-9 items-center justify-center rounded-full border border-dashed border-muted-foreground text-muted-foreground">
-                ?
-              </div>
-            )}
-            <h2 className="mt-2 text-xl font-extrabold">{greeting.title}</h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {greeting.subtitle}
-            </p>
+            <Save className={cn('size-5', saving ? 'animate-pulse' : '')} />
           </button>
+        </div>
 
-          <section>
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-extrabold text-muted-foreground">
-                함께한 사람
-              </p>
-              <button
-                type="button"
-                onClick={() => openPersonModal()}
-                className="text-xs font-extrabold text-primary"
-              >
-                {selectedPersonIds.length > 0 ? '변경' : '선택'}
-              </button>
-            </div>
-            {selectedPersons.length > 0 ? (
-              <button
-                type="button"
-                onClick={() => openPersonModal()}
-                className="flex w-full items-center gap-2 rounded-lg border border-border bg-card p-3 text-left"
-              >
-                <div className="flex -space-x-2">
-                  {selectedPersons.slice(0, 3).map((person) => (
-                    <MonogramAvatar
-                      key={person.id}
-                      name={person.name}
-                      imageUrl={person.profileImageUrl}
-                      gender={'gender' in person ? person.gender : null}
-                      personId={person.id}
-                      className="size-9 ring-2 ring-card"
-                    />
-                  ))}
-                </div>
-                <p className="min-w-0 flex-1 truncate text-sm font-extrabold">
-                  {selectedPersons.length === 1
-                    ? selectedPersons[0].name
-                    : `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명`}
-                </p>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => openPersonModal(false)}
-                className={cn(
-                  'flex w-full items-center justify-center rounded-lg px-4 py-6 text-sm font-extrabold',
-                  personSelectError
-                    ? 'bg-destructive/10 text-destructive'
-                    : 'bg-primary/10 text-primary hover:bg-primary/15',
-                )}
-              >
-                사람을 선택해 주세요
-              </button>
-            )}
-          </section>
+        <div className={cn('flex-1 px-5 pt-8', showNext ? 'pb-28' : 'pb-8')}>
+          {children}
+        </div>
 
-          <ChipSection title="만남 태그">
-            <ToggleGroup
-              type="single"
-              value={categoryChipId ? String(categoryChipId) : undefined}
-              onValueChange={(v) => setCategoryChipId(v ? Number(v) : null)}
-              className="flex flex-wrap justify-start gap-2"
-            >
-              {categoryChips.map((chip) => (
-                <ToggleGroupItem
-                  key={chip.id}
-                  value={String(chip.id)}
-                  className={cn(
-                    tagChipBaseClass,
-                    'border-border bg-card data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
-                  )}
-                >
-                  {chip.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </ChipSection>
-
-          <section>
-            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              제목
+        <div className="fixed right-0 bottom-0 left-0 z-40 mx-auto max-w-md bg-[#fbfaf7]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+          {error ? (
+            <p className="px-5 pt-3 text-center text-base text-destructive">
+              {error}
             </p>
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={40}
-                className="border-0 bg-transparent text-xs shadow-none placeholder:text-xs focus-visible:ring-0 md:text-xs"
-                placeholder="제목을 입력해주세요"
-              />
-              {categoryLabel ? (
-                <Badge variant="secondary">{categoryLabel}</Badge>
-              ) : null}
-            </div>
-          </section>
-
-          <section>
-            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              메모
-            </p>
-            <Textarea
-              value={memo}
-              onChange={(e) => setMemo(e.target.value)}
-              maxLength={200}
-              placeholder="오늘 함께한 이야기를 적어주세요"
-              className="min-h-24 resize-none text-xs placeholder:text-xs md:text-xs"
-            />
-          </section>
-
-          <section>
-            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              언제
-            </p>
-            <div className="flex gap-2">
-              <Input
-                type="date"
-                value={occurredDate}
-                onChange={(e) => setOccurredDate(e.target.value)}
-                className="flex-1 text-xs placeholder:text-xs md:text-xs"
-              />
-              <Input
-                type="time"
-                value={occurredTime}
-                onChange={(e) => setOccurredTime(e.target.value)}
-                className="w-[8.5rem] text-xs placeholder:text-xs md:text-xs"
-              />
-            </div>
-          </section>
-
-          <section>
-            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              사진
-            </p>
-            <input
-              ref={photoInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/heic"
-              className="hidden"
-              onChange={(e) => {
-                void handlePhotoPick(e.target.files?.[0] ?? null)
-                e.target.value = ''
-              }}
-            />
-            <div className="flex flex-wrap gap-2">
-              {photoUrls.map((url) => {
-                const src = mediaUrl(url)
-                return (
-                  <div key={url} className="relative size-16">
-                    {src ? (
-                      <img
-                        src={src}
-                        alt=""
-                        className="size-16 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <div className="flex size-16 items-center justify-center rounded-lg bg-muted text-[10px] font-bold text-muted-foreground">
-                        PHOTO
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setPhotoUrls((prev) => prev.filter((u) => u !== url))
-                      }
-                      className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-foreground text-background"
-                      aria-label="사진 삭제"
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </div>
-                )
-              })}
-              {photoUrls.length < 5 ? (
-                <Button
-                  variant="outline"
-                  className="size-16 rounded-lg border-dashed text-2xl"
-                  type="button"
-                  disabled={uploadingPhoto}
-                  onClick={() => photoInputRef.current?.click()}
-                >
-                  {uploadingPhoto ? '…' : '＋'}
-                </Button>
-              ) : null}
-            </div>
-          </section>
-
-          {formError ? (
-            <p className="text-center text-xs text-destructive">{formError}</p>
           ) : null}
-
           {savedLocally ? (
-            <p className="text-center text-xs text-muted-foreground">
+            <p className="px-5 pt-3 text-center text-base text-muted-foreground">
               서버에 저장하지 못했지만 기록 화면은 열어둘게요.
             </p>
           ) : null}
+          {showNext ? (
+            <button
+              type="button"
+              className="relative h-14 w-full bg-foreground text-lg font-bold text-background disabled:bg-muted disabled:text-muted-foreground"
+              disabled={saving || nextDisabled}
+              onClick={onNext}
+            >
+              <span className="-translate-x-2 inline-block">이어서</span>
+              <ChevronRight className="absolute top-1/2 right-5 size-5 -translate-y-1/2" />
+            </button>
+          ) : null}
         </div>
       </div>
-
-      <PersonSelectModal
-        open={personModalOpen}
-        onOpenChange={setPersonModalOpen}
-        persons={persons}
-        selectedIds={selectedPersonIds}
-        dismissible={personModalDismissible}
-        onConfirm={(ids) => {
-          setSelectedPersonIds(ids)
-          setPersonSelectError(false)
-          setFormError(null)
-          setPersonModalDismissible(true)
-        }}
-      />
     </AppShell>
   )
 }
 
-function ChipSection({
-  title,
-  children,
+function PersonStep({ person }: { person: PersonResponse | null }) {
+  if (!person) {
+    return (
+      <section className="flex min-h-[58dvh] flex-col items-center justify-center text-center">
+        <p className="text-3xl font-extrabold tracking-tight">
+          기록할 사람이 없어요
+        </p>
+        <p className="mt-3 text-sm font-bold text-muted-foreground">
+          사람을 추가하면 바로 남길 수 있어요.
+        </p>
+      </section>
+    )
+  }
+
+  const relationText =
+    [person.relationType, person.relationTags[0]?.label, '함께한 사람'].find(
+      Boolean,
+    ) ?? '함께한 사람'
+
+  return (
+    <section className="flex min-h-[72dvh] flex-col items-center justify-center text-center">
+      <div className="relative">
+        <MonogramAvatar
+          name={person.name}
+          imageUrl={person.profileImageUrl}
+          favorite={person.favorite}
+          gender={person.gender}
+          personId={person.id}
+          useDefaultImage={false}
+          className="size-[min(76vw,20rem)] border-2 shadow-sm"
+          fallbackClassName="text-[7rem]"
+          favoriteClassName="-top-3 -right-2 text-4xl"
+        />
+      </div>
+      <p className="mt-8 max-w-[18rem] text-lg leading-tight text-muted-foreground">
+        {relationText}
+      </p>
+    </section>
+  )
+}
+
+function EmotionStep({
+  chips,
+  selectedIds,
+  onToggle,
 }: {
-  title: string
-  children: React.ReactNode
+  chips: Array<{ id: number; label: string }>
+  selectedIds: number[]
+  onToggle: (id: number) => void
+}) {
+  const selectedStems = chips
+    .filter((chip) => selectedIds.includes(chip.id))
+    .map((chip) => getEmotionSentenceStem(chip.label))
+  const sentenceValue =
+    selectedStems.length > 0
+      ? selectedStems.join(', ')
+      : '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0'
+
+  return (
+    <section>
+      <h1 className="whitespace-nowrap text-[2rem] font-medium leading-[1.2] text-foreground">
+        오늘은{' '}
+        <span className="inline-block min-w-24 border-b-2 border-foreground px-1 text-center">
+          {sentenceValue}
+        </span>
+        다.
+      </h1>
+      {chips.length > 0 ? (
+        <div className="mt-10 flex flex-wrap gap-3">
+          {chips.map((chip, index) => {
+            const selected = selectedIds.includes(chip.id)
+            const colorClass = EMOTION_CHIP_COLOR_CLASSES[index % 4]
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => onToggle(chip.id)}
+                className={cn(
+                  'font-record-hand inline-flex min-h-12 items-center rounded-full px-5 text-xl leading-none shadow-sm transition-transform active:scale-[0.99]',
+                  colorClass,
+                  selected ? 'ring-2 ring-foreground' : '',
+                )}
+                aria-pressed={selected}
+              >
+                <span className="relative z-10">
+                  {getEmotionSentenceStem(chip.label)}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      ) : (
+        <p className="mt-10 text-xl text-muted-foreground">
+          감정 칩을 불러오는 중이에요.
+        </p>
+      )}
+    </section>
+  )
+}
+
+const EMOTION_CHIP_COLOR_CLASSES = [
+  'bg-[#ffe28a] text-[#1f1b10]',
+  'bg-[#bfe8b8] text-[#132015]',
+  'bg-[#bfd6ff] text-[#111b2a]',
+  'bg-[#e8c4ff] text-[#22152a]',
+]
+
+function LetterStep({
+  note,
+  onChange,
+  photoUrls,
+  uploadingPhoto,
+  photoInputRef,
+  onPhotoPick,
+  onPhotoRemove,
+}: {
+  note: string
+  onChange: (value: string) => void
+  photoUrls: string[]
+  uploadingPhoto: boolean
+  photoInputRef: React.RefObject<HTMLInputElement | null>
+  onPhotoPick: (file: File | null) => void
+  onPhotoRemove: (url: string) => void
 }) {
   return (
     <section>
-      <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-        {title}
+      <PaperField
+        value={note}
+        onChange={onChange}
+        placeholder="[오늘 있었던 일]"
+        minHeightClassName="min-h-[17rem]"
+      />
+      <p className="mt-2 text-right text-xs font-bold text-muted-foreground">
+        {note.length}/{NOTE_MAX}
       </p>
-      {children}
+
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/heic"
+        className="hidden"
+        onChange={(e) => {
+          onPhotoPick(e.target.files?.[0] ?? null)
+          e.target.value = ''
+        }}
+      />
+      <div className="mt-6">
+        {photoUrls.length > 0 ? (
+          <div className="mb-3 flex flex-wrap gap-3">
+            {photoUrls.map((url) => {
+              const src = mediaUrl(url)
+              return (
+                <div key={url} className="relative size-24">
+                  {src ? (
+                    <img
+                      src={src}
+                      alt=""
+                      className="size-24 rounded-[1.25rem] object-cover"
+                    />
+                  ) : (
+                    <div className="flex size-24 items-center justify-center rounded-[1.25rem] bg-muted text-[10px] font-bold text-muted-foreground">
+                      PHOTO
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => onPhotoRemove(url)}
+                    className="absolute -top-1.5 -right-1.5 flex size-6 items-center justify-center rounded-full bg-foreground text-background"
+                    aria-label="사진 삭제"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        ) : null}
+        {photoUrls.length < 5 ? (
+          <button
+            type="button"
+            disabled={uploadingPhoto}
+            onClick={() => photoInputRef.current?.click()}
+            className="flex min-h-36 w-full flex-col items-center justify-center gap-2 rounded-[1.25rem] border border-dashed border-border bg-background text-lg font-medium disabled:opacity-50"
+            aria-label="사진 추가"
+          >
+            {uploadingPhoto ? (
+              '…'
+            ) : (
+              <>
+                <ImagePlus className="size-12 stroke-[1.5]" />
+                <span>사진 추가</span>
+              </>
+            )}
+          </button>
+        ) : null}
+      </div>
     </section>
+  )
+}
+
+function DetailStep({
+  categoryChips,
+  categoryChipId,
+  onCategoryChange,
+  occurredDate,
+  onOccurredDateChange,
+  occurredTime,
+  onOccurredTimeChange,
+}: {
+  categoryChips: Array<{ id: number; label: string }>
+  categoryChipId: number | null
+  onCategoryChange: (id: number | null) => void
+  occurredDate: string
+  onOccurredDateChange: (value: string) => void
+  occurredTime: string
+  onOccurredTimeChange: (value: string) => void
+}) {
+  return (
+    <section>
+      <div className="flex flex-col gap-10">
+        <section>
+          <div className="mb-3">
+            <SectionLabel>종류</SectionLabel>
+          </div>
+          <ToggleGroup
+            type="single"
+            value={categoryChipId ? String(categoryChipId) : undefined}
+            onValueChange={(v) => onCategoryChange(v ? Number(v) : null)}
+            className="grid grid-cols-2 gap-3"
+          >
+            {categoryChips.map((chip) => (
+              <ToggleGroupItem
+                key={chip.id}
+                value={String(chip.id)}
+                className={cn(
+                  tagChipBaseClass,
+                  'min-h-14 justify-center rounded-[1rem] border-border bg-background px-4 text-lg font-normal data-[state=on]:border-foreground data-[state=on]:bg-foreground data-[state=on]:text-background',
+                )}
+              >
+                {chip.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </section>
+
+        <section>
+          <SectionLabel className="mb-4">언제</SectionLabel>
+          <RecordDatePicker
+            value={occurredDate}
+            onChange={onOccurredDateChange}
+          />
+          <TimeWheelPicker
+            value={occurredTime}
+            onChange={onOccurredTimeChange}
+          />
+        </section>
+      </div>
+    </section>
+  )
+}
+
+function SectionLabel({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <h2
+      className={cn(
+        'text-2xl font-normal leading-none text-foreground',
+        className,
+      )}
+    >
+      {children}
+    </h2>
+  )
+}
+
+function RecordDatePicker({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  const dateOptions = useMemo(() => getRecordDateOptions(), [])
+  return (
+    <div className="grid grid-cols-5 gap-2">
+      {dateOptions.map((option) => {
+        const selected = option.value === value
+        return (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => onChange(option.value)}
+            className={cn(
+              'flex min-h-24 flex-col items-center justify-center rounded-[1.4rem] bg-background px-2 shadow-sm transition-colors',
+              selected ? 'bg-foreground text-background' : 'text-foreground',
+            )}
+            aria-pressed={selected}
+          >
+            <span className="text-lg leading-none">{option.label}</span>
+            <span className="mt-2 text-3xl leading-none">{option.day}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function TimeWheelPicker({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  const [hour, minute] = splitRecordTime(value)
+  const setHour = (nextHour: string) => {
+    onChange(`${nextHour}:${minute ?? '00'}`)
+  }
+  const setMinute = (nextMinute: string) => {
+    onChange(`${hour ?? '12'}:${nextMinute}`)
+  }
+
+  return (
+    <div className="mt-5 rounded-[1.4rem] bg-background px-5 py-4 shadow-sm">
+      <div className="grid grid-cols-2 gap-3">
+        <WheelColumn
+          label="시"
+          options={TIME_WHEEL_HOURS}
+          selected={hour}
+          onSelect={setHour}
+        />
+        <WheelColumn
+          label="분"
+          options={TIME_WHEEL_MINUTES}
+          selected={minute}
+          onSelect={setMinute}
+        />
+      </div>
+    </div>
+  )
+}
+
+function WheelColumn({
+  label,
+  options,
+  selected,
+  onSelect,
+}: {
+  label: string
+  options: string[]
+  selected: string | null
+  onSelect: (value: string) => void
+}) {
+  return (
+    <div>
+      <p className="mb-2 text-center text-xl text-muted-foreground">{label}</p>
+      <div className="max-h-40 snap-y overflow-y-auto rounded-[1.1rem] bg-[#fbfaf7] py-2">
+        {options.map((option) => {
+          const active = option === selected
+          return (
+            <button
+              key={option}
+              type="button"
+              onClick={() => onSelect(option)}
+              className={cn(
+                'block h-12 w-full snap-center text-center transition-colors',
+                active
+                  ? 'text-[2rem] font-semibold leading-none text-foreground'
+                  : 'text-xl text-muted-foreground',
+              )}
+            >
+              {option}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+const TIME_WHEEL_HOURS = Array.from({ length: 24 }, (_, index) =>
+  String(index).padStart(2, '0'),
+)
+const TIME_WHEEL_MINUTES = Array.from({ length: 12 }, (_, index) =>
+  String(index * 5).padStart(2, '0'),
+)
+
+function splitRecordTime(value: string): [string | null, string | null] {
+  const [hour, minute] = value.split(':')
+  return [hour || null, minute || null]
+}
+
+function PaperField({
+  value,
+  onChange,
+  placeholder,
+  minHeightClassName,
+}: {
+  value: string
+  onChange: (value: string) => void
+  placeholder: string
+  minHeightClassName: string
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-[1.35rem] border border-foreground/10 bg-background px-5 py-4 shadow-sm">
+      <div
+        className="pointer-events-none absolute inset-x-5 top-4 bottom-4 opacity-70"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(178deg, transparent 0, transparent 27px, rgba(0, 0, 0, 0.08) 28px)',
+        }}
+      />
+      <Textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        maxLength={NOTE_MAX}
+        placeholder={placeholder}
+        className={cn(
+          'font-record-hand relative z-10 resize-none border-0 bg-transparent px-0 py-0 text-[1.125rem] leading-7 shadow-none placeholder:text-[1.125rem] placeholder:text-foreground/35 focus-visible:ring-0',
+          minHeightClassName,
+        )}
+      />
+    </div>
   )
 }

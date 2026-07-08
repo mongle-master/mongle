@@ -1,5 +1,5 @@
 const TITLE_MAX = 40
-const TEXT_MAX = 200
+const TEXT_MAX = 120
 const PHOTO_MAX = 5
 
 export function validateRecordForm(data: {
