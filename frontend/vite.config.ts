@@ -22,12 +22,14 @@ const config = defineConfig({
   },
   server: {
     proxy: {
+      // 백엔드 로컬 기본 포트 8080 (backend/docs/runbook/local.md 기준).
+      // 도커·bootRun 모두 8080 → 프론트는 /api·/images를 이 포트로 프록시한다.
       '/api': {
-        target: 'http://localhost:18080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
       },
       '/images': {
-        target: 'http://localhost:18080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
       },
     },

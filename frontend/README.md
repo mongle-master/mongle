@@ -1,12 +1,20 @@
-Welcome to your new TanStack Start app!
+# mongle-frontend
+
+관계도감(mongle) 프론트엔드 — TanStack Start + Vite.
+
+> **전체 스택(프론트+백엔드)을 한 번에 띄우려면 루트 [README.md](../README.md)를 따르라.** 이 문서는 프론트 단독 실행·개발 참조다.
 
 # Getting Started
+
+전제:
+- **Node 20+ · pnpm 10+** (pnpm 없으면 `npm i -g pnpm`)
+- **백엔드가 8080에서 떠 있어야** 데이터가 보인다. 프론트는 `/api`·`/images`를 `localhost:8080`으로 프록시한다(`vite.config.ts`). 백엔드 기동은 루트 README 또는 [backend/docs/runbook/local.md](../backend/docs/runbook/local.md) 참조.
 
 To run this application:
 
 ```bash
 pnpm install
-pnpm dev
+pnpm dev            # http://localhost:3000
 ```
 
 # Building For Production
