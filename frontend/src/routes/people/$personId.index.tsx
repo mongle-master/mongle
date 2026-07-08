@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Star } from 'lucide-react'
+import { ChevronRight, Star } from 'lucide-react'
 import { AppShell } from '@/components/layout/app-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +10,8 @@ import { Separator } from '@/components/ui/separator'
 import { fetchPersonTimeline } from '@/lib/api/events'
 import { fetchPerson, togglePersonFavorite } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
+import type { EventResponse } from '@/lib/api/types'
+import { mediaUrl } from '@/lib/api/client'
 import {
   fallbackPersonDetail,
   fallbackPersonTimeline,
@@ -18,6 +20,7 @@ import {
   formatAbsoluteDate,
   formatBirthday,
   formatDaysSinceFirstMet,
+  formatEventDate,
 } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
@@ -175,18 +178,9 @@ function PersonProfilePage() {
               전체 보기
             </Link>
           </div>
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-2.5">
             {recentEvents.map((event) => (
-              <li
-                key={event.id}
-                className="rounded-lg border border-border bg-muted/30 px-3 py-2"
-              >
-                <p className="text-sm font-extrabold">{event.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatAbsoluteDate(event.occurredDate)}
-                  {event.category ? ` · ${event.category.label}` : ''}
-                </p>
-              </li>
+              <RecentEventCard key={event.id} event={event} />
             ))}
           </ul>
         </Card>
@@ -223,6 +217,59 @@ function PersonProfilePage() {
         </Button>
       </div>
     </AppShell>
+  )
+}
+
+function RecentEventCard({ event }: { event: EventResponse }) {
+  const { date } = formatEventDate(event.occurredDate)
+  const [month, day] = date.split('.')
+  const photoSrc = mediaUrl(event.photoUrls[0])
+  const summary = event.why || event.what
+
+  return (
+    <li>
+      <Link
+        to="/record"
+        search={{ eventId: event.id, personId: undefined }}
+        className="group flex min-w-0 items-center gap-3 rounded-lg border border-border/80 bg-background px-3 py-2.5 shadow-xs transition-colors hover:bg-muted/40"
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <p className="truncate text-sm font-extrabold">{event.title}</p>
+            {event.category ? (
+              <Badge variant="secondary" className="h-6 shrink-0 px-2 text-xs">
+                {event.category.label}
+              </Badge>
+            ) : null}
+          </div>
+          <p className="mt-0.5 text-xs font-medium text-muted-foreground">
+            {formatAbsoluteDate(event.occurredDate)}
+          </p>
+          {summary ? (
+            <p className="mt-1 line-clamp-1 text-xs text-foreground/80">
+              {summary}
+            </p>
+          ) : null}
+        </div>
+        {photoSrc ? (
+          <div className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+            <img
+              src={photoSrc}
+              alt="최근 기록 사진"
+              className="size-full object-cover"
+              loading="lazy"
+            />
+            {event.photoUrls.length > 1 ? (
+              <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1 py-0.5 text-[9px] font-extrabold text-background">
+                +{event.photoUrls.length - 1}
+              </span>
+            ) : null}
+          </div>
+        ) : (
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        )}
+      </Link>
+    </li>
   )
 }
 
