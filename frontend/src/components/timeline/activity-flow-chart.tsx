@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import {
   ACTIVITY_FLOW_PERIOD_OPTIONS,
   buildRecordActivityFlow,
@@ -43,11 +44,17 @@ export function ActivityFlowChart({
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            className="rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground"
+            className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground"
             aria-expanded={menuOpen}
             aria-haspopup="listbox"
           >
             {periodLabel}
+            <ChevronDown
+              className={cn(
+                'size-3 text-muted-foreground transition-transform',
+                menuOpen && 'rotate-180',
+              )}
+            />
           </button>
           {menuOpen ? (
             <ul
