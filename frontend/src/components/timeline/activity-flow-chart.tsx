@@ -29,6 +29,15 @@ export function ActivityFlowChart({
 
   const periodLabel =
     ACTIVITY_FLOW_PERIOD_OPTIONS.find((o) => o.value === period)?.label ?? '1년'
+  const axisLabelClass = (position: number) =>
+    cn(
+      'absolute text-[10px] leading-none font-bold text-muted-foreground whitespace-nowrap',
+      position <= 0.02
+        ? 'translate-x-0 text-left'
+        : position >= 0.98
+          ? '-translate-x-full text-right'
+          : '-translate-x-1/2 text-center',
+    )
 
   return (
     <div className="rounded-lg border border-border bg-card p-3.5">
@@ -128,7 +137,7 @@ export function ActivityFlowChart({
           <span
             key={`${label.text}-${label.position}`}
             style={{ left: `${label.position * 100}%` }}
-            className="absolute -translate-x-1/2 text-[10px] font-bold text-muted-foreground"
+            className={axisLabelClass(label.position)}
           >
             {label.text}
           </span>
