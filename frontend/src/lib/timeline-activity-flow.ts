@@ -106,28 +106,19 @@ function positionOf(date: Date, start: Date, end: Date) {
 }
 
 function buildMonthAxisLabels(start: Date, end: Date) {
-  const labels: ActivityFlowAxisLabel[] = []
   const months =
     (end.getFullYear() - start.getFullYear()) * 12 +
     end.getMonth() -
     start.getMonth() +
     1
-  const maxLabels = 6
-  const labelIndexes =
-    months <= maxLabels
-      ? Array.from({ length: months }, (_, index) => index)
-      : Array.from({ length: maxLabels }, (_, index) =>
-          Math.round((index * (months - 1)) / (maxLabels - 1)),
-        )
 
-  for (const index of [...new Set(labelIndexes)]) {
+  return Array.from({ length: months }, (_, index) => {
     const tick = localDate(start.getFullYear(), start.getMonth() + 1 + index, 1)
-    labels.push({
+    return {
       text: `${tick.getMonth() + 1}월`,
-      position: positionOf(tick, start, end),
-    })
-  }
-  return labels
+      position: months === 1 ? 0.5 : index / (months - 1),
+    }
+  })
 }
 
 function buildYearAxisLabels(start: Date, end: Date) {
