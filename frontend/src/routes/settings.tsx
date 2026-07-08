@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { Check, Moon, Pencil, Plus, Sun, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { AppShell } from '@/components/layout/app-shell'
 import { MongleLogo } from '@/components/brand/mongle-logo'
+import { useTheme } from '@/components/theme-provider'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -40,11 +41,46 @@ function SettingsPage() {
 
       <TagManagementSection />
 
+      <ThemeSettingSection />
+
       <Card className="mt-6 p-4">
         <p className="font-extrabold">앱 정보</p>
         <p className="mt-1 text-sm text-muted-foreground">Mongle MVP</p>
       </Card>
     </AppShell>
+  )
+}
+
+function ThemeSettingSection() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <Card className="mt-6 p-4">
+      <p className="font-extrabold">화면 모드</p>
+      <p className="mt-1 mb-3 text-sm text-muted-foreground">
+        앱 화면을 라이트모드 또는 다크모드로 전환해요
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          type="button"
+          variant={theme === 'light' ? 'default' : 'outline'}
+          className="justify-start gap-2"
+          onClick={() => setTheme('light')}
+        >
+          <Sun className="size-4" />
+          라이트모드
+        </Button>
+        <Button
+          type="button"
+          variant={theme === 'dark' ? 'default' : 'outline'}
+          className="justify-start gap-2"
+          onClick={() => setTheme('dark')}
+        >
+          <Moon className="size-4" />
+          다크모드
+        </Button>
+      </div>
+    </Card>
   )
 }
 
