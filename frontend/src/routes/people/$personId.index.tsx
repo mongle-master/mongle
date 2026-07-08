@@ -2,7 +2,6 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Star } from 'lucide-react'
 import { AppShell } from '@/components/layout/app-shell'
-import { PersonTabs } from '@/components/timeline/person-tabs'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -81,8 +80,6 @@ function PersonProfilePage() {
 
   return (
     <AppShell activePath="/people">
-      <PersonTabs personId={personId} active="profile" />
-
       <div className="flex items-start gap-4">
         <MonogramAvatar
           name={person.name}

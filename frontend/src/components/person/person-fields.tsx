@@ -118,6 +118,13 @@ export function RelationTypeField({
   value: string
   onChange: (value: string) => void
 }) {
+  // 제안 칩 선택값과 "새 태그" 입력은 별개. 제안에 있는 값이면 input은 비워 둔다.
+  const [draft, setDraft] = useState(() =>
+    (RELATION_TYPE_SUGGESTIONS as readonly string[]).includes(value)
+      ? ''
+      : value,
+  )
+
   return (
     <div>
       <FieldLabel htmlFor="relationType">만남 태그</FieldLabel>
@@ -126,10 +133,13 @@ export function RelationTypeField({
           <button
             key={suggestion}
             type="button"
-            onClick={() => onChange(suggestion)}
+            onClick={() => {
+              onChange(suggestion)
+              setDraft('')
+            }}
             className={cn(
               'rounded-full border px-3 py-1.5 text-xs font-bold',
-              value === suggestion
+              value === suggestion && draft === ''
                 ? 'border-primary bg-primary text-primary-foreground'
                 : 'border-border bg-card',
             )}
@@ -140,8 +150,12 @@ export function RelationTypeField({
       </div>
       <Input
         id="relationType"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={draft}
+        onChange={(e) => {
+          const next = e.target.value
+          setDraft(next)
+          onChange(next)
+        }}
         placeholder="새 태그(10자 이내)"
         className="mt-2"
         maxLength={10}

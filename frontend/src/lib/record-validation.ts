@@ -1,6 +1,5 @@
 const TITLE_MAX = 40
 const TEXT_MAX = 100
-const EMOTION_MAX = 5
 const PHOTO_MAX = 5
 
 export function validateRecordForm(data: {
@@ -8,7 +7,6 @@ export function validateRecordForm(data: {
   title: string
   why: string
   what: string
-  emotionChipIds: number[]
   photoUrls: string[]
   occurredDate: string
 }) {
@@ -20,9 +18,6 @@ export function validateRecordForm(data: {
   }
   if (data.why.length > TEXT_MAX || data.what.length > TEXT_MAX) {
     return `최대 ${TEXT_MAX}자까지 쓸 수 있어요.`
-  }
-  if (data.emotionChipIds.length > EMOTION_MAX) {
-    return `감정은 최대 ${EMOTION_MAX}개까지 고를 수 있어요.`
   }
   if (data.photoUrls.length > PHOTO_MAX) {
     return `사진은 최대 ${PHOTO_MAX}장까지 넣을 수 있어요.`

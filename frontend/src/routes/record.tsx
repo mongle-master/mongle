@@ -60,8 +60,6 @@ function RecordPage() {
   const [personModalDismissible, setPersonModalDismissible] = useState(true)
   const [personSelectError, setPersonSelectError] = useState(false)
   const [categoryChipId, setCategoryChipId] = useState<number | null>(null)
-  const [emotionChipIds, setEmotionChipIds] = useState<number[]>([])
-  const [weatherChipId, setWeatherChipId] = useState<number | null>(null)
   const [title, setTitle] = useState('')
   const [why, setWhy] = useState('')
   const [what, setWhat] = useState('')
@@ -96,12 +94,8 @@ function RecordPage() {
   const persons = personsQuery.data ?? []
   const chips = chipsQuery.data
 
-  const chipsByType = useMemo(
-    () => ({
-      category: chips.filter((c) => c.type === 'CATEGORY'),
-      emotion: chips.filter((c) => c.type === 'EMOTION'),
-      weather: chips.filter((c) => c.type === 'WEATHER'),
-    }),
+  const categoryChips = useMemo(
+    () => chips.filter((c) => c.type === 'CATEGORY'),
     [chips],
   )
 
@@ -122,8 +116,9 @@ function RecordPage() {
   const primaryPerson = selectedPersons.at(0)
 
   const categoryLabel =
-    chipsByType.category.find((c) => c.id === categoryChipId)?.label ??
-    chipsByType.category[0].label
+    categoryChips.find((c) => c.id === categoryChipId)?.label ??
+    categoryChips.at(0)?.label ??
+    ''
 
   const greeting = useMemo(() => {
     if (isEditing) {
@@ -149,7 +144,7 @@ function RecordPage() {
             랑 어땠어요?
           </>
         ),
-        subtitle: '감정만 골라도 돼요. 세 줄이면 충분해요.',
+        subtitle: '세 줄이면 충분해요.',
       }
     }
     return {
@@ -189,8 +184,6 @@ function RecordPage() {
     setOccurredDate(event.occurredDate)
     setOccurredTime(formatOccurredTimeForInput(event.occurredTime))
     setCategoryChipId(event.category?.id ?? null)
-    setWeatherChipId(event.weather?.id ?? null)
-    setEmotionChipIds(event.emotions.map((e) => e.id))
     setPhotoUrls(event.photoUrls)
   }, [editingEventId, eventQuery.data, isEditing])
 
@@ -241,9 +234,9 @@ function RecordPage() {
     what: what.trim() || null,
     occurredDate,
     occurredTime: formatOccurredTimeForApi(occurredTime),
-    categoryChipId: categoryChipId ?? chipsByType.category[0].id,
-    weatherChipId: weatherChipId,
-    emotionChipIds,
+    categoryChipId: categoryChipId ?? categoryChips.at(0)?.id ?? null,
+    weatherChipId: null,
+    emotionChipIds: [],
     personIds: selectedPersonIds,
     photoUrls,
   })
@@ -254,7 +247,6 @@ function RecordPage() {
       title: title.trim(),
       why: why.trim(),
       what: what.trim(),
-      emotionChipIds,
       photoUrls,
       occurredDate,
     })
@@ -420,30 +412,14 @@ function RecordPage() {
           )}
         </section>
 
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            제목
-          </p>
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              maxLength={40}
-              className="border-0 bg-transparent shadow-none focus-visible:ring-0"
-              placeholder="있었던 일을 짧게 적어도 좋아요"
-            />
-            <Badge variant="secondary">{categoryLabel}</Badge>
-          </div>
-        </section>
-
-        <ChipSection title="카테고리">
+        <ChipSection title="만남 태그">
           <ToggleGroup
             type="single"
             value={categoryChipId ? String(categoryChipId) : undefined}
             onValueChange={(v) => setCategoryChipId(v ? Number(v) : null)}
             className="flex flex-wrap justify-start gap-2"
           >
-            {chipsByType.category.map((chip) => (
+            {categoryChips.map((chip) => (
               <ToggleGroupItem
                 key={chip.id}
                 value={String(chip.id)}
@@ -455,67 +431,47 @@ function RecordPage() {
           </ToggleGroup>
         </ChipSection>
 
-        {chipsByType.emotion.length > 0 ? (
-          <ChipSection title="감정">
-            <ToggleGroup
-              type="multiple"
-              value={emotionChipIds.map(String)}
-              onValueChange={(values) =>
-                setEmotionChipIds(values.map(Number).slice(0, 5))
-              }
-              className="flex flex-wrap justify-start gap-2"
-            >
-              {chipsByType.emotion.map((chip) => (
-                <ToggleGroupItem
-                  key={chip.id}
-                  value={String(chip.id)}
-                  className="rounded-full border px-3.5 py-2 text-[13px] font-bold data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                >
-                  {chip.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </ChipSection>
-        ) : null}
-
-        {chipsByType.weather.length > 0 ? (
-          <ChipSection title="날씨">
-            <ToggleGroup
-              type="single"
-              value={weatherChipId ? String(weatherChipId) : undefined}
-              onValueChange={(v) => setWeatherChipId(v ? Number(v) : null)}
-              className="flex flex-wrap justify-start gap-2"
-            >
-              {chipsByType.weather.map((chip) => (
-                <ToggleGroupItem
-                  key={chip.id}
-                  value={String(chip.id)}
-                  className="rounded-full border px-3.5 py-2 text-[13px] font-bold data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                >
-                  {chip.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </ChipSection>
-        ) : null}
+        <section>
+          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
+            제목
+          </p>
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              maxLength={40}
+              className="border-0 bg-transparent text-xs shadow-none placeholder:text-xs focus-visible:ring-0 md:text-xs"
+              placeholder="제목을 입력해주세요"
+            />
+            {categoryLabel ? (
+              <Badge variant="secondary">{categoryLabel}</Badge>
+            ) : null}
+          </div>
+        </section>
 
         <section>
           <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            왜 / 무엇을
+            왜
           </p>
           <Textarea
             value={why}
             onChange={(e) => setWhy(e.target.value)}
             maxLength={100}
-            placeholder="왜 만났는지 (선택)"
-            className="mb-2 min-h-16 resize-none"
+            placeholder="왜 만났는지"
+            className="min-h-16 resize-none text-xs placeholder:text-xs md:text-xs"
           />
+        </section>
+
+        <section>
+          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
+            무엇을
+          </p>
           <Textarea
             value={what}
             onChange={(e) => setWhat(e.target.value)}
             maxLength={100}
-            placeholder="무엇을 했는지 (선택)"
-            className="min-h-16 resize-none"
+            placeholder="무엇을 했는지"
+            className="min-h-16 resize-none text-xs placeholder:text-xs md:text-xs"
           />
         </section>
 
@@ -528,13 +484,13 @@ function RecordPage() {
               type="date"
               value={occurredDate}
               onChange={(e) => setOccurredDate(e.target.value)}
-              className="flex-1"
+              className="flex-1 text-xs placeholder:text-xs md:text-xs"
             />
             <Input
               type="time"
               value={occurredTime}
               onChange={(e) => setOccurredTime(e.target.value)}
-              className="w-[8.5rem]"
+              className="w-[8.5rem] text-xs placeholder:text-xs md:text-xs"
             />
           </div>
         </section>

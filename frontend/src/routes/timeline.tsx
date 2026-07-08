@@ -1,86 +1,80 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
-import { AppShell } from '@/components/layout/app-shell'
-import { MongleLogo } from '@/components/brand/mongle-logo'
-import { MyTimelineCard } from '@/components/timeline/my-timeline-card'
+import { useMemo, useRef, useState } from 'react'
+import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
+import {
+  TimelineCategoryFilters,
+  TimelineFilterReset,
+  TimelinePersonFilters,
+} from '@/components/timeline/timeline-filters'
+import {
+  fromTimelineCard,
+  TimelineEventCard,
+} from '@/components/timeline/timeline-event-card'
 import { TimelineFeed } from '@/components/timeline/timeline-feed'
-import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell'
 import { Button } from '@/components/ui/button'
 import { fetchChips } from '@/lib/api/chips'
 import { fetchMyTimeline } from '@/lib/api/timeline'
 import { fetchPersons } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
-import {
-  FALLBACK_CHIPS,
-  FALLBACK_PERSONS,
-  fallbackMyTimeline,
-} from '@/lib/fallback-data'
+import { FALLBACK_CHIPS, FALLBACK_PERSONS } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
-import { cn } from '@/lib/utils'
-
-const filterChipClass = (selected: boolean) =>
-  cn(
-    'flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-bold',
-    selected
-      ? 'border-primary bg-primary text-primary-foreground'
-      : 'border-border bg-card text-foreground',
-  )
+import { flattenTimelineCards } from '@/lib/timeline-activity-flow'
 
 export const Route = createFileRoute('/timeline')({
   component: MyTimelinePage,
 })
 
 function MyTimelinePage() {
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [categoryFilter, setCategoryFilter] = useState<number[]>([])
   const [personFilter, setPersonFilter] = useState<number[]>([])
+  const [monthFilter, setMonthFilter] = useState<string | null>(null)
+
+  // 활동 흐름은 필터 없는 전체 `/api/v1/timeline` 응답에서 파생한다.
+  const allTimelineQuery = useQuery({
+    queryKey: queryKeys.myTimeline([], []),
+    queryFn: () => fetchMyTimeline(),
+  })
 
   const timelineQuery = useQuery({
     queryKey: queryKeys.myTimeline(categoryFilter, personFilter),
     queryFn: () =>
-      safeApi(
-        () =>
-          fetchMyTimeline({
-            categoryChipIds: categoryFilter,
-            personIds: personFilter,
-          }),
-        filterFallbackTimeline(categoryFilter, personFilter),
-      ),
-    initialData: fallbackMyTimeline(),
+      fetchMyTimeline({
+        categoryChipIds: categoryFilter,
+        personIds: personFilter,
+      }),
   })
 
   const chipsQuery = useQuery({
     queryKey: queryKeys.chips,
     queryFn: () => safeApi(fetchChips, FALLBACK_CHIPS),
-    initialData: FALLBACK_CHIPS,
   })
 
   const personsQuery = useQuery({
     queryKey: queryKeys.persons(),
     queryFn: () => safeApi(() => fetchPersons(), FALLBACK_PERSONS),
-    initialData: FALLBACK_PERSONS,
   })
 
-  const categoryChips = chipsQuery.data.filter((c) => c.type === 'CATEGORY')
-  const persons = personsQuery.data
-  const groups = timelineQuery.data.groups
-  const cards = useMemo(
-    () =>
-      groups
-        .flatMap((group) => group.cards)
-        .filter((card) => {
-          const categoryOk =
-            categoryFilter.length === 0 ||
-            (card.category && categoryFilter.includes(card.category.id))
-          const personOk =
-            personFilter.length === 0 ||
-            card.persons.some((person) => personFilter.includes(person.id))
-          return categoryOk && personOk
-        }),
-    [categoryFilter, groups, personFilter],
+  const categoryChips =
+    chipsQuery.data?.filter((c) => c.type === 'CATEGORY') ?? []
+  const persons = personsQuery.data ?? []
+
+  const allCards = useMemo(
+    () => flattenTimelineCards(allTimelineQuery.data?.groups ?? []),
+    [allTimelineQuery.data],
+  )
+  const flowDates = useMemo(
+    () => allCards.map((card) => card.occurredDate),
+    [allCards],
   )
 
-  const totalCards = cards.length
+  const cards = useMemo(() => {
+    const list = flattenTimelineCards(timelineQuery.data?.groups ?? [])
+    if (!monthFilter) return list
+    return list.filter((card) => card.occurredDate.startsWith(monthFilter))
+  }, [monthFilter, timelineQuery.data])
 
   const toggleCategory = (chipId: number) => {
     setCategoryFilter((prev) =>
@@ -98,80 +92,63 @@ function MyTimelinePage() {
     )
   }
 
-  const hasFilter = categoryFilter.length > 0 || personFilter.length > 0
+  const hasFilter =
+    categoryFilter.length > 0 || personFilter.length > 0 || monthFilter !== null
+
+  const resetFilters = () => {
+    setCategoryFilter([])
+    setPersonFilter([])
+    setMonthFilter(null)
+  }
 
   return (
-    <AppShell activePath="/timeline">
-      <header className="mb-4">
-        <MongleLogo className="text-foreground" />
-        <h1 className="mt-2 text-[22px] font-extrabold tracking-tight">
-          타임라인
-        </h1>
-        <p className="mt-1 text-xs text-muted-foreground">
-          모든 사람과의 기록을 시간순으로
-        </p>
-      </header>
-
-      <section className="mb-4">
-        <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-          카테고리
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {categoryChips.map((chip) => {
-            const selected = categoryFilter.includes(chip.id)
-            return (
-              <button
-                key={chip.id}
-                type="button"
-                onClick={() => toggleCategory(chip.id)}
-                className={filterChipClass(selected)}
-              >
-                {chip.label}
-              </button>
-            )
-          })}
+    <TimelineScrollShell
+      activePath="/timeline"
+      scrollRef={scrollRef}
+      header={
+        <>
+          <h1 className="text-[22px] font-extrabold tracking-tight">
+            나의 타임라인
+          </h1>
+          <p className="mt-1 text-xs text-muted-foreground">
+            모든 사람과의 기록을 시간순으로
+          </p>
+        </>
+      }
+    >
+      {allTimelineQuery.data ? (
+        <div className="mb-4">
+          <ActivityFlowChart
+            dates={flowDates}
+            selectedMonth={monthFilter}
+            onSelectMonth={setMonthFilter}
+          />
         </div>
-      </section>
+      ) : null}
 
-      <section className="mb-5">
-        <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-          사람
+      <TimelineCategoryFilters
+        chips={categoryChips}
+        selectedIds={categoryFilter}
+        onToggle={toggleCategory}
+      />
+
+      <TimelinePersonFilters
+        persons={persons}
+        selectedIds={personFilter}
+        onToggle={togglePerson}
+      />
+
+      <TimelineFilterReset visible={hasFilter} onReset={resetFilters} />
+
+      {timelineQuery.isPending ? (
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          타임라인을 불러오는 중…
         </p>
-        <div className="flex flex-wrap gap-2">
-          {persons.map((person) => {
-            const selected = personFilter.includes(person.id)
-            return (
-              <button
-                key={person.id}
-                type="button"
-                onClick={() => togglePerson(person.id)}
-                className={filterChipClass(selected)}
-              >
-                <MonogramAvatar
-                  name={person.name}
-                  imageUrl={person.profileImageUrl}
-                  className="size-6"
-                />
-                {person.name}
-              </button>
-            )
-          })}
-        </div>
-        {hasFilter ? (
-          <button
-            type="button"
-            onClick={() => {
-              setCategoryFilter([])
-              setPersonFilter([])
-            }}
-            className="mt-2 text-xs font-bold text-muted-foreground underline"
-          >
-            필터 초기화
-          </button>
-        ) : null}
-      </section>
-
-      {totalCards === 0 ? (
+      ) : timelineQuery.isError ? (
+        <p className="py-12 text-center text-sm text-destructive">
+          타임라인을 불러오지 못했어요.
+        </p>
+      ) : cards.length === 0 ? (
         <div className="py-12 text-center">
           <p className="text-sm text-muted-foreground">
             {hasFilter
@@ -191,35 +168,13 @@ function MyTimelinePage() {
         </div>
       ) : (
         <TimelineFeed
+          scrollRootRef={scrollRef}
           items={cards}
-          renderCard={(card) => <MyTimelineCard card={card} />}
+          renderCard={(card) => (
+            <TimelineEventCard item={fromTimelineCard(card)} />
+          )}
         />
       )}
-    </AppShell>
+    </TimelineScrollShell>
   )
-}
-
-function filterFallbackTimeline(
-  categoryChipIds: number[],
-  personIds: number[],
-) {
-  const all = fallbackMyTimeline()
-  if (categoryChipIds.length === 0 && personIds.length === 0) return all
-
-  return {
-    groups: all.groups
-      .map((group) => ({
-        ...group,
-        cards: group.cards.filter((card) => {
-          const categoryOk =
-            categoryChipIds.length === 0 ||
-            (card.category && categoryChipIds.includes(card.category.id))
-          const personOk =
-            personIds.length === 0 ||
-            card.persons.some((p) => personIds.includes(p.id))
-          return categoryOk && personOk
-        }),
-      }))
-      .filter((group) => group.cards.length > 0),
-  }
 }

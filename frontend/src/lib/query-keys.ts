@@ -7,7 +7,6 @@ export const queryKeys = {
   person: (id: number) => ['person', id] as const,
   personTimeline: (id: number, categoryChipIds?: number[]) =>
     ['person-timeline', id, categoryChipIds?.join(',') ?? ''] as const,
-  activityFlow: (id: number) => ['activity-flow', id] as const,
   myTimeline: (categoryChipIds?: number[], personIds?: number[]) =>
     [
       'my-timeline',

@@ -1,5 +1,6 @@
 export type HomePeriod = 'ALL' | '5Y' | '3Y' | '1Y' | '1M'
 
+/** 설정 탭 "홈에서 기본으로 보여줄 기간" 전용. 홈 탭에서 바꾼 기간은 저장하지 않는다. */
 export const HOME_PERIOD_STORAGE_KEY = 'mongle:home-default-period:v1'
 
 export const HOME_PERIOD_OPTIONS: Array<{ value: HomePeriod; label: string }> =

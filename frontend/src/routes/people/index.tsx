@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { Plus } from 'lucide-react'
+import { Plus, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { AppShell } from '@/components/layout/app-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
@@ -98,6 +98,15 @@ function PeopleListPage() {
                   .join(' · ') || '관계 정보 없음'}
               </p>
             </div>
+            <Star
+              className={cn(
+                'size-5 shrink-0',
+                person.favorite
+                  ? 'fill-foreground text-foreground'
+                  : 'text-muted-foreground',
+              )}
+              aria-hidden
+            />
           </Link>
         ))}
       </div>
