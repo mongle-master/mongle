@@ -42,6 +42,8 @@ data class PersonNode(
     val relationTags: List<ChipRef>,
     @field:Schema(description = "친밀도 판정 결과.")
     val intimacy: Intimacy,
+    @field:Schema(description = "처음 만난 날(없을 수 있음).", example = "2023-07-07")
+    val firstMetDate: LocalDate?,
 )
 
 /** 나↔인물 연결. distant=멀어진 관계면 프론트가 연결선·이름을 흐리게(#41). */

@@ -55,6 +55,7 @@ class HomeService(
                 favorite = person.favorite,
                 relationTags = tagChipIdsByPerson[person.id].orEmpty().mapNotNull { id -> tagLabels[id]?.let { ChipRef(id, it) } },
                 intimacy = intimacy,
+                firstMetDate = person.firstMetDate,
             )
         }
         val edges = nodes.map { RelationEdge(personId = it.id, distant = it.intimacy.status == IntimacyStatus.DISTANT) }
