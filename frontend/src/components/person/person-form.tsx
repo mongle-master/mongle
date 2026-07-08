@@ -25,6 +25,31 @@ function FieldLabel({
   )
 }
 
+function FavoriteToggle({
+  active,
+  onClick,
+}: {
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={active ? '즐겨찾기 해제' : '즐겨찾기'}
+      aria-pressed={active}
+      className={cn(
+        'absolute -top-1 -right-1 z-10 flex size-9 items-center justify-center rounded-full border border-border bg-background shadow-sm transition-colors',
+        active
+          ? 'text-amber-500'
+          : 'text-muted-foreground hover:text-foreground',
+      )}
+    >
+      <Star className={cn('size-5', active && 'fill-current')} />
+    </button>
+  )
+}
+
 export type PersonFormValues = {
   name: string
   profileImageUrl: string | null
@@ -233,48 +258,45 @@ export function PersonForm({
 
       {avatarPicker === 'circle' ? (
         <div className="flex flex-col items-center">
-          <button
-            type="button"
-            onClick={() => patch('favorite', !values.favorite)}
-            className="mb-2"
-            aria-label="즐겨찾기"
-          >
-            <Star
-              className={cn(
-                'size-6',
-                values.favorite
-                  ? 'fill-foreground text-foreground'
-                  : 'text-muted-foreground',
-              )}
+          <div className="relative">
+            <FavoriteToggle
+              active={values.favorite}
+              onClick={() => patch('favorite', !values.favorite)}
             />
-          </button>
-          <button
-            type="button"
-            disabled={uploading}
-            onClick={() => fileRef.current?.click()}
-            className="relative"
-            aria-label="프로필 사진 추가"
-          >
-            {values.profileImageUrl ? (
-              <MonogramAvatar
-                name={values.name || '?'}
-                imageUrl={values.profileImageUrl}
-                className="size-24"
-              />
-            ) : (
-              <div className="flex size-24 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground bg-muted/30 text-3xl font-normal text-muted-foreground">
-                {uploading ? '…' : '＋'}
-              </div>
-            )}
-          </button>
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={() => fileRef.current?.click()}
+              className="relative"
+              aria-label="프로필 사진 추가"
+            >
+              {values.profileImageUrl ? (
+                <MonogramAvatar
+                  name={values.name || '?'}
+                  imageUrl={values.profileImageUrl}
+                  className="size-24"
+                />
+              ) : (
+                <div className="flex size-24 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground bg-muted/30 text-3xl font-normal text-muted-foreground">
+                  {uploading ? '…' : '＋'}
+                </div>
+              )}
+            </button>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3">
-          <MonogramAvatar
-            name={values.name || '?'}
-            imageUrl={values.profileImageUrl}
-            className="size-24"
-          />
+          <div className="relative">
+            <FavoriteToggle
+              active={values.favorite}
+              onClick={() => patch('favorite', !values.favorite)}
+            />
+            <MonogramAvatar
+              name={values.name || '?'}
+              imageUrl={values.profileImageUrl}
+              className="size-24"
+            />
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -406,24 +428,6 @@ export function PersonForm({
         onChange={(cautions) => patch('cautions', cautions)}
         tone="red"
       />
-
-      {avatarPicker === 'button' ? (
-        <button
-          type="button"
-          onClick={() => patch('favorite', !values.favorite)}
-          className="flex items-center gap-2 text-sm font-bold"
-        >
-          <Star
-            className={cn(
-              'size-5',
-              values.favorite
-                ? 'fill-foreground text-foreground'
-                : 'text-muted-foreground',
-            )}
-          />
-          즐겨찾기 {values.favorite ? '켜짐' : '꺼짐'}
-        </button>
-      ) : null}
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
