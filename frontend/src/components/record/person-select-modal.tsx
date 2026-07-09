@@ -135,6 +135,8 @@ export function PersonSelectModal({
                       <MonogramAvatar
                         name={person.name}
                         imageUrl={person.profileImageUrl}
+                        gender={person.gender}
+                        personId={person.id}
                         className="size-11 shrink-0"
                       />
                       <div className="min-w-0 flex-1">

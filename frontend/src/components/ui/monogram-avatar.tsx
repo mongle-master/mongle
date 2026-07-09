@@ -1,24 +1,38 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { cn } from '@/lib/utils'
 import { mediaUrl } from '@/lib/api/client'
+import { defaultPersonImageUrl } from '@/lib/default-person-image'
+import type { PersonImageGender } from '@/lib/default-person-image'
 import { monogram } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
 export function MonogramAvatar({
   name,
   imageUrl,
   className,
   favorite,
+  gender,
+  personId,
 }: {
   name: string
   imageUrl?: string | null
   className?: string
   favorite?: boolean
+  gender?: PersonImageGender
+  personId?: number | null
 }) {
-  const src = mediaUrl(imageUrl)
+  const apiSrc = mediaUrl(imageUrl)
+  const src =
+    apiSrc ??
+    defaultPersonImageUrl({
+      id: personId,
+      name,
+      gender,
+    })
+
   return (
     <div className="relative inline-flex shrink-0">
       <Avatar className={cn('border border-border bg-card', className)}>
-        {src ? <AvatarImage src={src} alt={name} /> : null}
+        <AvatarImage src={src} alt={name} className="object-cover" />
         <AvatarFallback className="bg-muted font-bold text-foreground">
           {monogram(name)}
         </AvatarFallback>

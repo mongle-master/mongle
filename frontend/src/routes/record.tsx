@@ -346,6 +346,8 @@ function RecordPage() {
             <MonogramAvatar
               name={primaryPerson.name}
               imageUrl={primaryPerson.profileImageUrl}
+              gender={'gender' in primaryPerson ? primaryPerson.gender : null}
+              personId={primaryPerson.id}
               className="size-9"
             />
           ) : (
@@ -384,6 +386,8 @@ function RecordPage() {
                     key={person.id}
                     name={person.name}
                     imageUrl={person.profileImageUrl}
+                    gender={'gender' in person ? person.gender : null}
+                    personId={person.id}
                     className="size-9 ring-2 ring-card"
                   />
                 ))}

@@ -118,6 +118,7 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
                 <MonogramAvatar
                   name={persons[0].name}
                   imageUrl={persons[0].profileImageUrl}
+                  personId={persons[0].id}
                   favorite={persons[0].favorite}
                   className="size-6"
                 />

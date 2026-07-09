@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { Hand } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { mediaUrl } from '@/lib/api/client'
+import { defaultPersonImageUrl } from '@/lib/default-person-image'
 import type { RelationMapResponse } from '@/lib/api/types'
 
 type RelationNode = RelationMapResponse['nodes'][number]
@@ -24,28 +25,6 @@ const DRAG_THRESHOLD = 44
 const PERSON_NODE_SIZE = 56
 const ORBIT_CENTER = { x: 50, y: 56 }
 const CATEGORY_COLORS = ['#2f6eea', '#28b945', '#ff8a00', '#e11d48']
-const DEFAULT_FEMALE_PERSON_IMAGES = [
-  '/default-people/person-female-1.png',
-  '/default-people/person-female-2.png',
-  '/default-people/person-female-3.png',
-] as const
-const DEFAULT_MALE_PERSON_IMAGES = [
-  '/default-people/person-male-1.png',
-  '/default-people/person-male-2.png',
-  '/default-people/person-male-3.png',
-] as const
-const DEFAULT_PERSON_IMAGES = [
-  ...DEFAULT_FEMALE_PERSON_IMAGES,
-  ...DEFAULT_MALE_PERSON_IMAGES,
-] as const
-const DEFAULT_PERSON_GENDER_BY_NAME = new Map<string, 'FEMALE' | 'MALE'>([
-  ['유진', 'FEMALE'],
-  ['소연', 'FEMALE'],
-  ['하은', 'FEMALE'],
-  ['재윤', 'MALE'],
-  ['지훈', 'MALE'],
-  ['민수', 'MALE'],
-])
 const ORBIT_POSITIONS = [
   { x: 50, y: 25 },
   { x: 24, y: 42 },
@@ -487,7 +466,11 @@ function PersonNode({
             const target = event.currentTarget
             if (target.dataset.fallback === '1') return
             target.dataset.fallback = '1'
-            target.src = fallbackImageForNode(person)
+            target.src = defaultPersonImageUrl({
+              id: person.id,
+              name: person.name,
+              gender: readExplicitGender(person),
+            })
           }}
           data-fallback={
             person.imageSrc.startsWith('/default-people/') ? '1' : '0'
@@ -699,29 +682,11 @@ function formatDaysSinceLastMeet(days: number) {
 function nodeImageUrl(node: RelationNode) {
   const src = mediaUrl(node.profileImageUrl)
   if (src) return src
-  return fallbackImageForNode(node)
-}
-
-function fallbackImageForNode(
-  node: Pick<RelationNode, 'id' | 'name' | 'avatarGender'>,
-) {
-  const gender = defaultImageGenderForNode(node)
-  const images =
-    gender === 'FEMALE'
-      ? DEFAULT_FEMALE_PERSON_IMAGES
-      : gender === 'MALE'
-        ? DEFAULT_MALE_PERSON_IMAGES
-        : DEFAULT_PERSON_IMAGES
-  const hash = stableStringHash(`${node.id}:${node.name}`)
-  return images[Math.abs(hash) % images.length]
-}
-
-function defaultImageGenderForNode(
-  node: Pick<RelationNode, 'name' | 'avatarGender'>,
-) {
-  const explicitGender = readExplicitGender(node)
-  if (explicitGender) return explicitGender
-  return DEFAULT_PERSON_GENDER_BY_NAME.get(node.name.trim()) ?? null
+  return defaultPersonImageUrl({
+    id: node.id,
+    name: node.name,
+    gender: readExplicitGender(node),
+  })
 }
 
 function readExplicitGender(node: Pick<RelationNode, 'name' | 'avatarGender'>) {
@@ -739,14 +704,6 @@ function readExplicitGender(node: Pick<RelationNode, 'name' | 'avatarGender'>) {
   if (['FEMALE', 'WOMAN', 'WOMEN', 'F'].includes(value)) return 'FEMALE'
   if (['MALE', 'MAN', 'MEN', 'M'].includes(value)) return 'MALE'
   return null
-}
-
-function stableStringHash(value: string) {
-  let hash = 0
-  for (let index = 0; index < value.length; index++) {
-    hash = (hash * 31 + value.charCodeAt(index)) | 0
-  }
-  return hash
 }
 
 function hexToRgba(hex: string, alpha: number) {
