@@ -20,7 +20,6 @@ import {
   formatAbsoluteDate,
   formatBirthday,
   formatDaysSinceFirstMet,
-  formatEventDate,
 } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
@@ -221,8 +220,6 @@ function PersonProfilePage() {
 }
 
 function RecentEventCard({ event }: { event: EventResponse }) {
-  const { date } = formatEventDate(event.occurredDate)
-  const [month, day] = date.split('.')
   const photoSrc = mediaUrl(event.photoUrls[0])
   const summary = event.why || event.what
 
