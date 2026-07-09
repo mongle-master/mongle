@@ -307,7 +307,7 @@ function RecordPage() {
           </p>
           <Link
             to="/people/new"
-            className="mt-5 inline-flex items-center gap-1 rounded-full border border-foreground bg-card px-4 py-2.5 text-sm font-extrabold"
+            className="mt-5 inline-flex items-center gap-1 rounded-full bg-primary/12 px-4 py-2.5 text-sm font-extrabold text-primary hover:bg-primary/18"
           >
             <Plus className="size-4" />
             사람 추가
@@ -400,10 +400,10 @@ function RecordPage() {
               type="button"
               onClick={() => openPersonModal(false)}
               className={cn(
-                'flex w-full items-center justify-center rounded-lg border border-dashed px-4 py-6 text-sm font-extrabold',
+                'flex w-full items-center justify-center rounded-lg px-4 py-6 text-sm font-extrabold',
                 personSelectError
-                  ? 'border-destructive text-destructive'
-                  : 'border-muted-foreground text-muted-foreground',
+                  ? 'bg-destructive/10 text-destructive'
+                  : 'bg-primary/10 text-primary hover:bg-primary/15',
               )}
             >
               사람을 선택해 주세요

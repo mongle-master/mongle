@@ -169,7 +169,7 @@ export function PersonSelectModal({
         <div className="flex flex-col gap-2 border-t border-border px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <Link
             to="/people/new"
-            className="inline-flex items-center justify-center gap-1 rounded-full border border-foreground bg-card py-2.5 text-sm font-extrabold"
+            className="inline-flex items-center justify-center gap-1 rounded-full bg-primary/12 py-2.5 text-sm font-extrabold text-primary hover:bg-primary/18"
           >
             <Plus className="size-4" />
             사람 추가
