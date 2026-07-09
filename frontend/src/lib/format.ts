@@ -71,6 +71,31 @@ export function formatDaysSinceFirstMet(days: number | null | undefined) {
   return `${days + 1}일째`
 }
 
+export function daysSinceDate(iso: string, today = new Date()) {
+  const [y, m, d] = iso.split('-').map(Number)
+  const target = new Date(y, m - 1, d)
+  const todayStart = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  )
+  return Math.round(
+    (todayStart.getTime() - target.getTime()) / (1000 * 60 * 60 * 24),
+  )
+}
+
+export function formatLastMetRelative(lastMetDate: string | null | undefined) {
+  if (!lastMetDate) return '기록 없음'
+  const days = daysSinceDate(lastMetDate)
+  if (days <= 0) return '오늘'
+  if (days === 1) return '어제'
+  if (days < 7) return `${days}일 전`
+  if (days < 14) return '1주 전'
+  if (days < 30) return `${Math.max(2, Math.round(days / 7))}주 전`
+  if (days < 45) return '1개월 전'
+  return `${Math.max(2, Math.round(days / 30))}개월 전`
+}
+
 export function layoutOnCircle(count: number, cx = 50, cy = 52, radius = 35) {
   return Array.from({ length: count }, (_, i) => {
     const angle = (2 * Math.PI * i) / Math.max(count, 1) - Math.PI / 2
