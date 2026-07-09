@@ -12,15 +12,15 @@ import {
 } from '@/components/timeline/timeline-event-card'
 import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell'
+import { PersonPageHeader } from '@/components/person/person-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { ListGroup, ListGroupItem } from '@/components/ui/list-group'
 import { fetchChips } from '@/lib/api/chips'
 import { fetchPersonTimeline } from '@/lib/api/events'
 import { fetchPerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import { FALLBACK_CHIPS, fallbackPersonDetail } from '@/lib/fallback-data'
-import { pickWaGa } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 
 export const Route = createFileRoute('/people/$personId/timeline')({
@@ -87,7 +87,7 @@ function PersonTimelinePage() {
   if (!Number.isFinite(id)) {
     return (
       <TimelineScrollShell
-        activePath="/"
+        activePath="/people"
         scrollRef={scrollRef}
         header={
           <p className="text-sm text-muted-foreground">잘못된 경로예요.</p>
@@ -103,21 +103,9 @@ function PersonTimelinePage() {
   if (personQuery.isPending || timelineQuery.isPending) {
     return (
       <TimelineScrollShell
-        activePath="/"
+        activePath="/people"
         scrollRef={scrollRef}
-        header={
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="text-lg font-extrabold text-muted-foreground"
-            >
-              ‹
-            </Link>
-            <p className="text-lg font-extrabold text-muted-foreground">
-              불러오는 중…
-            </p>
-          </div>
-        }
+        header={<PersonPageHeader personId={personId} active="timeline" />}
       >
         <p className="py-12 text-center text-sm text-muted-foreground">
           불러오는 중…
@@ -129,21 +117,9 @@ function PersonTimelinePage() {
   if (!person) {
     return (
       <TimelineScrollShell
-        activePath="/"
+        activePath="/people"
         scrollRef={scrollRef}
-        header={
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="text-lg font-extrabold text-muted-foreground"
-            >
-              ‹
-            </Link>
-            <p className="text-lg font-extrabold text-muted-foreground">
-              사람 정보 없음
-            </p>
-          </div>
-        }
+        header={<PersonPageHeader personId={personId} active="timeline" />}
       >
         <p className="py-20 text-center text-sm text-muted-foreground">
           사람 정보를 불러오지 못했어요.
@@ -155,51 +131,52 @@ function PersonTimelinePage() {
   return (
     <>
       <TimelineScrollShell
-        activePath="/"
+        activePath="/people"
         scrollRef={scrollRef}
-        header={
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="text-lg font-extrabold text-muted-foreground"
-            >
-              ‹
-            </Link>
-            <div>
-              <h1 className="text-lg font-extrabold">
-                {person.name}
-                {pickWaGa(person.name)}의 이야기
-              </h1>
-              <p className="text-[11.5px] text-muted-foreground">
-                {firstMetYear ? `${firstMetYear}년부터 · ` : ''}
-                {person.stats.meetCount}번 만남
-              </p>
-            </div>
-          </div>
-        }
+        header={<PersonPageHeader personId={personId} active="timeline" />}
       >
-        <Card className="mb-3 flex items-center gap-3 p-3">
-          <MonogramAvatar
-            name={person.name}
-            imageUrl={person.profileImageUrl}
-            favorite={person.favorite}
-            className="size-10"
-          />
-          <div className="flex gap-6">
-            <div>
-              <p className="text-base font-extrabold">
-                {person.stats.recordCount}개
-              </p>
-              <p className="text-[11px] text-muted-foreground">함께한 기록</p>
+        <div className="mb-4">
+          <h1 className="text-[22px] font-black tracking-tight">
+            {person.name}
+          </h1>
+          <p className="mt-1 text-xs font-medium text-muted-foreground">
+            {firstMetYear ? `${firstMetYear}년부터 · ` : ''}
+            {person.stats.meetCount}번 만남
+          </p>
+        </div>
+        <ListGroup className="mb-4">
+          <ListGroupItem
+            withDivider={false}
+            className="flex items-center gap-3 py-3"
+          >
+            <MonogramAvatar
+              name={person.name}
+              imageUrl={person.profileImageUrl}
+              gender={person.gender}
+              personId={person.id}
+              favorite={person.favorite}
+              className="size-10"
+            />
+            <div className="flex gap-6">
+              <div>
+                <p className="text-base font-extrabold">
+                  {person.stats.recordCount}개
+                </p>
+                <p className="text-[11px] font-medium text-muted-foreground">
+                  함께한 기록
+                </p>
+              </div>
+              <div>
+                <p className="text-base font-extrabold">
+                  {person.stats.lastMetRelative ?? '기록 없음'}
+                </p>
+                <p className="text-[11px] font-medium text-muted-foreground">
+                  마지막 만남
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-base font-extrabold">
-                {person.stats.lastMetRelative ?? '기록 없음'}
-              </p>
-              <p className="text-[11px] text-muted-foreground">마지막 만남</p>
-            </div>
-          </div>
-        </Card>
+          </ListGroupItem>
+        </ListGroup>
 
         <div className="mb-4">
           <ActivityFlowChart
