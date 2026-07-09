@@ -30,7 +30,7 @@ export function AppShell({
           'px-5 pt-[max(1.5rem,env(safe-area-inset-top))]',
           layout === 'fixed'
             ? 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden pb-[calc(4.75rem+env(safe-area-inset-bottom))]'
-            : 'pb-24',
+            : 'pb-16',
           className,
         )}
       >
