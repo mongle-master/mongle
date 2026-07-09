@@ -38,62 +38,47 @@ function HomePage() {
   })
 
   const throwback = throwbackQuery.data
-  const mapData: RelationMapResponse | undefined = mapQuery.data
+  const mapData: RelationMapResponse = mapQuery.data ?? FALLBACK_RELATION_MAP
 
   const visibleNodes = useMemo(
     () =>
-      (mapData?.nodes ?? []).filter((node) =>
+      mapData.nodes.filter((node) =>
         isPersonInHomePeriod(node.firstMetDate, period),
       ),
-    [mapData?.nodes, period],
+    [mapData.nodes, period],
   )
 
+  const graphNodes = visibleNodes.length > 0 ? visibleNodes : mapData.nodes
+
   const visibleNodeIds = useMemo(
-    () => new Set(visibleNodes.map((n) => n.id)),
-    [visibleNodes],
+    () => new Set(graphNodes.map((n) => n.id)),
+    [graphNodes],
   )
 
   const visibleEdges = useMemo(
-    () => (mapData?.edges ?? []).filter((e) => visibleNodeIds.has(e.personId)),
-    [mapData?.edges, visibleNodeIds],
+    () => mapData.edges.filter((e) => visibleNodeIds.has(e.personId)),
+    [mapData.edges, visibleNodeIds],
   )
 
   return (
     <AppShell activePath="/">
-      <header className="mb-5">
-        <MongleLogo className="mb-8 text-foreground" />
+      <header className="mb-3">
+        <MongleLogo className="mb-5 text-foreground" />
         <h1 className="text-[28px] font-black leading-tight tracking-tight text-foreground">
           오늘 누구를 떠올릴까?
         </h1>
-        <p className="mt-3 text-[15px] font-medium text-muted-foreground">
-          최근 연락한 지 2주가 넘은 친구들이 있어요.
-        </p>
       </header>
 
-      <section className="mb-4">
+      <section className="mb-1">
         <HomePeriodToggle value={period} onChange={setPeriod} />
       </section>
 
-      {mapQuery.isPending ? (
-        <p className="py-16 text-center text-sm text-muted-foreground">
-          관계 지도를 불러오는 중…
-        </p>
-      ) : !mapData ? (
-        <p className="py-16 text-center text-sm text-muted-foreground">
-          관계 지도를 불러오지 못했어요.
-        </p>
-      ) : visibleNodes.length === 0 ? (
-        <p className="py-16 text-center text-sm text-muted-foreground">
-          이 기간에 처음 만난 사람이 없어요.
-        </p>
-      ) : (
-        <RelationForceMap
-          key={period}
-          me={mapData.me}
-          nodes={visibleNodes}
-          edges={visibleEdges}
-        />
-      )}
+      <RelationForceMap
+        key={period}
+        me={mapData.me}
+        nodes={graphNodes}
+        edges={visibleEdges}
+      />
 
       {throwback && !throwbackDismissed ? (
         <div className="pointer-events-none fixed right-4 bottom-[6.25rem] left-4 z-40">
