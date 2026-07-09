@@ -53,6 +53,7 @@ function FavoriteToggle({
 export type PersonFormValues = {
   name: string
   profileImageUrl: string | null
+  gender: 'FEMALE' | 'MALE' | ''
   relationType: string
   relationTagChipIds: number[]
   likes: string[]
@@ -105,6 +106,7 @@ export function personToFormValues(
   return {
     name: person?.name ?? '',
     profileImageUrl: person?.profileImageUrl ?? null,
+    gender: person?.gender ?? '',
     relationType: person?.relationType ?? '',
     relationTagChipIds:
       person?.relationTagChipIds ??
@@ -139,6 +141,7 @@ export function formValuesToRequest(values: PersonFormValues): PersonRequest {
   return {
     name: values.name.trim(),
     profileImageUrl: values.profileImageUrl,
+    gender: values.gender || null,
     relationType: values.relationType.trim() || null,
     relationTagChipIds: values.relationTagChipIds,
     likes: values.likes,
@@ -319,6 +322,37 @@ export function PersonForm({
           maxLength={20}
           autoFocus
         />
+      </div>
+
+      <div>
+        <FieldLabel className="mb-2 block">성별</FieldLabel>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { value: '', label: '선택 안 함' },
+            { value: 'FEMALE', label: '여성' },
+            { value: 'MALE', label: '남성' },
+          ].map((option) => {
+            const active = values.gender === option.value
+            return (
+              <button
+                key={option.value || 'none'}
+                type="button"
+                aria-pressed={active}
+                onClick={() =>
+                  patch('gender', option.value as PersonFormValues['gender'])
+                }
+                className={cn(
+                  'h-9 rounded-lg border px-2 text-[13px] font-extrabold transition-colors',
+                  active
+                    ? 'border-foreground bg-foreground text-background'
+                    : 'border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground',
+                )}
+              >
+                {option.label}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <div>

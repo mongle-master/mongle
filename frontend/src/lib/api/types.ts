@@ -19,6 +19,7 @@ export type PersonResponse = {
   firstMetDate: string | null
   lastMetDate: string | null
   profileImageUrl: string | null
+  gender: 'FEMALE' | 'MALE' | null
   relationType: string | null
   relationTags: ChipRef[]
   likes: string[]
@@ -45,6 +46,7 @@ export type PersonRequest = {
   firstMetDate?: string | null
   lastMetDate?: string | null
   profileImageUrl?: string | null
+  gender?: 'FEMALE' | 'MALE' | null
   relationType?: string | null
   relationTagChipIds?: number[]
   likes?: string[]
@@ -60,7 +62,9 @@ export type RelationMapResponse = {
     id: number
     name: string
     profileImageUrl: string | null
+    avatarGender?: 'FEMALE' | 'MALE' | null
     favorite: boolean
+    recordCount: number
     relationTags: ChipRef[]
     intimacy: {
       status: IntimacyStatus
