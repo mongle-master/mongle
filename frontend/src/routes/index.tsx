@@ -69,7 +69,7 @@ function HomePage() {
         </h1>
       </header>
 
-      <section className="mb-1">
+      <section className="mb-2">
         <HomePeriodToggle value={period} onChange={setPeriod} />
       </section>
 
