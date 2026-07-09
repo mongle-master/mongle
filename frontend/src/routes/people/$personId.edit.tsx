@@ -1,12 +1,15 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AppShell } from '@/components/layout/app-shell'
+import { FormPageHeader } from '@/components/layout/form-page-header'
 import { PersonForm, personToFormValues } from '@/components/person/person-form'
 import { createChip, fetchChips } from '@/lib/api/chips'
 import { deletePerson, fetchPerson, updatePerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import { FALLBACK_CHIPS, fallbackPersonDetail } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
+
+const PERSON_FORM_ID = 'person-form'
 
 export const Route = createFileRoute('/people/$personId/edit')({
   component: EditPersonPage,
@@ -70,6 +73,12 @@ function EditPersonPage() {
     if (ok) deleteMutation.mutate()
   }
 
+  const handleSave = () => {
+    ;(
+      document.getElementById(PERSON_FORM_ID) as HTMLFormElement | null
+    )?.requestSubmit()
+  }
+
   const initialValues = personToFormValues({
     ...person,
     relationTagChipIds: person.relationTags.map((t) => t.id),
@@ -78,43 +87,45 @@ function EditPersonPage() {
   })
 
   return (
-    <AppShell activePath="/people">
-      <Link
-        to="/people/$personId"
-        params={{ personId }}
-        className="mb-4 inline-block text-sm font-bold text-muted-foreground"
-      >
-        ‹ 프로필
-      </Link>
-
-      <h1 className="text-[22px] font-extrabold tracking-tight">프로필 수정</h1>
-      <p className="mt-1 mb-6 text-xs text-muted-foreground">
-        {person.name}님의 정보를 수정해요
-      </p>
-
-      <PersonForm
-        key={person.id}
-        initialValues={initialValues}
-        relationTags={relationTags}
-        submitLabel="저장하기"
-        pending={updateMutation.isPending || deleteMutation.isPending}
-        onCreateRelationTag={async (label) => {
-          try {
-            const chip = await createTagMutation.mutateAsync(label)
-            return chip.id
-          } catch {
-            return null
-          }
-        }}
-        onSubmit={(request) => updateMutation.mutate(request)}
-        onDelete={handleDelete}
+    <AppShell activePath="/people" layout="fixed">
+      <FormPageHeader
+        back={{ to: '/people/$personId', params: { personId } }}
+        title="프로필 수정"
+        onSave={handleSave}
+        saving={updateMutation.isPending || deleteMutation.isPending}
       />
 
-      {updateMutation.isError ? (
-        <p className="mt-4 text-sm text-destructive">
-          저장에 실패했어요. 잠시 후 다시 시도해 주세요.
+      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
+        <p className="mb-6 text-xs text-muted-foreground">
+          {person.name}님의 정보를 수정해요
         </p>
-      ) : null}
+
+        <PersonForm
+          key={person.id}
+          formId={PERSON_FORM_ID}
+          hideSubmitButton
+          initialValues={initialValues}
+          relationTags={relationTags}
+          submitLabel="저장하기"
+          pending={updateMutation.isPending || deleteMutation.isPending}
+          onCreateRelationTag={async (label) => {
+            try {
+              const chip = await createTagMutation.mutateAsync(label)
+              return chip.id
+            } catch {
+              return null
+            }
+          }}
+          onSubmit={(request) => updateMutation.mutate(request)}
+          onDelete={handleDelete}
+        />
+
+        {updateMutation.isError ? (
+          <p className="mt-4 text-sm text-destructive">
+            저장에 실패했어요. 잠시 후 다시 시도해 주세요.
+          </p>
+        ) : null}
+      </div>
     </AppShell>
   )
 }

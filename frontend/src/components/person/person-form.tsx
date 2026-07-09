@@ -164,6 +164,8 @@ export function PersonForm({
   avatarPicker = 'button',
   showLastMetDate = true,
   requireFirstMetYear = false,
+  formId = 'person-form',
+  hideSubmitButton = false,
 }: {
   initialValues: PersonFormValues
   relationTags: Array<{ id: number; label: string }>
@@ -175,6 +177,8 @@ export function PersonForm({
   avatarPicker?: 'button' | 'circle'
   showLastMetDate?: boolean
   requireFirstMetYear?: boolean
+  formId?: string
+  hideSubmitButton?: boolean
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [values, setValues] = useState(initialValues)
@@ -250,7 +254,7 @@ export function PersonForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-5">
       <input
         ref={fileRef}
         type="file"
@@ -465,9 +469,11 @@ export function PersonForm({
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      <Button type="submit" size="lg" disabled={pending || uploading}>
-        {pending ? '저장 중…' : submitLabel}
-      </Button>
+      {hideSubmitButton ? null : (
+        <Button type="submit" size="lg" disabled={pending || uploading}>
+          {pending ? '저장 중…' : submitLabel}
+        </Button>
+      )}
 
       {onDelete ? (
         <Button type="button" variant="destructive" onClick={onDelete}>

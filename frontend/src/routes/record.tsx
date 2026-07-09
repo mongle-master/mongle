@@ -4,6 +4,7 @@ import { ChevronRight, Plus, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { PersonSelectModal } from '@/components/record/person-select-modal'
 import { AppShell } from '@/components/layout/app-shell'
+import { FormPageHeader } from '@/components/layout/form-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -285,11 +286,22 @@ function RecordPage() {
 
   const pageTitle = isEditing ? '기록 수정' : '새 기록'
   const isLoading = isEditing && eventQuery.isPending
+  const recordHeader = (
+    <FormPageHeader
+      back={{ to: '/' }}
+      title={pageTitle}
+      onSave={handleSave}
+      saving={saveMutation.isPending}
+      className="px-5"
+    />
+  )
+  const scrollBodyClass =
+    'min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]'
 
   if (isLoading) {
     return (
-      <AppShell activePath="/record" className="px-0">
-        <RecordHeader title={pageTitle} onSave={handleSave} saving={false} />
+      <AppShell activePath="/record" layout="fixed" className="px-0">
+        {recordHeader}
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           불러오는 중…
         </p>
@@ -299,8 +311,8 @@ function RecordPage() {
 
   if (!isEditing && persons.length === 0) {
     return (
-      <AppShell activePath="/record" className="px-0">
-        <RecordHeader title={pageTitle} onSave={handleSave} saving={false} />
+      <AppShell activePath="/record" layout="fixed" className="px-0">
+        {recordHeader}
         <div className="flex flex-col items-center px-5 py-20 text-center">
           <p className="text-sm text-muted-foreground">
             먼저 함께한 사람을 추가해 주세요.
@@ -319,8 +331,8 @@ function RecordPage() {
 
   if (isEditing && !eventQuery.data) {
     return (
-      <AppShell activePath="/record" className="px-0">
-        <RecordHeader title={pageTitle} onSave={handleSave} saving={false} />
+      <AppShell activePath="/record" layout="fixed" className="px-0">
+        {recordHeader}
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           기록을 찾을 수 없어요.
         </p>
@@ -329,244 +341,242 @@ function RecordPage() {
   }
 
   return (
-    <AppShell activePath="/record" className="px-0">
-      <RecordHeader
-        title={pageTitle}
-        onSave={handleSave}
-        saving={saveMutation.isPending}
-      />
+    <AppShell activePath="/record" layout="fixed" className="px-0">
+      {recordHeader}
 
-      <div className="flex flex-col gap-5 px-5 pb-8">
-        <button
-          type="button"
-          onClick={() => openPersonModal()}
-          className="text-left"
-        >
-          {primaryPerson ? (
-            <MonogramAvatar
-              name={primaryPerson.name}
-              imageUrl={primaryPerson.profileImageUrl}
-              gender={'gender' in primaryPerson ? primaryPerson.gender : null}
-              personId={primaryPerson.id}
-              className="size-9"
-            />
-          ) : (
-            <div className="flex size-9 items-center justify-center rounded-full border border-dashed border-muted-foreground text-muted-foreground">
-              ?
-            </div>
-          )}
-          <h2 className="mt-2 text-xl font-extrabold">{greeting.title}</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {greeting.subtitle}
-          </p>
-        </button>
-
-        <section>
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-extrabold text-muted-foreground">
-              함께한 사람
-            </p>
-            <button
-              type="button"
-              onClick={() => openPersonModal()}
-              className="text-xs font-extrabold text-primary"
-            >
-              {selectedPersonIds.length > 0 ? '변경' : '선택'}
-            </button>
-          </div>
-          {selectedPersons.length > 0 ? (
-            <button
-              type="button"
-              onClick={() => openPersonModal()}
-              className="flex w-full items-center gap-2 rounded-lg border border-border bg-card p-3 text-left"
-            >
-              <div className="flex -space-x-2">
-                {selectedPersons.slice(0, 3).map((person) => (
-                  <MonogramAvatar
-                    key={person.id}
-                    name={person.name}
-                    imageUrl={person.profileImageUrl}
-                    gender={'gender' in person ? person.gender : null}
-                    personId={person.id}
-                    className="size-9 ring-2 ring-card"
-                  />
-                ))}
-              </div>
-              <p className="min-w-0 flex-1 truncate text-sm font-extrabold">
-                {selectedPersons.length === 1
-                  ? selectedPersons[0].name
-                  : `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명`}
-              </p>
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => openPersonModal(false)}
-              className={cn(
-                'flex w-full items-center justify-center rounded-lg px-4 py-6 text-sm font-extrabold',
-                personSelectError
-                  ? 'bg-destructive/10 text-destructive'
-                  : 'bg-primary/10 text-primary hover:bg-primary/15',
-              )}
-            >
-              사람을 선택해 주세요
-            </button>
-          )}
-        </section>
-
-        <ChipSection title="만남 태그">
-          <ToggleGroup
-            type="single"
-            value={categoryChipId ? String(categoryChipId) : undefined}
-            onValueChange={(v) => setCategoryChipId(v ? Number(v) : null)}
-            className="flex flex-wrap justify-start gap-2"
+      <div className={scrollBodyClass}>
+        <div className="flex flex-col gap-5 px-5 pb-8">
+          <button
+            type="button"
+            onClick={() => openPersonModal()}
+            className="text-left"
           >
-            {categoryChips.map((chip) => (
-              <ToggleGroupItem
-                key={chip.id}
-                value={String(chip.id)}
+            {primaryPerson ? (
+              <MonogramAvatar
+                name={primaryPerson.name}
+                imageUrl={primaryPerson.profileImageUrl}
+                gender={'gender' in primaryPerson ? primaryPerson.gender : null}
+                personId={primaryPerson.id}
+                className="size-9"
+              />
+            ) : (
+              <div className="flex size-9 items-center justify-center rounded-full border border-dashed border-muted-foreground text-muted-foreground">
+                ?
+              </div>
+            )}
+            <h2 className="mt-2 text-xl font-extrabold">{greeting.title}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {greeting.subtitle}
+            </p>
+          </button>
+
+          <section>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-xs font-extrabold text-muted-foreground">
+                함께한 사람
+              </p>
+              <button
+                type="button"
+                onClick={() => openPersonModal()}
+                className="text-xs font-extrabold text-primary"
+              >
+                {selectedPersonIds.length > 0 ? '변경' : '선택'}
+              </button>
+            </div>
+            {selectedPersons.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => openPersonModal()}
+                className="flex w-full items-center gap-2 rounded-lg border border-border bg-card p-3 text-left"
+              >
+                <div className="flex -space-x-2">
+                  {selectedPersons.slice(0, 3).map((person) => (
+                    <MonogramAvatar
+                      key={person.id}
+                      name={person.name}
+                      imageUrl={person.profileImageUrl}
+                      gender={'gender' in person ? person.gender : null}
+                      personId={person.id}
+                      className="size-9 ring-2 ring-card"
+                    />
+                  ))}
+                </div>
+                <p className="min-w-0 flex-1 truncate text-sm font-extrabold">
+                  {selectedPersons.length === 1
+                    ? selectedPersons[0].name
+                    : `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명`}
+                </p>
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openPersonModal(false)}
                 className={cn(
-                  tagChipBaseClass,
-                  'border-border bg-card data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+                  'flex w-full items-center justify-center rounded-lg px-4 py-6 text-sm font-extrabold',
+                  personSelectError
+                    ? 'bg-destructive/10 text-destructive'
+                    : 'bg-primary/10 text-primary hover:bg-primary/15',
                 )}
               >
-                {chip.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </ChipSection>
+                사람을 선택해 주세요
+              </button>
+            )}
+          </section>
 
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            제목
-          </p>
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              maxLength={40}
-              className="border-0 bg-transparent text-xs shadow-none placeholder:text-xs focus-visible:ring-0 md:text-xs"
-              placeholder="제목을 입력해주세요"
-            />
-            {categoryLabel ? (
-              <Badge variant="secondary">{categoryLabel}</Badge>
-            ) : null}
-          </div>
-        </section>
-
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            왜
-          </p>
-          <Textarea
-            value={why}
-            onChange={(e) => setWhy(e.target.value)}
-            maxLength={100}
-            placeholder="왜 만났는지"
-            className="min-h-16 resize-none text-xs placeholder:text-xs md:text-xs"
-          />
-        </section>
-
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            무엇을
-          </p>
-          <Textarea
-            value={what}
-            onChange={(e) => setWhat(e.target.value)}
-            maxLength={100}
-            placeholder="무엇을 했는지"
-            className="min-h-16 resize-none text-xs placeholder:text-xs md:text-xs"
-          />
-        </section>
-
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            언제
-          </p>
-          <div className="flex gap-2">
-            <Input
-              type="date"
-              value={occurredDate}
-              onChange={(e) => setOccurredDate(e.target.value)}
-              className="flex-1 text-xs placeholder:text-xs md:text-xs"
-            />
-            <Input
-              type="time"
-              value={occurredTime}
-              onChange={(e) => setOccurredTime(e.target.value)}
-              className="w-[8.5rem] text-xs placeholder:text-xs md:text-xs"
-            />
-          </div>
-        </section>
-
-        <section>
-          <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-            사진
-          </p>
-          <input
-            ref={photoInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic"
-            className="hidden"
-            onChange={(e) => {
-              void handlePhotoPick(e.target.files?.[0] ?? null)
-              e.target.value = ''
-            }}
-          />
-          <div className="flex flex-wrap gap-2">
-            {photoUrls.map((url) => {
-              const src = mediaUrl(url)
-              return (
-                <div key={url} className="relative size-16">
-                  {src ? (
-                    <img
-                      src={src}
-                      alt=""
-                      className="size-16 rounded-lg object-cover"
-                    />
-                  ) : (
-                    <div className="flex size-16 items-center justify-center rounded-lg bg-muted text-[10px] font-bold text-muted-foreground">
-                      PHOTO
-                    </div>
+          <ChipSection title="만남 태그">
+            <ToggleGroup
+              type="single"
+              value={categoryChipId ? String(categoryChipId) : undefined}
+              onValueChange={(v) => setCategoryChipId(v ? Number(v) : null)}
+              className="flex flex-wrap justify-start gap-2"
+            >
+              {categoryChips.map((chip) => (
+                <ToggleGroupItem
+                  key={chip.id}
+                  value={String(chip.id)}
+                  className={cn(
+                    tagChipBaseClass,
+                    'border-border bg-card data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
                   )}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPhotoUrls((prev) => prev.filter((u) => u !== url))
-                    }
-                    className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-foreground text-background"
-                    aria-label="사진 삭제"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </div>
-              )
-            })}
-            {photoUrls.length < 5 ? (
-              <Button
-                variant="outline"
-                className="size-16 rounded-lg border-dashed text-2xl"
-                type="button"
-                disabled={uploadingPhoto}
-                onClick={() => photoInputRef.current?.click()}
-              >
-                {uploadingPhoto ? '…' : '＋'}
-              </Button>
-            ) : null}
-          </div>
-        </section>
+                >
+                  {chip.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </ChipSection>
 
-        {formError ? (
-          <p className="text-center text-xs text-destructive">{formError}</p>
-        ) : null}
+          <section>
+            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
+              제목
+            </p>
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={40}
+                className="border-0 bg-transparent text-xs shadow-none placeholder:text-xs focus-visible:ring-0 md:text-xs"
+                placeholder="제목을 입력해주세요"
+              />
+              {categoryLabel ? (
+                <Badge variant="secondary">{categoryLabel}</Badge>
+              ) : null}
+            </div>
+          </section>
 
-        {savedLocally ? (
-          <p className="text-center text-xs text-muted-foreground">
-            서버에 저장하지 못했지만 기록 화면은 열어둘게요.
-          </p>
-        ) : null}
+          <section>
+            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
+              왜
+            </p>
+            <Textarea
+              value={why}
+              onChange={(e) => setWhy(e.target.value)}
+              maxLength={100}
+              placeholder="왜 만났는지"
+              className="min-h-16 resize-none text-xs placeholder:text-xs md:text-xs"
+            />
+          </section>
+
+          <section>
+            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
+              무엇을
+            </p>
+            <Textarea
+              value={what}
+              onChange={(e) => setWhat(e.target.value)}
+              maxLength={100}
+              placeholder="무엇을 했는지"
+              className="min-h-16 resize-none text-xs placeholder:text-xs md:text-xs"
+            />
+          </section>
+
+          <section>
+            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
+              언제
+            </p>
+            <div className="flex gap-2">
+              <Input
+                type="date"
+                value={occurredDate}
+                onChange={(e) => setOccurredDate(e.target.value)}
+                className="flex-1 text-xs placeholder:text-xs md:text-xs"
+              />
+              <Input
+                type="time"
+                value={occurredTime}
+                onChange={(e) => setOccurredTime(e.target.value)}
+                className="w-[8.5rem] text-xs placeholder:text-xs md:text-xs"
+              />
+            </div>
+          </section>
+
+          <section>
+            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
+              사진
+            </p>
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic"
+              className="hidden"
+              onChange={(e) => {
+                void handlePhotoPick(e.target.files?.[0] ?? null)
+                e.target.value = ''
+              }}
+            />
+            <div className="flex flex-wrap gap-2">
+              {photoUrls.map((url) => {
+                const src = mediaUrl(url)
+                return (
+                  <div key={url} className="relative size-16">
+                    {src ? (
+                      <img
+                        src={src}
+                        alt=""
+                        className="size-16 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="flex size-16 items-center justify-center rounded-lg bg-muted text-[10px] font-bold text-muted-foreground">
+                        PHOTO
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPhotoUrls((prev) => prev.filter((u) => u !== url))
+                      }
+                      className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-foreground text-background"
+                      aria-label="사진 삭제"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </div>
+                )
+              })}
+              {photoUrls.length < 5 ? (
+                <Button
+                  variant="outline"
+                  className="size-16 rounded-lg border-dashed text-2xl"
+                  type="button"
+                  disabled={uploadingPhoto}
+                  onClick={() => photoInputRef.current?.click()}
+                >
+                  {uploadingPhoto ? '…' : '＋'}
+                </Button>
+              ) : null}
+            </div>
+          </section>
+
+          {formError ? (
+            <p className="text-center text-xs text-destructive">{formError}</p>
+          ) : null}
+
+          {savedLocally ? (
+            <p className="text-center text-xs text-muted-foreground">
+              서버에 저장하지 못했지만 기록 화면은 열어둘게요.
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <PersonSelectModal
@@ -583,33 +593,6 @@ function RecordPage() {
         }}
       />
     </AppShell>
-  )
-}
-
-function RecordHeader({
-  title,
-  onSave,
-  saving,
-}: {
-  title: string
-  onSave: () => void
-  saving: boolean
-}) {
-  return (
-    <header className="grid grid-cols-3 items-center px-5 py-1">
-      <Link to="/" className="text-lg font-extrabold text-muted-foreground">
-        ‹
-      </Link>
-      <h1 className="text-center text-base font-extrabold">{title}</h1>
-      <button
-        type="button"
-        onClick={onSave}
-        disabled={saving}
-        className="text-right text-[15px] font-extrabold disabled:opacity-50"
-      >
-        {saving ? '저장 중' : '저장'}
-      </button>
-    </header>
   )
 }
 
