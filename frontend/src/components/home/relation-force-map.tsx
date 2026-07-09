@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { Hand } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { mediaUrl } from '@/lib/api/client'
 import type { RelationMapResponse } from '@/lib/api/types'
 
@@ -22,6 +22,7 @@ type CategoryMeta = {
 const GRAPH_COUNT = 3
 const DRAG_THRESHOLD = 44
 const PERSON_NODE_SIZE = 56
+const ORBIT_CENTER = { x: 50, y: 56 }
 const CATEGORY_COLORS = ['#2f6eea', '#28b945', '#ff8a00', '#e11d48']
 const DEFAULT_FEMALE_PERSON_IMAGES = [
   '/default-people/person-female-1.png',
@@ -55,11 +56,11 @@ const ORBIT_POSITIONS = [
   { x: 35, y: 32 },
   { x: 65, y: 32 },
 ]
-const CATEGORY_CLUSTER_POSITIONS = [
-  { x: 27, y: 36 },
-  { x: 73, y: 36 },
-  { x: 50, y: 73 },
-  { x: 27, y: 73 },
+const CATEGORY_PERSON_OFFSETS = [
+  { x: 0, y: -7 },
+  { x: -7, y: 2 },
+  { x: 7, y: 2 },
+  { x: 0, y: 7 },
 ]
 const FLOW_POSITIONS = [
   { x: 24, y: 22 },
@@ -83,10 +84,15 @@ export function RelationForceMap({
   const navigate = useNavigate()
   const dragStartXRef = useRef<number | null>(null)
   const [activeGraphIndex, setActiveGraphIndex] = useState(0)
+  const [orbitTime, setOrbitTime] = useState(0)
   const categories = useMemo(() => buildCategories(nodes), [nodes])
   const orbitPeople = useMemo(
     () => buildOrbitPeople(nodes, categories),
     [categories, nodes],
+  )
+  const animatedOrbitPeople = useMemo(
+    () => animateOrbitPeople(orbitPeople, orbitTime),
+    [orbitPeople, orbitTime],
   )
   const clusterPeople = useMemo(
     () => buildClusterPeople(nodes, categories),
@@ -101,6 +107,27 @@ export function RelationForceMap({
     setActiveGraphIndex((current) => Math.max(0, current - 1))
   const showNextGraph = () =>
     setActiveGraphIndex((current) => Math.min(GRAPH_COUNT - 1, current + 1))
+
+  useEffect(() => {
+    if (activeGraphIndex !== 0) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    let frameId = 0
+    let lastFrame = 0
+    const startedAt = performance.now()
+
+    const animate = (now: number) => {
+      if (now - lastFrame > 33) {
+        setOrbitTime((now - startedAt) / 1000)
+        lastFrame = now
+      }
+      frameId = window.requestAnimationFrame(animate)
+    }
+
+    frameId = window.requestAnimationFrame(animate)
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [activeGraphIndex])
 
   return (
     <div
@@ -143,7 +170,7 @@ export function RelationForceMap({
           {activeGraphIndex === 0 ? (
             <OrbitGraph
               meLabel={me.label}
-              people={orbitPeople}
+              people={animatedOrbitPeople}
               onPersonClick={(personId) =>
                 navigate({
                   to: '/people/$personId/timeline',
@@ -250,22 +277,20 @@ function CategoryClusterGraph({
         aria-hidden
       >
         {categories.map((category, index) => {
-          const position =
-            CATEGORY_CLUSTER_POSITIONS[
-              index % CATEGORY_CLUSTER_POSITIONS.length
-            ]
+          const position = categoryClusterPosition(index, categories.length)
+          const radius = categoryClusterRadius(categories.length)
           return (
             <g key={category.label}>
               <circle
                 cx={position.x}
                 cy={position.y}
-                r="16"
+                r={radius.fill}
                 fill={hexToRgba(category.color, 0.08)}
               />
               <circle
                 cx={position.x}
                 cy={position.y}
-                r="20"
+                r={radius.stroke}
                 fill="none"
                 stroke={hexToRgba(category.color, 0.22)}
                 strokeDasharray="1.4 1.8"
@@ -276,15 +301,15 @@ function CategoryClusterGraph({
         })}
       </svg>
       {categories.map((category, index) => {
-        const position =
-          CATEGORY_CLUSTER_POSITIONS[index % CATEGORY_CLUSTER_POSITIONS.length]
+        const position = categoryClusterPosition(index, categories.length)
+        const radius = categoryClusterRadius(categories.length)
         return (
           <span
             key={category.label}
             className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/80 px-2 py-1 text-[11px] font-black text-zinc-700 shadow-[0_8px_18px_rgba(24,24,27,0.06)] dark:bg-zinc-950/82 dark:text-zinc-200 dark:shadow-[0_8px_18px_rgba(0,0,0,0.28)]"
             style={{
               left: `${position.x}%`,
-              top: `${position.y + 18}%`,
+              top: `${position.y + radius.labelOffset}%`,
             }}
           >
             {category.label}
@@ -322,7 +347,7 @@ function RecentFlowGraph({
           d={path}
           fill="none"
           className="stroke-zinc-950/25 dark:stroke-zinc-100/30"
-          strokeWidth="0.65"
+          strokeWidth="0.38"
           strokeLinecap="round"
         />
         <path
@@ -330,7 +355,7 @@ function RecentFlowGraph({
           fill="none"
           className="stroke-zinc-950/12 dark:stroke-zinc-100/16"
           strokeDasharray="1.6 2.2"
-          strokeWidth="2.4"
+          strokeWidth="1.1"
           strokeLinecap="round"
         />
       </svg>
@@ -439,7 +464,7 @@ function PersonNode({
     <button
       type="button"
       onClick={onClick}
-      className="group absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center outline-none transition-transform duration-200 hover:scale-[1.03]"
+      className="group absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center outline-none transition-transform duration-200 hover:z-40 hover:scale-[1.03] focus-visible:z-40"
       style={{
         left: `${person.x}%`,
         top: `${person.y}%`,
@@ -473,7 +498,7 @@ function PersonNode({
           style={{ backgroundColor: person.color }}
         />
       </span>
-      <span className="mt-1.5 text-[13px] leading-none font-black text-zinc-950 dark:text-zinc-50">
+      <span className="mt-1.5 rounded-full bg-background/82 px-1.5 py-0.5 text-[13px] leading-none font-black text-zinc-950 shadow-[0_4px_12px_rgba(24,24,27,0.06)] backdrop-blur-sm dark:text-zinc-50">
         {person.name}
       </span>
       {person.intimacy.daysSinceLastMeet != null ? (
@@ -495,6 +520,30 @@ function buildOrbitPeople(
   })
 }
 
+function animateOrbitPeople(
+  people: GraphPerson[],
+  elapsedSeconds: number,
+): GraphPerson[] {
+  if (elapsedSeconds === 0 || people.length === 0) return people
+
+  return people.map((person, index) => {
+    const dx = person.x - ORBIT_CENTER.x
+    const dy = person.y - ORBIT_CENTER.y
+    const angle = Math.atan2(dy, dx)
+    const radiusX = Math.max(12, Math.abs(dx) + 7 + (index % 2) * 2)
+    const radiusY = Math.max(10, Math.abs(dy) + 5 + (index % 3) * 1.4)
+    const direction = index % 2 === 0 ? 1 : -1
+    const speed = 0.026 + (index % 4) * 0.004
+    const nextAngle = angle + elapsedSeconds * speed * direction
+
+    return {
+      ...person,
+      x: ORBIT_CENTER.x + Math.cos(nextAngle) * radiusX,
+      y: ORBIT_CENTER.y + Math.sin(nextAngle) * radiusY,
+    }
+  })
+}
+
 function buildClusterPeople(
   nodes: RelationNode[],
   categories: CategoryMeta[],
@@ -507,20 +556,57 @@ function buildClusterPeople(
       categories.findIndex((category) => category.label === categoryLabel),
       0,
     )
-    const cluster =
-      CATEGORY_CLUSTER_POSITIONS[
-        categoryIndex % CATEGORY_CLUSTER_POSITIONS.length
-      ]
+    const cluster = categoryClusterPosition(categoryIndex, categories.length)
     const indexInCategory = categoryCounts.get(categoryLabel) ?? 0
     categoryCounts.set(categoryLabel, indexInCategory + 1)
 
-    const angle = -Math.PI / 2 + indexInCategory * 1.95
-    const radius = 12 + (indexInCategory % 2) * 5
-    const x = cluster.x + Math.cos(angle) * radius
-    const y = cluster.y + Math.sin(angle) * radius * 0.72
+    const offset =
+      CATEGORY_PERSON_OFFSETS[indexInCategory % CATEGORY_PERSON_OFFSETS.length]
+    const overflowRing = Math.floor(
+      indexInCategory / CATEGORY_PERSON_OFFSETS.length,
+    )
+    const x = cluster.x + offset.x + overflowRing * 3
+    const y = cluster.y + offset.y + overflowRing * 3
 
     return toGraphPerson(node, categories, x, y)
   })
+}
+
+function categoryClusterPosition(index: number, total: number) {
+  if (total <= 1) return { x: 50, y: 54 }
+  if (total === 2)
+    return [
+      { x: 31, y: 54 },
+      { x: 69, y: 54 },
+    ][index]
+  if (total === 3) {
+    return [
+      { x: 28, y: 41 },
+      { x: 72, y: 41 },
+      { x: 50, y: 70 },
+    ][index]
+  }
+  if (total === 4) {
+    return [
+      { x: 30, y: 38 },
+      { x: 70, y: 38 },
+      { x: 30, y: 70 },
+      { x: 70, y: 70 },
+    ][index]
+  }
+
+  const columnXs = [20, 50, 80]
+  const rowYs = total <= 6 ? [37, 72] : [30, 54, 78]
+  const column = index % columnXs.length
+  const row = Math.floor(index / columnXs.length) % rowYs.length
+
+  return { x: columnXs[column], y: rowYs[row] }
+}
+
+function categoryClusterRadius(total: number) {
+  if (total > 6) return { fill: 11, stroke: 13, labelOffset: 13 }
+  if (total > 4) return { fill: 14, stroke: 16, labelOffset: 16 }
+  return { fill: 15, stroke: 18, labelOffset: 17 }
 }
 
 function buildFlowPeople(
