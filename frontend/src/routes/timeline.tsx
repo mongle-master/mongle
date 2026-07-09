@@ -32,6 +32,7 @@ function MyTimelinePage() {
   const [categoryFilter, setCategoryFilter] = useState<number[]>([])
   const [personFilter, setPersonFilter] = useState<number[]>([])
   const [monthFilter, setMonthFilter] = useState<string | null>(null)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   // 활동 흐름은 필터 없는 전체 `/api/v1/timeline` 응답에서 파생한다.
   const allTimelineQuery = useQuery({
@@ -95,6 +96,8 @@ function MyTimelinePage() {
 
   const hasFilter =
     categoryFilter.length > 0 || personFilter.length > 0 || monthFilter !== null
+  const activeFilterCount =
+    categoryFilter.length + personFilter.length + (monthFilter ? 1 : 0)
 
   const resetFilters = () => {
     setCategoryFilter([])
@@ -119,7 +122,7 @@ function MyTimelinePage() {
       }
     >
       {allTimelineQuery.data ? (
-        <div className="mb-4">
+        <div className="mb-2">
           <ActivityFlowChart
             dates={flowDates}
             selectedMonth={monthFilter}
@@ -128,19 +131,58 @@ function MyTimelinePage() {
         </div>
       ) : null}
 
-      <TimelineCategoryFilters
-        chips={categoryChips}
-        selectedIds={categoryFilter}
-        onToggle={toggleCategory}
-      />
+      <div className="mb-4 px-1 py-2">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-extrabold">필터</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              {hasFilter
+                ? `${activeFilterCount}개의 조건으로 보고 있어요.`
+                : '보고 싶은 관계 기록만 가볍게 골라보세요.'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsFilterOpen((open) => !open)}
+            className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-border bg-background px-3 text-xs font-extrabold text-foreground transition-colors hover:bg-muted/60"
+            aria-expanded={isFilterOpen}
+          >
+            {hasFilter ? (
+              <span className="rounded-full bg-foreground px-1.5 py-0.5 text-[10px] leading-none text-background">
+                {activeFilterCount}
+              </span>
+            ) : null}
+            {isFilterOpen ? '접기' : '필터 열기'}
+            <span
+              className={
+                isFilterOpen
+                  ? 'rotate-180 transition-transform'
+                  : 'transition-transform'
+              }
+              aria-hidden="true"
+            >
+              ⌄
+            </span>
+          </button>
+        </div>
+        {isFilterOpen ? (
+          <div className="mt-3 border-t border-border/60 pt-3">
+            <TimelineCategoryFilters
+              chips={categoryChips}
+              selectedIds={categoryFilter}
+              onToggle={toggleCategory}
+            />
 
-      <TimelinePersonFilters
-        persons={persons}
-        selectedIds={personFilter}
-        onToggle={togglePerson}
-      />
+            <TimelinePersonFilters
+              persons={persons}
+              selectedIds={personFilter}
+              onToggle={togglePerson}
+            />
 
-      <TimelineFilterReset visible={hasFilter} onReset={resetFilters} />
+            <TimelineFilterReset visible={hasFilter} onReset={resetFilters} />
+          </div>
+        ) : null}
+      </div>
 
       {timelineQuery.isPending ? (
         <p className="py-12 text-center text-sm text-muted-foreground">

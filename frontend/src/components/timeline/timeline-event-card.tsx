@@ -70,7 +70,7 @@ function TimelinePhotoPreview({ photoUrls }: { photoUrls: string[] }) {
   if (!src) return null
 
   return (
-    <div className="relative mt-0.5 size-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+    <div className="relative mt-0.5 size-20 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-inner">
       <img
         src={src}
         alt="기록 사진"
@@ -97,28 +97,31 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
       search={{ eventId: item.id, personId: undefined }}
       className="block min-w-0 flex-1"
     >
-      <Card className="relative py-0 shadow-sm transition-colors hover:bg-muted/30">
-        <CardContent className="flex gap-3 p-[15px]">
+      <Card className="relative overflow-hidden py-0 shadow-[0_10px_30px_rgba(0,0,0,0.045)] transition-all hover:-translate-y-0.5 hover:bg-muted/20 hover:shadow-[0_14px_36px_rgba(0,0,0,0.07)]">
+        <CardContent className="flex gap-3 p-4">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="truncate text-[15.5px] font-extrabold">
+            <div className="flex items-start gap-2">
+              <h3 className="min-w-0 flex-1 text-[17px] leading-snug font-extrabold tracking-tight">
                 {item.title}
               </h3>
               {item.category ? (
-                <Badge variant="secondary" className="shrink-0">
+                <Badge
+                  variant="secondary"
+                  className="h-7 shrink-0 rounded-full px-3 font-extrabold"
+                >
                   {item.category.label}
                 </Badge>
               ) : null}
             </div>
             {persons.length > 0 ? (
-              <div className="mt-1.5 inline-flex items-center gap-1.5">
+              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-muted/70 py-1 pr-2 pl-1">
                 <MonogramAvatar
                   name={persons[0].name}
                   imageUrl={persons[0].profileImageUrl}
                   favorite={persons[0].favorite}
                   className="size-6"
                 />
-                <span className="text-xs font-bold text-muted-foreground">
+                <span className="text-xs font-extrabold text-foreground">
                   {linkedPersonsLabel(persons)}
                 </span>
               </div>
@@ -132,22 +135,30 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
                 ))}
               </div>
             ) : null}
-            <p className="mt-1.5 text-[11.5px]">
-              <span className="text-muted-foreground">언제 </span>
-              {when}
-            </p>
-            {item.why ? (
-              <p className="mt-1 text-[11.5px]">
-                <span className="text-muted-foreground">왜 만났는지 </span>
-                {item.why}
+            <div className="mt-3 space-y-1.5 text-[12px] leading-relaxed">
+              <p>
+                <span className="mr-2 font-extrabold text-muted-foreground">
+                  언제
+                </span>
+                {when}
               </p>
-            ) : null}
-            {item.what ? (
-              <p className="mt-1 text-[11.5px]">
-                <span className="text-muted-foreground">무엇을 했는지 </span>
-                {item.what}
-              </p>
-            ) : null}
+              {item.why ? (
+                <p>
+                  <span className="mr-2 font-extrabold text-muted-foreground">
+                    왜
+                  </span>
+                  {item.why}
+                </p>
+              ) : null}
+              {item.what ? (
+                <p>
+                  <span className="mr-2 font-extrabold text-muted-foreground">
+                    무엇
+                  </span>
+                  {item.what}
+                </p>
+              ) : null}
+            </div>
           </div>
           {photoUrls.length > 0 ? (
             <TimelinePhotoPreview photoUrls={photoUrls} />

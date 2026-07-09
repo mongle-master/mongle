@@ -10,10 +10,10 @@ export const timelineFilterChipClass = (selected: boolean) =>
 
 const personFilterChipClass = (selected: boolean) =>
   cn(
-    'inline-flex h-8 max-w-full items-center gap-1.5 rounded-full border px-1.5 pr-3 text-[13px] leading-none font-extrabold whitespace-nowrap transition-colors',
+    'inline-flex h-9 max-w-full items-center gap-1.5 rounded-full border px-1.5 pr-3 text-[13px] leading-none font-extrabold whitespace-nowrap transition-all',
     selected
-      ? 'border-primary/30 bg-primary/10 text-primary'
-      : 'border-border/80 bg-background text-foreground hover:bg-muted/60',
+      ? 'border-foreground bg-foreground text-background'
+      : 'border-border/80 bg-background text-foreground hover:border-foreground/30 hover:bg-muted/60',
   )
 
 function PersonFilterAvatar({
@@ -61,7 +61,7 @@ export function TimelineCategoryFilters({
 
   return (
     <section className="mb-4">
-      <p className="mb-2 text-xs font-extrabold text-muted-foreground">
+      <p className="mb-2 text-[11px] font-extrabold text-muted-foreground">
         카테고리
       </p>
       <div className="flex flex-wrap gap-2">
@@ -93,8 +93,10 @@ export function TimelinePersonFilters({
   onToggle: (personId: number) => void
 }) {
   return (
-    <section className="mb-5">
-      <p className="mb-2 text-xs font-extrabold text-muted-foreground">사람</p>
+    <section className="mb-3">
+      <p className="mb-2 text-[11px] font-extrabold text-muted-foreground">
+        사람
+      </p>
       <div className="flex flex-wrap gap-2">
         {persons.map((person) => {
           const selected = selectedIds.includes(person.id)
@@ -129,7 +131,7 @@ export function TimelineFilterReset({
     <button
       type="button"
       onClick={onReset}
-      className="mb-4 text-xs font-bold text-muted-foreground underline"
+      className="mt-1 inline-flex h-8 items-center rounded-full bg-muted px-3 text-xs font-extrabold text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
     >
       필터 초기화
     </button>
