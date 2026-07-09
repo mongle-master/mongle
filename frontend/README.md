@@ -7,6 +7,7 @@
 # Getting Started
 
 전제:
+
 - **Node 20+ · pnpm 10+** (pnpm 없으면 `npm i -g pnpm`)
 - **백엔드가 8080에서 떠 있어야** 데이터가 보인다. 프론트는 `/api`·`/images`를 `localhost:8080`으로 프록시한다(`vite.config.ts`). 백엔드 기동은 루트 README 또는 [backend/docs/runbook/local.md](../backend/docs/runbook/local.md) 참조.
 
