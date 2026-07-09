@@ -30,23 +30,27 @@ const TAG_GROUPS = [
 
 function SettingsPage() {
   return (
-    <AppShell activePath="/settings">
-      <MongleLogo className="mb-2 text-foreground" />
-      <h1 className="text-[22px] font-extrabold tracking-tight">설정</h1>
-      <p className="mt-1 mb-6 text-xs text-muted-foreground">
-        태그 관리와 앱 정보
-      </p>
+    <AppShell activePath="/settings" layout="fixed">
+      <header className="shrink-0 pb-4">
+        <MongleLogo className="mb-5 text-foreground" />
+        <h1 className="text-[22px] font-extrabold tracking-tight">설정</h1>
+        <p className="mt-1 text-xs text-muted-foreground">
+          태그 관리와 앱 정보
+        </p>
+      </header>
 
-      <HomePeriodSettingSection />
+      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
+        <HomePeriodSettingSection />
 
-      <TagManagementSection />
+        <TagManagementSection />
 
-      <ThemeSettingSection />
+        <ThemeSettingSection />
 
-      <Card className="mt-6 p-4">
-        <p className="font-extrabold">앱 정보</p>
-        <p className="mt-1 text-sm text-muted-foreground">Mongle MVP</p>
-      </Card>
+        <Card className="mt-6 p-4">
+          <p className="font-extrabold">앱 정보</p>
+          <p className="mt-1 text-sm text-muted-foreground">Mongle MVP</p>
+        </Card>
+      </div>
     </AppShell>
   )
 }

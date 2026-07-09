@@ -17,7 +17,7 @@ const tabs: TabItem[] = [
 export function BottomNav({ activePath }: { activePath: string }) {
   return (
     <nav className="fixed right-0 bottom-0 left-0 z-50 border-t border-border bg-background">
-      <div className="mx-auto flex h-[4.75rem] max-w-md items-end justify-around px-2 pb-3">
+      <div className="mx-auto flex h-[calc(4.75rem+env(safe-area-inset-bottom))] max-w-md items-end justify-around px-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         {tabs.map((tab) => {
           if (tab.kind === 'fab') {
             return (

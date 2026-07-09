@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useRef, useState } from 'react'
+import { MongleLogo } from '@/components/brand/mongle-logo'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
 import {
   TimelineCategoryFilters,
@@ -107,6 +108,7 @@ function MyTimelinePage() {
       scrollRef={scrollRef}
       header={
         <>
+          <MongleLogo className="mb-5 text-foreground" />
           <h1 className="text-[22px] font-extrabold tracking-tight">
             나의 타임라인
           </h1>
