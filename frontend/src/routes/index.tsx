@@ -65,7 +65,7 @@ function HomePage() {
       <header className="mb-3">
         <MongleLogo className="mb-5 text-foreground" />
         <h1 className="text-[28px] font-black leading-tight tracking-tight text-foreground">
-          오늘 누구를 떠올릴까?
+          함께한 순간, <br /> 몽글몽글 쌓이는 중
         </h1>
       </header>
 
