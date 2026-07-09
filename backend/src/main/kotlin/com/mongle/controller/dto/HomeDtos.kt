@@ -36,8 +36,12 @@ data class PersonNode(
     val name: String,
     @field:Schema(description = "프로필 이미지 URL(없을 수 있음).", example = "/images/p7.jpg")
     val profileImageUrl: String?,
+    @field:Schema(description = "기본 아바타 성별 힌트. 프로필 이미지가 없을 때 클라이언트가 기본 이미지 선택에 사용한다.", example = "FEMALE")
+    val avatarGender: AvatarGender?,
     @field:Schema(description = "즐겨찾기 여부.", example = "true")
     val favorite: Boolean,
+    @field:Schema(description = "이 인물과 함께 새긴 기록 수. 프론트가 관계 지도 노드 크기 표현에 사용한다.", example = "12")
+    val recordCount: Int,
     @field:Schema(description = "이 인물에 붙은 관계태그 칩 요약 참조 목록.")
     val relationTags: List<ChipRef>,
     @field:Schema(description = "친밀도 판정 결과.")
@@ -45,6 +49,12 @@ data class PersonNode(
     @field:Schema(description = "처음 만난 날(없을 수 있음).", example = "2023-07-07")
     val firstMetDate: LocalDate?,
 )
+
+@Schema(description = "기본 아바타 성별 힌트.")
+enum class AvatarGender {
+    FEMALE,
+    MALE,
+}
 
 /** 나↔인물 연결. distant=멀어진 관계면 프론트가 연결선·이름을 흐리게(#41). */
 @Schema(description = "나↔인물 연결선. distant 면 프론트가 연결선·이름을 흐리게 그린다.")

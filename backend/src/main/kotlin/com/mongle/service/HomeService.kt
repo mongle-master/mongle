@@ -1,5 +1,6 @@
 package com.mongle.service
 
+import com.mongle.controller.dto.AvatarGender
 import com.mongle.controller.dto.ChipRef
 import com.mongle.controller.dto.IntimacyStatus
 import com.mongle.controller.dto.MeNode
@@ -47,12 +48,15 @@ class HomeService(
 
         val tagLabels = resolveTagLabels(tagChipIdsByPerson.values.flatten())
         val nodes = persons.map { person ->
-            val intimacy = IntimacyCalculator.of(personStatsService.statsOf(person).meetingDatesDesc, today)
+            val stats = personStatsService.statsOf(person)
+            val intimacy = IntimacyCalculator.of(stats.meetingDatesDesc, today)
             PersonNode(
                 id = requireNotNull(person.id),
                 name = person.name,
                 profileImageUrl = person.profileImageUrl,
+                avatarGender = person.gender?.let { AvatarGender.valueOf(it.name) },
                 favorite = person.favorite,
+                recordCount = stats.recordCount,
                 relationTags = tagChipIdsByPerson[person.id].orEmpty().mapNotNull { id -> tagLabels[id]?.let { ChipRef(id, it) } },
                 intimacy = intimacy,
                 firstMetDate = person.firstMetDate,

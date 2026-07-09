@@ -4,6 +4,8 @@ import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -43,6 +45,10 @@ class Person(
     // 미리 업로드된 프로필 사진 경로 1장(업로드는 POST /api/images).
     @Column(name = "profile_image_url")
     var profileImageUrl: String? = null,
+    // 기본 아바타 선택용 성별 힌트. 미선택 가능.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    var gender: PersonGender? = null,
     // 관계 유형: 칩이 아닌 한 줄 텍스트(관계 태그와 다른 개념). 한 사람당 하나.
     @Column(name = "relation_type")
     var relationType: String? = null,
@@ -94,4 +100,9 @@ class Person(
             lastMetDate = date
         }
     }
+}
+
+enum class PersonGender {
+    FEMALE,
+    MALE,
 }

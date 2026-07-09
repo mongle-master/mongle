@@ -6,6 +6,7 @@ import com.mongle.domain.Event
 import com.mongle.domain.EventEmotion
 import com.mongle.domain.EventPerson
 import com.mongle.domain.Person
+import com.mongle.domain.PersonGender
 import com.mongle.domain.PersonRelationTag
 import com.mongle.domain.User
 import com.mongle.repository.ChipRepository
@@ -76,6 +77,7 @@ class DemoDataSeeder(
                 ownerId = ownerId,
                 name = "김서연",
                 relationType = "대학 친구",
+                gender = PersonGender.FEMALE,
                 birthYear = 1995, birthMonth = 4, birthDay = 12,
                 firstMetDate = today.minusYears(3),
                 lastMetDate = today.minusDays(3),
@@ -91,6 +93,7 @@ class DemoDataSeeder(
                 ownerId = ownerId,
                 name = "이준호",
                 relationType = "회사 동료",
+                gender = PersonGender.MALE,
                 // 생일 연도 생략(월·일만) — 연도-선택 케이스 데모.
                 birthMonth = 9,
                 birthDay = 23,
@@ -106,6 +109,7 @@ class DemoDataSeeder(
                 ownerId = ownerId,
                 name = "박민지",
                 relationType = "동생",
+                gender = PersonGender.FEMALE,
                 birthYear = 2000,
                 birthMonth = 11,
                 birthDay = 5,
@@ -120,6 +124,7 @@ class DemoDataSeeder(
                 ownerId = ownerId,
                 name = "최윤서",
                 relationType = "동네 친구",
+                gender = PersonGender.FEMALE,
                 // 생일 없음.
                 firstMetDate = today.minusYears(1).minusMonths(2),
                 lastMetDate = today.minusDays(10),
@@ -134,6 +139,7 @@ class DemoDataSeeder(
                 ownerId = ownerId,
                 name = "정하준",
                 relationType = "동아리 후배",
+                gender = PersonGender.MALE,
                 birthYear = 1998,
                 birthMonth = 7,
                 birthDay = 30,

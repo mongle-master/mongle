@@ -11,6 +11,7 @@ import com.mongle.controller.dto.PersonResponse
 import com.mongle.controller.dto.PersonSort
 import com.mongle.domain.ChipType
 import com.mongle.domain.Person
+import com.mongle.domain.PersonGender
 import com.mongle.domain.PersonRelationTag
 import com.mongle.repository.ChipRepository
 import com.mongle.repository.EventPersonRepository
@@ -155,6 +156,7 @@ class PersonService(
         person.firstMetDate = request.firstMetDate
         person.lastMetDate = request.lastMetDate
         person.profileImageUrl = request.profileImageUrl?.trim()?.ifBlank { null }
+        person.gender = request.gender?.let { PersonGender.valueOf(it.name) }
         person.relationType = relationType
         person.favorite = request.favorite
         person.replaceLikes(likes)

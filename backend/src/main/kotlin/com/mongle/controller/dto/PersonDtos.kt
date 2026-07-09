@@ -24,6 +24,8 @@ data class PersonRequest(
     val lastMetDate: LocalDate? = null,
     @field:Schema(description = "프로필 이미지 URL(이미지 업로드 API 응답의 url).", example = "/images/p7.jpg")
     val profileImageUrl: String? = null,
+    @field:Schema(description = "기본 아바타 선택용 성별 힌트(선택).", example = "FEMALE")
+    val gender: PersonGender? = null,
     @field:Schema(description = "관계 유형 자유 서술(선택).", example = "대학 동기")
     val relationType: String? = null,
     @field:Schema(description = "관계태그 칩 id 목록. 선택 개수 상한이 있다.", example = "[11, 12]")
@@ -73,6 +75,8 @@ data class PersonResponse(
     val lastMetDate: LocalDate?,
     @field:Schema(description = "프로필 이미지 URL(없을 수 있음).", example = "/images/p7.jpg")
     val profileImageUrl: String?,
+    @field:Schema(description = "기본 아바타 선택용 성별 힌트(없을 수 있음).", example = "FEMALE")
+    val gender: PersonGender?,
     @field:Schema(description = "관계 유형(없을 수 있음).", example = "대학 동기")
     val relationType: String?,
     @field:Schema(description = "관계태그 칩 요약 참조 목록.")
@@ -98,6 +102,7 @@ data class PersonResponse(
             firstMetDate = person.firstMetDate,
             lastMetDate = person.lastMetDate,
             profileImageUrl = person.profileImageUrl,
+            gender = person.gender?.let { PersonGender.valueOf(it.name) },
             relationType = person.relationType,
             relationTags = relationTagChipIds.mapNotNull { id ->
                 tagLabels[id]?.let { ChipRef(id, it) }
@@ -156,6 +161,8 @@ data class PersonDetailResponse(
     val lastMetDate: LocalDate?,
     @field:Schema(description = "프로필 이미지 URL(없을 수 있음).", example = "/images/p7.jpg")
     val profileImageUrl: String?,
+    @field:Schema(description = "기본 아바타 선택용 성별 힌트(없을 수 있음).", example = "FEMALE")
+    val gender: PersonGender?,
     @field:Schema(description = "관계 유형(없을 수 있음).", example = "대학 동기")
     val relationType: String?,
     @field:Schema(description = "관계태그 칩 요약 참조 목록.")
@@ -185,6 +192,7 @@ data class PersonDetailResponse(
             firstMetDate = person.firstMetDate,
             lastMetDate = stats.lastMetDate,
             profileImageUrl = person.profileImageUrl,
+            gender = person.gender?.let { PersonGender.valueOf(it.name) },
             relationType = person.relationType,
             relationTags = relationTagChipIds.mapNotNull { id -> tagLabels[id]?.let { ChipRef(id, it) } },
             likes = person.likes.toList(),
@@ -194,4 +202,10 @@ data class PersonDetailResponse(
             stats = PersonStats.from(person, stats, today),
         )
     }
+}
+
+@Schema(description = "기본 아바타 선택용 성별 힌트.")
+enum class PersonGender {
+    FEMALE,
+    MALE,
 }
