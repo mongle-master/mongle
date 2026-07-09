@@ -1,3 +1,5 @@
+import { markApiFallbackUsed } from '@/lib/api/fallback-status'
+
 export async function safeApi<T>(
   fn: () => Promise<T>,
   fallback: T,
@@ -5,6 +7,7 @@ export async function safeApi<T>(
   try {
     return await fn()
   } catch {
+    markApiFallbackUsed()
     return fallback
   }
 }

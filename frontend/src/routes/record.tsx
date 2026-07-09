@@ -18,7 +18,11 @@ import { fetchPersons } from '@/lib/api/persons'
 import type { EventRequest, PersonResponse } from '@/lib/api/types'
 import { mediaUrl } from '@/lib/api/client'
 import { safeApi } from '@/lib/api/safe'
-import { FALLBACK_CHIPS, fallbackEvent } from '@/lib/fallback-data'
+import {
+  FALLBACK_CHIPS,
+  FALLBACK_PERSONS,
+  fallbackEvent,
+} from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
 import {
   formatOccurredTimeForApi,
@@ -80,7 +84,9 @@ function RecordPage() {
   })
   const personsQuery = useQuery({
     queryKey: queryKeys.persons(),
-    queryFn: (): Promise<PersonResponse[]> => safeApi(() => fetchPersons(), []),
+    queryFn: (): Promise<PersonResponse[]> =>
+      safeApi(() => fetchPersons(), FALLBACK_PERSONS),
+    initialData: FALLBACK_PERSONS,
   })
   const eventQuery = useQuery({
     queryKey: queryKeys.event(editingEventId ?? 0),
@@ -92,7 +98,7 @@ function RecordPage() {
     enabled: isEditing,
   })
 
-  const persons = personsQuery.data ?? []
+  const persons = personsQuery.data
   const chips = chipsQuery.data
 
   const categoryChips = useMemo(
@@ -159,19 +165,12 @@ function RecordPage() {
   useEffect(() => {
     if (isEditing) return
     if (autoOpenedPersonModal.current) return
-    if (personsQuery.isPending) return
     if (presetPersonId || selectedPersonIds.length > 0) return
     if (persons.length === 0) return
     autoOpenedPersonModal.current = true
     setPersonModalDismissible(false)
     setPersonModalOpen(true)
-  }, [
-    isEditing,
-    persons.length,
-    personsQuery.isPending,
-    presetPersonId,
-    selectedPersonIds.length,
-  ])
+  }, [isEditing, persons.length, presetPersonId, selectedPersonIds.length])
 
   useEffect(() => {
     if (!isEditing || !eventQuery.data) return
@@ -285,8 +284,7 @@ function RecordPage() {
   }
 
   const pageTitle = isEditing ? '기록 수정' : '새 기록'
-  const isLoading =
-    personsQuery.isPending || (isEditing && eventQuery.isPending)
+  const isLoading = isEditing && eventQuery.isPending
 
   if (isLoading) {
     return (
