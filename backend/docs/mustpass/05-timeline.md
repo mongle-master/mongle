@@ -16,7 +16,7 @@
 
 - `GET /api/v1/persons/{personId}/timeline` — 그 인물에 연결된 모든 기록(대표/비대표 무관)을 최신순.
 - **인물 소유·active 아니면 404 `NOT_FOUND`** (없는·타인·삭제된 personId).
-- 카드 = [03-event.md](03-event.md)의 `EventResponse`(제목·카테고리·언제·왜/무엇을·감정·사진·연결 인물). 자동 제목·rename 반영 동일.
+- 카드 = [03-event.md](03-event.md)의 `EventResponse`(제목·카테고리·언제·메모·감정·사진·연결 인물). 자동 제목·rename 반영 동일.
 - **카테고리 필터**(선택, `categoryChipIds` 다중): 여러 개 = **합집합(OR)**, 하나라도 맞으면 노출. 미지정이면 전체. **필터는 목록에만** 적용.
 
 ## #45 활동 흐름 집계 (must)

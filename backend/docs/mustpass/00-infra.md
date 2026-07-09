@@ -63,7 +63,7 @@
 | `CHIP_NAME_MAX` | 10 | 칩·태그 이름 |
 | `EVENT_TITLE_MAX` | 40 | 기록 제목 |
 | `PREFERENCE_ITEM_MAX` | 30 | 좋아하는 것 / 조심할 것(각 항목) |
-| `WHY_MAX` / `WHAT_MAX` | 100 | 왜 / 무엇을(각) |
+| `MEMO_MAX` | 200 | 메모 |
 | `CHIP_PER_KIND_MAX` | 30 | 개인 칩 종류별 개수 |
 | `EMOTION_PER_EVENT_MAX` | 5 | 기록당 감정 |
 | `RELATION_TAG_PER_PERSON_MAX` | 10 | 인물당 관계태그 |
