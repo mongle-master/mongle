@@ -60,10 +60,8 @@ data class TimelineCard(
     val id: Long,
     @field:Schema(description = "표시용 최종 제목(자동 제목 포함).", example = "김하늘 · 만남")
     val title: String,
-    @field:Schema(description = "왜(계기·맥락).", example = "오랜만에 얼굴 보려고")
-    val why: String?,
-    @field:Schema(description = "무엇을(있었던 일).", example = "저녁 먹고 한강에서 두 시간 걸었다")
-    val what: String?,
+    @field:Schema(description = "메모(함께한 이야기).", example = "오랜만에 얼굴 보고 한강에서 두 시간 걸었다")
+    val memo: String?,
     @field:Schema(description = "일어난 날짜.", example = "2026-07-05")
     val occurredDate: LocalDate,
     @field:Schema(description = "일어난 시각(없을 수 있음).", example = "19:30:00")
@@ -83,8 +81,7 @@ data class TimelineCard(
         fun from(base: EventResponse, persons: List<TimelinePerson>): TimelineCard = TimelineCard(
             id = base.id,
             title = base.title,
-            why = base.why,
-            what = base.what,
+            memo = base.memo,
             occurredDate = base.occurredDate,
             occurredTime = base.occurredTime,
             category = base.category,

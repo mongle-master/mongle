@@ -271,8 +271,7 @@ const fallbackEvents = (
   {
     id: personId * 100 + 1,
     title: '유진 결혼식',
-    why: '결혼식 참석',
-    what: '축하해주고 맛있는 거 많이 먹기',
+    memo: '결혼식 참석\n축하해주고 맛있는 거 많이 먹기',
     occurredDate: '2024-05-26',
     occurredTime: null,
     category: { id: 303, label: '기념일' },
@@ -285,8 +284,7 @@ const fallbackEvents = (
   {
     id: personId * 100 + 2,
     title: '카페 약속',
-    why: '오랜만에 수다',
-    what: '근황 토크 + 신상 카페 발견',
+    memo: '오랜만에 수다\n근황 토크 + 신상 카페 발견',
     occurredDate: '2024-04-13',
     occurredTime: '15:00:00',
     category: { id: 301, label: '만남' },
@@ -299,8 +297,7 @@ const fallbackEvents = (
   {
     id: personId * 100 + 3,
     title: '개발 모임',
-    why: null,
-    what: '코드 리뷰 + 아키텍처 이야기',
+    memo: '코드 리뷰 + 아키텍처 이야기',
     occurredDate: '2024-02-17',
     occurredTime: '13:00:00',
     category: { id: 301, label: '만남' },
@@ -372,8 +369,7 @@ function toTimelineCard(
   return {
     id: event.id,
     title: event.title,
-    why: event.why,
-    what: event.what,
+    memo: event.memo,
     occurredDate: event.occurredDate,
     occurredTime: event.occurredTime,
     category: event.category,

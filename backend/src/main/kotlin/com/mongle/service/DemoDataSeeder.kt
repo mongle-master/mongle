@@ -149,40 +149,34 @@ class DemoDataSeeder(
         )
         saveRelationTags(hajun.id!!, tagIds(relationTagIds, "대학동기", "친구"))
 
-        // 기록 8건: 만남/연락/기념일 섞고 감정·날씨·왜·무엇을 다양하게, 과거 여러 달에 분산.
+        // 기록 8건: 만남/연락/기념일 섞고 감정·날씨·메모 다양하게, 과거 여러 달에 분산.
         // '정확히 1년 전 오늘' 1건 포함(1년 전 오늘·활동흐름·친밀도 데모 성립 조건, #13).
         seedEvent(ownerId, today.minusYears(1), category["만남"]!!, weather["맑음"], listOf(hajun.id!!), emotionIds(emotion, "반가움", "즐거움")) {
-            why = "오랜만에 얼굴 보고 싶어서"
-            what = "한강 피크닉"
+            memo = "오랜만에 얼굴 보고 싶어서\n한강 피크닉"
         }
         seedEvent(ownerId, today.minusDays(3), category["만남"]!!, weather["흐림"], listOf(seoyeon.id!!), emotionIds(emotion, "편안", "고마움")) {
             occurredTime = LocalTime.of(15, 0)
             title = "서연이랑 카페"
-            why = "시험 끝나고 기분전환"
-            what = "홍대 카페에서 수다"
+            memo = "시험 끝나고 기분전환\n홍대 카페에서 수다"
         }
         seedEvent(ownerId, today.minusDays(10), category["만남"]!!, weather["더움"], listOf(yunseo.id!!), emotionIds(emotion, "즐거움")) {
-            what = "동네 저녁 산책"
+            memo = "동네 저녁 산책"
         }
         seedEvent(ownerId, today.minusMonths(1), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
-            why = "문득 생각나서"
-            what = "오랜만에 안부 전화"
+            memo = "문득 생각나서\n오랜만에 안부 전화"
         }
         seedEvent(ownerId, today.minusMonths(2), category["만남"]!!, weather["맑음"], listOf(minji.id!!, seoyeon.id!!), emotionIds(emotion, "반가움", "편안", "즐거움")) {
-            why = "엄마 생신"
-            what = "가족 모임 겸 저녁"
+            memo = "엄마 생신\n가족 모임 겸 저녁"
         }
         seedEvent(ownerId, today.minusMonths(4), category["기념일"]!!, weather["쌀쌀"], listOf(seoyeon.id!!), emotionIds(emotion, "뭉클", "고마움")) {
             title = "서연 생일"
-            why = "10년지기 생일"
-            what = "생일 축하 저녁"
+            memo = "10년지기 생일\n생일 축하 저녁"
         }
         seedEvent(ownerId, today.minusMonths(7), category["만남"]!!, weather["비"], listOf(hajun.id!!, yunseo.id!!), emotionIds(emotion, "즐거움", "그냥")) {
-            what = "동아리 번개 모임"
+            memo = "동아리 번개 모임"
         }
         seedEvent(ownerId, today.minusMonths(9), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
-            why = "협업 논의"
-            what = "프로젝트 관련 메시지"
+            memo = "협업 논의\n프로젝트 관련 메시지"
         }
     }
 

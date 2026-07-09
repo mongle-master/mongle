@@ -88,8 +88,7 @@ export type ThrowbackResponse = {
 export type EventResponse = {
   id: number
   title: string
-  why: string | null
-  what: string | null
+  memo: string | null
   occurredDate: string
   occurredTime: string | null
   category: ChipRef | null
@@ -102,8 +101,7 @@ export type EventResponse = {
 
 export type EventRequest = {
   title?: string | null
-  why?: string | null
-  what?: string | null
+  memo?: string | null
   occurredDate?: string | null
   occurredTime?: string | null
   categoryChipId?: number | null
@@ -133,8 +131,7 @@ export type TimelinePerson = {
 export type TimelineCard = {
   id: number
   title: string
-  why: string | null
-  what: string | null
+  memo: string | null
   occurredDate: string
   occurredTime: string | null
   category: ChipRef | null

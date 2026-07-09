@@ -14,8 +14,7 @@ object ValidationLimits {
     const val CHIP_NAME_MAX = 10
     const val EVENT_TITLE_MAX = 40
     const val PREFERENCE_ITEM_MAX = 30
-    const val WHY_MAX = 100
-    const val WHAT_MAX = 100
+    const val MEMO_MAX = 200
 
     // 개수 (§12.2 / §12.6)
     const val CHIP_PER_KIND_MAX = 30

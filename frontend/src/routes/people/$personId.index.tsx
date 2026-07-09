@@ -295,7 +295,7 @@ function PersonProfilePage() {
 
 function RecentEventRow({ event }: { event: EventResponse }) {
   const photoSrc = mediaUrl(event.photoUrls[0])
-  const summary = event.why || event.what
+  const summary = event.memo
 
   return (
     <Link

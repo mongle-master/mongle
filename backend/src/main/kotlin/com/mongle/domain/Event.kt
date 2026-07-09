@@ -42,10 +42,8 @@ class Event(
     // 사용자가 명시 입력한 제목만 저장. null 이면 조회 시 자동 제목(#37).
     @Column(name = "title")
     var title: String? = null,
-    @Column(name = "why")
-    var why: String? = null,
-    @Column(name = "what")
-    var what: String? = null,
+    @Column(name = "memo")
+    var memo: String? = null,
 ) : SoftDeletableEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

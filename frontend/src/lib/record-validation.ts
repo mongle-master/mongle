@@ -1,12 +1,11 @@
 const TITLE_MAX = 40
-const TEXT_MAX = 100
+const TEXT_MAX = 200
 const PHOTO_MAX = 5
 
 export function validateRecordForm(data: {
   personIds: number[]
   title: string
-  why: string
-  what: string
+  memo: string
   photoUrls: string[]
   occurredDate: string
 }) {
@@ -16,7 +15,7 @@ export function validateRecordForm(data: {
   if (data.title.length > TITLE_MAX) {
     return `최대 ${TITLE_MAX}자까지 쓸 수 있어요.`
   }
-  if (data.why.length > TEXT_MAX || data.what.length > TEXT_MAX) {
+  if (data.memo.length > TEXT_MAX) {
     return `최대 ${TEXT_MAX}자까지 쓸 수 있어요.`
   }
   if (data.photoUrls.length > PHOTO_MAX) {

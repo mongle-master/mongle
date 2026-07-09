@@ -83,7 +83,7 @@ export function PersonSelectModal({
               id="person-select-title"
               className="text-base font-extrabold tracking-tight"
             >
-              누구와 함께였어요?
+              누구와 함께했나요?
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
               한 명 이상 선택해 주세요

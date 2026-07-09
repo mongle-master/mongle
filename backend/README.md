@@ -11,39 +11,69 @@
 
 서버 기동 후 (→ [runbook/local.md](docs/runbook/local.md)):
 
-| 경로 | 내용 |
-|---|---|
+
+| 경로                       | 내용                                                |
+| ------------------------ | ------------------------------------------------- |
 | `/swagger-ui/index.html` | Swagger UI — 우상단 **Authorize**에 Bearer 토큰 입력 후 호출 |
-| `/v3/api-docs` | OpenAPI 3 JSON |
+| `/v3/api-docs`           | OpenAPI 3 JSON                                    |
 
-- 두 경로는 무인증. 나머지 `/api/v1/**`는 JWT 필요 — 토큰 발급은 `POST /api/v1/auth/token` `{"username":"demo"}`.
-- 로컬 기본 주소: http://localhost:8080/swagger-ui/index.html
 
-### 화면 ↔ 엔드포인트 매핑
+- 두 경로는 무인증. 나머지 `/api/v1/`**는 JWT 필요 — 토큰 발급은 `POST /api/v1/auth/token` `{"username":"demo"}`.
+- 로컬 기본 주소: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
-| PRD 화면(SSOT) | 주요 엔드포인트 |
-|---|---|
-| [01 홈·관계 대시보드](../docs/prd/01-home-dashboard.md) | `GET /api/v1/home/relation-map` · `GET /api/v1/home/throwback` |
-| [02 사람(등록·프로필)](../docs/prd/02-person.md) | `POST·GET /api/v1/persons` · `GET·PUT·DELETE /api/v1/persons/{id}` · `PATCH /api/v1/persons/{id}/favorite` |
-| [03 사람별 타임라인](../docs/prd/03-timeline.md) | `GET /api/v1/persons/{id}/timeline` · `GET /api/v1/persons/{id}/activity-flow` |
-| [04 상황 기록 작성](../docs/prd/04-record.md) | `POST /api/v1/events` · `GET·PUT /api/v1/events/{id}` · `POST /api/v1/images` |
-| [05 전체 타임라인](../docs/prd/05-my-timeline.md) | `GET /api/v1/timeline` |
-| 공통(칩·인증) | `/api/v1/chips`(CRUD) · `POST /api/v1/auth/token` |
+### 화면 ↔ API 연계 매핑
 
-세부 파라미터·응답은 Swagger가 SSOT다.
+Swagger SSOT: [http://localhost:18081/swagger-ui/index.html](http://localhost:18081/swagger-ui/index.html) (로컬 compose 기본 호스트 포트 `18081`)
+
+
+| 화면 (프론트 라우트)                       | API                                                  | 클라이언트                          | 연동                                        |
+| ---------------------------------- | ---------------------------------------------------- | ------------------------------ | ----------------------------------------- |
+| **앱 부트** (`main.tsx`)              | `POST /api/v1/auth/token`                            | `ensureDemoAuth` → `loginDemo` | ✅                                         |
+| **홈** `/`                          | `GET /api/v1/home/relation-map`                      | `fetchRelationMap`             | ✅                                         |
+|                                    | `GET /api/v1/home/relation-map?relationTagChipIds=`  | `fetchRelationMap(ids)`        | ✅ (관계태그 필터)                               |
+|                                    | `GET /api/v1/home/throwback`                         | `fetchThrowback`               | ✅ (204 → 카드 숨김)                           |
+| **사람 목록** `/people`                | `GET /api/v1/persons?sort=&query=`                   | `fetchPersons`                 | ✅                                         |
+| **인연 추가** `/people/new`            | `POST /api/v1/persons`                               | `createPerson`                 | ✅                                         |
+|                                    | `GET /api/v1/chips?type=RELATION_TAG`                | `fetchChips`                   | ✅                                         |
+|                                    | `POST /api/v1/chips` (RELATION_TAG)                  | `createChip`                   | ✅                                         |
+|                                    | `POST /api/v1/images`                                | `uploadImage`                  | ✅ (프로필 사진)                                |
+| **프로필** `/people/$id`              | `GET /api/v1/persons/{id}`                           | `fetchPerson`                  | ✅                                         |
+|                                    | `PATCH /api/v1/persons/{id}/favorite`                | `togglePersonFavorite`         | ✅                                         |
+|                                    | `GET /api/v1/persons/{id}/timeline`                  | `fetchPersonTimeline`          | ✅ (최근 3건 미리보기)                            |
+| **프로필 수정** `/people/$id/edit`      | `PUT /api/v1/persons/{id}`                           | `updatePerson`                 | ✅                                         |
+|                                    | `DELETE /api/v1/persons/{id}`                        | `deletePerson`                 | ✅                                         |
+| **인물 타임라인** `/people/$id/timeline` | `GET /api/v1/persons/{id}/timeline?categoryChipIds=` | `fetchPersonTimeline`          | ✅                                         |
+|                                    | `GET /api/v1/persons/{id}/activity-flow`             | `fetchActivityFlow`            | ✅                                         |
+|                                    | `GET /api/v1/chips?type=CATEGORY`                    | `fetchChips`                   | ✅                                         |
+| **기록 작성** `/record`                | `POST /api/v1/events`                                | `createEvent`                  | ✅                                         |
+|                                    | `GET·PUT /api/v1/events/{id}`                        | `fetchEvent` · `updateEvent`   | ✅ (`?eventId=` 수정 모드)                     |
+|                                    | `GET /api/v1/persons`                                | `fetchPersons`                 | ✅                                         |
+|                                    | `GET /api/v1/chips` (CATEGORY·EMOTION·WEATHER)       | `fetchChips`                   | ✅                                         |
+|                                    | `POST /api/v1/images`                                | `uploadImage`                  | ✅ (기록 사진 최대 5장)                           |
+| **전체 타임라인** `/timeline`            | `GET /api/v1/timeline?categoryChipIds=&personIds=`   | `fetchMyTimeline`              | ✅                                         |
+|                                    | 카드 탭 → `/record?eventId=`                            | —                              | ✅                                         |
+| **설정** `/settings`                 | `GET /api/v1/chips`                                  | `fetchChips`                   | ✅                                         |
+|                                    | `POST /api/v1/chips`                                 | `createChip`                   | ✅ (CATEGORY·RELATION_TAG·EMOTION·WEATHER) |
+|                                    | `PATCH /api/v1/chips/{id}`                           | `renameChip`                   | ✅ (개인 칩만)                                 |
+|                                    | `DELETE /api/v1/chips/{id}`                          | `deleteChip`                   | ✅ (개인 칩만)                                 |
+
+
+PRD ↔ 화면 대응은 [../docs/prd](../docs/prd/) 참조. 세부 스키마·에러 코드는 Swagger가 SSOT다.
 
 ## 스택
 
-| 구분 | 버전 |
-| --- | --- |
-| Kotlin | 2.1.10 |
-| Spring Boot | 3.5.0 |
-| Java (toolchain) | 21 |
-| Build | Gradle 9.4 (Kotlin DSL + Version Catalog) |
-| DB | MySQL 8.4(도커) / H2 파일(비도커 bootRun) |
-| Lint | ktlint |
 
-의존성/플러그인 버전은 [`gradle/libs.versions.toml`](gradle/libs.versions.toml) 한 곳에서 관리한다.
+| 구분               | 버전                                        |
+| ---------------- | ----------------------------------------- |
+| Kotlin           | 2.1.10                                    |
+| Spring Boot      | 3.5.0                                     |
+| Java (toolchain) | 21                                        |
+| Build            | Gradle 9.4 (Kotlin DSL + Version Catalog) |
+| DB               | MySQL 8.4(도커) / H2 파일(비도커 bootRun)        |
+| Lint             | ktlint                                    |
+
+
+의존성/플러그인 버전은 `[gradle/libs.versions.toml](gradle/libs.versions.toml)` 한 곳에서 관리한다.
 
 ## 프로젝트 구조
 

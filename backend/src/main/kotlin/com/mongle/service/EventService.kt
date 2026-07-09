@@ -93,16 +93,14 @@ class EventService(
         EventValidator.validateDate(date)
 
         val title = request.title?.trim()?.ifBlank { null }?.also { Validators.maxLength(it, ValidationLimits.EVENT_TITLE_MAX) }
-        val why = request.why?.trim()?.ifBlank { null }?.also { Validators.maxLength(it, ValidationLimits.WHY_MAX) }
-        val what = request.what?.trim()?.ifBlank { null }?.also { Validators.maxLength(it, ValidationLimits.WHAT_MAX) }
+        val memo = request.memo?.trim()?.ifBlank { null }?.also { Validators.maxLength(it, ValidationLimits.MEMO_MAX) }
 
         event.occurredDate = date
         event.occurredTime = request.occurredTime
         event.categoryChipId = requireNotNull(categoryChipId) // validateCategory 가 non-null 을 보장
         event.weatherChipId = request.weatherChipId
         event.title = title
-        event.why = why
-        event.what = what
+        event.memo = memo
         event.replacePhotos(request.photoUrls.map { it.trim() }.filter { it.isNotBlank() })
         return persons
     }

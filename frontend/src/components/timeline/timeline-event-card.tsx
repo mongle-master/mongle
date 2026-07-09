@@ -14,8 +14,7 @@ import { formatWhen } from '@/lib/format'
 export type TimelineEventCardItem = {
   id: number
   title: string
-  why: string | null
-  what: string | null
+  memo: string | null
   occurredDate: string
   occurredTime: string | null
   category: ChipRef | null
@@ -34,8 +33,7 @@ export function fromTimelineCard(card: TimelineCard): TimelineEventCardItem {
   return {
     id: card.id,
     title: card.title,
-    why: card.why,
-    what: card.what,
+    memo: card.memo,
     occurredDate: card.occurredDate,
     occurredTime: card.occurredTime,
     category: card.category,
@@ -48,8 +46,7 @@ export function fromEventResponse(event: EventResponse): TimelineEventCardItem {
   return {
     id: event.id,
     title: event.title,
-    why: event.why,
-    what: event.what,
+    memo: event.memo,
     occurredDate: event.occurredDate,
     occurredTime: event.occurredTime,
     category: event.category,
@@ -143,20 +140,12 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
                 </span>
                 {when}
               </p>
-              {item.why ? (
+              {item.memo ? (
                 <p>
                   <span className="mr-2 font-extrabold text-muted-foreground">
-                    왜
+                    메모
                   </span>
-                  {item.why}
-                </p>
-              ) : null}
-              {item.what ? (
-                <p>
-                  <span className="mr-2 font-extrabold text-muted-foreground">
-                    무엇
-                  </span>
-                  {item.what}
+                  {item.memo}
                 </p>
               ) : null}
             </div>

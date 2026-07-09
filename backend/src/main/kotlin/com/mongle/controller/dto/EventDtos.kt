@@ -15,10 +15,8 @@ import java.time.LocalTime
 data class EventRequest(
     @field:Schema(description = "기록 제목. 미입력하면 조회 시 '대표 인물 · 카테고리'로 자동 제목을 만든다.", example = "한강 산책")
     val title: String? = null,
-    @field:Schema(description = "왜(계기·맥락) 자유 서술.", example = "오랜만에 얼굴 보려고")
-    val why: String? = null,
-    @field:Schema(description = "무엇을(있었던 일) 자유 서술.", example = "저녁 먹고 한강에서 두 시간 걸었다")
-    val what: String? = null,
+    @field:Schema(description = "메모(함께한 이야기) 자유 서술.", example = "오랜만에 얼굴 보고 한강에서 두 시간 걸었다")
+    val memo: String? = null,
     @field:Schema(description = "기록한 일이 일어난 날짜. 미지정 시 오늘로 채운다. 미래일 수 없다.", example = "2026-07-05")
     val occurredDate: LocalDate? = null,
     @field:Schema(description = "일어난 시각(선택).", example = "19:30:00")
@@ -42,10 +40,8 @@ data class EventResponse(
     // 표시용 최종 제목: 사용자가 입력했으면 그 값, 미입력이면 조회 시점에 계산한 자동 제목(#37).
     @field:Schema(description = "표시용 최종 제목. 사용자가 입력했으면 그 값, 아니면 '대표 인물 · 카테고리' 자동 제목.", example = "김하늘 · 만남")
     val title: String,
-    @field:Schema(description = "왜(계기·맥락).", example = "오랜만에 얼굴 보려고")
-    val why: String?,
-    @field:Schema(description = "무엇을(있었던 일).", example = "저녁 먹고 한강에서 두 시간 걸었다")
-    val what: String?,
+    @field:Schema(description = "메모(함께한 이야기).", example = "오랜만에 얼굴 보고 한강에서 두 시간 걸었다")
+    val memo: String?,
     @field:Schema(description = "일어난 날짜.", example = "2026-07-05")
     val occurredDate: LocalDate,
     @field:Schema(description = "일어난 시각(없을 수 있음).", example = "19:30:00")
@@ -78,8 +74,7 @@ data class EventResponse(
         ): EventResponse = EventResponse(
             id = requireNotNull(event.id) { "저장되지 않은 Event는 응답으로 변환할 수 없습니다." },
             title = event.title ?: autoTitle(event, personIds, chipLabels, personNames),
-            why = event.why,
-            what = event.what,
+            memo = event.memo,
             occurredDate = event.occurredDate,
             occurredTime = event.occurredTime,
             category = chipLabels[event.categoryChipId]?.let { ChipRef(event.categoryChipId, it) },

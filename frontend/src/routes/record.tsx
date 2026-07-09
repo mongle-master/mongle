@@ -67,8 +67,7 @@ function RecordPage() {
   const [personSelectError, setPersonSelectError] = useState(false)
   const [categoryChipId, setCategoryChipId] = useState<number | null>(null)
   const [title, setTitle] = useState('')
-  const [why, setWhy] = useState('')
-  const [what, setWhat] = useState('')
+  const [memo, setMemo] = useState('')
   const [occurredDate, setOccurredDate] = useState(() =>
     new Date().toISOString().slice(0, 10),
   )
@@ -135,29 +134,29 @@ function RecordPage() {
         subtitle: '바뀐 내용을 저장하면 타임라인에 반영돼요.',
       }
     }
-    if (selectedPersons.length === 0) {
-      return {
-        title: '오늘 누구와 함께였어요?',
-        subtitle: '함께한 사람을 먼저 선택해 주세요.',
-      }
-    }
-    if (selectedPersons.length === 1) {
-      return {
-        title: (
-          <>
-            오늘{' '}
-            <span className="underline underline-offset-4">
-              {selectedPersons[0].name}
-            </span>
-            랑 어땠어요?
-          </>
-        ),
-        subtitle: '세 줄이면 충분해요.',
-      }
-    }
+    // if (selectedPersons.length === 0) {
+    //   return {
+    //     title: '오늘 누구와 함께였어요?',
+    //     // subtitle: '함께한 사람을 먼저 선택해 주세요.',
+    //   }
+    // }
+    // if (selectedPersons.length === 1) {
+    //   return {
+    //     title: (
+    //       <>
+    //         오늘
+    //         <span className="underline underline-offset-4">
+    //           {selectedPersons[0].name}
+    //         </span>
+    //         랑 어땠어요?
+    //       </>
+    //     ),
+    //     subtitle: '세 줄이면 충분해요.',
+    //   }
+    // }
     return {
-      title: '오늘 어땠어요?',
-      subtitle: `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명과 함께한 순간이에요.`,
+      title: '오늘의 몽글, 남겨볼까요?',
+      // subtitle: `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명과 함께한 순간이에요.`,
     }
   }, [isEditing, selectedPersons])
 
@@ -180,8 +179,7 @@ function RecordPage() {
     hydratedEventId.current = editingEventId ?? null
     setSelectedPersonIds(event.persons.map((p) => p.id))
     setTitle(event.title)
-    setWhy(event.why ?? '')
-    setWhat(event.what ?? '')
+    setMemo(event.memo ?? '')
     setOccurredDate(event.occurredDate)
     setOccurredTime(formatOccurredTimeForInput(event.occurredTime))
     setCategoryChipId(event.category?.id ?? null)
@@ -231,8 +229,7 @@ function RecordPage() {
 
   const buildPayload = (): EventRequest => ({
     title: title.trim() || null,
-    why: why.trim() || null,
-    what: what.trim() || null,
+    memo: memo.trim() || null,
     occurredDate,
     occurredTime: formatOccurredTimeForApi(occurredTime),
     categoryChipId: categoryChipId ?? categoryChips.at(0)?.id ?? null,
@@ -246,8 +243,7 @@ function RecordPage() {
     const validationError = validateRecordForm({
       personIds: selectedPersonIds,
       title: title.trim(),
-      why: why.trim(),
-      what: what.trim(),
+      memo: memo.trim(),
       photoUrls,
       occurredDate,
     })
@@ -284,7 +280,7 @@ function RecordPage() {
     }
   }
 
-  const pageTitle = isEditing ? '기록 수정' : '새 기록'
+  const pageTitle = isEditing ? '몽글 수정' : '새 몽글'
   const isLoading = isEditing && eventQuery.isPending
   const recordHeader = (
     <FormPageHeader
@@ -466,27 +462,14 @@ function RecordPage() {
 
           <section>
             <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              왜
+              메모
             </p>
             <Textarea
-              value={why}
-              onChange={(e) => setWhy(e.target.value)}
-              maxLength={100}
-              placeholder="왜 만났는지"
-              className="min-h-16 resize-none text-xs placeholder:text-xs md:text-xs"
-            />
-          </section>
-
-          <section>
-            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              무엇을
-            </p>
-            <Textarea
-              value={what}
-              onChange={(e) => setWhat(e.target.value)}
-              maxLength={100}
-              placeholder="무엇을 했는지"
-              className="min-h-16 resize-none text-xs placeholder:text-xs md:text-xs"
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              maxLength={200}
+              placeholder="오늘 함께한 이야기를 적어주세요"
+              className="min-h-24 resize-none text-xs placeholder:text-xs md:text-xs"
             />
           </section>
 
