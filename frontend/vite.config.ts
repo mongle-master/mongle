@@ -22,6 +22,8 @@ const dirname =
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 const config = defineConfig({
+  // FE_DUMMY_DATA(더미 데이터 모드, src/lib/dummy-mode.ts)를 클라이언트에 노출하기 위한 프리픽스.
+  envPrefix: ['VITE_', 'FE_'],
   resolve: {
     tsconfigPaths: true,
   },
