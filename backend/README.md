@@ -18,7 +18,7 @@
 | `/v3/api-docs`           | OpenAPI 3 JSON                                    |
 
 
-- 두 경로는 무인증. 나머지 `/api/v1/`**는 JWT 필요 — 토큰 발급은 `POST /api/v1/auth/token` `{"username":"demo"}`.
+- 두 경로는 무인증. 나머지 `/api/v1/`**는 JWT 필요 — 토큰 발급은 `POST /api/v1/auth/token` `{"userId":"UUID","username":"이름"}`.
 - 로컬 기본 주소: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
 ### 화면 ↔ API 연계 매핑
@@ -28,7 +28,7 @@ Swagger SSOT: [http://localhost:18081/swagger-ui/index.html](http://localhost:18
 
 | 화면 (프론트 라우트)                       | API                                                  | 클라이언트                          | 연동                                        |
 | ---------------------------------- | ---------------------------------------------------- | ------------------------------ | ----------------------------------------- |
-| **앱 부트** (`main.tsx`)              | `POST /api/v1/auth/token`                            | `ensureDemoAuth` → `loginDemo` | ✅                                         |
+| **앱 부트** (`main.tsx`)              | `POST /api/v1/auth/token` · `POST /api/v1/seed`      | `authenticateUser`             | ✅                                         |
 | **홈** `/`                          | `GET /api/v1/home/relation-map`                      | `fetchRelationMap`             | ✅                                         |
 |                                    | `GET /api/v1/home/relation-map?relationTagChipIds=`  | `fetchRelationMap(ids)`        | ✅ (관계태그 필터)                               |
 |                                    | `GET /api/v1/home/throwback`                         | `fetchThrowback`               | ✅ (204 → 카드 숨김)                           |

@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import java.util.UUID
 
 /**
  * 공통 칩을 특정 사용자가 자기 목록에서만 내린 기록.
@@ -22,7 +23,7 @@ import jakarta.persistence.UniqueConstraint
 )
 class ChipHide(
     @Column(name = "owner_id", nullable = false, updatable = false)
-    val ownerId: Long,
+    val ownerId: UUID,
     @Column(name = "chip_id", nullable = false, updatable = false)
     val chipId: Long,
 ) : BaseEntity() {

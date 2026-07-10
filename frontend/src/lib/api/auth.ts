@@ -1,17 +1,21 @@
 import { api } from '@/lib/api/client'
-import { getToken, setToken } from '@/lib/auth-token'
+import { setToken } from '@/lib/auth-token'
+import type { UserIdentity } from '@/lib/user-identity'
 
 type TokenResponse = { token: string }
 
-export async function loginDemo(username = 'demo') {
+async function issueToken(identity: UserIdentity) {
   const res = await api
-    .post('v1/auth/token', { json: { username } })
+    .post('v1/auth/token', { json: identity })
     .json<TokenResponse>()
   setToken(res.token)
-  return res.token
 }
 
-export async function ensureDemoAuth() {
-  if (getToken()) return
-  await loginDemo('demo')
+async function seedCurrentUser() {
+  await api.post('v1/seed')
+}
+
+export async function authenticateUser(identity: UserIdentity) {
+  await issueToken(identity)
+  await seedCurrentUser()
 }

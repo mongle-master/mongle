@@ -12,6 +12,7 @@ import com.mongle.repository.ChipHideRepository
 import com.mongle.repository.ChipRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
@@ -23,7 +24,7 @@ class ChipService(
      * 사용자 시점 목록 = 공통(안 숨긴 것) + 내 개인(안 지운 것). 공통 먼저·각 표시순서.
      * 다른 서비스(기록·인물)의 칩 참조 검증도 이 집합을 기준으로 한다.
      */
-    fun visibleChips(userId: Long, type: ChipType): List<Chip> {
+    fun visibleChips(userId: UUID, type: ChipType): List<Chip> {
         val hidden = chipHideRepository.findByOwnerId(userId).map { it.chipId }.toSet()
         val common = chipRepository
             .findByTypeAndOwnerIdIsNullAndDeletedAtIsNullOrderByDisplayOrderAsc(type)
@@ -34,7 +35,7 @@ class ChipService(
     }
 
     @Transactional
-    fun create(userId: Long, type: ChipType, rawLabel: String, rawColor: String? = null): Chip {
+    fun create(userId: UUID, type: ChipType, rawLabel: String, rawColor: String? = null): Chip {
         val label = rawLabel.trim()
         val color = normalizeColor(rawColor)
         Validators.requireNotBlank(label, Messages.REQUIRED_CHIP_NAME)
@@ -47,7 +48,7 @@ class ChipService(
     }
 
     @Transactional
-    fun rename(userId: Long, chipId: Long, rawLabel: String, rawColor: String? = null): Chip {
+    fun rename(userId: UUID, chipId: Long, rawLabel: String, rawColor: String? = null): Chip {
         // 개인 칩만 이름을 바꾼다 — 공통·타인·없는 칩은 여기서 잡히지 않아 NOT_FOUND.
         val chip = chipRepository.findByIdAndOwnerIdAndDeletedAtIsNull(chipId, userId)
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
@@ -67,7 +68,7 @@ class ChipService(
      * 타인 개인 칩·없는 칩은 NOT_FOUND. 이미 지운/숨긴 칩 재요청은 멱등.
      */
     @Transactional
-    fun delete(userId: Long, chipId: Long) {
+    fun delete(userId: UUID, chipId: Long) {
         val chip = chipRepository.findById(chipId).orElseThrow { BusinessException(ErrorCode.NOT_FOUND) }
         assertCategoryMinimum(userId, chip)
         when {
@@ -81,7 +82,7 @@ class ChipService(
      * 기록 작성 시 기본 선택할 카테고리 = 사용자 시점 카테고리 목록의 첫 칩(공통 먼저·order 순).
      * 시드상 `만남` 이 기본이고, 그게 삭제·숨김되면 다음 순서가 자연히 승계된다.
      */
-    fun defaultCategoryId(userId: Long): Long? = visibleChips(userId, ChipType.CATEGORY).firstOrNull()?.id
+    fun defaultCategoryId(userId: UUID): Long? = visibleChips(userId, ChipType.CATEGORY).firstOrNull()?.id
 
     /**
      * 만남 카테고리 칩 id(기록의 마지막 만남 파생 판정용 #36). 공통·전 사용자 공유라 userId 무관.
@@ -103,7 +104,7 @@ class ChipService(
     }
 
     /** 카테고리는 사용자 시점 목록이 최소 1개 유지 — 현재 보이는 마지막 1개를 지우려 하면 거절. */
-    private fun assertCategoryMinimum(userId: Long, chip: Chip) {
+    private fun assertCategoryMinimum(userId: UUID, chip: Chip) {
         if (chip.type != ChipType.CATEGORY) return
         val visible = visibleChips(userId, ChipType.CATEGORY)
         if (visible.size <= 1 && visible.any { it.id == chip.id }) {
@@ -111,7 +112,7 @@ class ChipService(
         }
     }
 
-    private fun hideCommon(userId: Long, chip: Chip) {
+    private fun hideCommon(userId: UUID, chip: Chip) {
         val chipId = requireNotNull(chip.id)
         if (!chipHideRepository.existsByOwnerIdAndChipId(userId, chipId)) {
             chipHideRepository.save(ChipHide(ownerId = userId, chipId = chipId))
@@ -119,7 +120,7 @@ class ChipService(
     }
 
     /** 같은 종류 안 중복(공통 전체 + 내 개인 active). excludeId 는 이름변경 시 자기 자신 제외. */
-    private fun assertNoDuplicate(userId: Long, type: ChipType, label: String, excludeId: Long? = null) {
+    private fun assertNoDuplicate(userId: UUID, type: ChipType, label: String, excludeId: Long? = null) {
         val commonDup = chipRepository.existsByTypeAndOwnerIdIsNullAndLabelAndDeletedAtIsNull(type, label)
         val personalDup = if (excludeId == null) {
             chipRepository.existsByTypeAndOwnerIdAndLabelAndDeletedAtIsNull(type, userId, label)

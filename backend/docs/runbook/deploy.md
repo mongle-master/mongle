@@ -44,11 +44,14 @@ Health check: `GET /actuator/health` → `{"status":"UP"}`.
 
 ## 3. 배포 검증
 
+> 사용자 id와 `owner_id`가 bigint에서 UUID로 바뀌는 릴리스다. 기존 DB에는 자동 적용되지 않으므로 배포 전에 DB를 초기화하거나 명시적 타입 변환 마이그레이션을 수행한다.
+
 ```bash
 BASE=https://mongle-backend.onrender.com   # 현재 배포 주소
 curl -s $BASE/actuator/health                    # {"status":"UP"}
 TOKEN=$(curl -s -X POST $BASE/api/v1/auth/token \
-  -H 'Content-Type: application/json' -d '{"username":"smoke"}' \
+  -H 'Content-Type: application/json' \
+  -d '{"userId":"8e0ca8f5-a713-4a90-9df1-15f0be0d843c","username":"smoke"}' \
   | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
 curl -s -X POST $BASE/api/v1/images \
   -H "Authorization: Bearer $TOKEN" -F "file=@some.png;type=image/png"

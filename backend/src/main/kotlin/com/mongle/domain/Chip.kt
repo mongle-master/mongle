@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import java.util.UUID
 
 /**
  * 칩(감정·날씨·카테고리·관계태그 라벨).
@@ -29,7 +30,7 @@ class Chip(
     val type: ChipType,
     // null = 공통, 값 = 개인 소유자. 소유는 생성 후 바뀌지 않는다.
     @Column(name = "owner_id", updatable = false)
-    val ownerId: Long?,
+    val ownerId: UUID?,
     @Column(nullable = false)
     var label: String,
     @Column(length = 7)

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.YearMonth
+import java.util.UUID
 
 /**
  * 타임라인 조회(#44 사람별 피드·#45 활동 흐름·#46 전체 타임라인).
@@ -33,7 +34,7 @@ class TimelineService(
     private val chipService: ChipService,
 ) {
     /** #44 사람별 피드. 카테고리 필터는 다중 OR, 미지정이면 전체. 소유·active 아니면 404. */
-    fun personFeed(userId: Long, personId: Long, categoryChipIds: List<Long>): List<EventResponse> {
+    fun personFeed(userId: UUID, personId: Long, categoryChipIds: List<Long>): List<EventResponse> {
         requireOwnedPerson(userId, personId)
         val events = eventRepository.findByPersonId(personId)
             .filter { categoryChipIds.isEmpty() || it.categoryChipId in categoryChipIds }
@@ -41,7 +42,7 @@ class TimelineService(
     }
 
     /** #45 활동 흐름. 만남/연락/추억 레인 × 최근 6개월 유무 매트릭스. 기타·커스텀 카테고리는 제외. */
-    fun activityFlow(userId: Long, personId: Long): ActivityFlowResponse {
+    fun activityFlow(userId: UUID, personId: Long): ActivityFlowResponse {
         requireOwnedPerson(userId, personId)
         return buildActivityFlow(eventRepository.findByPersonId(personId))
     }
@@ -77,7 +78,7 @@ class TimelineService(
     }
 
     /** #46 전체 타임라인. 카테고리(OR)·사람(OR) 필터, 축간 AND. 월 그룹, 카드에 연결 사람(대표 우선). */
-    fun myTimeline(userId: Long, categoryChipIds: List<Long>, personIds: List<Long>): TimelineResponse {
+    fun myTimeline(userId: UUID, categoryChipIds: List<Long>, personIds: List<Long>): TimelineResponse {
         val afterCategory = eventRepository.findByOwnerIdAndDeletedAtIsNullOrderByOccurredDateDescIdDesc(userId)
             .filter { categoryChipIds.isEmpty() || it.categoryChipId in categoryChipIds }
         // 연결 인물(조인 엔티티)은 사람 필터·카드 표현 양쪽에 쓰이므로 한 번에 로드한다.
@@ -111,7 +112,7 @@ class TimelineService(
         .sortedWith(compareByDescending<Person> { it.favorite }.thenBy { it.name })
         .map { TimelinePerson(requireNotNull(it.id), it.name, it.profileImageUrl, it.favorite) }
 
-    private fun requireOwnedPerson(userId: Long, personId: Long) {
+    private fun requireOwnedPerson(userId: UUID, personId: Long) {
         personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId) ?: throw BusinessException(ErrorCode.NOT_FOUND)
     }
 

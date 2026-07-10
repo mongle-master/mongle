@@ -14,11 +14,12 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OrderColumn
 import jakarta.persistence.Table
 import java.time.LocalDate
+import java.util.UUID
 
 /**
  * 인물(관계를 맺은 사람).
  *
- * 소유는 ownerId(데모 사용자)에 귀속되고 소프트삭제를 상속한다 — 지워도 과거 참조(기록)에는 값이 남는 규약(SoftDeletableEntity).
+ * 소유는 UUID ownerId에 귀속되고 소프트삭제를 상속한다 — 지워도 과거 참조(기록)에는 값이 남는 규약(SoftDeletableEntity).
  * 관계 태그(RELATION_TAG 칩)는 label 을 복사하지 않고 id 만 참조한다(#22) — 칩 이름을 바꾸면 저절로 반영된다.
  */
 @Entity
@@ -28,7 +29,7 @@ import java.time.LocalDate
 )
 class Person(
     @Column(name = "owner_id", nullable = false, updatable = false)
-    val ownerId: Long,
+    val ownerId: UUID,
     @Column(nullable = false)
     var name: String,
     // 생일 연도-선택: 월·일은 함께 있거나 함께 없고(생일 자체가 선택), 연도만 따로 생략 가능(연도 없이 월 일만).

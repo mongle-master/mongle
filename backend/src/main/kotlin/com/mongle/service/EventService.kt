@@ -20,6 +20,7 @@ import com.mongle.repository.PersonRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
@@ -32,7 +33,7 @@ class EventService(
     private val eventEmotionRepository: EventEmotionRepository,
 ) {
     @Transactional
-    fun create(userId: Long, request: EventRequest): EventResponse {
+    fun create(userId: UUID, request: EventRequest): EventResponse {
         val normalized = normalize(request)
         // occurredDate·categoryChipId 는 applyRequest 에서 확정되므로 생성자 값은 즉시 덮인다.
         val event = Event(ownerId = userId, occurredDate = LocalDate.now(), categoryChipId = 0L)
@@ -45,7 +46,7 @@ class EventService(
     }
 
     /** 단건 상세(#38) — 수정 모드 재사용용. 내 소유·active 만, 아니면 NOT_FOUND. */
-    fun detail(userId: Long, eventId: Long): EventResponse = toResponse(loadOwned(userId, eventId))
+    fun detail(userId: UUID, eventId: Long): EventResponse = toResponse(loadOwned(userId, eventId))
 
     /**
      * 전체 수정(#38) — 등록과 같은 입력·검증을 재사용한다. 칩·인물·사진은 보낸 값으로 교체.
@@ -53,7 +54,7 @@ class EventService(
      * (updateLastMetIfNewer 는 전진만). #30 파생 계산이 조회 시 이벤트 기준으로 재계산하므로 여기서 역계산하지 않는다.
      */
     @Transactional
-    fun update(userId: Long, eventId: Long, request: EventRequest): EventResponse {
+    fun update(userId: UUID, eventId: Long, request: EventRequest): EventResponse {
         val normalized = normalize(request)
         val event = loadOwned(userId, eventId)
         val persons = applyRequest(userId, event, normalized)
@@ -72,14 +73,14 @@ class EventService(
         emotionChipIds = request.emotionChipIds.distinct(),
     )
 
-    private fun loadOwned(userId: Long, eventId: Long): Event = eventRepository.findByIdAndOwnerIdAndDeletedAtIsNull(eventId, userId) ?: throw BusinessException(ErrorCode.NOT_FOUND)
+    private fun loadOwned(userId: UUID, eventId: Long): Event = eventRepository.findByIdAndOwnerIdAndDeletedAtIsNull(eventId, userId) ?: throw BusinessException(ErrorCode.NOT_FOUND)
 
     /**
      * 등록·수정이 공유하는 입력 반영. 검증(인물·칩·사진·글자수·날짜)을 모두 통과한 뒤에만 필드를 세팅한다.
      * 사진은 엔티티에 바로 교체하고, 인물·감정은 조인 엔티티라 저장(id 확보) 후 호출자가 syncPersons/syncEmotions 로 교체한다.
      * 반환값(연결 인물)은 파생 갱신(applyDerived)에서 재사용한다 — 같은 트랜잭션의 관리 엔티티라 dirty checking 으로 반영.
      */
-    private fun applyRequest(userId: Long, event: Event, request: EventRequest): List<Person> {
+    private fun applyRequest(userId: UUID, event: Event, request: EventRequest): List<Person> {
         // 인물: 요청 id(정규화 완료) 중 내 소유·active 만 로드해 검증(없는·타인·삭제 id 는 여기서 걸러져 NOT_FOUND).
         val persons = personRepository.findByIdInAndOwnerIdAndDeletedAtIsNull(request.personIds, userId)
         EventValidator.validatePersons(request.personIds, persons.mapNotNull { it.id }.toSet())
@@ -132,7 +133,7 @@ class EventService(
         }
     }
 
-    private fun visibleChipIds(userId: Long, type: ChipType): Set<Long> = chipService.visibleChips(userId, type).mapNotNull { it.id }.toSet()
+    private fun visibleChipIds(userId: UUID, type: ChipType): Set<Long> = chipService.visibleChips(userId, type).mapNotNull { it.id }.toSet()
 
     private fun toResponse(event: Event): EventResponse = toResponses(listOf(event)).first()
 
