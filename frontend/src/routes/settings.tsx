@@ -1,6 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Moon, Pencil, Plus, Sun, Trash2, X } from 'lucide-react'
+import {
+  Check,
+  Moon,
+  Palette,
+  Pencil,
+  Plus,
+  Sun,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { AppShell } from '@/components/layout/app-shell'
@@ -16,6 +25,7 @@ import {
   ListGroupLabel,
 } from '@/components/ui/list-group'
 import {
+  RELATION_TAG_COLOR_OPTIONS,
   RELATION_TAG_COLOR_PALETTE,
   coloredTagStyle,
   normalizeChipColor,
@@ -317,10 +327,13 @@ function TagTypePanel({
       {chips.length > 0 ? (
         <ul className="mb-3 flex flex-wrap gap-2">
           {chips.map((chip) => (
-            <li key={chip.id} className="max-w-full">
+            <li
+              key={chip.id}
+              className={editingId === chip.id ? 'w-full' : 'max-w-full'}
+            >
               {editingId === chip.id ? (
-                <div className="flex max-w-full flex-col gap-2 rounded-2xl border border-primary/30 bg-background p-2">
-                  <div className="flex h-9 max-w-full items-center gap-1 rounded-full px-1 pl-3">
+                <div className="flex w-full max-w-full flex-col gap-3 rounded-xl border border-border bg-muted/35 p-3">
+                  <div className="flex h-10 max-w-full items-center gap-1 rounded-lg border border-border bg-background px-2 pl-3">
                     <Input
                       value={editLabel}
                       onChange={(e) => setEditLabel(e.target.value)}
@@ -332,24 +345,24 @@ function TagTypePanel({
                       maxLength={10}
                       autoFocus
                       disabled={renameMutation.isPending}
-                      className="h-6 min-w-20 max-w-28 border-0 bg-transparent px-0 text-[13px] font-extrabold shadow-none focus-visible:ring-0 md:text-[13px]"
+                      className="h-7 min-w-0 border-0 bg-transparent px-0 text-[14px] font-extrabold shadow-none focus-visible:ring-0 md:text-[14px]"
                     />
                     <button
                       type="button"
                       onClick={() => saveEdit(chip.id)}
                       disabled={!editLabel.trim() || renameMutation.isPending}
-                      className="flex size-6 shrink-0 items-center justify-center rounded-full text-primary hover:bg-primary/10 disabled:opacity-40"
+                      className="flex size-8 shrink-0 items-center justify-center rounded-full text-primary hover:bg-primary/10 disabled:opacity-40"
                       aria-label="저장"
                     >
-                      <Check className="size-3.5" />
+                      <Check className="size-4" />
                     </button>
                     <button
                       type="button"
                       onClick={cancelEdit}
-                      className="flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+                      className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
                       aria-label="수정 취소"
                     >
-                      <X className="size-3.5" />
+                      <X className="size-4" />
                     </button>
                   </div>
                   {supportsColor ? (
@@ -360,39 +373,13 @@ function TagTypePanel({
                   ) : null}
                 </div>
               ) : (
-                <div
-                  className={tagChipClass(false, {
-                    inactiveClassName:
-                      'h-9 max-w-full border-border/60 bg-background px-3 pr-1.5 text-foreground',
-                    className: 'inline-flex items-center gap-0.5',
-                  })}
-                  style={
-                    supportsColor && chip.color
-                      ? coloredTagStyle(chip.color)
-                      : undefined
-                  }
-                >
-                  <span className="min-w-0 truncate">{chip.label}</span>
-                  <div className="flex shrink-0 items-center">
-                    <button
-                      type="button"
-                      onClick={() => startEdit(chip)}
-                      className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-                      aria-label="태그 수정"
-                    >
-                      <Pencil className="size-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(chip.id, chip.label)}
-                      disabled={deleteMutation.isPending}
-                      className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:text-destructive"
-                      aria-label="삭제"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </button>
-                  </div>
-                </div>
+                <TagRowChip
+                  chip={chip}
+                  supportsColor={supportsColor}
+                  onEdit={() => startEdit(chip)}
+                  onDelete={() => handleDelete(chip.id, chip.label)}
+                  deletePending={deleteMutation.isPending}
+                />
               )}
             </li>
           ))}
@@ -403,7 +390,14 @@ function TagTypePanel({
         </p>
       )}
 
-      <ListGroupInset className="flex items-center gap-2">
+      <ListGroupInset className="flex items-center gap-2 px-3">
+        {supportsColor ? (
+          <span
+            className="size-6 shrink-0 rounded-full border border-background shadow-sm ring-1 ring-border"
+            style={{ backgroundColor: normalizeChipColor(draftColor) }}
+            aria-hidden
+          />
+        ) : null}
         <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -441,7 +435,11 @@ function TagTypePanel({
         </Button>
       </ListGroupInset>
       {supportsColor ? (
-        <RelationTagColorPicker value={draftColor} onChange={setDraftColor} />
+        <RelationTagColorPicker
+          className="mt-2"
+          value={draftColor}
+          onChange={setDraftColor}
+        />
       ) : null}
 
       <ConfirmPopup
@@ -466,46 +464,224 @@ function TagTypePanel({
   )
 }
 
+function TagRowChip({
+  chip,
+  supportsColor,
+  onEdit,
+  onDelete,
+  deletePending,
+}: {
+  chip: ChipResponse
+  supportsColor: boolean
+  onEdit: () => void
+  onDelete: () => void
+  deletePending: boolean
+}) {
+  const color = supportsColor ? normalizeChipColor(chip.color) : null
+
+  return (
+    <div
+      className={tagChipClass(false, {
+        inactiveClassName:
+          'h-9 max-w-full border-border/60 bg-background px-2.5 pr-1.5 text-foreground',
+        className: 'inline-flex items-center gap-1.5',
+      })}
+      style={color ? coloredTagStyle(color) : undefined}
+    >
+      {color ? (
+        <span
+          className="size-4 shrink-0 rounded-full border-2 border-background shadow-sm ring-1 ring-black/10"
+          style={{ backgroundColor: color }}
+          title={color}
+          aria-label={`지정 색상 ${color}`}
+        />
+      ) : null}
+      <span className="min-w-0 truncate">{chip.label}</span>
+      <div className="flex shrink-0 items-center">
+        <button
+          type="button"
+          onClick={onEdit}
+          className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label="태그 수정"
+        >
+          <Pencil className="size-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          disabled={deletePending}
+          className="flex size-7 items-center justify-center rounded-full text-muted-foreground hover:text-destructive"
+          aria-label="삭제"
+        >
+          <Trash2 className="size-3.5" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function RelationTagColorPicker({
   value,
   onChange,
+  className,
 }: {
   value: string
   onChange: (value: string) => void
+  className?: string
 }) {
+  const [open, setOpen] = useState(false)
   const normalized = normalizeChipColor(value)
+  const selectedOption = RELATION_TAG_COLOR_OPTIONS.find(
+    (option) => option.value === normalized,
+  )
 
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-1.5">
-      {RELATION_TAG_COLOR_PALETTE.map((color) => {
-        const active = normalized === color
-        return (
-          <button
-            key={color}
-            type="button"
-            onClick={() => onChange(color)}
-            className={cn(
-              'size-7 rounded-full border border-background shadow-sm ring-offset-2 ring-offset-background transition-all',
-              active ? 'ring-2 ring-foreground' : 'ring-1 ring-border/70',
-            )}
-            style={{ backgroundColor: color }}
-            aria-label={`${color} 선택`}
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className={cn(
+          'flex h-10 w-full items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/35 px-3 text-left transition-colors hover:bg-muted/60',
+          className,
+        )}
+        aria-label="색상 선택"
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            className="size-7 shrink-0 rounded-full border border-background shadow-sm ring-1 ring-border"
+            style={{ backgroundColor: normalized }}
+            aria-hidden
           />
-        )
-      })}
-      <label className="relative flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-background">
-        <span
-          className="size-5 rounded-full"
-          style={{ backgroundColor: normalized }}
-        />
-        <input
-          type="color"
-          value={normalized}
-          onChange={(event) => onChange(event.target.value)}
-          className="absolute inset-0 size-full cursor-pointer opacity-0"
-          aria-label="커스텀 색상 선택"
-        />
-      </label>
+          <span className="min-w-0 truncate text-xs font-extrabold text-foreground">
+            {selectedOption?.label ?? normalized}
+          </span>
+        </div>
+        <span className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-2.5 text-[11px] font-extrabold text-muted-foreground">
+          <Palette className="size-3.5" />
+          변경
+        </span>
+      </button>
+
+      <ColorPickerModal
+        open={open}
+        value={normalized}
+        onOpenChange={setOpen}
+        onChange={onChange}
+      />
+    </>
+  )
+}
+
+function ColorPickerModal({
+  open,
+  value,
+  onOpenChange,
+  onChange,
+}: {
+  open: boolean
+  value: string
+  onOpenChange: (open: boolean) => void
+  onChange: (value: string) => void
+}) {
+  if (!open) return null
+
+  const normalized = normalizeChipColor(value)
+  const selectedOption = RELATION_TAG_COLOR_OPTIONS.find(
+    (option) => option.value === normalized,
+  )
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-5">
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/45"
+        aria-label="닫기"
+        onClick={() => onOpenChange(false)}
+      />
+      <div
+        className="relative w-full max-w-sm rounded-2xl border border-border bg-background p-5 shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="color-picker-title"
+      >
+        <button
+          type="button"
+          onClick={() => onOpenChange(false)}
+          className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label="닫기"
+        >
+          <X className="size-4" />
+        </button>
+
+        <div className="pr-9">
+          <h2
+            id="color-picker-title"
+            className="text-base font-extrabold tracking-tight text-foreground"
+          >
+            태그 색상
+          </h2>
+          <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-muted/35 px-3 py-2">
+            <span
+              className="size-7 shrink-0 rounded-full border border-background shadow-sm ring-1 ring-border"
+              style={{ backgroundColor: normalized }}
+              aria-hidden
+            />
+            <span className="text-sm font-extrabold text-foreground">
+              {selectedOption?.label ?? normalized}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-4 gap-2">
+          {RELATION_TAG_COLOR_OPTIONS.map((option) => {
+            const active = normalized === option.value
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value)
+                  onOpenChange(false)
+                }}
+                className={cn(
+                  'flex h-14 items-center gap-2 rounded-xl border bg-background px-2.5 text-left transition-all',
+                  active
+                    ? 'border-foreground ring-2 ring-foreground/15'
+                    : 'border-border hover:bg-muted',
+                )}
+                aria-pressed={active}
+              >
+                <span
+                  className="grid size-7 shrink-0 place-items-center rounded-full border border-background shadow-sm ring-1 ring-black/10"
+                  style={{ backgroundColor: option.value }}
+                >
+                  {active ? (
+                    <Check
+                      className={cn(
+                        'size-4 stroke-[3]',
+                        isLightColor(option.value)
+                          ? 'text-zinc-950'
+                          : 'text-white',
+                      )}
+                    />
+                  ) : null}
+                </span>
+                <span className="min-w-0 truncate text-xs font-extrabold text-foreground">
+                  {option.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
+}
+
+function isLightColor(color: string) {
+  const hex = normalizeChipColor(color).slice(1)
+  const r = Number.parseInt(hex.slice(0, 2), 16)
+  const g = Number.parseInt(hex.slice(2, 4), 16)
+  const b = Number.parseInt(hex.slice(4, 6), 16)
+  return (r * 299 + g * 587 + b * 114) / 1000 > 150
 }
