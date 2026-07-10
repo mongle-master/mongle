@@ -18,6 +18,29 @@ pnpm install
 pnpm dev            # http://localhost:3000
 ```
 
+## 배포 백엔드로 붙기 (로컬 백엔드 없이 개발)
+
+백엔드 데모 서버가 Render에 떠 있다: **`https://mongle-backend.onrender.com`** (배포 구성은 [backend/docs/runbook/deploy.md](../backend/docs/runbook/deploy.md)).
+
+API 베이스는 `VITE_API_URL`로 바꾼다(기본값 `/api` = 로컬 프록시, `src/lib/api/client.ts`):
+
+```bash
+VITE_API_URL=https://mongle-backend.onrender.com/api pnpm dev
+```
+
+curl로 직접 확인:
+
+```bash
+BASE=https://mongle-backend.onrender.com
+curl -s $BASE/actuator/health          # {"status":"UP"}
+curl -s -X POST $BASE/api/v1/auth/token -H 'Content-Type: application/json' -d '{"username":"demo"}'
+# → {"token":"..."} 이후 요청에 Authorization: Bearer {token}
+```
+
+- Swagger: https://mongle-backend.onrender.com/swagger-ui/index.html
+- ⚠️ 무료 티어라 15분 무요청 시 슬립 → 첫 요청이 ~50초 걸릴 수 있다(콜드스타트). 이후엔 정상 속도.
+- 업로드 이미지 URL은 `https://<project>.supabase.co/...` 절대 URL로 내려온다 — `mediaUrl()`이 그대로 통과시킨다.
+
 # Building For Production
 
 To build this application for production:

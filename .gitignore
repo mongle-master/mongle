@@ -9,3 +9,6 @@ node_modules/
 
 # Backend local Gradle cache
 backend/.gradle-home/
+
+# 배포 비밀값 메모 (Render/Supabase — 절대 커밋 금지)
+.env

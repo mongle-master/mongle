@@ -14,10 +14,11 @@
 
 ## 1. Supabase 준비 (한 번)
 
-1. https://supabase.com → 프로젝트 생성(리전 Singapore 권장).
-2. **DB 접속정보**: Project Settings → Database → Connection info(또는 Connection string).
-   - Host, Port(5432 또는 6543 pooler), Database(`postgres`), User(`postgres`), Password.
-   - JDBC URL 예: `jdbc:postgresql://<host>:5432/postgres`
+1. https://supabase.com → 프로젝트 생성(리전은 한국 대상이면 Seoul `ap-northeast-2`).
+2. **DB 접속정보**: 대시보드 상단 **Connect** 버튼 → **Session pooler** 섹션.
+   - ⚠️ **반드시 Session Pooler 주소**(`aws-X-<region>.pooler.supabase.com:5432`, user `postgres.<ref>`)를 쓴다.
+     Direct 주소(`db.<ref>.supabase.co`)는 무료 티어에서 **IPv6 전용**이라 Render(IPv4만)에서 접속 불가.
+   - JDBC URL 예: `jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres`
 3. **Storage 버킷**: Storage → New bucket → 이름 `mongle-images`, **Public 체크**(공개 URL 서빙).
 4. **service_role 키**: Project Settings → API → `service_role` secret. (서버 전용, 절대 노출 금지)
 
@@ -30,8 +31,8 @@
 
    | 키 | 값 |
    |---|---|
-   | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://<host>:5432/postgres` |
-   | `SPRING_DATASOURCE_USERNAME` | `postgres` |
+   | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://<pooler-host>:5432/postgres` (Session Pooler — §1 참조) |
+   | `SPRING_DATASOURCE_USERNAME` | `postgres.<project-ref>` (풀러는 유저명에 ref가 붙는다) |
    | `SPRING_DATASOURCE_PASSWORD` | Supabase DB 비밀번호 |
    | `SUPABASE_URL` | `https://<project>.supabase.co` (끝 슬래시 없이) |
    | `SUPABASE_SERVICE_KEY` | service_role 키 |
@@ -44,7 +45,7 @@ Health check: `GET /actuator/health` → `{"status":"UP"}`.
 ## 3. 배포 검증
 
 ```bash
-BASE=https://<your-app>.onrender.com
+BASE=https://mongle-backend.onrender.com   # 현재 배포 주소
 curl -s $BASE/actuator/health                    # {"status":"UP"}
 TOKEN=$(curl -s -X POST $BASE/api/v1/auth/token \
   -H 'Content-Type: application/json' -d '{"username":"smoke"}' \
@@ -55,7 +56,7 @@ curl -s -X POST $BASE/api/v1/images \
 # 반환 url 을 브라우저로 열어 이미지가 뜨는지 확인 → 재배포 후에도 유지되면 성공.
 ```
 
-프론트엔드는 이 `onrender.com` 주소를 API 베이스로 물려야 한다(프론트 배포 설정 별도).
+프론트엔드는 이 주소를 API 베이스로 물린다: `VITE_API_URL=https://mongle-backend.onrender.com/api` (→ [frontend/README.md](../../../frontend/README.md) "배포 백엔드로 붙기").
 
 ## 반드시 지킬 것
 
