@@ -31,6 +31,11 @@ class AuthService(
         val user = userRepository.findById(userId).orElseGet {
             userRepository.save(User(id = userId, username = username))
         }
-        return TokenResponse(token = jwtProvider.issue(user.id, user.username), userId = user.id, username = user.username)
+        return TokenResponse(
+            token = jwtProvider.issue(user.id, user.username),
+            userId = user.id,
+            username = user.username,
+            profileSetupCompleted = user.isProfileSetupCompleted,
+        )
     }
 }

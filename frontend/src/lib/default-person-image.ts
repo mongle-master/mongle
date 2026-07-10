@@ -31,7 +31,7 @@ export function defaultPersonImageUrl({
   name,
   gender,
 }: {
-  id?: number | null
+  id?: string | number | null
   name: string
   gender?: PersonImageGender
 }) {

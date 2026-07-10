@@ -40,7 +40,7 @@
 
 ## 인증 (JWT)
 
-- 발급: `POST /api/v1/auth/token` body `{ "userId": UUID, "username": string }` → `{ token, userId, username }`.
+- 발급: `POST /api/v1/auth/token` body `{ "userId": UUID, "username": string }` → `{ token, userId, username, profileSetupCompleted }`.
   비밀번호가 없는 데모 인증이다. 없는 `userId`면 요청의 UUID와 이름으로 사용자를 만들고, 이후에는 같은 UUID로 토큰을 재발급한다.
 - 사용: 이후 모든 보호 API 는 `Authorization: Bearer {token}` 를 보낸다. HS256, claim `sub` = userId 문자열, claim `username` = 로그인 이름.
 - 주입: 컨트롤러가 `@AuthUser user: UserPrincipal` 을 받으면 리졸버가 헤더의 토큰을 파싱·검증해 채운다.
@@ -50,6 +50,8 @@
   이들은 `@AuthUser` 를 받지 않아 자연히 열린다. **이미지 업로드(`POST /api/v1/images`)는 보호 API 다**(토큰 필요 — 무인증은 정적 서빙 GET 만).
 - 실패: 토큰 없음·Bearer 형식 아님·서명/만료/형식 무효·username 클레임 없는 옛 토큰은 모두 401 `UNAUTHORIZED` "로그인이 필요해요." (옛 토큰은 재로그인 한 번으로 새 토큰을 받아 해소).
 - refresh token 은 사용하지 않는다. 프론트는 로컬에 저장한 UUID로 앱 시작마다 access token 을 재발급한다.
+- 최초 프로필: `PATCH /api/v1/users/me/profile` + Bearer 토큰. `{ profileImageUrl, gender }`를 사용자에 저장하고 `profileSetupCompleted`를 완료 처리한다. 빈 요청은 건너뛰기로 처리한다.
+  기존 사용자 행의 `profileSetupCompleted == null`은 완료 상태로 해석해 온보딩을 다시 노출하지 않는다.
 - 사용자 시드: `POST /api/v1/seed` + Bearer 토큰. `User.demoSeeded`가 false인 사용자에게만 데모 데이터를 만들고 완료 후 true로 바꾼다.
   사용자가 인물을 모두 삭제해도 다시 시드하지 않으며, 생성 도중 실패하면 전체 트랜잭션과 완료 표시를 함께 롤백한다.
   같은 사용자의 동시 요청은 사용자 행 잠금으로 직렬화해 중복 생성을 막는다.
@@ -57,7 +59,9 @@
 | 상황 | 입력 | 기대 결과 |
 |---|---|---|
 | 토큰 없이 보호 API | GET /api/v1/persons | 401 `UNAUTHORIZED` |
-| 최초 인증 | POST /api/v1/auth/token `{"userId":"UUID","username":"성빈"}` | 200 `{ token, userId, username }` |
+| 최초 인증 | POST /api/v1/auth/token `{"userId":"UUID","username":"성빈"}` | 200 `{ token, userId, username, profileSetupCompleted: false }` |
+| 최초 프로필 설정 | PATCH /api/v1/users/me/profile `{"profileImageUrl":"/default-people/person-male-1.png","gender":"MALE"}` + Bearer | 200, 프로필 저장 및 설정 완료 |
+| 최초 프로필 건너뛰기 | PATCH /api/v1/users/me/profile `{}` + Bearer | 200, 빈 프로필로 설정 완료 |
 | 사용자 시드 | POST /api/v1/seed + Bearer | 204, 사용자별 최초 1회만 데모 데이터 생성 |
 | 발급 토큰으로 조회 | GET /api/v1/persons + Bearer | 200, 현재 사용자 소유 인물 목록 |
 

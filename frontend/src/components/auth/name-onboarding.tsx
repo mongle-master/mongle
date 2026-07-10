@@ -32,7 +32,7 @@ export function NameOnboarding({
         }}
       >
         <p className="mb-3 text-sm font-extrabold text-primary">
-          처음 만났네요
+          1 / 2 · 처음 만났네요
         </p>
         <h1 className="text-[32px] font-black leading-[1.15] tracking-[-0.04em] text-foreground">
           당신을 어떻게
@@ -63,7 +63,7 @@ export function NameOnboarding({
           disabled={!normalized}
           className="mt-4 h-14 w-full rounded-2xl text-base font-extrabold"
         >
-          몽글 시작하기
+          다음
         </Button>
       </form>
 
