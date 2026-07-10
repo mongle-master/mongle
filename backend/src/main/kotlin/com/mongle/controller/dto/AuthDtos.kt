@@ -3,12 +3,15 @@ package com.mongle.controller.dto
 import io.swagger.v3.oas.annotations.media.Schema
 
 /**
- * 데모 로그인 요청. 비밀번호 없이 username 만 받는다.
+ * 데모 로그인 요청. 브라우저가 생성한 UUID를 username으로 받는다.
  * 빈값·글자수 검증은 서비스 계층(AuthService)에서 §12.5 문구로 처리한다.
  */
-@Schema(description = "데모 로그인 요청 — 비밀번호 없이 이름만으로 토큰을 발급받는다.")
+@Schema(description = "데모 로그인 요청 — 브라우저 UUID로 토큰을 발급받는다.")
 data class TokenRequest(
-    @field:Schema(description = "로그인 이름. 처음 보는 이름이면 사용자를 새로 만들어 발급한다.", example = "정순원")
+    @field:Schema(
+        description = "브라우저 익명 식별자. 처음 보는 UUID면 사용자를 새로 만들어 발급한다.",
+        example = "8c9ce952-82f9-42f0-b908-4165ba6d89c1",
+    )
     val username: String,
 )
 
@@ -18,6 +21,6 @@ data class TokenResponse(
     val token: String,
     @field:Schema(description = "발급 대상 사용자 id.", example = "1")
     val userId: Long,
-    @field:Schema(description = "로그인 이름.", example = "정순원")
+    @field:Schema(description = "브라우저 익명 식별자.", example = "8c9ce952-82f9-42f0-b908-4165ba6d89c1")
     val username: String,
 )

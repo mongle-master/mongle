@@ -8,12 +8,12 @@ import com.mongle.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-/** 데모 로그인 username 최대 글자수. PRD 필드가 아니라 로그인 편의용이라 여기서만 관리한다. */
-private const val USERNAME_MAX = 20
+/** 브라우저 익명 식별자로 사용하는 UUID 문자열 길이. */
+private const val USERNAME_MAX = 36
 
 /**
- * 데모 로그인: username 만으로 사용자를 식별해 JWT 를 발급한다(비밀번호 없음).
- * 처음 보는 username 이면 사용자를 만들어 준다 — 데모라 회원가입 절차를 따로 두지 않는다.
+ * 데모 로그인: 브라우저 UUID를 username으로 저장해 JWT를 발급한다(비밀번호 없음).
+ * 처음 보는 UUID면 사용자를 만들어 준다 — 데모라 회원가입 절차를 따로 두지 않는다.
  */
 @Service
 @Transactional(readOnly = true)
