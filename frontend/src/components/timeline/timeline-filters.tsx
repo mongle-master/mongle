@@ -2,7 +2,7 @@ import type { ChipResponse, PersonResponse } from '@/lib/api/types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { tagChipClass } from '@/components/ui/tag-chip'
 import { mediaUrl } from '@/lib/api/client'
-import { monogram } from '@/lib/format'
+import { formatPersonName, monogram } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 export const timelineFilterChipClass = (selected: boolean) =>
@@ -100,6 +100,7 @@ export function TimelinePersonFilters({
       <div className="flex flex-wrap gap-2">
         {persons.map((person) => {
           const selected = selectedIds.includes(person.id)
+          const displayName = formatPersonName(person)
           return (
             <button
               key={person.id}
@@ -109,7 +110,7 @@ export function TimelinePersonFilters({
               className={personFilterChipClass(selected)}
             >
               <PersonFilterAvatar person={person} selected={selected} />
-              <span className="truncate">{person.name}</span>
+              <span className="truncate">{displayName}</span>
             </button>
           )
         })}

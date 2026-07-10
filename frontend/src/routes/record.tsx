@@ -24,6 +24,7 @@ import {
   FALLBACK_PERSONS,
   fallbackEvent,
 } from '@/lib/fallback-data'
+import { formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { formatAutoEventTitle } from '@/lib/format'
 import {
@@ -129,9 +130,13 @@ function RecordPage() {
   }, [eventQuery.data?.persons, persons, selectedPersonIds])
 
   const primaryPerson = selectedPersons.at(0)
+  const firstSelectedPersonName = primaryPerson
+    ? formatPersonName(primaryPerson)
+    : ''
 
   const effectiveCategoryChipId =
     categoryChipId ?? categoryChips.at(0)?.id ?? null
+
   const categoryLabel =
     categoryChips.find((c) => c.id === effectiveCategoryChipId)?.label ?? ''
 
@@ -158,6 +163,8 @@ function RecordPage() {
     eventQuery.data?.persons,
     selectedPersons,
   ])
+  const selectedCategory =
+    categoryChips.find((c) => c.id === categoryChipId) ?? categoryChips.at(0)
 
   const greeting = useMemo(() => {
     if (isEditing) {
@@ -499,8 +506,8 @@ function RecordPage() {
                 </div>
                 <p className="min-w-0 flex-1 truncate text-sm font-extrabold">
                   {selectedPersons.length === 1
-                    ? selectedPersons[0].name
-                    : `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명`}
+                    ? firstSelectedPersonName
+                    : `${firstSelectedPersonName} 외 ${selectedPersons.length - 1}명`}
                 </p>
                 <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
               </button>

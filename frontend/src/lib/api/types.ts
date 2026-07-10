@@ -1,5 +1,14 @@
-export type ChipRef = { id: number; label: string }
-export type PersonRef = { id: number; name: string }
+export type ChipRef = { id: number; label: string; color?: string | null }
+export type PersonNameFields = {
+  name: string
+  fullName?: string | null
+  familyName?: string | null
+  givenName?: string | null
+  lastName?: string | null
+  firstName?: string | null
+}
+
+export type PersonRef = { id: number } & PersonNameFields
 
 export type ChipType = 'CATEGORY' | 'RELATION_TAG' | 'EMOTION' | 'WEATHER'
 
@@ -7,14 +16,14 @@ export type ChipResponse = {
   id: number
   type: ChipType
   label: string
+  color?: string | null
   personal: boolean
   order: number
   default: boolean
 }
 
-export type PersonResponse = {
+export type PersonResponse = PersonNameFields & {
   id: number
-  name: string
   birthday: { year?: number; month?: number; day?: number } | null
   firstMetDate: string | null
   lastMetDate: string | null
@@ -58,21 +67,22 @@ export type IntimacyStatus = 'UNKNOWN' | 'NORMAL' | 'DISTANT'
 
 export type RelationMapResponse = {
   me: { label: string }
-  nodes: Array<{
-    id: number
-    name: string
-    profileImageUrl: string | null
-    avatarGender?: 'FEMALE' | 'MALE' | null
-    favorite: boolean
-    recordCount: number
-    relationTags: ChipRef[]
-    intimacy: {
-      status: IntimacyStatus
-      averageIntervalDays: number | null
-      daysSinceLastMeet: number | null
+  nodes: Array<
+    PersonNameFields & {
+      id: number
+      profileImageUrl: string | null
+      avatarGender?: 'FEMALE' | 'MALE' | null
+      favorite: boolean
+      recordCount: number
+      relationTags: ChipRef[]
+      intimacy: {
+        status: IntimacyStatus
+        averageIntervalDays: number | null
+        daysSinceLastMeet: number | null
+      }
+      firstMetDate: string | null
     }
-    firstMetDate: string | null
-  }>
+  >
   edges: Array<{ personId: number; distant: boolean }>
 }
 
@@ -124,6 +134,11 @@ export type ActivityFlowResponse = {
 export type TimelinePerson = {
   id: number
   name: string
+  fullName?: string | null
+  familyName?: string | null
+  givenName?: string | null
+  lastName?: string | null
+  firstName?: string | null
   profileImageUrl: string | null
   favorite: boolean
 }

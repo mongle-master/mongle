@@ -5,6 +5,7 @@ import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { PersonResponse } from '@/lib/api/types'
+import { formatPersonName } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 export function PersonSelectModal({
@@ -120,6 +121,7 @@ export function PersonSelectModal({
             <ul className="flex flex-col gap-2">
               {filtered.map((person) => {
                 const selected = draftIds.includes(person.id)
+                const displayName = formatPersonName(person)
                 return (
                   <li key={person.id}>
                     <button
@@ -140,7 +142,7 @@ export function PersonSelectModal({
                         className="size-11 shrink-0"
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-extrabold">{person.name}</p>
+                        <p className="truncate font-extrabold">{displayName}</p>
                         <p className="truncate text-xs text-muted-foreground">
                           {[
                             person.relationType,

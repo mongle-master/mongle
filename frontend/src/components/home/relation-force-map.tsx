@@ -3,6 +3,7 @@ import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { mediaUrl } from '@/lib/api/client'
 import { defaultPersonImageUrl } from '@/lib/default-person-image'
+import { formatPersonName } from '@/lib/format'
 import { layoutOrganicRelationMap } from '@/lib/relation-map-layout'
 import type { RelationMapResponse } from '@/lib/api/types'
 
@@ -26,6 +27,9 @@ type CategoryMeta = {
 
 const GRAPH_COUNT = 3
 const PAN_THRESHOLD = 6
+const SWIPE_THRESHOLD = 42
+const SWIPE_VERTICAL_TOLERANCE = 1.35
+const SWIPE_MAX_SCALE = 1.08
 const PERSON_NODE_SIZE = 56
 const MIN_ZOOM = 0.78
 const MAX_ZOOM = 2.2
@@ -101,6 +105,10 @@ export function RelationForceMap({
       ...current,
       scale: clampZoom(current.scale + delta),
     }))
+  const showPreviousGraph = () =>
+    setActiveGraphIndex((current) => Math.max(0, current - 1))
+  const showNextGraph = () =>
+    setActiveGraphIndex((current) => Math.min(GRAPH_COUNT - 1, current + 1))
   const openPersonTimeline = (personId: number) => {
     if (suppressClickRef.current) {
       suppressClickRef.current = false
@@ -211,6 +219,17 @@ export function RelationForceMap({
         if (totalDelta < PAN_THRESHOLD) return
 
         suppressClickRef.current = true
+
+        if (
+          isGraphSwipeGesture(
+            event.clientX - activePointer.startX,
+            event.clientY - activePointer.startY,
+            viewport.scale,
+          )
+        ) {
+          return
+        }
+
         setViewport((current) => ({
           ...current,
           x: clampPan(current.x + deltaX),
@@ -218,6 +237,18 @@ export function RelationForceMap({
         }))
       }}
       onPointerUp={(event) => {
+        const activePointer = activePointerRef.current
+        if (activePointer?.id === event.pointerId) {
+          const deltaX = event.clientX - activePointer.startX
+          const deltaY = event.clientY - activePointer.startY
+
+          if (isGraphSwipeGesture(deltaX, deltaY, viewport.scale)) {
+            suppressClickRef.current = true
+            if (deltaX < 0) showNextGraph()
+            if (deltaX > 0) showPreviousGraph()
+          }
+        }
+
         pointerPositionsRef.current.delete(event.pointerId)
         activePointerRef.current = null
         pinchRef.current = null
@@ -597,6 +628,7 @@ function PersonNode({
   const nodeSize = clampPersonNodeSize(person.size)
   const showText = detailLevel !== 'compact'
   const showLastMeet = detailLevel === 'expanded'
+  const displayName = formatPersonName(person)
 
   return (
     <button
@@ -608,7 +640,7 @@ function PersonNode({
         top: `${person.y}%`,
         width: showText ? `${nodeSize + 58}px` : `${nodeSize + 8}px`,
       }}
-      aria-label={`${person.name} 상세`}
+      aria-label={`${displayName} 상세`}
     >
       <span
         className="relative grid place-items-center rounded-full border-[3px] bg-white shadow-[0_8px_20px_rgba(24,24,27,0.1)] ring-1 ring-zinc-200/70 dark:bg-zinc-950 dark:shadow-[0_8px_20px_rgba(0,0,0,0.32)] dark:ring-white/10"
@@ -639,7 +671,7 @@ function PersonNode({
       </span>
       {showText ? (
         <span className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-black text-zinc-950 shadow-[0_4px_12px_rgba(24,24,27,0.06)] backdrop-blur-sm dark:text-zinc-50">
-          <span className="min-w-0 truncate">{person.name}</span>
+          <span className="min-w-0 truncate">{displayName}</span>
           <span
             className="max-w-[3.4rem] shrink-0 truncate rounded-full px-1 py-0.5 text-[9px] font-extrabold text-white"
             style={{ backgroundColor: person.color }}
@@ -840,6 +872,14 @@ function clampZoom(scale: number) {
 function clampPan(value: number) {
   if (!Number.isFinite(value)) return 0
   return Math.min(120, Math.max(-120, value))
+}
+
+function isGraphSwipeGesture(deltaX: number, deltaY: number, scale: number) {
+  return (
+    scale <= SWIPE_MAX_SCALE &&
+    Math.abs(deltaX) >= SWIPE_THRESHOLD &&
+    Math.abs(deltaX) > Math.abs(deltaY) * SWIPE_VERTICAL_TOLERANCE
+  )
 }
 
 function detailLevelForScale(scale: number): NodeDetailLevel {

@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { ChevronLeft } from 'lucide-react'
 import { PersonTabNav } from '@/components/person/person-tab-nav'
 
 export function PersonPageHeader({
@@ -12,9 +13,10 @@ export function PersonPageHeader({
     <header className="shrink-0 pb-4">
       <Link
         to="/people"
-        className="mb-4 inline-flex text-[13px] font-extrabold text-muted-foreground"
+        className="mb-4 inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        aria-label="사람 목록으로 돌아가기"
       >
-        ‹ 사람 목록
+        <ChevronLeft className="size-6" />
       </Link>
       <PersonTabNav personId={personId} active={active} />
     </header>

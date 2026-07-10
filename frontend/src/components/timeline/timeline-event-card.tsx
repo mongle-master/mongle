@@ -11,6 +11,7 @@ import type {
 import { mediaUrl } from '@/lib/api/client'
 import type { EventDetailReturnTo } from '@/lib/record-navigation'
 import { eventDetailSearch } from '@/lib/record-navigation'
+import { formatPersonName } from '@/lib/format'
 
 export type TimelineEventCardItem = {
   id: number
@@ -26,8 +27,9 @@ export type TimelineEventCardItem = {
 
 export function linkedPersonsLabel(persons: TimelinePerson[]) {
   if (persons.length === 0) return ''
-  if (persons.length === 1) return persons[0].name
-  return `${persons[0].name} 외 ${persons.length - 1}명`
+  const firstName = formatPersonName(persons[0])
+  if (persons.length === 1) return firstName
+  return `${firstName} 외 ${persons.length - 1}명`
 }
 
 export function fromTimelineCard(card: TimelineCard): TimelineEventCardItem {
@@ -56,6 +58,11 @@ export function fromEventResponse(event: EventResponse): TimelineEventCardItem {
     persons: event.persons.map((person) => ({
       id: person.id,
       name: person.name,
+      fullName: person.fullName,
+      familyName: person.familyName,
+      givenName: person.givenName,
+      lastName: person.lastName,
+      firstName: person.firstName,
       profileImageUrl: null,
       favorite: false,
     })),

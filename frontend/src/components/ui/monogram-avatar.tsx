@@ -1,3 +1,4 @@
+import { Star } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { mediaUrl } from '@/lib/api/client'
 import { defaultPersonImageUrl } from '@/lib/default-person-image'
@@ -10,6 +11,7 @@ export function MonogramAvatar({
   imageUrl,
   className,
   favorite,
+  favoriteBadge = 'compact',
   gender,
   personId,
 }: {
@@ -17,6 +19,7 @@ export function MonogramAvatar({
   imageUrl?: string | null
   className?: string
   favorite?: boolean
+  favoriteBadge?: 'compact' | 'prominent'
   gender?: PersonImageGender
   personId?: number | null
 }) {
@@ -38,7 +41,15 @@ export function MonogramAvatar({
         </AvatarFallback>
       </Avatar>
       {favorite ? (
-        <span className="absolute -top-1 -right-1 text-xs">★</span>
+        favoriteBadge === 'prominent' ? (
+          <span className="absolute -top-1 -right-1 z-10 flex size-9 items-center justify-center rounded-full border border-border bg-background text-amber-500 shadow-sm">
+            <Star className="size-5 fill-current" />
+          </span>
+        ) : (
+          <span className="absolute -top-1 -right-1 text-xs text-amber-500">
+            ★
+          </span>
+        )
       ) : null}
     </div>
   )

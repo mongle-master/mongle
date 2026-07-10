@@ -78,7 +78,9 @@ export function formatBirthday(
   birthday: { year?: number; month?: number; day?: number } | null,
 ) {
   if (!birthday?.month || !birthday.day) return null
-  const label = `${birthday.month}월 ${birthday.day}일`
+  const label = birthday.year
+    ? `${birthday.year}년 ${birthday.month}월 ${birthday.day}일`
+    : `${birthday.month}월 ${birthday.day}일`
   const daysUntil = daysUntilNextBirthday({
     month: birthday.month,
     day: birthday.day,

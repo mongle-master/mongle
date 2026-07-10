@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight, Star } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { ChevronRight } from 'lucide-react'
 import { AppShell } from '@/components/layout/app-shell'
 import { PersonPageHeader } from '@/components/person/person-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
@@ -9,9 +9,9 @@ import {
   ListGroupItem,
   ListGroupLabel,
 } from '@/components/ui/list-group'
-import { tagChipClass } from '@/components/ui/tag-chip'
+import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { fetchPersonTimeline } from '@/lib/api/events'
-import { fetchPerson, togglePersonFavorite } from '@/lib/api/persons'
+import { fetchPerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import type { EventResponse } from '@/lib/api/types'
 import { mediaUrl } from '@/lib/api/client'
@@ -23,10 +23,10 @@ import {
   formatAbsoluteDate,
   formatBirthday,
   formatDaysSinceFirstMet,
+  formatPersonName,
 } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { recordSearch, eventDetailSearch } from '@/lib/record-navigation'
-import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/people/$personId/')({
   component: PersonProfilePage,
@@ -35,7 +35,6 @@ export const Route = createFileRoute('/people/$personId/')({
 function PersonProfilePage() {
   const { personId } = Route.useParams()
   const id = Number(personId)
-  const queryClient = useQueryClient()
 
   const personQuery = useQuery({
     queryKey: queryKeys.person(id),
@@ -48,15 +47,6 @@ function PersonProfilePage() {
     queryFn: () =>
       safeApi(() => fetchPersonTimeline(id), fallbackPersonTimeline(id)),
     enabled: Number.isFinite(id),
-  })
-
-  const favoriteMutation = useMutation({
-    mutationFn: () => togglePersonFavorite(id),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.person(id) })
-      void queryClient.invalidateQueries({ queryKey: ['persons'] })
-      void queryClient.invalidateQueries({ queryKey: ['home'] })
-    },
   })
 
   const person = personQuery.data
@@ -83,6 +73,7 @@ function PersonProfilePage() {
   }
 
   const birthdayLabel = formatBirthday(person.birthday)
+  const displayName = formatPersonName(person)
   const infoRows = [
     birthdayLabel ? { label: '생일', value: birthdayLabel } : null,
     person.firstMetDate
@@ -120,29 +111,13 @@ function PersonProfilePage() {
                     gender={person.gender}
                     personId={person.id}
                     favorite={person.favorite}
+                    favoriteBadge="prominent"
                     className="size-20"
                   />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h1 className="truncate text-2xl font-black tracking-tight">
-                        {person.name}
-                      </h1>
-                      <button
-                        type="button"
-                        aria-label="즐겨찾기"
-                        onClick={() => favoriteMutation.mutate()}
-                        className="shrink-0"
-                      >
-                        <Star
-                          className={cn(
-                            'size-6',
-                            person.favorite
-                              ? 'fill-foreground text-foreground'
-                              : 'text-muted-foreground/40',
-                          )}
-                        />
-                      </button>
-                    </div>
+                    <h1 className="truncate text-2xl font-black tracking-tight">
+                      {displayName}
+                    </h1>
                     {person.relationType ? (
                       <p className="mt-2 text-sm font-extrabold text-foreground">
                         {person.relationType}
@@ -157,6 +132,9 @@ function PersonProfilePage() {
                               inactiveClassName:
                                 'h-7 border-border/60 bg-background px-3 text-xs text-foreground',
                             })}
+                            style={
+                              tag.color ? coloredTagStyle(tag.color) : undefined
+                            }
                           >
                             {tag.label}
                           </span>
@@ -220,9 +198,10 @@ function PersonProfilePage() {
                 <Link
                   to="/people/$personId/timeline"
                   params={{ personId }}
-                  className="text-[11px] font-extrabold text-muted-foreground"
+                  className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  aria-label="최근 함께한 일 전체 보기"
                 >
-                  전체 보기
+                  <ChevronRight className="size-5" />
                 </Link>
               </div>
               <ListGroup>
@@ -273,7 +252,7 @@ function PersonProfilePage() {
                   className="flex items-center justify-between py-3.5 text-[15px] font-extrabold text-foreground transition-colors active:opacity-70"
                 >
                   상황 기록 작성
-                  <ChevronRight className="size-4 text-muted-foreground" />
+                  <ChevronRight className="size-5 text-muted-foreground" />
                 </Link>
               </ListGroupItem>
               <ListGroupItem withDivider={false} className="py-0">
@@ -283,7 +262,7 @@ function PersonProfilePage() {
                   className="flex items-center justify-between py-3.5 text-[15px] font-extrabold text-foreground transition-colors active:opacity-70"
                 >
                   프로필 수정
-                  <ChevronRight className="size-4 text-muted-foreground" />
+                  <ChevronRight className="size-5 text-muted-foreground" />
                 </Link>
               </ListGroupItem>
             </ListGroup>
@@ -352,7 +331,7 @@ function RecentEventRow({
           ) : null}
         </div>
       ) : (
-        <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+        <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
       )}
     </Link>
   )
