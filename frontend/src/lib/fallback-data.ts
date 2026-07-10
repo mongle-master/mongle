@@ -125,6 +125,78 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
   },
 ]
 
+const EXTRA_FALLBACK_PERSON_NAMES = [
+  '도윤',
+  '민서',
+  '준호',
+  '서윤',
+  '현우',
+  '지우',
+  '예린',
+  '태민',
+  '수빈',
+  '건우',
+  '다은',
+  '시현',
+  '윤재',
+  '나연',
+  '정우',
+  '채원',
+  '동현',
+  '아린',
+  '태윤',
+  '은서',
+]
+
+const EXTRA_FALLBACK_RELATIONS = [
+  { type: '친구', tag: { id: 402, label: '친구', color: '#0EA5E9' } },
+  { type: '회사 동료', tag: { id: 403, label: '직장', color: '#22A06B' } },
+  { type: '가족', tag: { id: 401, label: '가족', color: '#E85D75' } },
+  { type: '대학 동기', tag: { id: 404, label: '대학동기', color: '#8B5CF6' } },
+]
+
+const EXTRA_FALLBACK_LIKES = [
+  ['러닝', '커피'],
+  ['전시', '디저트'],
+  ['영화', '맛집'],
+  ['책', '산책'],
+  ['사진', '카페'],
+]
+
+const EXTRA_FALLBACK_PEOPLE: PersonResponse[] = EXTRA_FALLBACK_PERSON_NAMES.map(
+  (name, index) => {
+    const id = index + 7
+    const relation =
+      EXTRA_FALLBACK_RELATIONS[index % EXTRA_FALLBACK_RELATIONS.length]
+
+    return {
+      id,
+      name,
+      birthday: {
+        year: 1989 + (index % 14),
+        month: (index % 12) + 1,
+        day: ((index * 3) % 28) + 1,
+      },
+      firstMetDate: `202${3 + (index % 4)}-${String((index % 12) + 1).padStart(
+        2,
+        '0',
+      )}-${String(((index * 5) % 28) + 1).padStart(2, '0')}`,
+      lastMetDate: `2026-${String(((index + 1) % 7) + 1).padStart(
+        2,
+        '0',
+      )}-${String(((index * 4) % 28) + 1).padStart(2, '0')}`,
+      profileImageUrl: null,
+      gender: index % 2 === 0 ? 'MALE' : 'FEMALE',
+      relationType: relation.type,
+      relationTags: [relation.tag],
+      likes: EXTRA_FALLBACK_LIKES[index % EXTRA_FALLBACK_LIKES.length],
+      cautions: index % 6 === 0 ? ['갑작스런 약속'] : [],
+      favorite: index % 9 === 0,
+      createdAt: null,
+    }
+  },
+)
+
 export const FALLBACK_PERSONS: PersonResponse[] = [
   {
     id: 1,
@@ -219,6 +291,7 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
     favorite: false,
     createdAt: null,
   },
+  ...EXTRA_FALLBACK_PEOPLE,
 ]
 
 export const FALLBACK_RELATION_MAP: RelationMapResponse = {

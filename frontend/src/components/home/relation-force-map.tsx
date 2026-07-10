@@ -1,13 +1,15 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Hand } from 'lucide-react'
+import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { mediaUrl } from '@/lib/api/client'
 import { defaultPersonImageUrl } from '@/lib/default-person-image'
+import { layoutOrganicRelationMap } from '@/lib/relation-map-layout'
 import type { RelationMapResponse } from '@/lib/api/types'
 
 type RelationNode = RelationMapResponse['nodes'][number]
 
 type GraphPerson = RelationNode & {
+  categoryLabel: string
   color: string
   imageSrc: string
   size: number
@@ -15,26 +17,21 @@ type GraphPerson = RelationNode & {
   y: number
 }
 
+type NodeDetailLevel = 'compact' | 'default' | 'expanded'
+
 type CategoryMeta = {
   label: string
   color: string
 }
 
 const GRAPH_COUNT = 3
-const DRAG_THRESHOLD = 44
+const PAN_THRESHOLD = 6
 const PERSON_NODE_SIZE = 56
-const ORBIT_CENTER = { x: 50, y: 56 }
+const MIN_ZOOM = 0.78
+const MAX_ZOOM = 2.2
+const ZOOM_STEP = 0.18
+const ORBIT_CENTER = { x: 50, y: 50 }
 const CATEGORY_COLORS = ['#2f6eea', '#28b945', '#ff8a00', '#e11d48']
-const ORBIT_POSITIONS = [
-  { x: 50, y: 25 },
-  { x: 24, y: 42 },
-  { x: 76, y: 42 },
-  { x: 24, y: 66 },
-  { x: 50, y: 76 },
-  { x: 76, y: 66 },
-  { x: 35, y: 32 },
-  { x: 65, y: 32 },
-]
 const CATEGORY_PERSON_OFFSETS = [
   { x: 0, y: -7 },
   { x: -7, y: 2 },
@@ -61,9 +58,21 @@ export function RelationForceMap({
   edges: RelationMapResponse['edges']
 }) {
   const navigate = useNavigate()
-  const dragStartXRef = useRef<number | null>(null)
+  const pointerPositionsRef = useRef(
+    new Map<number, { x: number; y: number }>(),
+  )
+  const activePointerRef = useRef<{
+    id: number
+    startX: number
+    startY: number
+    lastX: number
+    lastY: number
+  } | null>(null)
+  const pinchRef = useRef<{ distance: number; scale: number } | null>(null)
+  const suppressClickRef = useRef(false)
   const [activeGraphIndex, setActiveGraphIndex] = useState(0)
   const [orbitTime, setOrbitTime] = useState(0)
+  const [viewport, setViewport] = useState({ scale: 1, x: 0, y: 0 })
   const categories = useMemo(() => buildCategories(nodes), [nodes])
   const orbitPeople = useMemo(
     () => buildOrbitPeople(nodes, categories),
@@ -81,11 +90,28 @@ export function RelationForceMap({
     () => buildFlowPeople(nodes, categories),
     [categories, nodes],
   )
+  const nodeDetailLevel = useMemo(
+    () => detailLevelForScale(viewport.scale),
+    [viewport.scale],
+  )
 
-  const showPreviousGraph = () =>
-    setActiveGraphIndex((current) => Math.max(0, current - 1))
-  const showNextGraph = () =>
-    setActiveGraphIndex((current) => Math.min(GRAPH_COUNT - 1, current + 1))
+  const resetViewport = () => setViewport({ scale: 1, x: 0, y: 0 })
+  const zoomBy = (delta: number) =>
+    setViewport((current) => ({
+      ...current,
+      scale: clampZoom(current.scale + delta),
+    }))
+  const openPersonTimeline = (personId: number) => {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false
+      return
+    }
+
+    navigate({
+      to: '/people/$personId/timeline',
+      params: { personId: String(personId) },
+    })
+  }
 
   useEffect(() => {
     if (activeGraphIndex !== 0) return
@@ -108,88 +134,208 @@ export function RelationForceMap({
     return () => window.cancelAnimationFrame(frameId)
   }, [activeGraphIndex])
 
+  useEffect(() => {
+    resetViewport()
+    pointerPositionsRef.current.clear()
+    activePointerRef.current = null
+    pinchRef.current = null
+    suppressClickRef.current = false
+  }, [activeGraphIndex])
+
   return (
     <div
       className="relative mt-0 h-[480px] touch-pan-y overflow-hidden bg-background select-none"
       onPointerDown={(event) => {
-        dragStartXRef.current = event.clientX
+        if (event.button !== 0) return
+        event.currentTarget.setPointerCapture(event.pointerId)
+        pointerPositionsRef.current.set(event.pointerId, {
+          x: event.clientX,
+          y: event.clientY,
+        })
+
+        if (pointerPositionsRef.current.size === 1) {
+          activePointerRef.current = {
+            id: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            lastX: event.clientX,
+            lastY: event.clientY,
+          }
+          pinchRef.current = null
+        }
+
+        if (pointerPositionsRef.current.size === 2) {
+          const pointers = Array.from(pointerPositionsRef.current.values())
+          pinchRef.current = {
+            distance: pointerDistance(pointers[0], pointers[1]),
+            scale: viewport.scale,
+          }
+          activePointerRef.current = null
+          suppressClickRef.current = true
+        }
+      }}
+      onPointerMove={(event) => {
+        if (!pointerPositionsRef.current.has(event.pointerId)) return
+
+        pointerPositionsRef.current.set(event.pointerId, {
+          x: event.clientX,
+          y: event.clientY,
+        })
+
+        if (pointerPositionsRef.current.size >= 2 && pinchRef.current) {
+          const pointers = Array.from(pointerPositionsRef.current.values())
+          const distance = pointerDistance(pointers[0], pointers[1])
+          const nextScale = clampZoom(
+            pinchRef.current.scale * (distance / pinchRef.current.distance),
+          )
+          suppressClickRef.current = true
+          setViewport((current) => ({ ...current, scale: nextScale }))
+          return
+        }
+
+        const activePointer = activePointerRef.current
+        if (!activePointer || activePointer.id !== event.pointerId) return
+
+        const totalDelta = Math.hypot(
+          event.clientX - activePointer.startX,
+          event.clientY - activePointer.startY,
+        )
+        const deltaX = event.clientX - activePointer.lastX
+        const deltaY = event.clientY - activePointer.lastY
+        activePointerRef.current = {
+          ...activePointer,
+          lastX: event.clientX,
+          lastY: event.clientY,
+        }
+
+        if (totalDelta < PAN_THRESHOLD) return
+
+        suppressClickRef.current = true
+        setViewport((current) => ({
+          ...current,
+          x: clampPan(current.x + deltaX),
+          y: clampPan(current.y + deltaY),
+        }))
       }}
       onPointerUp={(event) => {
-        const startX = dragStartXRef.current
-        dragStartXRef.current = null
-        if (startX == null) return
+        pointerPositionsRef.current.delete(event.pointerId)
+        activePointerRef.current = null
+        pinchRef.current = null
 
-        const delta = event.clientX - startX
-        if (Math.abs(delta) < DRAG_THRESHOLD) return
-        if (delta < 0) showNextGraph()
-        if (delta > 0) showPreviousGraph()
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          event.currentTarget.releasePointerCapture(event.pointerId)
+        }
+
+        const remainingPointer = pointerPositionsRef.current.entries().next()
+        if (!remainingPointer.done) {
+          const [id, pointer] = remainingPointer.value
+          activePointerRef.current = {
+            id,
+            startX: pointer.x,
+            startY: pointer.y,
+            lastX: pointer.x,
+            lastY: pointer.y,
+          }
+        }
+
+        if (suppressClickRef.current) {
+          window.setTimeout(() => {
+            suppressClickRef.current = false
+          }, 0)
+        }
       }}
       onPointerCancel={() => {
-        dragStartXRef.current = null
+        pointerPositionsRef.current.clear()
+        activePointerRef.current = null
+        pinchRef.current = null
+        suppressClickRef.current = false
+      }}
+      onWheel={(event) => {
+        event.preventDefault()
+        zoomBy(event.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP)
       }}
     >
-      <div className="absolute inset-x-0 bottom-22 z-20 flex justify-center px-4">
-        <div className="flex max-w-[88%] flex-wrap justify-center gap-3 rounded-full bg-zinc-100/82 px-3.5 py-2 shadow-[0_10px_24px_rgba(24,24,27,0.06)] backdrop-blur-sm dark:bg-zinc-900/82 dark:shadow-[0_10px_24px_rgba(0,0,0,0.28)]">
+      <div
+        className="absolute top-2 right-3 z-30 flex items-center gap-1 rounded-full bg-white/82 p-1 shadow-[0_10px_24px_rgba(24,24,27,0.08)] backdrop-blur-sm dark:bg-zinc-950/82 dark:shadow-[0_10px_24px_rgba(0,0,0,0.34)]"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="grid size-8 place-items-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+          onClick={() => zoomBy(-ZOOM_STEP)}
+          aria-label="축소"
+        >
+          <ZoomOut className="size-4" />
+        </button>
+        <button
+          type="button"
+          className="grid size-8 place-items-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+          onClick={resetViewport}
+          aria-label="원래 크기"
+        >
+          <RotateCcw className="size-4" />
+        </button>
+        <button
+          type="button"
+          className="grid size-8 place-items-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+          onClick={() => zoomBy(ZOOM_STEP)}
+          aria-label="확대"
+        >
+          <ZoomIn className="size-4" />
+        </button>
+      </div>
+
+      <div className="absolute inset-x-0 bottom-12 z-20 flex justify-center px-4">
+        <div className="flex max-w-[80%] items-center justify-center gap-2 overflow-hidden rounded-full bg-zinc-100/78 px-2.5 py-1.5 shadow-[0_8px_18px_rgba(24,24,27,0.05)] backdrop-blur-sm dark:bg-zinc-900/78 dark:shadow-[0_8px_18px_rgba(0,0,0,0.24)]">
           {categories.map((category) => (
             <span
               key={category.label}
-              className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-zinc-700 dark:text-zinc-200"
+              className="inline-flex min-w-0 items-center gap-1 text-[10px] font-bold text-zinc-700 dark:text-zinc-200"
             >
               <span
-                className="size-2 rounded-full"
+                className="size-2 shrink-0 rounded-full"
                 style={{ backgroundColor: category.color }}
               />
-              {category.label}
+              <span className="max-w-[3.6rem] truncate">{category.label}</span>
             </span>
           ))}
         </div>
       </div>
-      <div className="-mt-10 flex justify-center">
-        <div className="relative aspect-square w-full max-w-[600px]">
+      <div className="flex h-full touch-none cursor-grab items-center justify-center pb-12 active:cursor-grabbing">
+        <div
+          className="relative aspect-square w-full max-w-[600px] transition-transform duration-100 ease-out will-change-transform"
+          style={{
+            transform: `translate3d(${viewport.x}px, ${viewport.y}px, 0) scale(${viewport.scale})`,
+            transformOrigin: '50% 50%',
+          }}
+        >
           {activeGraphIndex === 0 ? (
             <OrbitGraph
               meLabel={me.label}
               people={animatedOrbitPeople}
-              onPersonClick={(personId) =>
-                navigate({
-                  to: '/people/$personId/timeline',
-                  params: { personId: String(personId) },
-                })
-              }
+              detailLevel={nodeDetailLevel}
+              onPersonClick={openPersonTimeline}
             />
           ) : null}
           {activeGraphIndex === 1 ? (
             <CategoryClusterGraph
               people={clusterPeople}
               categories={categories}
-              onPersonClick={(personId) =>
-                navigate({
-                  to: '/people/$personId/timeline',
-                  params: { personId: String(personId) },
-                })
-              }
+              detailLevel={nodeDetailLevel}
+              onPersonClick={openPersonTimeline}
             />
           ) : null}
           {activeGraphIndex === 2 ? (
             <RecentFlowGraph
               people={flowPeople}
-              onPersonClick={(personId) =>
-                navigate({
-                  to: '/people/$personId/timeline',
-                  params: { personId: String(personId) },
-                })
-              }
+              detailLevel={nodeDetailLevel}
+              onPersonClick={openPersonTimeline}
             />
           ) : null}
         </div>
       </div>
 
       <div className="absolute right-0 bottom-2 left-0 z-20 flex flex-col items-center gap-3 px-4">
-        <div className="flex items-center gap-2 text-[12px] font-medium text-zinc-500 dark:text-zinc-400">
-          <Hand className="size-4 -rotate-12 stroke-[1.8]" />
-          <span>드래그하여 관계를 탐색해보세요</span>
-        </div>
-
         <div className="flex justify-center gap-3">
           {Array.from({ length: GRAPH_COUNT }).map((_, index) => (
             <button
@@ -213,16 +359,18 @@ export function RelationForceMap({
 function OrbitGraph({
   meLabel,
   people,
+  detailLevel,
   onPersonClick,
 }: {
   meLabel: string
   people: GraphPerson[]
+  detailLevel: NodeDetailLevel
   onPersonClick: (personId: number) => void
 }) {
   return (
     <>
       <OrbitBackground />
-      <div className="absolute top-[56%] left-1/2 grid size-[76px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white shadow-[0_0_0_1px_rgba(24,24,27,0.04),0_0_44px_rgba(255,198,109,0.58),0_0_82px_rgba(255,220,156,0.32)] dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_46px_rgba(255,198,109,0.34),0_0_84px_rgba(255,220,156,0.18)]">
+      <div className="absolute top-1/2 left-1/2 grid size-[76px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white shadow-[0_0_0_1px_rgba(24,24,27,0.04),0_0_44px_rgba(255,198,109,0.58),0_0_82px_rgba(255,220,156,0.32)] dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_46px_rgba(255,198,109,0.34),0_0_84px_rgba(255,220,156,0.18)]">
         <div className="grid size-[42px] place-items-center rounded-full bg-zinc-950 text-[22px] font-black text-white shadow-[0_10px_20px_rgba(24,24,27,0.22)] dark:bg-white dark:text-zinc-950 dark:shadow-[0_10px_20px_rgba(0,0,0,0.3)]">
           {meLabel}
         </div>
@@ -231,6 +379,7 @@ function OrbitGraph({
         <PersonNode
           key={person.id}
           person={person}
+          detailLevel={detailLevel}
           onClick={() => onPersonClick(person.id)}
         />
       ))}
@@ -241,10 +390,12 @@ function OrbitGraph({
 function CategoryClusterGraph({
   people,
   categories,
+  detailLevel,
   onPersonClick,
 }: {
   people: GraphPerson[]
   categories: CategoryMeta[]
+  detailLevel: NodeDetailLevel
   onPersonClick: (personId: number) => void
 }) {
   return (
@@ -299,6 +450,7 @@ function CategoryClusterGraph({
         <PersonNode
           key={person.id}
           person={person}
+          detailLevel={detailLevel}
           onClick={() => onPersonClick(person.id)}
         />
       ))}
@@ -308,9 +460,11 @@ function CategoryClusterGraph({
 
 function RecentFlowGraph({
   people,
+  detailLevel,
   onPersonClick,
 }: {
   people: GraphPerson[]
+  detailLevel: NodeDetailLevel
   onPersonClick: (personId: number) => void
 }) {
   const path = flowPathForPeople(people)
@@ -342,6 +496,7 @@ function RecentFlowGraph({
         <PersonNode
           key={person.id}
           person={person}
+          detailLevel={detailLevel}
           onClick={() => onPersonClick(person.id)}
         />
       ))}
@@ -358,7 +513,7 @@ function OrbitBackground() {
       aria-hidden
     >
       <defs>
-        <radialGradient id="relationCoreGlow" cx="50%" cy="56%" r="38%">
+        <radialGradient id="relationCoreGlow" cx="50%" cy="50%" r="38%">
           <stop offset="0%" stopColor="rgba(255,211,144,0.78)" />
           <stop offset="48%" stopColor="rgba(255,211,144,0.3)" />
           <stop offset="100%" stopColor="rgba(255,211,144,0)" />
@@ -369,10 +524,10 @@ function OrbitBackground() {
           <stop offset="100%" stopColor="#b7aa97" />
         </radialGradient>
       </defs>
-      <ellipse cx="50" cy="56" rx="34" ry="23" fill="url(#relationCoreGlow)" />
+      <ellipse cx="50" cy="50" rx="34" ry="23" fill="url(#relationCoreGlow)" />
       <ellipse
         cx="50"
-        cy="56"
+        cy="50"
         rx="18"
         ry="12"
         fill="none"
@@ -381,45 +536,45 @@ function OrbitBackground() {
       />
       <ellipse
         cx="50"
-        cy="56"
+        cy="50"
         rx="38"
         ry="21"
         fill="none"
         className="stroke-stone-700/24 dark:stroke-stone-100/22"
         strokeWidth="0.34"
-        transform="rotate(-16 50 56)"
+        transform="rotate(-16 50 50)"
       />
       <ellipse
         cx="50"
-        cy="56"
+        cy="50"
         rx="42"
         ry="27"
         fill="none"
         className="stroke-stone-700/14 dark:stroke-stone-100/14"
         strokeDasharray="1.4 1.8"
         strokeWidth="0.32"
-        transform="rotate(13 50 56)"
+        transform="rotate(13 50 50)"
       />
       <ellipse
         cx="50"
-        cy="56"
+        cy="50"
         rx="47"
         ry="32"
         fill="none"
         className="stroke-stone-700/20 dark:stroke-stone-100/18"
         strokeWidth="0.32"
-        transform="rotate(-28 50 56)"
+        transform="rotate(-28 50 50)"
       />
       <ellipse
         cx="50"
-        cy="56"
+        cy="50"
         rx="50"
         ry="26"
         fill="none"
         className="stroke-stone-700/14 dark:stroke-stone-100/12"
         strokeDasharray="1.3 2"
         strokeWidth="0.3"
-        transform="rotate(34 50 56)"
+        transform="rotate(34 50 50)"
       />
       <circle cx="12" cy="66" r="2.3" fill="url(#relationPlanet)" />
       <circle cx="30" cy="83" r="2.4" fill="url(#relationPlanet)" />
@@ -432,12 +587,16 @@ function OrbitBackground() {
 
 function PersonNode({
   person,
+  detailLevel,
   onClick,
 }: {
   person: GraphPerson
+  detailLevel: NodeDetailLevel
   onClick: () => void
 }) {
   const nodeSize = clampPersonNodeSize(person.size)
+  const showText = detailLevel !== 'compact'
+  const showLastMeet = detailLevel === 'expanded'
 
   return (
     <button
@@ -447,15 +606,16 @@ function PersonNode({
       style={{
         left: `${person.x}%`,
         top: `${person.y}%`,
-        width: `${nodeSize + 30}px`,
+        width: showText ? `${nodeSize + 58}px` : `${nodeSize + 8}px`,
       }}
       aria-label={`${person.name} 상세`}
     >
       <span
-        className="relative grid place-items-center rounded-full bg-white ring-1 ring-zinc-200/70 dark:bg-zinc-950 dark:ring-white/10"
+        className="relative grid place-items-center rounded-full border-[3px] bg-white shadow-[0_8px_20px_rgba(24,24,27,0.1)] ring-1 ring-zinc-200/70 dark:bg-zinc-950 dark:shadow-[0_8px_20px_rgba(0,0,0,0.32)] dark:ring-white/10"
         style={{
           width: `${nodeSize}px`,
           height: `${nodeSize}px`,
+          borderColor: person.color,
         }}
       >
         <img
@@ -476,15 +636,19 @@ function PersonNode({
             person.imageSrc.startsWith('/default-people/') ? '1' : '0'
           }
         />
-        <span
-          className="absolute right-0 bottom-1 size-3.5 rounded-full border-[3px] border-white shadow-[0_4px_8px_rgba(24,24,27,0.16)] dark:border-zinc-950 dark:shadow-[0_4px_8px_rgba(0,0,0,0.38)]"
-          style={{ backgroundColor: person.color }}
-        />
       </span>
-      <span className="mt-1.5 rounded-full bg-background/82 px-1.5 py-0.5 text-[13px] leading-none font-black text-zinc-950 shadow-[0_4px_12px_rgba(24,24,27,0.06)] backdrop-blur-sm dark:text-zinc-50">
-        {person.name}
-      </span>
-      {person.intimacy.daysSinceLastMeet != null ? (
+      {showText ? (
+        <span className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-black text-zinc-950 shadow-[0_4px_12px_rgba(24,24,27,0.06)] backdrop-blur-sm dark:text-zinc-50">
+          <span className="min-w-0 truncate">{person.name}</span>
+          <span
+            className="max-w-[3.4rem] shrink-0 truncate rounded-full px-1 py-0.5 text-[9px] font-extrabold text-white"
+            style={{ backgroundColor: person.color }}
+          >
+            {person.categoryLabel}
+          </span>
+        </span>
+      ) : null}
+      {showLastMeet && person.intimacy.daysSinceLastMeet != null ? (
         <span className="mt-1 text-[11px] leading-none font-medium text-zinc-500 dark:text-zinc-400">
           {formatDaysSinceLastMeet(person.intimacy.daysSinceLastMeet)}
         </span>
@@ -497,8 +661,17 @@ function buildOrbitPeople(
   nodes: RelationNode[],
   categories: CategoryMeta[],
 ): GraphPerson[] {
+  const layout = layoutOrganicRelationMap(
+    nodes.map((node) => ({
+      id: node.id,
+      recordCount: node.recordCount,
+    })),
+    ORBIT_CENTER.x,
+    ORBIT_CENTER.y,
+  )
+
   return nodes.map((node, index) => {
-    const position = ORBIT_POSITIONS[index % ORBIT_POSITIONS.length]
+    const position = layout.persons[index] ?? ORBIT_CENTER
     return toGraphPerson(node, categories, position.x, position.y)
   })
 }
@@ -623,6 +796,7 @@ function toGraphPerson(
 
   return {
     ...node,
+    categoryLabel: primaryCategoryLabel(node),
     color: CATEGORY_COLORS[categoryIndex % CATEGORY_COLORS.length],
     imageSrc: nodeImageUrl(node),
     size: personNodeSize(node.recordCount, node.favorite),
@@ -656,6 +830,29 @@ function personNodeSize(recordCount: number, favorite: boolean) {
 function clampPersonNodeSize(size: number) {
   if (!Number.isFinite(size)) return PERSON_NODE_SIZE
   return Math.min(62, Math.max(52, Math.round(size)))
+}
+
+function clampZoom(scale: number) {
+  if (!Number.isFinite(scale)) return 1
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale))
+}
+
+function clampPan(value: number) {
+  if (!Number.isFinite(value)) return 0
+  return Math.min(120, Math.max(-120, value))
+}
+
+function detailLevelForScale(scale: number): NodeDetailLevel {
+  if (scale <= 0.86) return 'compact'
+  if (scale >= 1.34) return 'expanded'
+  return 'default'
+}
+
+function pointerDistance(
+  first: { x: number; y: number },
+  second: { x: number; y: number },
+) {
+  return Math.hypot(second.x - first.x, second.y - first.y) || 1
 }
 
 function flowPathForPeople(people: GraphPerson[]) {
