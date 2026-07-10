@@ -7,6 +7,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { useTheme } from '@/components/theme-provider'
 import { Button } from '@/components/ui/button'
+import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { Input } from '@/components/ui/input'
 import {
   ListGroup,
@@ -231,6 +232,10 @@ function TagTypePanel({
   const [draft, setDraft] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editLabel, setEditLabel] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: number
+    label: string
+  } | null>(null)
 
   const createMutation = useMutation({
     mutationFn: (chipLabel: string) => createChip(type, chipLabel),
@@ -252,7 +257,10 @@ function TagTypePanel({
 
   const deleteMutation = useMutation({
     mutationFn: deleteChip,
-    onSuccess: onChanged,
+    onSuccess: () => {
+      setDeleteTarget(null)
+      onChanged()
+    },
   })
 
   const cancelEdit = () => {
@@ -272,10 +280,7 @@ function TagTypePanel({
   }
 
   const handleDelete = (chipId: number, chipLabel: string) => {
-    const ok = window.confirm(
-      `'${chipLabel}' 태그를 지우면 관련된 태그 정보도 함께 삭제돼요.\n정말 지울까요?`,
-    )
-    if (ok) deleteMutation.mutate(chipId)
+    setDeleteTarget({ id: chipId, label: chipLabel })
   }
 
   return (
@@ -399,6 +404,25 @@ function TagTypePanel({
           추가
         </Button>
       </ListGroupInset>
+
+      <ConfirmPopup
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null)
+        }}
+        title="태그를 삭제할까요?"
+        description={
+          deleteTarget
+            ? `'${deleteTarget.label}' 태그를 지우면 관련된 태그 정보도 함께 삭제돼요.`
+            : ''
+        }
+        confirmLabel="삭제"
+        destructive
+        pending={deleteMutation.isPending}
+        onConfirm={() => {
+          if (deleteTarget) deleteMutation.mutate(deleteTarget.id)
+        }}
+      />
     </ListGroupItem>
   )
 }

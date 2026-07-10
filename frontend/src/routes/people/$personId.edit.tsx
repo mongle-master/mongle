@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { AppShell } from '@/components/layout/app-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
 import { PersonForm, personToFormValues } from '@/components/person/person-form'
+import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { createChip, fetchChips } from '@/lib/api/chips'
 import { deletePerson, fetchPerson, updatePerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
@@ -20,6 +22,7 @@ function EditPersonPage() {
   const id = Number(personId)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const personQuery = useQuery({
     queryKey: queryKeys.person(id),
@@ -67,10 +70,7 @@ function EditPersonPage() {
   })
 
   const handleDelete = () => {
-    const ok = window.confirm(
-      '삭제하면 되돌릴 수 없어요. 함께 새긴 기록도 모두 사라져요. 삭제할까요?',
-    )
-    if (ok) deleteMutation.mutate()
+    setDeleteOpen(true)
   }
 
   const handleSave = () => {
@@ -126,6 +126,17 @@ function EditPersonPage() {
           </p>
         ) : null}
       </div>
+
+      <ConfirmPopup
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="프로필을 삭제할까요?"
+        description="삭제하면 되돌릴 수 없어요. 함께 새긴 기록도 모두 사라져요."
+        confirmLabel="삭제"
+        destructive
+        pending={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate()}
+      />
     </AppShell>
   )
 }
