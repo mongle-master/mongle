@@ -19,12 +19,6 @@ import { uploadImage } from '@/lib/api/images'
 import { fetchPersons } from '@/lib/api/persons'
 import type { EventRequest, PersonResponse } from '@/lib/api/types'
 import { mediaUrl } from '@/lib/api/client'
-import { safeApi } from '@/lib/api/safe'
-import {
-  FALLBACK_CHIPS,
-  FALLBACK_PERSONS,
-  fallbackEvent,
-} from '@/lib/fallback-data'
 import {
   formatPersonName,
   formatAutoEventTitle,
@@ -89,28 +83,20 @@ function RecordPage() {
 
   const chipsQuery = useQuery({
     queryKey: queryKeys.chips,
-    queryFn: () => safeApi(fetchChips, FALLBACK_CHIPS),
-    initialData: FALLBACK_CHIPS,
+    queryFn: () => fetchChips(),
   })
   const personsQuery = useQuery({
     queryKey: queryKeys.persons(),
-    queryFn: (): Promise<PersonResponse[]> =>
-      safeApi(() => fetchPersons(), FALLBACK_PERSONS),
-    // initialData면 staleTime 동안 폴백 이름(유진 등)이 고정돼 맵 API 이름과 어긋난다.
-    placeholderData: FALLBACK_PERSONS,
+    queryFn: (): Promise<PersonResponse[]> => fetchPersons(),
   })
   const eventQuery = useQuery({
     queryKey: queryKeys.event(editingEventId ?? 0),
-    queryFn: () =>
-      safeApi(
-        () => fetchEvent(editingEventId!),
-        fallbackEvent(editingEventId!) ?? undefined,
-      ),
+    queryFn: () => fetchEvent(editingEventId!),
     enabled: isEditing,
   })
 
   const persons = personsQuery.data ?? []
-  const chips = chipsQuery.data
+  const chips = chipsQuery.data ?? []
 
   const categoryChips = useMemo(
     () => chips.filter((c) => c.type === 'CATEGORY'),

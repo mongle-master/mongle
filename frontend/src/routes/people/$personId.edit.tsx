@@ -7,8 +7,6 @@ import { PersonForm, personToFormValues } from '@/components/person/person-form'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { fetchChips } from '@/lib/api/chips'
 import { deletePerson, fetchPerson, updatePerson } from '@/lib/api/persons'
-import { safeApi } from '@/lib/api/safe'
-import { FALLBACK_CHIPS, fallbackPersonDetail } from '@/lib/fallback-data'
 import { formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 
@@ -27,19 +25,18 @@ function EditPersonPage() {
 
   const personQuery = useQuery({
     queryKey: queryKeys.person(id),
-    queryFn: () => safeApi(() => fetchPerson(id), fallbackPersonDetail(id)),
+    queryFn: () => fetchPerson(id),
     enabled: Number.isFinite(id),
-    initialData: fallbackPersonDetail(id),
   })
 
   const chipsQuery = useQuery({
     queryKey: queryKeys.chips,
-    queryFn: () => safeApi(fetchChips, FALLBACK_CHIPS),
-    initialData: FALLBACK_CHIPS,
+    queryFn: () => fetchChips(),
   })
 
   const person = personQuery.data
-  const relationTags = chipsQuery.data.filter((c) => c.type === 'RELATION_TAG')
+  const relationTags =
+    chipsQuery.data?.filter((c) => c.type === 'RELATION_TAG') ?? []
 
   const updateMutation = useMutation({
     mutationFn: (body: Parameters<typeof updatePerson>[1]) =>
@@ -72,6 +69,26 @@ function EditPersonPage() {
     ;(
       document.getElementById(PERSON_FORM_ID) as HTMLFormElement | null
     )?.requestSubmit()
+  }
+
+  if (!Number.isFinite(id) || personQuery.isPending) {
+    return (
+      <AppShell activePath="/people" layout="fixed">
+        <p className="py-20 text-center text-sm text-muted-foreground">
+          {personQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
+        </p>
+      </AppShell>
+    )
+  }
+
+  if (!person || personQuery.isError) {
+    return (
+      <AppShell activePath="/people" layout="fixed">
+        <p className="py-20 text-center text-sm text-destructive">
+          사람 정보를 불러오지 못했어요.
+        </p>
+      </AppShell>
+    )
   }
 
   const initialValues = personToFormValues({
@@ -117,7 +134,7 @@ function EditPersonPage() {
       <ConfirmPopup
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="프로필을 삭제할까요?"
+        title="인물을 삭제할까요?"
         description="삭제하면 되돌릴 수 없어요. 함께 새긴 기록도 모두 사라져요."
         confirmLabel="삭제"
         destructive

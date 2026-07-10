@@ -22,9 +22,7 @@ import {
   tagChipClass,
 } from '@/components/ui/tag-chip'
 import { createChip, deleteChip, fetchChips, renameChip } from '@/lib/api/chips'
-import { safeApi } from '@/lib/api/safe'
 import type { ChipResponse, ChipType } from '@/lib/api/types'
-import { FALLBACK_CHIPS } from '@/lib/fallback-data'
 import { getDefaultHomePeriod, setDefaultHomePeriod } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { isImeComposing } from '@/lib/keyboard'
@@ -178,11 +176,10 @@ function TagManagementSection() {
   const queryClient = useQueryClient()
   const chipsQuery = useQuery<ChipResponse[]>({
     queryKey: queryKeys.chips,
-    queryFn: (): Promise<ChipResponse[]> => safeApi(fetchChips, FALLBACK_CHIPS),
-    initialData: FALLBACK_CHIPS,
+    queryFn: (): Promise<ChipResponse[]> => fetchChips(),
   })
 
-  const chips = chipsQuery.data.filter((chip: ChipResponse) =>
+  const chips = (chipsQuery.data ?? []).filter((chip: ChipResponse) =>
     MANAGED_TAG_TYPES.has(chip.type),
   )
 

@@ -6,8 +6,6 @@ import { Badge } from '@/components/ui/badge'
 import { fetchEvent } from '@/lib/api/events'
 import { fetchPersons } from '@/lib/api/persons'
 import { EventPhotoGallery } from '@/components/events/event-photo-gallery'
-import { safeApi } from '@/lib/api/safe'
-import { FALLBACK_PERSONS, fallbackEvent } from '@/lib/fallback-data'
 import { formatWhen } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import {
@@ -40,15 +38,13 @@ function EventDetailPage() {
 
   const eventQuery = useQuery({
     queryKey: queryKeys.event(id),
-    queryFn: () =>
-      safeApi(() => fetchEvent(id), fallbackEvent(id) ?? undefined),
+    queryFn: () => fetchEvent(id),
     enabled: Number.isFinite(id),
   })
 
   const personsQuery = useQuery({
     queryKey: queryKeys.persons(),
-    queryFn: () => safeApi(() => fetchPersons(), FALLBACK_PERSONS),
-    placeholderData: FALLBACK_PERSONS,
+    queryFn: () => fetchPersons(),
   })
 
   const personById = new Map(

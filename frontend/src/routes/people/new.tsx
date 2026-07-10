@@ -5,8 +5,6 @@ import { FormPageHeader } from '@/components/layout/form-page-header'
 import { PersonForm, personToFormValues } from '@/components/person/person-form'
 import { fetchChips } from '@/lib/api/chips'
 import { createPerson } from '@/lib/api/persons'
-import { safeApi } from '@/lib/api/safe'
-import { FALLBACK_CHIPS } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
 
 const PERSON_FORM_ID = 'person-form'
@@ -21,11 +19,11 @@ function NewPersonPage() {
 
   const chipsQuery = useQuery({
     queryKey: queryKeys.chips,
-    queryFn: () => safeApi(fetchChips, FALLBACK_CHIPS),
-    initialData: FALLBACK_CHIPS,
+    queryFn: () => fetchChips(),
   })
 
-  const relationTags = chipsQuery.data.filter((c) => c.type === 'RELATION_TAG')
+  const relationTags =
+    chipsQuery.data?.filter((c) => c.type === 'RELATION_TAG') ?? []
 
   const createMutation = useMutation({
     mutationFn: createPerson,

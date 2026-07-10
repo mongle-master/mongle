@@ -19,12 +19,6 @@ import { ListGroup, ListGroupItem } from '@/components/ui/list-group'
 import { fetchChips } from '@/lib/api/chips'
 import { fetchPersonTimeline } from '@/lib/api/events'
 import { fetchPerson } from '@/lib/api/persons'
-import { safeApi } from '@/lib/api/safe'
-import {
-  FALLBACK_CHIPS,
-  fallbackPersonDetail,
-  fallbackPersonTimeline,
-} from '@/lib/fallback-data'
 import { formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { matchesActivityFlowSelection } from '@/lib/timeline-activity-flow'
@@ -45,35 +39,26 @@ function PersonTimelinePage() {
 
   const personQuery = useQuery({
     queryKey: queryKeys.person(id),
-    queryFn: () => safeApi(() => fetchPerson(id), fallbackPersonDetail(id)),
+    queryFn: () => fetchPerson(id),
     enabled: Number.isFinite(id),
   })
 
   const timelineQuery = useQuery({
     queryKey: queryKeys.personTimeline(id, categoryFilter),
-    queryFn: () =>
-      safeApi(
-        () => fetchPersonTimeline(id, categoryFilter),
-        fallbackPersonTimeline(id).filter((event) =>
-          categoryFilter.length > 0
-            ? event.category && categoryFilter.includes(event.category.id)
-            : true,
-        ),
-      ),
+    queryFn: () => fetchPersonTimeline(id, categoryFilter),
     enabled: Number.isFinite(id),
   })
 
   // 활동 흐름은 카테고리 필터와 무관한 전체 기록 날짜로 그린다.
   const allTimelineQuery = useQuery({
     queryKey: queryKeys.personTimeline(id, []),
-    queryFn: () =>
-      safeApi(() => fetchPersonTimeline(id), fallbackPersonTimeline(id)),
+    queryFn: () => fetchPersonTimeline(id),
     enabled: Number.isFinite(id),
   })
 
   const chipsQuery = useQuery({
     queryKey: queryKeys.chips,
-    queryFn: () => safeApi(fetchChips, FALLBACK_CHIPS),
+    queryFn: () => fetchChips(),
   })
 
   const person = personQuery.data

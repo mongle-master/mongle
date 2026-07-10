@@ -16,9 +16,7 @@ import {
 } from '@/components/ui/list-group'
 
 import { fetchPersons, togglePersonFavorite } from '@/lib/api/persons'
-import { safeApi } from '@/lib/api/safe'
 import type { PersonResponse } from '@/lib/api/types'
-import { FALLBACK_PERSONS } from '@/lib/fallback-data'
 import { formatLastMetRelative, formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
@@ -36,8 +34,7 @@ function PeopleListPage() {
 
   const personsQuery = useQuery({
     queryKey: queryKeys.persons(`${query}:${sort}`),
-    queryFn: () => safeApi(() => fetchPersons(query, sort), FALLBACK_PERSONS),
-    initialData: FALLBACK_PERSONS,
+    queryFn: () => fetchPersons(query, sort),
   })
 
   const favoriteMutation = useMutation({
@@ -49,14 +46,15 @@ function PeopleListPage() {
   })
 
   const { favorites, others } = useMemo(() => {
-    const list = personsQuery.data
+    const list = personsQuery.data ?? []
     return {
       favorites: list.filter((p) => p.favorite),
       others: list.filter((p) => !p.favorite),
     }
   }, [personsQuery.data])
 
-  const totalCount = personsQuery.data.length
+  const persons = personsQuery.data ?? []
+  const totalCount = persons.length
   const showSections = sort === 'NAME' && !query.trim() && favorites.length > 0
 
   return (
@@ -117,7 +115,15 @@ function PeopleListPage() {
           </ListGroup>
         </section>
 
-        {totalCount === 0 ? (
+        {personsQuery.isPending ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">
+            사람 목록을 불러오는 중…
+          </p>
+        ) : personsQuery.isError ? (
+          <p className="py-12 text-center text-sm text-destructive">
+            사람 목록을 불러오지 못했어요.
+          </p>
+        ) : totalCount === 0 ? (
           <PeopleEmptyState query={query} onClear={() => setQuery('')} />
         ) : showSections ? (
           <>
@@ -137,7 +143,7 @@ function PeopleListPage() {
         ) : (
           <PersonSection
             title={query.trim() ? '검색 결과' : '목록'}
-            persons={personsQuery.data}
+            persons={persons}
             onToggleFavorite={(id) => favoriteMutation.mutate(id)}
           />
         )}

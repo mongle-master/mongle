@@ -10,11 +10,9 @@ import { AppShell } from '@/components/layout/app-shell'
 import { Card } from '@/components/ui/card'
 import { fetchRelationMap, fetchThrowback } from '@/lib/api/home'
 import type { RelationMapResponse } from '@/lib/api/types'
-import { FALLBACK_RELATION_MAP, FALLBACK_THROWBACK } from '@/lib/fallback-data'
 import { getDefaultHomePeriod, isPersonInHomePeriod } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { queryKeys } from '@/lib/query-keys'
-import { safeApi } from '@/lib/api/safe'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -28,27 +26,27 @@ function HomePage() {
 
   const mapQuery = useQuery({
     queryKey: queryKeys.relationMap([]),
-    queryFn: (): Promise<RelationMapResponse> =>
-      safeApi(() => fetchRelationMap(), FALLBACK_RELATION_MAP),
+    queryFn: (): Promise<RelationMapResponse> => fetchRelationMap(),
   })
 
   const throwbackQuery = useQuery({
     queryKey: queryKeys.throwback,
-    queryFn: () => safeApi(fetchThrowback, FALLBACK_THROWBACK),
+    queryFn: fetchThrowback,
   })
 
   const throwback = throwbackQuery.data
-  const mapData: RelationMapResponse = mapQuery.data ?? FALLBACK_RELATION_MAP
+  const mapData = mapQuery.data
 
   const visibleNodes = useMemo(
     () =>
-      mapData.nodes.filter((node) =>
+      (mapData?.nodes ?? []).filter((node) =>
         isPersonInHomePeriod(node.firstMetDate, period),
       ),
-    [mapData.nodes, period],
+    [mapData?.nodes, period],
   )
 
-  const graphNodes = visibleNodes.length > 0 ? visibleNodes : mapData.nodes
+  const graphNodes =
+    visibleNodes.length > 0 ? visibleNodes : (mapData?.nodes ?? [])
 
   const visibleNodeIds = useMemo(
     () => new Set(graphNodes.map((n) => n.id)),
@@ -56,8 +54,8 @@ function HomePage() {
   )
 
   const visibleEdges = useMemo(
-    () => mapData.edges.filter((e) => visibleNodeIds.has(e.personId)),
-    [mapData.edges, visibleNodeIds],
+    () => (mapData?.edges ?? []).filter((e) => visibleNodeIds.has(e.personId)),
+    [mapData?.edges, visibleNodeIds],
   )
 
   return (
@@ -73,12 +71,22 @@ function HomePage() {
         <HomePeriodToggle value={period} onChange={setPeriod} />
       </section>
 
-      <RelationForceMap
-        key={period}
-        me={mapData.me}
-        nodes={graphNodes}
-        edges={visibleEdges}
-      />
+      {mapQuery.isPending ? (
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          관계 지도를 불러오는 중…
+        </p>
+      ) : mapQuery.isError || !mapData ? (
+        <p className="py-12 text-center text-sm text-destructive">
+          관계 지도를 불러오지 못했어요.
+        </p>
+      ) : (
+        <RelationForceMap
+          key={period}
+          me={mapData.me}
+          nodes={graphNodes}
+          edges={visibleEdges}
+        />
+      )}
 
       {throwback && !throwbackDismissed ? (
         <div className="pointer-events-none fixed right-4 bottom-[6.25rem] left-4 z-40">

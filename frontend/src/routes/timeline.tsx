@@ -19,12 +19,6 @@ import { Button } from '@/components/ui/button'
 import { fetchChips } from '@/lib/api/chips'
 import { fetchMyTimeline } from '@/lib/api/timeline'
 import { fetchPersons } from '@/lib/api/persons'
-import { safeApi } from '@/lib/api/safe'
-import {
-  FALLBACK_CHIPS,
-  FALLBACK_PERSONS,
-  fallbackMyTimeline,
-} from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
 import {
   flattenTimelineCards,
@@ -50,33 +44,26 @@ function MyTimelinePage() {
   // 활동 흐름은 필터 없는 전체 `/api/v1/timeline` 응답에서 파생한다.
   const allTimelineQuery = useQuery({
     queryKey: queryKeys.myTimeline([], []),
-    queryFn: () => safeApi(() => fetchMyTimeline(), fallbackMyTimeline()),
+    queryFn: () => fetchMyTimeline(),
   })
 
   const timelineQuery = useQuery({
     queryKey: queryKeys.myTimeline(categoryFilter, personFilter),
     queryFn: () =>
-      safeApi(
-        () =>
-          fetchMyTimeline({
-            categoryChipIds: categoryFilter,
-            personIds: personFilter,
-          }),
-        fallbackMyTimeline({
-          categoryChipIds: categoryFilter,
-          personIds: personFilter,
-        }),
-      ),
+      fetchMyTimeline({
+        categoryChipIds: categoryFilter,
+        personIds: personFilter,
+      }),
   })
 
   const chipsQuery = useQuery({
     queryKey: queryKeys.chips,
-    queryFn: () => safeApi(fetchChips, FALLBACK_CHIPS),
+    queryFn: () => fetchChips(),
   })
 
   const personsQuery = useQuery({
     queryKey: queryKeys.persons(),
-    queryFn: () => safeApi(() => fetchPersons(), FALLBACK_PERSONS),
+    queryFn: () => fetchPersons(),
   })
 
   const categoryChips =

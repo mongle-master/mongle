@@ -14,13 +14,8 @@ import {
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { fetchPersonTimeline } from '@/lib/api/events'
 import { deletePerson, fetchPerson } from '@/lib/api/persons'
-import { safeApi } from '@/lib/api/safe'
 import type { EventResponse } from '@/lib/api/types'
 import { mediaUrl } from '@/lib/api/client'
-import {
-  fallbackPersonDetail,
-  fallbackPersonTimeline,
-} from '@/lib/fallback-data'
 import {
   formatAbsoluteDate,
   formatBirthday,
@@ -43,14 +38,13 @@ function PersonProfilePage() {
 
   const personQuery = useQuery({
     queryKey: queryKeys.person(id),
-    queryFn: () => safeApi(() => fetchPerson(id), fallbackPersonDetail(id)),
+    queryFn: () => fetchPerson(id),
     enabled: Number.isFinite(id),
   })
 
   const recentQuery = useQuery({
     queryKey: queryKeys.personTimeline(id),
-    queryFn: () =>
-      safeApi(() => fetchPersonTimeline(id), fallbackPersonTimeline(id)),
+    queryFn: () => fetchPersonTimeline(id),
     enabled: Number.isFinite(id),
   })
 
@@ -285,7 +279,7 @@ function PersonProfilePage() {
                   disabled={deleteMutation.isPending}
                   className="flex w-full items-center justify-between py-3.5 text-left text-[15px] font-extrabold text-destructive transition-colors active:opacity-70 disabled:opacity-60"
                 >
-                  프로필 삭제
+                  인물 삭제
                   <ChevronRight className="size-5 text-destructive/70" />
                 </button>
               </ListGroupItem>
@@ -297,7 +291,7 @@ function PersonProfilePage() {
       <ConfirmPopup
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="프로필을 삭제할까요?"
+        title="인물을 삭제할까요?"
         description="삭제하면 되돌릴 수 없어요. 함께 새긴 기록도 모두 사라져요."
         confirmLabel="삭제"
         destructive
