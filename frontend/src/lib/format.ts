@@ -3,6 +3,31 @@ export function monogram(name: string) {
   return ch ? (/[a-z]/i.test(ch) ? ch.toUpperCase() : ch) : '?'
 }
 
+export type PersonNameSource = {
+  name?: string | null
+  fullName?: string | null
+  familyName?: string | null
+  givenName?: string | null
+  lastName?: string | null
+  firstName?: string | null
+}
+
+export function formatPersonName(person: PersonNameSource) {
+  const fullName = person.fullName?.trim()
+  if (fullName) return fullName
+
+  const familyName = (person.familyName ?? person.lastName)?.trim()
+  const givenName = (person.givenName ?? person.firstName)?.trim()
+  const name = person.name?.trim() ?? ''
+
+  if (familyName && givenName) return `${familyName}${givenName}`
+  if (familyName && name && !name.startsWith(familyName)) {
+    return `${familyName}${name}`
+  }
+
+  return name || givenName || familyName || ''
+}
+
 function hangulHasBatchim(char: string) {
   const code = char.codePointAt(0)
   if (code === undefined || code < 0xac00 || code > 0xd7a3) return false

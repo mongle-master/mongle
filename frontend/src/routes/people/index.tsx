@@ -18,7 +18,7 @@ import { fetchPersons, togglePersonFavorite } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import type { PersonResponse } from '@/lib/api/types'
 import { FALLBACK_PERSONS } from '@/lib/fallback-data'
-import { formatLastMetRelative } from '@/lib/format'
+import { formatLastMetRelative, formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 
@@ -187,6 +187,7 @@ function PersonListItem({
     [person.relationType, tagLabels.join(' · ')].filter(Boolean).join(' · ') ||
     '관계 정보 없음'
   const lastMetLabel = formatLastMetRelative(person.lastMetDate)
+  const displayName = formatPersonName(person)
 
   return (
     <ListGroupItem withDivider={withDivider} className="relative py-3">
@@ -204,7 +205,7 @@ function PersonListItem({
         />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[15px] font-extrabold text-foreground">
-            {person.name}
+            {displayName}
           </p>
           <p className="mt-0.5 truncate text-xs font-medium text-muted-foreground">
             {subtitle}
