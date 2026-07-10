@@ -35,7 +35,7 @@ docker compose stop backend && tar czf mongle-backup-$(date +%Y%m%d).tgz data/ &
 | 18080 이미 사용 중 (도커 기동 실패) | 다른 프로세스가 호스트 18080 점유 → 점유 프로세스 종료(`lsof -i :18080`) 또는 compose 포트 변경. bootRun(8080)과 도커(18080)는 포트가 달라 서로 충돌하지 않는다 |
 | backend가 재시작 반복 | db 헬시 전 기동 실패가 아니라면 `docker compose logs backend`에서 datasource 접속 오류 확인 → `data/mysql` 손상 시 백업 복구 또는 초기화 |
 | 스키마 불일치 에러 | `ddl-auto: update`는 가산만 한다. 컬럼 타입 변경 릴리스 후엔 데이터 초기화(`docker compose down && rm -rf data`) 또는 수동 ALTER |
-| 시드가 안 보임 | 시드는 빈 DB에서만 멱등 실행 → 초기화 후 재기동하면 다시 깔린다. demo 유저 소유이므로 `{"username":"demo"}` 토큰으로 조회해야 보인다 |
+| 시드가 안 보임 | 같은 UUID로 토큰을 발급했는지 확인 → `POST /api/v1/seed`를 Bearer 토큰과 함께 다시 호출한다. `users.demo_seeded=true`면 다시 생성하지 않는다 |
 | 이미지 404 | `data/images/` 볼륨 마운트 누락 → compose 볼륨 설정 확인 |
 
 ## 정기 점검 (데모 수준)

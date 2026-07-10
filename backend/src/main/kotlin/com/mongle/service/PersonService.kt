@@ -22,6 +22,7 @@ import com.mongle.repository.PersonRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
@@ -35,7 +36,7 @@ class PersonService(
     private val eventPersonRepository: EventPersonRepository,
 ) {
     @Transactional
-    fun register(userId: Long, request: PersonRequest): PersonResponse {
+    fun register(userId: UUID, request: PersonRequest): PersonResponse {
         val person = Person(ownerId = userId, name = request.name)
         val relationTagChipIds = applyRequest(userId, person, request)
         val saved = personRepository.save(person)
@@ -45,7 +46,7 @@ class PersonService(
 
     /** 전체 수정(PUT) — 등록과 같은 입력·검증을 재사용한다. 내 소유·active 인물만, 아니면 NOT_FOUND. */
     @Transactional
-    fun update(userId: Long, personId: Long, request: PersonRequest): PersonResponse {
+    fun update(userId: UUID, personId: Long, request: PersonRequest): PersonResponse {
         val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
         val relationTagChipIds = applyRequest(userId, person, request)
@@ -59,7 +60,7 @@ class PersonService(
      * 검색은 이름·관계 유형 부분 일치(대소문자 무시). 즐겨찾기 상단 조건이 있어 in-memory 로 조합한다.
      * (최근 만남순의 마지막 만난 날은 이후 파생 단계에서 event 반영으로 갱신된다.)
      */
-    fun directory(userId: Long, sort: PersonSort, query: String?): List<PersonResponse> {
+    fun directory(userId: UUID, sort: PersonSort, query: String?): List<PersonResponse> {
         val keyword = query?.trim()?.lowercase()?.ifBlank { null }
         val within = when (sort) {
             PersonSort.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { p: Person -> p.name }
@@ -78,7 +79,7 @@ class PersonService(
     private fun Person.matches(keyword: String): Boolean = name.lowercase().contains(keyword) || relationType?.lowercase()?.contains(keyword) == true
 
     /** 상세 조회(#25). 기본 정보 + 파생 스탯(#30). 내 소유·active 인물만, 아니면 NOT_FOUND. */
-    fun detail(userId: Long, personId: Long): PersonDetailResponse {
+    fun detail(userId: UUID, personId: Long): PersonDetailResponse {
         val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
         val stats = personStatsService.statsOf(person)
@@ -88,7 +89,7 @@ class PersonService(
 
     /** 즐겨찾기 토글(#28). 내 소유·active 인물만, 아니면 NOT_FOUND. */
     @Transactional
-    fun toggleFavorite(userId: Long, personId: Long): PersonResponse {
+    fun toggleFavorite(userId: UUID, personId: Long): PersonResponse {
         val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
         person.toggleFavorite()
@@ -102,7 +103,7 @@ class PersonService(
      * 이미 소프트삭제된 기록은 findByPersonId 가 걸러 과거 참조를 보존한다.
      */
     @Transactional
-    fun delete(userId: Long, personId: Long) {
+    fun delete(userId: UUID, personId: Long) {
         val person = personRepository.findByIdAndOwnerIdAndDeletedAtIsNull(personId, userId)
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
         // active 기록에서만 이 인물 연결을 끊는다(소프트삭제된 기록은 findByPersonId 가 걸러 과거 참조 보존).
@@ -120,7 +121,7 @@ class PersonService(
      * 취향 목록은 엔티티에 바로 교체하고, 관계 태그는 조인 엔티티라 검증된 칩 id 목록만 돌려줘
      * 저장(id 확보) 후 호출자가 syncRelationTags 로 교체한다(PUT 시맨틱).
      */
-    private fun applyRequest(userId: Long, person: Person, request: PersonRequest): List<Long> {
+    private fun applyRequest(userId: UUID, person: Person, request: PersonRequest): List<Long> {
         val name = request.name.trim()
         Validators.requireNotBlank(name, Messages.REQUIRED_NAME)
         Validators.maxLength(name, ValidationLimits.NAME_MAX)

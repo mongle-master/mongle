@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "인증", description = "데모 로그인 — 이름만으로 JWT 를 발급한다.")
+@Tag(name = "인증", description = "브라우저 UUID로 JWT를 발급한다.")
 @RestController
 @RequestMapping("/api/v1/auth")
 class AuthController(
@@ -26,7 +26,7 @@ class AuthController(
     @SecurityRequirements
     @Operation(
         summary = "토큰 발급",
-        description = "이름(username)만으로 로그인해 JWT 를 발급한다. 처음 보는 이름이면 사용자를 새로 만든다(데모라 비밀번호·회원가입 없음).",
+        description = "브라우저가 생성한 UUID로 JWT를 발급한다. 처음 보는 UUID면 요청 이름으로 사용자를 만든다.",
     )
     @ApiResponses(
         ApiResponse(
@@ -38,5 +38,5 @@ class AuthController(
     @PostMapping("/token")
     fun issueToken(
         @RequestBody request: TokenRequest,
-    ): TokenResponse = authService.issueToken(request.username)
+    ): TokenResponse = authService.issueToken(request.userId, request.username)
 }

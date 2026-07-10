@@ -33,7 +33,8 @@ curl로 직접 확인:
 ```bash
 BASE=https://mongle-backend.onrender.com
 curl -s $BASE/actuator/health          # {"status":"UP"}
-curl -s -X POST $BASE/api/v1/auth/token -H 'Content-Type: application/json' -d '{"username":"demo"}'
+curl -s -X POST $BASE/api/v1/auth/token -H 'Content-Type: application/json' \
+  -d '{"userId":"8e0ca8f5-a713-4a90-9df1-15f0be0d843c","username":"성빈"}'
 # → {"token":"..."} 이후 요청에 Authorization: Bearer {token}
 ```
 

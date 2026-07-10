@@ -10,7 +10,7 @@
 - 성공 응답은 봉투로 감싸지 않는다 — 도메인 DTO를 그대로 반환한다(기존 Sample 컨벤션).
 - `message` 는 사용자에게 그대로 보여줄 수 있는 §12.5 문구다(개발자 문구·스택트레이스 금지).
 - 소프트삭제된 라벨(칩 등)은 **선택 목록에서만** 빠지고, 이미 그 라벨을 참조하는 과거 기록에는 값이 남는다.
-- 소유 컨텍스트: `ownerId == null` 이면 공통(모든 사용자 공유), `ownerId == 그 사용자 id`면 개인.
+- 소유 컨텍스트: 사용자 id 와 `ownerId` 는 UUID 다. `ownerId == null` 이면 공통(모든 사용자 공유), `ownerId == 그 사용자 id`면 개인.
   선택 목록 = 공통 + 그 사용자 개인.
 - 사용자 식별은 **JWT Bearer 토큰**에서만 온다(고정 데모 사용자 하드코딩 없음). 아래 인증 절 참조.
 - 글자수·개수 한도를 넘기면 저장하지 않고 §12.5 문구로 거절한다.
@@ -40,8 +40,8 @@
 
 ## 인증 (JWT)
 
-- 발급: `POST /api/v1/auth/token` body `{ "username": string }` → `{ token, userId, username }`.
-  데모 로그인이라 비밀번호가 없다 — 없는 username 이면 사용자를 만들어 발급한다.
+- 발급: `POST /api/v1/auth/token` body `{ "userId": UUID, "username": string }` → `{ token, userId, username }`.
+  비밀번호가 없는 데모 인증이다. 없는 `userId`면 요청의 UUID와 이름으로 사용자를 만들고, 이후에는 같은 UUID로 토큰을 재발급한다.
 - 사용: 이후 모든 보호 API 는 `Authorization: Bearer {token}` 를 보낸다. HS256, claim `sub` = userId 문자열, claim `username` = 로그인 이름.
 - 주입: 컨트롤러가 `@AuthUser user: UserPrincipal` 을 받으면 리졸버가 헤더의 토큰을 파싱·검증해 채운다.
   `UserPrincipal(id, username)` 은 토큰 클레임만으로 구성 — 요청당 DB 조회 없음. 컨트롤러는 id·username 중 필요한 것만 골라 쓴다.
@@ -49,13 +49,17 @@
 - 무인증 경로(토큰 불요): `/api/v1/auth/**`, `/actuator/**`, 정적 이미지 서빙(`/images/**`), 스웨거(`/swagger-ui/**`, `/v3/api-docs/**`).
   이들은 `@AuthUser` 를 받지 않아 자연히 열린다. **이미지 업로드(`POST /api/v1/images`)는 보호 API 다**(토큰 필요 — 무인증은 정적 서빙 GET 만).
 - 실패: 토큰 없음·Bearer 형식 아님·서명/만료/형식 무효·username 클레임 없는 옛 토큰은 모두 401 `UNAUTHORIZED` "로그인이 필요해요." (옛 토큰은 재로그인 한 번으로 새 토큰을 받아 해소).
-- 데모 사용자 시드: username `demo` 를 만들어 그 id 로 시드 인물·기록을 소유한다(고정 id 하드코딩 없음).
+- refresh token 은 사용하지 않는다. 프론트는 로컬에 저장한 UUID로 앱 시작마다 access token 을 재발급한다.
+- 사용자 시드: `POST /api/v1/seed` + Bearer 토큰. `User.demoSeeded`가 false인 사용자에게만 데모 데이터를 만들고 완료 후 true로 바꾼다.
+  사용자가 인물을 모두 삭제해도 다시 시드하지 않으며, 생성 도중 실패하면 전체 트랜잭션과 완료 표시를 함께 롤백한다.
+  같은 사용자의 동시 요청은 사용자 행 잠금으로 직렬화해 중복 생성을 막는다.
 
 | 상황 | 입력 | 기대 결과 |
 |---|---|---|
 | 토큰 없이 보호 API | GET /api/v1/persons | 401 `UNAUTHORIZED` |
-| 데모 로그인 | POST /api/v1/auth/token `{"username":"demo"}` | 200 `{ token, userId, username }` |
-| 발급 토큰으로 조회 | GET /api/v1/persons + Bearer | 200, demo 소유 시드 인물 목록 |
+| 최초 인증 | POST /api/v1/auth/token `{"userId":"UUID","username":"성빈"}` | 200 `{ token, userId, username }` |
+| 사용자 시드 | POST /api/v1/seed + Bearer | 204, 사용자별 최초 1회만 데모 데이터 생성 |
+| 발급 토큰으로 조회 | GET /api/v1/persons + Bearer | 200, 현재 사용자 소유 인물 목록 |
 
 ## 검증 한도 (ValidationLimits) — §12.3 / §12.2 / §12.6
 

@@ -13,11 +13,12 @@ import jakarta.persistence.OrderColumn
 import jakarta.persistence.Table
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 /**
  * 기록(사람과 함께한 상황).
  *
- * 소유는 ownerId(데모 사용자)에 귀속되고 소프트삭제를 상속한다.
+ * 소유는 UUID ownerId에 귀속되고 소프트삭제를 상속한다.
  * 칩(카테고리·날씨·감정)·인물은 label/이름을 복사하지 않고 id 만 참조한다 —
  * 이름을 바꾸면 지난 기록에 저절로 반영된다(§12.2). 제목도 미입력이면 저장하지 않고 조회 시 계산한다(#37).
  */
@@ -28,7 +29,7 @@ import java.time.LocalTime
 )
 class Event(
     @Column(name = "owner_id", nullable = false, updatable = false)
-    val ownerId: Long,
+    val ownerId: UUID,
     // 언제: 날짜 필수 + 시간 선택(넣은 경우에만 표시). 미지정 시 오늘 기본값은 서비스가 채운다(#39).
     @Column(name = "occurred_date", nullable = false)
     var occurredDate: LocalDate,

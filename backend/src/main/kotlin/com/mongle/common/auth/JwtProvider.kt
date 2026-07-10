@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Component
 import java.util.Date
+import java.util.UUID
 
 /** username 을 담는 커스텀 클레임 키. sub(=userId) 와 함께 principal 을 토큰만으로 복원한다. */
 private const val USERNAME_CLAIM = "username"
@@ -24,7 +25,7 @@ class JwtProvider(
     private val expirationMillis = properties.expiration.toMillis()
 
     fun issue(
-        userId: Long,
+        userId: UUID,
         username: String,
     ): String {
         val now = Date()
@@ -49,13 +50,13 @@ class JwtProvider(
             .build()
             .parseSignedClaims(token)
             .payload
-        val id = claims.subject.toLong()
+        val id = UUID.fromString(claims.subject)
         val username = claims.get(USERNAME_CLAIM, String::class.java)
             ?: throw BusinessException(ErrorCode.UNAUTHORIZED)
         UserPrincipal(id = id, username = username)
     } catch (e: JwtException) {
         throw BusinessException(ErrorCode.UNAUTHORIZED)
-    } catch (e: NumberFormatException) {
+    } catch (e: IllegalArgumentException) {
         throw BusinessException(ErrorCode.UNAUTHORIZED)
     }
 }

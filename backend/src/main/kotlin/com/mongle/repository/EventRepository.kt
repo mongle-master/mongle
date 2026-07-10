@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.LocalDate
+import java.util.UUID
 
 /**
  * 조회는 항상 소유자·active(deletedAt IS NULL)로 거른다(SoftDeletableEntity 규약).
@@ -12,10 +13,10 @@ import java.time.LocalDate
  * 파생 스탯(#30)·홈(#41 #43)·타임라인(#44~46)이 이 진입점을 확장한다.
  */
 interface EventRepository : JpaRepository<Event, Long> {
-    fun findByIdAndOwnerIdAndDeletedAtIsNull(id: Long, ownerId: Long): Event?
+    fun findByIdAndOwnerIdAndDeletedAtIsNull(id: Long, ownerId: UUID): Event?
 
     // 전역 타임라인(#44~46): 최신 날짜 먼저, 같은 날은 최근 저장 먼저.
-    fun findByOwnerIdAndDeletedAtIsNullOrderByOccurredDateDescIdDesc(ownerId: Long): List<Event>
+    fun findByOwnerIdAndDeletedAtIsNullOrderByOccurredDateDescIdDesc(ownerId: UUID): List<Event>
 
     // 사람별 피드(#44) — 대표/비대표 구분 없이 연결된 모든 기록.
     @Query(
@@ -86,7 +87,7 @@ interface EventRepository : JpaRepository<Event, Long> {
             "ORDER BY e.occurredDate DESC, e.id DESC",
     )
     fun findByOwnerIdAndMonthDay(
-        @Param("ownerId") ownerId: Long,
+        @Param("ownerId") ownerId: UUID,
         @Param("month") month: Int,
         @Param("day") day: Int,
     ): List<Event>

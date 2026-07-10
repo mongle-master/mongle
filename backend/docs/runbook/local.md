@@ -15,20 +15,22 @@ docker compose up -d --build   # 첫 빌드는 의존성 다운로드로 수 분
   - 호스트 노출은 18080, 컨테이너 내부 앱 포트는 8080. 프론트 dev 프록시(`frontend/vite.config.ts`)는 기본으로 로컬 도커 백엔드를 가리킨다.
 - 데이터: `backend/data/mysql/`(DB)·`backend/data/images/`(업로드 이미지)에 영속화. 컨테이너를 지워도 남는다.
 - DB 직접 접속(디버깅): `mysql -h127.0.0.1 -P13306 -umongle -pmongle mongle`
-- 기동 시 자동 시드: 공통 칩(감정6·날씨5·카테고리4) + demo 유저 소유의 샘플 인물·기록. 이미 있으면 스킵(멱등).
+- 기동 시 자동 시드: 공통 칩(감정6·날씨5·카테고리4). 사용자 샘플 데이터는 인증 후 `POST /api/v1/seed`가 사용자별 최초 1회 생성한다.
 
 ## 첫 호출 (JWT 필수)
 
-모든 `/api/v1/**`는 Bearer 토큰이 필요하다(무토큰 = 401). 데모 로그인은 username만 받는다:
+보호 API는 Bearer 토큰이 필요하다(무토큰 = 401). 브라우저가 생성·보관할 UUID를 사용자 id로 보낸다:
 
 ```bash
 TOKEN=$(curl -s -X POST http://localhost:18080/api/v1/auth/token \
-  -H 'Content-Type: application/json' -d '{"username":"demo"}' | jq -r .token)
+  -H 'Content-Type: application/json' \
+  -d '{"userId":"8e0ca8f5-a713-4a90-9df1-15f0be0d843c","username":"성빈"}' | jq -r .token)
+
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://localhost:18080/api/v1/seed \
+  -H "Authorization: Bearer $TOKEN"  # 204
 
 curl -s -H "Authorization: Bearer $TOKEN" http://localhost:18080/api/v1/persons
 ```
-
-- `demo` 유저가 시드 데이터의 소유자다. 다른 username을 주면 빈 데이터의 새 유저가 만들어진다.
 
 ## API 문서
 
@@ -39,7 +41,7 @@ curl -s -H "Authorization: Bearer $TOKEN" http://localhost:18080/api/v1/persons
 
 ```bash
 docker compose down                              # 중지 (데이터 유지)
-docker compose down && rm -rf data && docker compose up -d   # 데이터 초기화 후 재기동 (시드가 다시 깔린다)
+docker compose down && rm -rf data && docker compose up -d   # 데이터 초기화 후 재기동
 docker compose up -d --build backend             # 코드 수정 반영 — --build 없이는 옛 이미지로 뜬다
 ```
 

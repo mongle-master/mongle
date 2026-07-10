@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
@@ -36,7 +37,7 @@ class HomeService(
      * 친밀도(#41)는 그 인물 만남 고유 날짜(파생 스탯)로 판정하고, 멀어짐이면 엣지를 흐리게 표시하도록 내린다.
      * 관계태그 필터(#42)는 합집합(OR) — 하나라도 가진 인물을 남긴다(넓혀 보기). 빈 필터는 전체. 흐린 표시는 멀어짐 전용이라 섞지 않고, 조건 밖 인물은 아예 뺀다.
      */
-    fun relationMap(userId: Long, filterTagChipIds: List<Long>): RelationMapResponse {
+    fun relationMap(userId: UUID, filterTagChipIds: List<Long>): RelationMapResponse {
         val today = LocalDate.now()
         val filter = filterTagChipIds.toSet()
         // 관계태그(조인 엔티티)는 필터·표시 양쪽에 쓰이므로 전체 인물분을 한 번에 로드한 뒤 필터한다.
@@ -73,7 +74,7 @@ class HomeService(
      * 윤년 2/29: 오늘이 2/29 여도 작년(비윤년)엔 2/29 기록이 있을 수 없어 연도 필터로 자연히 빈 결과가 된다(PRD §5 미노출).
      * 복수면 우선순위 ①즐겨찾기 인물 →②사진 →③기념일 카테고리 →④이른 시각(없으면 뒤) →⑤먼저 남긴 것(id) 로 1건.
      */
-    fun throwback(userId: Long): ThrowbackResponse? {
+    fun throwback(userId: UUID): ThrowbackResponse? {
         val today = LocalDate.now()
         val lastYear = today.year - 1
         val candidates = eventRepository.findByOwnerIdAndMonthDay(userId, today.monthValue, today.dayOfMonth)
