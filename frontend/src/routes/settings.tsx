@@ -52,7 +52,7 @@ function SettingsPage() {
     <AppShell activePath="/settings" layout="fixed">
       <header className="shrink-0 pb-4">
         <MongleLogo className="mb-5 text-foreground" />
-        <h1 className="text-[28px] font-black leading-tight tracking-tight text-foreground">
+        <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
           설정
         </h1>
         <p className="mt-2 text-[15px] font-medium text-muted-foreground">

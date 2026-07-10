@@ -110,7 +110,7 @@ export function RelationForceMap({
 
   return (
     <div
-      className="relative mt-0 h-[500px] touch-pan-y overflow-hidden bg-background select-none"
+      className="relative mt-0 h-[480px] touch-pan-y overflow-hidden bg-background select-none"
       onPointerDown={(event) => {
         dragStartXRef.current = event.clientX
       }}

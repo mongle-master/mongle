@@ -64,7 +64,7 @@ function PeopleListPage() {
         <MongleLogo className="mb-5 text-foreground" />
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-[28px] font-black leading-tight tracking-tight text-foreground">
+            <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
               사람
             </h1>
             <p className="mt-2 text-[15px] font-medium text-muted-foreground">
