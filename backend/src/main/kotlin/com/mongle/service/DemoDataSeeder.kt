@@ -153,7 +153,7 @@ class DemoDataSeeder(
                 birthMonth = 7,
                 birthDay = 30,
                 firstMetDate = today.minusYears(2),
-                lastMetDate = today.minusYears(1),
+                lastMetDate = today.minusMonths(10),
             ),
         )
         saveRelationTags(hajun.id!!, tagIds(relationTagIds, "대학동기", "친구"))
@@ -181,7 +181,8 @@ class DemoDataSeeder(
             title = "서연 생일"
             memo = "10년지기 생일\n생일 축하 저녁"
         }
-        seedEvent(ownerId, today.minusMonths(7), category["만남"]!!, weather["비"], listOf(hajun.id!!, yunseo.id!!), emotionIds(emotion, "즐거움", "그냥")) {
+        // 하준: 1년 전 → 10개월 전 두 번 만난 뒤 오래 지나 평소 주기(2개월)의 2배를 넘긴 DISTANT 사례.
+        seedEvent(ownerId, today.minusMonths(10), category["만남"]!!, weather["비"], listOf(hajun.id!!, yunseo.id!!), emotionIds(emotion, "즐거움", "그냥")) {
             memo = "동아리 번개 모임"
         }
         seedEvent(ownerId, today.minusMonths(9), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
