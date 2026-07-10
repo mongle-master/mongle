@@ -85,7 +85,6 @@ function PeopleListPage() {
 
       <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
         <section>
-          <ListGroupLabel>검색 · 정렬</ListGroupLabel>
           <ListGroup>
             <ListGroupItem>
               <ListGroupInset className="relative px-2 py-1">

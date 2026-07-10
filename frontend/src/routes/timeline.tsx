@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { ChevronDown } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
@@ -28,6 +29,7 @@ import {
 } from '@/lib/timeline-activity-flow'
 import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
 import { recordSearch } from '@/lib/record-navigation'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/timeline')({
   component: MyTimelinePage,
@@ -164,16 +166,13 @@ function MyTimelinePage() {
               </span>
             ) : null}
             {isFilterOpen ? '접기' : '필터 열기'}
-            <span
-              className={
-                isFilterOpen
-                  ? 'rotate-180 transition-transform'
-                  : 'transition-transform'
-              }
-              aria-hidden="true"
-            >
-              ⌄
-            </span>
+            <ChevronDown
+              className={cn(
+                'size-3 text-muted-foreground transition-transform',
+                isFilterOpen && 'rotate-180',
+              )}
+              aria-hidden
+            />
           </button>
         </div>
         {isFilterOpen ? (
