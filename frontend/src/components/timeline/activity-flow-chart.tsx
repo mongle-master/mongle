@@ -158,8 +158,8 @@ export function ActivityFlowChart({
           </p>
         ) : null}
 
-        <div className="mt-4 flex gap-2">
-          <div className={cn(LANE_LABEL_WIDTH, 'shrink-0 space-y-1')}>
+        <div className="mt-4 flex max-h-80 gap-2 overflow-y-auto pr-1">
+          <div className={cn(LANE_LABEL_WIDTH, 'shrink-0 space-y-1 py-1')}>
             {flow.lanes.map((lane) => {
               const person = personById.get(lane.personId)
               return (
@@ -193,7 +193,7 @@ export function ActivityFlowChart({
                     }
                   : undefined
               }
-              className="min-w-full space-y-1"
+              className="min-w-full space-y-1 px-3 py-1"
             >
               {flow.lanes.map((lane, laneIndex) => (
                 <div key={lane.personId} className="relative h-7">
