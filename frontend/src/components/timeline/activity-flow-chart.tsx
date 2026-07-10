@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import {
@@ -16,7 +16,9 @@ import { mediaUrl } from '@/lib/api/client'
 import { cn } from '@/lib/utils'
 
 const LANE_LABEL_WIDTH = 'w-24'
-const AXIS_LABEL_OFFSET = 'ml-26'
+// 월 축에서 한 화면에 보여줄 최대 개월 수. 이보다 달이 많고 점이 sm 단계로
+// 빽빽해지면 가로 스크롤로 전환해 6개월씩만 보여준다.
+const MONTHS_VISIBLE = 6
 
 // 점 지름 단계별 기본/선택 크기. sm 단계는 사진을 넣기엔 너무 작아 항상 민무늬 점으로 둔다.
 const DOT_SIZE_CLASS: Record<ActivityFlowDotSize, string> = {
@@ -50,8 +52,9 @@ export function ActivityFlowChart({
   selectedPoint?: ActivityFlowSelection | null
   onSelectPoint?: (point: ActivityFlowSelection | null) => void
 }) {
-  const [period, setPeriod] = useState<ActivityFlowPeriod>('1Y')
+  const [period, setPeriod] = useState<ActivityFlowPeriod>('RECENT')
   const [menuOpen, setMenuOpen] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const flow = useMemo(
     () => buildPersonActivityFlow(persons, records, period),
@@ -62,10 +65,26 @@ export function ActivityFlowChart({
     [persons],
   )
 
+  // 점이 sm 단계(사람 수·만남 빈도 과다)로 빽빽해질 때만 월 축을 가로 스크롤로 전환한다.
+  const needsMonthScroll =
+    !!flow &&
+    flow.axisMode === 'month' &&
+    flow.dotSize === 'sm' &&
+    flow.axisLabels.length > MONTHS_VISIBLE
+
+  useEffect(() => {
+    if (!needsMonthScroll) return
+    const el = scrollRef.current
+    if (!el) return
+    // 최근 달이 오른쪽 끝이므로 기본 스크롤 위치를 오른쪽으로 맞춘다.
+    el.scrollLeft = el.scrollWidth
+  }, [needsMonthScroll, flow])
+
   if (!flow) return null
 
   const periodLabel =
-    ACTIVITY_FLOW_PERIOD_OPTIONS.find((o) => o.value === period)?.label ?? '1년'
+    ACTIVITY_FLOW_PERIOD_OPTIONS.find((o) => o.value === period)?.label ??
+    '최근'
   const axisLabelClass = (position: number) =>
     cn(
       'absolute text-[10px] leading-none font-bold text-muted-foreground whitespace-nowrap',
@@ -139,16 +158,14 @@ export function ActivityFlowChart({
           </p>
         ) : null}
 
-        <div className="mt-4 space-y-1">
-          {flow.lanes.map((lane, laneIndex) => {
-            const person = personById.get(lane.personId)
-            return (
-              <div key={lane.personId} className="flex items-center gap-2">
+        <div className="mt-4 flex gap-2">
+          <div className={cn(LANE_LABEL_WIDTH, 'shrink-0 space-y-1')}>
+            {flow.lanes.map((lane) => {
+              const person = personById.get(lane.personId)
+              return (
                 <div
-                  className={cn(
-                    LANE_LABEL_WIDTH,
-                    'flex min-w-0 shrink-0 items-center gap-1.5',
-                  )}
+                  key={lane.personId}
+                  className="flex h-7 min-w-0 items-center gap-1.5"
                   title={lane.label}
                 >
                   <MonogramAvatar
@@ -162,7 +179,24 @@ export function ActivityFlowChart({
                     {lane.label}
                   </span>
                 </div>
-                <div className="relative h-7 flex-1">
+              )
+            })}
+          </div>
+
+          {/* 점·축 라벨 — 사람 이름 컬럼은 스크롤에서 제외해 항상 보이게 둔다 */}
+          <div ref={scrollRef} className="min-w-0 flex-1 overflow-x-auto">
+            <div
+              style={
+                needsMonthScroll
+                  ? {
+                      width: `${(flow.axisLabels.length / MONTHS_VISIBLE) * 100}%`,
+                    }
+                  : undefined
+              }
+              className="min-w-full space-y-1"
+            >
+              {flow.lanes.map((lane, laneIndex) => (
+                <div key={lane.personId} className="relative h-7">
                   <div className="absolute top-1/2 right-0 left-0 h-px -translate-y-1/2 rounded-full bg-muted-foreground/10" />
                   {lane.points.map((point, pointIndex) => {
                     const isSelected =
@@ -215,21 +249,21 @@ export function ActivityFlowChart({
                     )
                   })}
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              ))}
 
-        <div className={cn('relative mt-1 h-4', AXIS_LABEL_OFFSET)}>
-          {flow.axisLabels.map((label) => (
-            <span
-              key={`${label.text}-${label.position}`}
-              style={{ left: `${label.position * 100}%` }}
-              className={axisLabelClass(label.position)}
-            >
-              {label.text}
-            </span>
-          ))}
+              <div className="relative mt-1 h-4">
+                {flow.axisLabels.map((label) => (
+                  <span
+                    key={`${label.text}-${label.position}`}
+                    style={{ left: `${label.position * 100}%` }}
+                    className={axisLabelClass(label.position)}
+                  >
+                    {label.text}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

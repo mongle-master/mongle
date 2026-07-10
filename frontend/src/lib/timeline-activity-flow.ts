@@ -6,8 +6,8 @@ export const ACTIVITY_FLOW_PERIOD_OPTIONS: Array<{
   value: ActivityFlowPeriod
   label: string
 }> = [
-  { value: 'RECENT', label: '최근' },
   { value: 'ALL', label: '전체' },
+  { value: 'RECENT', label: '최근' },
   { value: '5Y', label: '5년' },
   { value: '3Y', label: '3년' },
   { value: '1Y', label: '1년' },
