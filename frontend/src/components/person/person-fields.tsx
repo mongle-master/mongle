@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { ListGroupInset } from '@/components/ui/list-group'
 import { tagChipClass } from '@/components/ui/tag-chip'
 import { isImeComposing } from '@/lib/keyboard'
 import { cn } from '@/lib/utils'
@@ -26,6 +27,7 @@ export function ListField({
   placeholder = '',
   maxItems = 20,
   tone = 'neutral',
+  compact = false,
 }: {
   label: string
   items: string[]
@@ -33,6 +35,7 @@ export function ListField({
   placeholder?: string
   maxItems?: number
   tone?: 'neutral' | 'green' | 'red'
+  compact?: boolean
 }) {
   const [draft, setDraft] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -65,11 +68,22 @@ export function ListField({
 
   return (
     <div>
-      <FieldLabel className="mb-2 block">{label}</FieldLabel>
-      <div className="flex items-start gap-2">
+      {label ? (
+        <FieldLabel className={cn('block', compact ? 'mb-2' : 'mb-2')}>
+          {label}
+        </FieldLabel>
+      ) : null}
+      <div
+        className={cn(
+          'flex gap-2',
+          compact ? 'flex-col sm:flex-row' : 'flex-row',
+          items.length > 0 ? 'items-start sm:items-start' : 'items-center',
+        )}
+      >
         <div
           className={cn(
-            'flex min-h-10 flex-1 flex-wrap items-center gap-1.5 rounded-lg border border-input bg-background px-2 py-1.5 shadow-xs',
+            'flex h-10 min-h-10 flex-1 flex-wrap items-center gap-1.5 overflow-hidden rounded-lg border border-border bg-card px-2 shadow-xs',
+            items.length > 0 && 'h-auto min-h-10 py-1.5',
             'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
           )}
         >
@@ -106,10 +120,15 @@ export function ListField({
                 addItem()
               }
             }}
-            className="h-6 min-w-24 flex-1 border-0 bg-transparent px-1 text-sm outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-7 min-w-24 flex-1 border-0 bg-transparent px-1 text-sm leading-none outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
-        <Button type="button" variant="outline" onClick={addItem}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={addItem}
+          className={cn('h-10 shrink-0 px-4', compact && 'w-full sm:w-auto')}
+        >
           추가
         </Button>
       </div>
@@ -131,27 +150,43 @@ export const RELATION_TYPE_SUGGESTIONS = [
 export function RelationTypeField({
   value,
   onChange,
+  inset = false,
+  hideLabel = false,
 }: {
   value: string
   onChange: (value: string) => void
+  inset?: boolean
+  hideLabel?: boolean
 }) {
+  const chips = (
+    <div className={cn('flex flex-wrap gap-2', !hideLabel && !inset && 'mt-2')}>
+      {RELATION_TYPE_SUGGESTIONS.map((suggestion) => (
+        <button
+          key={suggestion}
+          type="button"
+          onClick={() => {
+            onChange(value === suggestion ? '' : suggestion)
+          }}
+          className={tagChipClass(value === suggestion, {
+            activeClassName: 'border-foreground bg-foreground text-background',
+            inactiveClassName:
+              'border-border bg-card text-foreground hover:bg-muted/40',
+          })}
+        >
+          {suggestion}
+        </button>
+      ))}
+    </div>
+  )
+
   return (
     <div>
-      <FieldLabel>만남 태그</FieldLabel>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {RELATION_TYPE_SUGGESTIONS.map((suggestion) => (
-          <button
-            key={suggestion}
-            type="button"
-            onClick={() => {
-              onChange(value === suggestion ? '' : suggestion)
-            }}
-            className={tagChipClass(value === suggestion)}
-          >
-            {suggestion}
-          </button>
-        ))}
-      </div>
+      {hideLabel ? null : <FieldLabel>만남 태그</FieldLabel>}
+      {inset ? (
+        <ListGroupInset className="mt-2 p-2">{chips}</ListGroupInset>
+      ) : (
+        chips
+      )}
     </div>
   )
 }

@@ -99,36 +99,37 @@ function EditPersonPage() {
   })
 
   return (
-    <AppShell activePath="/people" layout="fixed">
+    <AppShell activePath="/people" layout="fixed" className="px-0">
       <FormPageHeader
         back={{ to: '/people/$personId', params: { personId } }}
         title="프로필 수정"
         onSave={handleSave}
         saving={updateMutation.isPending || deleteMutation.isPending}
+        className="px-5"
       />
 
       <div className="min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
-        <p className="mb-6 text-xs text-muted-foreground">
-          {formatPersonName(person)}님의 정보를 수정해요
-        </p>
+        <div className="px-5 pb-8">
+          <PersonForm
+            key={person.id}
+            formId={PERSON_FORM_ID}
+            hideSubmitButton
+            initialValues={initialValues}
+            relationTags={relationTags}
+            submitLabel="저장하기"
+            pending={updateMutation.isPending || deleteMutation.isPending}
+            greetingTitle="프로필을 수정해요"
+            greetingSubtitle={`${formatPersonName(person)}님의 정보를 바꿔요`}
+            onSubmit={(request) => updateMutation.mutate(request)}
+            onDelete={handleDelete}
+          />
 
-        <PersonForm
-          key={person.id}
-          formId={PERSON_FORM_ID}
-          hideSubmitButton
-          initialValues={initialValues}
-          relationTags={relationTags}
-          submitLabel="저장하기"
-          pending={updateMutation.isPending || deleteMutation.isPending}
-          onSubmit={(request) => updateMutation.mutate(request)}
-          onDelete={handleDelete}
-        />
-
-        {updateMutation.isError ? (
-          <p className="mt-4 text-sm text-destructive">
-            저장에 실패했어요. 잠시 후 다시 시도해 주세요.
-          </p>
-        ) : null}
+          {updateMutation.isError ? (
+            <p className="mt-4 text-center text-xs text-destructive">
+              저장에 실패했어요. 잠시 후 다시 시도해 주세요.
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <ConfirmPopup

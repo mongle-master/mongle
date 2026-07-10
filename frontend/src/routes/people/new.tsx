@@ -44,44 +44,44 @@ function NewPersonPage() {
   }
 
   return (
-    <AppShell activePath="/people" layout="fixed">
+    <AppShell activePath="/people" layout="fixed" className="px-0">
       <FormPageHeader
         back={{ to: '/people' }}
         title="사람 추가"
         onSave={handleSave}
         saving={createMutation.isPending}
         saveLabel="등록"
+        className="px-5"
       />
 
       <div className="min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
-        <p className="mb-6 text-xs text-muted-foreground">
-          함께한 사람의 기본 정보를 남겨요
-        </p>
+        <div className="px-5 pb-8">
+          <PersonForm
+            formId={PERSON_FORM_ID}
+            hideSubmitButton
+            initialValues={personToFormValues()}
+            relationTags={relationTags}
+            showLastMetDate={false}
+            requireFirstMetYear
+            submitLabel="등록하기"
+            pending={createMutation.isPending}
+            greetingTitle="새로운 인물을 남겨볼까요?"
+            greetingSubtitle="함께한 사람의 기본 정보를 남겨요"
+            onSubmit={(request) => {
+              createMutation.mutate(request, {
+                onError: () => {
+                  // validation handled in form; API errors surface via mutation state
+                },
+              })
+            }}
+          />
 
-        <PersonForm
-          formId={PERSON_FORM_ID}
-          hideSubmitButton
-          initialValues={personToFormValues()}
-          relationTags={relationTags}
-          avatarPicker="circle"
-          showLastMetDate={false}
-          requireFirstMetYear
-          submitLabel="등록하기"
-          pending={createMutation.isPending}
-          onSubmit={(request) => {
-            createMutation.mutate(request, {
-              onError: () => {
-                // validation handled in form; API errors surface via mutation state
-              },
-            })
-          }}
-        />
-
-        {createMutation.isError ? (
-          <p className="mt-4 text-sm text-destructive">
-            저장에 실패했어요. 잠시 후 다시 시도해 주세요.
-          </p>
-        ) : null}
+          {createMutation.isError ? (
+            <p className="mt-4 text-center text-xs text-destructive">
+              저장에 실패했어요. 잠시 후 다시 시도해 주세요.
+            </p>
+          ) : null}
+        </div>
       </div>
     </AppShell>
   )

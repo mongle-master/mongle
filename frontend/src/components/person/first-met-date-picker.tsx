@@ -115,12 +115,14 @@ export function DatePartPicker({
   day,
   onChange,
   yearRequired = false,
+  className,
 }: {
   year: string
   month: string
   day: string
   onChange: (next: { year: string; month: string; day: string }) => void
   yearRequired?: boolean
+  className?: string
 }) {
   const [openField, setOpenField] = useState<OpenField>(null)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -164,7 +166,7 @@ export function DatePartPicker({
   }
 
   return (
-    <div ref={rootRef} className="mt-1.5 grid grid-cols-3 gap-2">
+    <div ref={rootRef} className={cn('mt-2 grid grid-cols-3 gap-2', className)}>
       <DatePartField
         placeholder="연도"
         value={year}
