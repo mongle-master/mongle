@@ -36,6 +36,7 @@ const MAX_ZOOM = 2.2
 const ZOOM_STEP = 0.18
 const ORBIT_CENTER = { x: 50, y: 50 }
 const CATEGORY_COLORS = ['#2f6eea', '#28b945', '#ff8a00', '#e11d48']
+const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i
 const CATEGORY_PERSON_OFFSETS = [
   { x: 0, y: -7 },
   { x: -7, y: 2 },
@@ -822,17 +823,15 @@ function toGraphPerson(
   x: number,
   y: number,
 ): GraphPerson {
-  const categoryIndex = Math.max(
-    categories.findIndex(
-      (category) => category.label === primaryCategoryLabel(node),
-    ),
-    0,
+  const matchedCategory = categories.find(
+    (item) => item.label === primaryCategoryLabel(node),
   )
 
   return {
     ...node,
     categoryLabel: primaryCategoryLabel(node),
-    color: CATEGORY_COLORS[categoryIndex % CATEGORY_COLORS.length],
+    color:
+      matchedCategory?.color ?? stableCategoryColor(primaryCategoryLabel(node)),
     imageSrc: nodeImageUrl(node),
     size: personNodeSize(node.recordCount, node.favorite),
     x,
@@ -841,15 +840,58 @@ function toGraphPerson(
 }
 
 function buildCategories(nodes: RelationNode[]): CategoryMeta[] {
-  const labels = Array.from(new Set(nodes.map(primaryCategoryLabel)))
-  return (labels.length > 0 ? labels : ['기타']).map((label, index) => ({
-    label,
-    color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
-  }))
+  const categoriesByLabel = new Map<string, CategoryMeta>()
+
+  for (const node of nodes) {
+    const tag = primaryCategory(node)
+    const label = tag?.label ?? '기타'
+    if (categoriesByLabel.has(label)) continue
+
+    categoriesByLabel.set(label, {
+      label,
+      color: normalizeCategoryColor(tag?.color, label),
+    })
+  }
+
+  if (categoriesByLabel.size === 0) {
+    categoriesByLabel.set('기타', {
+      label: '기타',
+      color: stableCategoryColor('기타'),
+    })
+  }
+
+  return Array.from(categoriesByLabel.values()).sort((a, b) =>
+    a.label.localeCompare(b.label, 'ko'),
+  )
+}
+
+function primaryCategory(node: RelationNode) {
+  return node.relationTags.at(0) ?? null
 }
 
 function primaryCategoryLabel(node: RelationNode) {
-  return node.relationTags.at(0)?.label ?? '기타'
+  return primaryCategory(node)?.label ?? '기타'
+}
+
+function normalizeCategoryColor(
+  color: string | null | undefined,
+  label: string,
+) {
+  if (color && HEX_COLOR_PATTERN.test(color)) return color.toUpperCase()
+  return stableCategoryColor(label)
+}
+
+function stableCategoryColor(label: string) {
+  const index = Math.abs(stableStringHash(label)) % CATEGORY_COLORS.length
+  return CATEGORY_COLORS[index]
+}
+
+function stableStringHash(value: string) {
+  let hash = 0
+  for (let index = 0; index < value.length; index++) {
+    hash = (hash * 31 + value.charCodeAt(index)) | 0
+  }
+  return hash
 }
 
 function personNodeSize(recordCount: number, favorite: boolean) {
