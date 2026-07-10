@@ -75,7 +75,7 @@ function TimelinePhotoPreview({ photoUrls }: { photoUrls: string[] }) {
   if (!src) return null
 
   return (
-    <div className="relative mt-0.5 size-20 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-inner">
+    <div className="relative size-20 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-inner">
       <img
         src={src}
         alt="기록 사진"
@@ -115,53 +115,55 @@ export function TimelineEventCard({
       className="block min-w-0 flex-1"
     >
       <Card className="relative overflow-hidden py-0 shadow-[0_10px_30px_rgba(0,0,0,0.045)] transition-all hover:-translate-y-0.5 hover:bg-muted/20 hover:shadow-[0_14px_36px_rgba(0,0,0,0.07)]">
-        <CardContent className="flex gap-3 p-4">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start gap-2">
-              <h3 className="min-w-0 flex-1 text-[17px] leading-snug font-extrabold tracking-tight">
-                {item.title}
-              </h3>
-              {item.category ? (
-                <Badge
-                  variant="secondary"
-                  className="h-7 shrink-0 rounded-full px-3 font-extrabold"
-                >
-                  {item.category.label}
-                </Badge>
-              ) : null}
-            </div>
-            {persons.length > 0 ? (
-              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-muted/70 py-1 pr-2 pl-1">
-                <MonogramAvatar
-                  name={persons[0].name}
-                  imageUrl={persons[0].profileImageUrl}
-                  personId={persons[0].id}
-                  favorite={persons[0].favorite}
-                  className="size-6"
-                />
-                <span className="text-xs font-extrabold text-foreground">
-                  {linkedPersonsLabel(persons)}
-                </span>
-              </div>
-            ) : null}
-            {memo ? (
-              <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
-                {memo}
-              </p>
-            ) : null}
-            {item.emotions && item.emotions.length > 0 ? (
-              <div className="mt-1.5 flex flex-wrap gap-1">
-                {item.emotions.map((emotion) => (
-                  <Badge key={emotion.id} variant="outline">
-                    {emotion.label}
-                  </Badge>
-                ))}
-              </div>
+        <CardContent className="p-4">
+          <div className="flex items-start gap-2">
+            <h3 className="min-w-0 flex-1 text-[17px] leading-snug font-extrabold tracking-tight">
+              {item.title}
+            </h3>
+            {item.category ? (
+              <Badge
+                variant="secondary"
+                className="h-7 shrink-0 rounded-full px-3 font-extrabold"
+              >
+                {item.category.label}
+              </Badge>
             ) : null}
           </div>
-          {photoUrls.length > 0 ? (
-            <TimelinePhotoPreview photoUrls={photoUrls} />
-          ) : null}
+          <div className="mt-2 flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              {persons.length > 0 ? (
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 py-1 pr-2 pl-1">
+                  <MonogramAvatar
+                    name={persons[0].name}
+                    imageUrl={persons[0].profileImageUrl}
+                    personId={persons[0].id}
+                    favorite={persons[0].favorite}
+                    className="size-6"
+                  />
+                  <span className="text-xs font-extrabold text-foreground">
+                    {linkedPersonsLabel(persons)}
+                  </span>
+                </div>
+              ) : null}
+              {memo ? (
+                <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
+                  {memo}
+                </p>
+              ) : null}
+              {item.emotions && item.emotions.length > 0 ? (
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {item.emotions.map((emotion) => (
+                    <Badge key={emotion.id} variant="outline">
+                      {emotion.label}
+                    </Badge>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+            {photoUrls.length > 0 ? (
+              <TimelinePhotoPreview photoUrls={photoUrls} />
+            ) : null}
+          </div>
         </CardContent>
       </Card>
     </Link>
