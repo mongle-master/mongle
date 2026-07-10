@@ -467,7 +467,7 @@ export function PersonForm({
 
       {onDelete ? (
         <Button type="button" variant="destructive" onClick={onDelete}>
-          인물 삭제
+          프로필 삭제
         </Button>
       ) : null}
     </form>

@@ -1,9 +1,11 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronRight } from 'lucide-react'
+import { useState } from 'react'
 import { AppShell } from '@/components/layout/app-shell'
 import { PersonPageHeader } from '@/components/person/person-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import {
   ListGroup,
   ListGroupItem,
@@ -11,7 +13,7 @@ import {
 } from '@/components/ui/list-group'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { fetchPersonTimeline } from '@/lib/api/events'
-import { fetchPerson } from '@/lib/api/persons'
+import { deletePerson, fetchPerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import type { EventResponse } from '@/lib/api/types'
 import { mediaUrl } from '@/lib/api/client'
@@ -35,6 +37,9 @@ export const Route = createFileRoute('/people/$personId/')({
 function PersonProfilePage() {
   const { personId } = Route.useParams()
   const id = Number(personId)
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const personQuery = useQuery({
     queryKey: queryKeys.person(id),
@@ -51,6 +56,14 @@ function PersonProfilePage() {
 
   const person = personQuery.data
   const recentEvents = (recentQuery.data ?? []).slice(0, 3)
+  const deleteMutation = useMutation({
+    mutationFn: () => deletePerson(id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['persons'] })
+      await queryClient.invalidateQueries({ queryKey: ['home'] })
+      void navigate({ to: '/people' })
+    },
+  })
 
   if (!Number.isFinite(id) || personQuery.isPending) {
     return (
@@ -255,7 +268,7 @@ function PersonProfilePage() {
                   <ChevronRight className="size-5 text-muted-foreground" />
                 </Link>
               </ListGroupItem>
-              <ListGroupItem withDivider={false} className="py-0">
+              <ListGroupItem className="py-0">
                 <Link
                   to="/people/$personId/edit"
                   params={{ personId }}
@@ -265,10 +278,32 @@ function PersonProfilePage() {
                   <ChevronRight className="size-5 text-muted-foreground" />
                 </Link>
               </ListGroupItem>
+              <ListGroupItem withDivider={false} className="py-0">
+                <button
+                  type="button"
+                  onClick={() => setDeleteOpen(true)}
+                  disabled={deleteMutation.isPending}
+                  className="flex w-full items-center justify-between py-3.5 text-left text-[15px] font-extrabold text-destructive transition-colors active:opacity-70 disabled:opacity-60"
+                >
+                  프로필 삭제
+                  <ChevronRight className="size-5 text-destructive/70" />
+                </button>
+              </ListGroupItem>
             </ListGroup>
           </section>
         </div>
       </div>
+
+      <ConfirmPopup
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="프로필을 삭제할까요?"
+        description="삭제하면 되돌릴 수 없어요. 함께 새긴 기록도 모두 사라져요."
+        confirmLabel="삭제"
+        destructive
+        pending={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate()}
+      />
     </AppShell>
   )
 }
@@ -330,9 +365,8 @@ function RecentEventRow({
             </span>
           ) : null}
         </div>
-      ) : (
-        <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
-      )}
+      ) : null}
+      <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
     </Link>
   )
 }

@@ -24,9 +24,8 @@ import {
   FALLBACK_PERSONS,
   fallbackEvent,
 } from '@/lib/fallback-data'
-import { formatPersonName } from '@/lib/format'
+import { formatPersonName, formatAutoEventTitle } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
-import { formatAutoEventTitle } from '@/lib/format'
 import {
   formatOccurredTimeForApi,
   formatOccurredTimeForInput,
@@ -163,9 +162,6 @@ function RecordPage() {
     eventQuery.data?.persons,
     selectedPersons,
   ])
-  const selectedCategory =
-    categoryChips.find((c) => c.id === categoryChipId) ?? categoryChips.at(0)
-
   const greeting = useMemo(() => {
     if (isEditing) {
       return {

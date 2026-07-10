@@ -155,6 +155,8 @@ export function RelationForceMap({
       className="relative mt-0 h-[480px] touch-pan-y overflow-hidden bg-background select-none"
       onPointerDown={(event) => {
         if (event.button !== 0) return
+        if (isPersonNodeTarget(event.target)) return
+
         event.currentTarget.setPointerCapture(event.pointerId)
         pointerPositionsRef.current.set(event.pointerId, {
           x: event.clientX,
@@ -633,6 +635,7 @@ function PersonNode({
   return (
     <button
       type="button"
+      data-person-node
       onClick={onClick}
       className="group absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center outline-none transition-transform duration-200 hover:z-40 hover:scale-[1.03] focus-visible:z-40"
       style={{
@@ -893,6 +896,10 @@ function pointerDistance(
   second: { x: number; y: number },
 ) {
   return Math.hypot(second.x - first.x, second.y - first.y) || 1
+}
+
+function isPersonNodeTarget(target: EventTarget | null) {
+  return target instanceof Element && target.closest('[data-person-node]')
 }
 
 function flowPathForPeople(people: GraphPerson[]) {
