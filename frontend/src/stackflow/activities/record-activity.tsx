@@ -1,30 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
-import { ChevronRight, Plus, X } from 'lucide-react'
+import { useFunnel } from '@use-funnel/browser'
+import { Check, ChevronLeft, ImagePlus, Plus, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { PersonSelectModal } from '@/components/record/person-select-modal'
-import { OccurredDateTimeField } from '@/components/record/occurred-date-time-field'
-import { ActivityShell } from '@/stackflow/components/activity-shell'
-import { FormPageHeader } from '@/components/layout/form-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { tagChipBaseClass } from '@/components/ui/tag-chip'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { DateStrip, TimeWheel } from '@/components/record/date-time-wheel'
 import { fetchChips } from '@/lib/api/chips'
 import { createEvent, fetchEvent, updateEvent } from '@/lib/api/events'
 import { uploadImage } from '@/lib/api/images'
 import { fetchPersons } from '@/lib/api/persons'
 import type { EventRequest, PersonResponse } from '@/lib/api/types'
 import { optimizedImageUrl } from '@/lib/image-url'
-import {
-  formatPersonName,
-  formatAutoEventTitle,
-  todayLocalIso,
-} from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import {
   formatOccurredTimeForApi,
@@ -33,10 +22,73 @@ import {
 } from '@/lib/record-validation'
 import { cn } from '@/lib/utils'
 
+const MEMO_MAX = 200 // 백엔드 memo 상한과 일치
+
+// 감정 칩(명사)을 "오늘은 ___다" 문장에 맞는 과거 서술형으로 바꾼다.
+// 한국어 활용은 규칙화가 어려워(es-hangul도 조사만 지원) 알려진 값만 매핑한다.
+const EMOTION_PAST: Record<string, string> = {
+  기쁨: '기뻤',
+  감사: '감사했',
+  편안: '편안했',
+  행복: '행복했',
+  뿌듯: '뿌듯했',
+  슬픔: '슬펐',
+  서운: '서운했',
+  우울: '우울했',
+  불안: '불안했',
+  신남: '신났',
+  피곤: '피곤했',
+}
+const emotionPast = (label: string) => EMOTION_PAST[label] ?? label
+
+// 감정은 칩(테두리) 대신 색상 있는 글자만. 리터럴이라 Tailwind JIT가 스캔한다.
+const EMOTION_TEXT = [
+  'text-rose-500',
+  'text-amber-500',
+  'text-sky-500',
+  'text-violet-500',
+  'text-emerald-500',
+  'text-orange-500',
+]
+
+const bigChipBase =
+  'inline-flex h-11 items-center justify-center rounded-full border px-5 text-[15px] whitespace-nowrap transition-colors'
+// 선택 채움은 순검정 대신 살짝 연한 잉크(눈부심 완화).
+const neutralChipClass = cn(
+  bigChipBase,
+  'border-border bg-card text-foreground/80 data-[state=on]:border-transparent data-[state=on]:bg-foreground/85 data-[state=on]:text-background',
+)
+
+// 편지지: 흑백 톤 + 손그림 느낌 옅은 괘선(SVG). 줄 높이 28px에 맞춘다.
+const letterLineSvg =
+  "<svg xmlns='http://www.w3.org/2000/svg' width='90' height='28'><path d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(0,0,0,0.07)' stroke-width='1'/></svg>"
+const letterPaperStyle: React.CSSProperties = {
+  backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(letterLineSvg)}")`,
+  backgroundRepeat: 'repeat',
+  backgroundSize: '90px 28px',
+  backgroundPositionY: '3px',
+}
+
+const pad = (n: number) => String(n).padStart(2, '0')
+function todayStr() {
+  return new Date().toISOString().slice(0, 10)
+}
+function nowTimeStr() {
+  const d = new Date()
+  return `${pad(d.getHours())}:${pad(Math.floor(d.getMinutes() / 5) * 5)}`
+}
+
 function parseId(value: string | undefined): number | undefined {
   if (value === undefined) return undefined
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : undefined
+}
+
+type RecordSteps = {
+  person: Record<string, never>
+  emotion: Record<string, never>
+  what: Record<string, never>
+  detail: Record<string, never>
 }
 
 export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
@@ -51,14 +103,12 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>(() =>
     presetPersonId ? [presetPersonId] : [],
   )
-  const [personModalOpen, setPersonModalOpen] = useState(false)
-  const [personModalDismissible, setPersonModalDismissible] = useState(true)
-  const [personSelectError, setPersonSelectError] = useState(false)
   const [categoryChipId, setCategoryChipId] = useState<number | null>(null)
-  const [title, setTitle] = useState('')
-  const [memo, setMemo] = useState('')
-  const [occurredDate, setOccurredDate] = useState(() => todayLocalIso())
-  const [occurredTime, setOccurredTime] = useState('')
+  const [emotionChipIds, setEmotionChipIds] = useState<number[]>([])
+  const [weatherChipId, setWeatherChipId] = useState<number | null>(null)
+  const [what, setWhat] = useState('')
+  const [occurredDate, setOccurredDate] = useState(todayStr)
+  const [occurredTime, setOccurredTime] = useState(nowTimeStr)
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [formError, setFormError] = useState<string | null>(null)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
@@ -85,6 +135,10 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     () => chips.filter((c) => c.type === 'CATEGORY'),
     [chips],
   )
+  const emotionChips = useMemo(
+    () => chips.filter((c) => c.type === 'EMOTION'),
+    [chips],
+  )
 
   const selectedPersons = useMemo(() => {
     return selectedPersonIds.map((id) => {
@@ -101,83 +155,23 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   }, [eventQuery.data?.persons, persons, selectedPersonIds])
 
   const primaryPerson = selectedPersons.at(0)
-  const firstSelectedPersonName = primaryPerson
-    ? formatPersonName(primaryPerson)
-    : ''
-
-  const effectiveCategoryChipId =
-    categoryChipId ?? categoryChips.at(0)?.id ?? null
+  const personLabel = primaryPerson ? `${primaryPerson.name}님` : ''
 
   const categoryLabel =
-    categoryChips.find((c) => c.id === effectiveCategoryChipId)?.label ?? ''
+    categoryChips.find((c) => c.id === categoryChipId)?.label ??
+    categoryChips.at(0)?.label ??
+    ''
 
-  const titlePlaceholder = useMemo(() => {
-    const personsForTitle =
-      selectedPersons.length > 0
-        ? selectedPersons
-        : (eventQuery.data?.persons ?? [])
-
-    const labelForTitle =
-      categoryLabel ||
-      eventQuery.data?.category?.label ||
-      categoryChips.at(0)?.label ||
-      ''
-
-    return (
-      formatAutoEventTitle(personsForTitle, labelForTitle) ??
-      '제목을 입력해주세요'
-    )
-  }, [
-    categoryChips,
-    categoryLabel,
-    eventQuery.data?.category?.label,
-    eventQuery.data?.persons,
-    selectedPersons,
-  ])
-  const greeting = useMemo(() => {
-    if (isEditing) {
-      return {
-        title: '기록을 수정해요',
-        subtitle: '바뀐 내용을 저장하면 타임라인에 반영돼요.',
-      }
-    }
-    // if (selectedPersons.length === 0) {
-    //   return {
-    //     title: '오늘 누구와 함께였어요?',
-    //     // subtitle: '함께한 사람을 먼저 선택해 주세요.',
-    //   }
-    // }
-    // if (selectedPersons.length === 1) {
-    //   return {
-    //     title: (
-    //       <>
-    //         오늘
-    //         <span className="underline underline-offset-4">
-    //           {selectedPersons[0].name}
-    //         </span>
-    //         랑 어땠어요?
-    //       </>
-    //     ),
-    //     subtitle: '세 줄이면 충분해요.',
-    //   }
-    // }
-    return {
-      title: '오늘의 몽글, 남겨볼까요?',
-      // subtitle: `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명과 함께한 순간이에요.`,
-    }
-  }, [isEditing, selectedPersons])
-
-  const autoOpenedPersonModal = useRef(false)
-
-  useEffect(() => {
-    if (isEditing) return
-    if (autoOpenedPersonModal.current) return
-    if (presetPersonId || selectedPersonIds.length > 0) return
-    if (persons.length === 0) return
-    autoOpenedPersonModal.current = true
-    setPersonModalDismissible(false)
-    setPersonModalOpen(true)
-  }, [isEditing, persons.length, presetPersonId, selectedPersonIds.length])
+  // 제목 인풋은 없앴다. 본문 첫 줄을 잘라 제목으로(엔터 = 첫 줄까지).
+  const derivedTitle = what.split('\n')[0].slice(0, 40).trim()
+  const fallbackTitle = useMemo(() => {
+    if (selectedPersons.length === 0) return ''
+    const who =
+      selectedPersons.length === 1
+        ? selectedPersons[0].name
+        : `${selectedPersons[0].name} 외 ${selectedPersons.length - 1}명`
+    return categoryLabel ? `${who} · ${categoryLabel}` : who
+  }, [selectedPersons, categoryLabel])
 
   useEffect(() => {
     if (!isEditing || !eventQuery.data) return
@@ -185,42 +179,22 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     const event = eventQuery.data
     hydratedEventId.current = editingEventId
     setSelectedPersonIds(event.persons.map((p) => p.id))
-    setTitle(event.title)
-    setMemo(event.memo ?? '')
+    setWhat(event.memo ?? '')
     setOccurredDate(event.occurredDate)
-    setOccurredTime(formatOccurredTimeForInput(event.occurredTime))
+    setOccurredTime(
+      formatOccurredTimeForInput(event.occurredTime) || nowTimeStr(),
+    )
     setCategoryChipId(event.category?.id ?? null)
+    setEmotionChipIds(event.emotions.map((e) => e.id))
+    setWeatherChipId(event.weather?.id ?? null)
     setPhotoUrls(event.photoUrls)
   }, [editingEventId, eventQuery.data, isEditing])
 
-  const openPersonModal = (dismissible = true) => {
-    setPersonModalDismissible(dismissible)
-    setPersonModalOpen(true)
-  }
-
-  const invalidateAfterSave = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['home'] })
-    await queryClient.invalidateQueries({ queryKey: ['persons'] })
-    // 인물 타임라인 상단 요약(함께한 기록·마지막 만남)은 ['person', id]의
-    // stats에서 나온다. 목록(person-timeline)만 무효화하면 요약이 stale.
-    await queryClient.invalidateQueries({ queryKey: ['person'] })
-    await queryClient.invalidateQueries({ queryKey: ['my-timeline'] })
-    await queryClient.invalidateQueries({ queryKey: ['person-timeline'] })
-    if (isEditing) {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.event(editingEventId),
-      })
-    }
-  }
-
-  // 수정 = 아래에 깔린 화면(이벤트 상세)으로 pop.
-  // 새 기록 = 첫 연결 사람의 타임라인으로 replace — 뒤로가기 시 기록 폼이 다시 나오지 않는다.
-  const navigateAfterSave = (fallbackPersonId?: number) => {
+  const navigateAfterSave = (personId?: number) => {
     if (isEditing) {
       pop()
       return
     }
-    const personId = fallbackPersonId ?? presetPersonId
     if (personId) {
       replace('Person', { personId: String(personId), view: 'timeline' })
       return
@@ -232,7 +206,18 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     mutationFn: (body: EventRequest) =>
       isEditing ? updateEvent(editingEventId, body) : createEvent(body),
     onSuccess: async (event) => {
-      await invalidateAfterSave()
+      await queryClient.invalidateQueries({ queryKey: ['home'] })
+      await queryClient.invalidateQueries({ queryKey: ['persons'] })
+      // 인물 타임라인 상단 요약(함께한 기록·마지막 만남)은 ['person', id]의
+      // stats에서 나온다. 목록(person-timeline)만 무효화하면 요약이 stale.
+      await queryClient.invalidateQueries({ queryKey: ['person'] })
+      await queryClient.invalidateQueries({ queryKey: ['my-timeline'] })
+      await queryClient.invalidateQueries({ queryKey: ['person-timeline'] })
+      if (isEditing) {
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.event(editingEventId),
+        })
+      }
       navigateAfterSave(event.persons[0]?.id)
     },
     onError: () => {
@@ -242,13 +227,13 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   })
 
   const buildPayload = (): EventRequest => ({
-    title: title.trim() || null,
-    memo: memo.trim() || null,
+    title: derivedTitle || fallbackTitle || null,
+    memo: what.trim() || null,
     occurredDate,
     occurredTime: formatOccurredTimeForApi(occurredTime),
-    categoryChipId: effectiveCategoryChipId,
-    weatherChipId: null,
-    emotionChipIds: [],
+    categoryChipId: categoryChipId ?? categoryChips.at(0)?.id ?? null,
+    weatherChipId,
+    emotionChipIds,
     personIds: selectedPersonIds,
     photoUrls,
   })
@@ -256,48 +241,39 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const handleSave = () => {
     const validationError = validateRecordForm({
       personIds: selectedPersonIds,
-      title: title.trim(),
-      memo: memo.trim(),
+      title: derivedTitle,
+      memo: what.trim(),
       photoUrls,
       occurredDate,
     })
     if (validationError) {
-      if (validationError.includes('함께한 사람')) {
-        setPersonSelectError(true)
-        openPersonModal(false)
-      }
       setFormError(validationError)
       return
     }
-
     setSavedLocally(false)
-    setPersonSelectError(false)
     setFormError(null)
     saveMutation.mutate(buildPayload())
   }
 
+  // 감정은 하나만 고른다(같은 걸 다시 누르면 해제).
+  const selectEmotion = (id: number) => {
+    setEmotionChipIds((prev) => (prev[0] === id ? [] : [id]))
+  }
+
   const handlePhotoPick = async (files: FileList | null) => {
     if (!files || files.length === 0) return
-
-    const remaining = 5 - photoUrls.length
-    if (remaining <= 0) {
+    const room = 5 - photoUrls.length
+    if (room <= 0) {
       setFormError('사진은 최대 5장까지 넣을 수 있어요.')
       return
     }
-
-    const picked = Array.from(files).slice(0, remaining)
-    if (files.length > remaining) {
-      setFormError('사진은 최대 5장까지 넣을 수 있어요.')
-    } else {
-      setFormError(null)
-    }
-
+    const picked = Array.from(files).slice(0, room)
     setUploadingPhoto(true)
     try {
-      const uploaded = await Promise.all(
-        picked.map((file) => uploadImage(file).then((result) => result.url)),
-      )
-      setPhotoUrls((prev) => [...prev, ...uploaded].slice(0, 5))
+      for (const file of picked) {
+        const { url } = await uploadImage(file)
+        setPhotoUrls((prev) => [...prev, url])
+      }
     } catch {
       setFormError('사진을 올리지 못했어요. 잠시 후 다시 시도해 주세요.')
     } finally {
@@ -305,232 +281,184 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     }
   }
 
-  const pageTitle = isEditing ? '몽글 수정' : '새 몽글'
-  const isLoading = isEditing && eventQuery.isPending
-  const recordHeader = (
-    <FormPageHeader
-      onBack={() => pop()}
-      title={pageTitle}
-      onSave={handleSave}
-      saving={saveMutation.isPending}
-      disabled={selectedPersonIds.length === 0}
-      className="px-5"
-    />
-  )
-  const scrollBodyClass =
-    'min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]'
-  const scrollBodyRef = useRef<HTMLDivElement>(null)
+  const startStep: keyof RecordSteps =
+    presetPersonId || isEditing ? 'emotion' : 'person'
+  const funnel = useFunnel<RecordSteps>({
+    id: 'record',
+    initial: { step: startStep, context: {} },
+  })
 
-  useEffect(() => {
-    scrollBodyRef.current?.scrollTo({ top: 0 })
-  }, [])
+  const isLoading =
+    personsQuery.isPending || (isEditing && eventQuery.isPending)
 
   if (isLoading) {
     return (
-      <ActivityShell layout="fixed" className="px-0" presentation="modal">
-        {recordHeader}
+      <BareShell>
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           불러오는 중…
         </p>
-      </ActivityShell>
+      </BareShell>
     )
   }
 
   if (!isEditing && persons.length === 0) {
     return (
-      <ActivityShell layout="fixed" className="px-0" presentation="modal">
-        {recordHeader}
-        <div className="flex flex-col items-center px-5 py-20 text-center">
+      <BareShell>
+        <div className="flex flex-1 flex-col items-center justify-center px-5 text-center">
           <p className="text-sm text-muted-foreground">
             먼저 함께한 사람을 추가해 주세요.
           </p>
           <button
             type="button"
             onClick={() => push('PersonNew', {})}
-            className="mt-5 inline-flex items-center gap-1 rounded-full bg-primary/12 px-4 py-2.5 text-sm font-extrabold text-primary hover:bg-primary/18"
+            className="mt-5 inline-flex items-center gap-1 rounded-full border border-foreground bg-card px-4 py-2.5 text-sm font-extrabold"
           >
             <Plus className="size-4" />
             사람 추가
           </button>
         </div>
-      </ActivityShell>
+      </BareShell>
     )
   }
 
   if (isEditing && !eventQuery.data) {
     return (
-      <ActivityShell layout="fixed" className="px-0" presentation="modal">
-        {recordHeader}
+      <BareShell>
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           기록을 찾을 수 없어요.
         </p>
-      </ActivityShell>
+      </BareShell>
     )
   }
 
-  return (
-    <ActivityShell layout="fixed" className="px-0" presentation="modal">
-      {recordHeader}
+  const saving = saveMutation.isPending
+  // 감정은 하나. 문장 빈칸 단어 + 그 감정의 색.
+  const selEmotionIdx = emotionChips.findIndex(
+    (c) => c.id === emotionChipIds[0],
+  )
+  const selEmotionWord =
+    selEmotionIdx >= 0 ? emotionPast(emotionChips[selEmotionIdx].label) : ''
+  const selEmotionColor =
+    selEmotionIdx >= 0 ? EMOTION_TEXT[selEmotionIdx % EMOTION_TEXT.length] : ''
 
-      <div ref={scrollBodyRef} className={scrollBodyClass}>
-        <div className="flex flex-col gap-5 px-5 pb-8">
-          <div>
-            <h2 className="text-xl font-extrabold">{greeting.title}</h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {greeting.subtitle}
-            </p>
+  return (
+    <funnel.Render
+      person={({ history }) => (
+        <StepFrame onBack={() => pop()}>
+          <h2 className="text-2xl font-bold">누구와의 기록이에요?</h2>
+          <ul className="mt-5 flex flex-col">
+            {[...persons]
+              .sort((a, b) => Number(b.favorite) - Number(a.favorite))
+              .map((person) => (
+                <li key={person.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedPersonIds([person.id])
+                      history.push('emotion', {})
+                    }}
+                    className="flex w-full items-center gap-3 border-b border-border/70 py-2.5 text-left"
+                  >
+                    <MonogramAvatar
+                      name={person.name}
+                      imageUrl={person.profileImageUrl}
+                      favorite={person.favorite}
+                      className="size-12"
+                    />
+                    <span className="text-lg">{person.name}</span>
+                  </button>
+                </li>
+              ))}
+          </ul>
+        </StepFrame>
+      )}
+      emotion={({ history }) => (
+        <StepFrame
+          centerLabel={personLabel}
+          onBack={() => (startStep === 'person' ? history.back() : pop())}
+          onDone={handleSave}
+          doneSaving={saving}
+          footer={<NextBar onNext={() => history.push('what', {})} />}
+        >
+          <div className="flex justify-center">
+            <MonogramAvatar
+              name={primaryPerson?.name ?? ''}
+              imageUrl={primaryPerson?.profileImageUrl}
+              className="size-[62vw] max-w-72"
+            />
           </div>
 
-          <section>
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-extrabold text-muted-foreground">
-                함께한 사람
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => openPersonModal(selectedPersons.length > 0)}
+          {/* 밑줄 빈칸은 선택 여부와 무관하게 항상 보이고, 고른 감정이 그 위에 얹힌다. */}
+          <p className="mt-8 font-hand text-center text-3xl text-foreground/85">
+            오늘은{' '}
+            <span
               className={cn(
-                'flex min-h-[3.75rem] w-full items-center gap-2 rounded-lg border p-3 text-left',
-                personSelectError
-                  ? 'border-destructive/40 bg-destructive/10'
-                  : 'border-border bg-card',
+                'inline-block min-w-[3.5rem] text-center underline decoration-foreground/30 decoration-2 underline-offset-[6px]',
+                selEmotionColor,
               )}
             >
-              {selectedPersons.length > 0 ? (
-                <>
-                  <div className="flex -space-x-2">
-                    {selectedPersons.slice(0, 3).map((person) => (
-                      <MonogramAvatar
-                        key={person.id}
-                        name={person.name}
-                        imageUrl={person.profileImageUrl}
-                        gender={'gender' in person ? person.gender : null}
-                        personId={person.id}
-                        className="size-9 ring-2 ring-card"
-                      />
-                    ))}
-                  </div>
-                  <p className="min-w-0 flex-1 truncate text-sm font-extrabold">
-                    {selectedPersons.length === 1
-                      ? firstSelectedPersonName
-                      : `${firstSelectedPersonName} 외 ${selectedPersons.length - 1}명`}
-                  </p>
-                </>
-              ) : (
-                <p
-                  className={cn(
-                    'min-w-0 flex-1 text-sm font-extrabold',
-                    personSelectError
-                      ? 'text-destructive'
-                      : 'text-muted-foreground',
-                  )}
-                >
-                  선택된 사람이 없습니다
-                </p>
-              )}
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          </section>
+              {selEmotionWord || '\u00A0\u00A0'}
+            </span>
+            다.
+          </p>
 
-          <ChipSection title="만남 태그">
-            <ToggleGroup
-              type="single"
-              value={
-                effectiveCategoryChipId
-                  ? String(effectiveCategoryChipId)
-                  : undefined
-              }
-              onValueChange={(v) => setCategoryChipId(v ? Number(v) : null)}
-              className="flex flex-wrap justify-start gap-2"
-            >
-              {categoryChips.map((chip) => (
-                <ToggleGroupItem
+          <div className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-3 font-hand">
+            {emotionChips.map((chip, i) => {
+              const on = emotionChipIds[0] === chip.id
+              return (
+                <button
                   key={chip.id}
-                  value={String(chip.id)}
+                  type="button"
+                  onClick={() => selectEmotion(chip.id)}
                   className={cn(
-                    tagChipBaseClass,
-                    'border-border bg-card data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+                    'text-3xl transition',
+                    EMOTION_TEXT[i % EMOTION_TEXT.length],
+                    on
+                      ? 'underline decoration-2 underline-offset-8 opacity-100'
+                      : 'opacity-40',
                   )}
                 >
-                  {chip.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </ChipSection>
-
-          <section>
-            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              제목
-            </p>
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5">
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={40}
-                className="border-0 bg-transparent text-xs shadow-none placeholder:text-xs focus-visible:ring-0 md:text-xs"
-                placeholder={titlePlaceholder}
-              />
-              {categoryLabel ? (
-                <Badge variant="secondary">{categoryLabel}</Badge>
-              ) : null}
-            </div>
-          </section>
-
-          <section>
-            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              메모
-            </p>
-            <Textarea
-              value={memo}
-              onChange={(e) => setMemo(e.target.value)}
-              maxLength={200}
-              placeholder="오늘 함께한 이야기를 적어주세요 (최대 200자)"
-              className="min-h-24 resize-none text-xs placeholder:text-xs md:text-xs"
-            />
-          </section>
-
-          <section>
-            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              언제
-            </p>
-            <OccurredDateTimeField
-              date={occurredDate}
-              time={occurredTime}
-              onDateChange={setOccurredDate}
-              onTimeChange={setOccurredTime}
-            />
-          </section>
-
-          <section>
-            <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              사진 ({photoUrls.length}/5)
-            </p>
-            <input
-              ref={photoInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              multiple
-              className="hidden"
-              onChange={(e) => {
-                void handlePhotoPick(e.target.files)
-                e.target.value = ''
-              }}
-            />
-            <div className="flex flex-wrap gap-2">
+                  {emotionPast(chip.label)}
+                </button>
+              )
+            })}
+          </div>
+        </StepFrame>
+      )}
+      what={({ history }) => (
+        <StepFrame
+          centerLabel={personLabel}
+          onBack={() => history.back()}
+          onDone={handleSave}
+          doneSaving={saving}
+          footer={<NextBar onNext={() => history.push('detail', {})} />}
+        >
+          {/* 사진 추가를 편지지보다 위에 둔다. */}
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              void handlePhotoPick(e.target.files)
+              e.target.value = ''
+            }}
+          />
+          {photoUrls.length > 0 ? (
+            <div className="mb-3 flex flex-wrap gap-2">
               {photoUrls.map((url) => {
                 const src = optimizedImageUrl(url, 256)
                 return (
-                  <div key={url} className="relative size-16">
+                  <div key={url} className="relative size-20">
                     {src ? (
                       <img
                         src={src}
                         alt=""
-                        className="size-16 rounded-lg object-cover"
+                        className="size-20 rounded-xl object-cover"
                       />
                     ) : (
-                      <div className="flex size-16 items-center justify-center rounded-lg bg-muted text-[10px] font-bold text-muted-foreground">
+                      <div className="flex size-20 items-center justify-center rounded-xl bg-muted text-[10px] font-bold text-muted-foreground">
                         PHOTO
                       </div>
                     )}
@@ -547,61 +475,171 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                   </div>
                 )
               })}
-              {photoUrls.length < 5 ? (
-                <Button
-                  variant="outline"
-                  className="size-16 rounded-lg border-dashed text-2xl"
-                  type="button"
-                  disabled={uploadingPhoto}
-                  onClick={() => photoInputRef.current?.click()}
-                >
-                  {uploadingPhoto ? '…' : '＋'}
-                </Button>
-              ) : null}
             </div>
-          </section>
-
-          {formError ? (
-            <p className="text-center text-xs text-destructive">{formError}</p>
+          ) : null}
+          {photoUrls.length < 5 ? (
+            <button
+              type="button"
+              disabled={uploadingPhoto}
+              onClick={() => photoInputRef.current?.click()}
+              className="mb-3 flex h-28 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card text-muted-foreground disabled:opacity-50"
+            >
+              <ImagePlus className="size-9" strokeWidth={1.6} />
+              <span className="text-sm">
+                {uploadingPhoto ? '올리는 중…' : '사진 추가'}
+              </span>
+            </button>
           ) : null}
 
-          {savedLocally ? (
-            <p className="text-center text-xs text-muted-foreground">
-              서버에 저장하지 못했지만 기록 화면은 열어둘게요.
-            </p>
-          ) : null}
-        </div>
-      </div>
+          <div className="relative rounded-2xl border border-border bg-card p-4">
+            <Textarea
+              value={what}
+              onChange={(e) => setWhat(e.target.value)}
+              maxLength={MEMO_MAX}
+              autoFocus
+              enterKeyHint="done"
+              autoCapitalize="sentences"
+              placeholder="오늘 있었던 일"
+              style={letterPaperStyle}
+              className="font-hand min-h-[148px] resize-none border-0 bg-transparent p-0 text-lg leading-7 tracking-tight shadow-none focus-visible:ring-0 md:text-lg"
+            />
+            <span className="pointer-events-none absolute right-3 bottom-2 text-[11px] tabular-nums text-muted-foreground/70">
+              {what.length}/{MEMO_MAX}
+            </span>
+          </div>
+        </StepFrame>
+      )}
+      detail={({ history }) => (
+        <StepFrame
+          centerLabel={personLabel}
+          onBack={() => history.back()}
+          onDone={handleSave}
+          doneSaving={saving}
+        >
+          <div className="flex flex-col gap-7">
+            <Field label="종류">
+              <ToggleGroup
+                type="single"
+                value={categoryChipId ? String(categoryChipId) : undefined}
+                onValueChange={(v) => setCategoryChipId(v ? Number(v) : null)}
+                className="flex flex-wrap justify-start gap-2.5"
+              >
+                {categoryChips.map((chip) => (
+                  <ToggleGroupItem
+                    key={chip.id}
+                    value={String(chip.id)}
+                    className={neutralChipClass}
+                  >
+                    {chip.label}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </Field>
 
-      <PersonSelectModal
-        open={personModalOpen}
-        onOpenChange={setPersonModalOpen}
-        persons={persons}
-        selectedIds={selectedPersonIds}
-        dismissible={personModalDismissible}
-        onConfirm={(ids) => {
-          setSelectedPersonIds(ids)
-          setPersonSelectError(false)
-          setFormError(null)
-          setPersonModalDismissible(true)
-        }}
-      />
-    </ActivityShell>
+            <Field label="언제">
+              <DateStrip value={occurredDate} onChange={setOccurredDate} />
+              <div className="mt-4">
+                <TimeWheel value={occurredTime} onChange={setOccurredTime} />
+              </div>
+            </Field>
+
+            {formError ? (
+              <p className="text-center text-sm text-destructive">
+                {formError}
+              </p>
+            ) : null}
+            {savedLocally ? (
+              <p className="text-center text-sm text-muted-foreground">
+                서버에 저장하지 못했지만 기록 화면은 열어둘게요.
+              </p>
+            ) : null}
+          </div>
+        </StepFrame>
+      )}
+    />
   )
 }
 
-function ChipSection({
-  title,
+// 몰입형 껍데기: 앱 헤더/하단 탭바 없이 전체화면 + 손글씨 폰트 기본.
+function BareShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-background">
+      {children}
+    </div>
+  )
+}
+
+function StepFrame({
+  centerLabel,
+  onBack,
+  onDone,
+  doneSaving,
+  footer,
   children,
 }: {
-  title: string
+  centerLabel?: string
+  onBack: () => void
+  onDone?: () => void
+  doneSaving?: boolean
+  footer?: React.ReactNode
+  children: React.ReactNode
+}) {
+  return (
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-background">
+      <header className="flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="뒤로"
+          className="flex size-9 items-center justify-center rounded-full text-muted-foreground"
+        >
+          <ChevronLeft className="size-6" />
+        </button>
+        <span className="text-base font-bold">{centerLabel}</span>
+        {onDone ? (
+          <button
+            type="button"
+            onClick={onDone}
+            disabled={doneSaving}
+            aria-label="저장"
+            className="flex size-9 items-center justify-center rounded-full text-foreground/70 disabled:opacity-50"
+          >
+            <Check className="size-6" strokeWidth={2.5} />
+          </button>
+        ) : (
+          <span className="size-9" />
+        )}
+      </header>
+      <main className="flex flex-1 flex-col px-5 pt-4 pb-6">{children}</main>
+      {footer}
+    </div>
+  )
+}
+
+// 다음 단계로. 하단을 여백 없이 채운다.
+function NextBar({ onNext }: { onNext: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onNext}
+      className="sticky bottom-0 w-full bg-foreground/85 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-lg font-bold text-background"
+    >
+      이어서
+    </button>
+  )
+}
+
+// label을 키우고 볼드는 뺀다.
+function Field({
+  label,
+  children,
+}: {
+  label: string
   children: React.ReactNode
 }) {
   return (
     <section>
-      <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-        {title}
-      </p>
+      <p className="mb-2.5 text-lg text-muted-foreground">{label}</p>
       {children}
     </section>
   )
