@@ -20,7 +20,12 @@ import { fetchChips } from '@/lib/api/chips'
 import { fetchPersonTimeline } from '@/lib/api/events'
 import { fetchPerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
-import { FALLBACK_CHIPS, fallbackPersonDetail } from '@/lib/fallback-data'
+import {
+  FALLBACK_CHIPS,
+  fallbackPersonDetail,
+  fallbackPersonTimeline,
+} from '@/lib/fallback-data'
+import { formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { matchesActivityFlowSelection } from '@/lib/timeline-activity-flow'
 import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
@@ -46,14 +51,23 @@ function PersonTimelinePage() {
 
   const timelineQuery = useQuery({
     queryKey: queryKeys.personTimeline(id, categoryFilter),
-    queryFn: () => fetchPersonTimeline(id, categoryFilter),
+    queryFn: () =>
+      safeApi(
+        () => fetchPersonTimeline(id, categoryFilter),
+        fallbackPersonTimeline(id).filter((event) =>
+          categoryFilter.length > 0
+            ? event.category && categoryFilter.includes(event.category.id)
+            : true,
+        ),
+      ),
     enabled: Number.isFinite(id),
   })
 
   // 활동 흐름은 카테고리 필터와 무관한 전체 기록 날짜로 그린다.
   const allTimelineQuery = useQuery({
     queryKey: queryKeys.personTimeline(id, []),
-    queryFn: () => fetchPersonTimeline(id),
+    queryFn: () =>
+      safeApi(() => fetchPersonTimeline(id), fallbackPersonTimeline(id)),
     enabled: Number.isFinite(id),
   })
 
@@ -162,7 +176,7 @@ function PersonTimelinePage() {
       >
         <div className="mb-4">
           <h1 className="text-[22px] font-black tracking-tight">
-            {person.name}
+            {formatPersonName(person)}
           </h1>
           <p className="mt-1 text-xs font-medium text-muted-foreground">
             {firstMetYear ? `${firstMetYear}년부터 · ` : ''}

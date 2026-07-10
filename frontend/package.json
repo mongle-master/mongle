@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
+    "seed:people": "node scripts/seed-people.mjs",
     "generate-routes": "tsr generate",
     "build": "vite build",
     "preview": "vite preview",

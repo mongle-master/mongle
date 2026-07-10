@@ -15,6 +15,7 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
     id: 301,
     type: 'CATEGORY',
     label: '만남',
+    color: null,
     personal: false,
     order: 1,
     default: true,
@@ -23,6 +24,7 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
     id: 302,
     type: 'CATEGORY',
     label: '연락',
+    color: null,
     personal: false,
     order: 2,
     default: true,
@@ -31,6 +33,7 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
     id: 303,
     type: 'CATEGORY',
     label: '기념일',
+    color: null,
     personal: false,
     order: 3,
     default: true,
@@ -39,6 +42,7 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
     id: 304,
     type: 'CATEGORY',
     label: '기타',
+    color: null,
     personal: false,
     order: 4,
     default: true,
@@ -47,6 +51,7 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
     id: 401,
     type: 'RELATION_TAG',
     label: '가족',
+    color: '#E85D75',
     personal: true,
     order: 1,
     default: false,
@@ -55,6 +60,7 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
     id: 402,
     type: 'RELATION_TAG',
     label: '친구',
+    color: '#0EA5E9',
     personal: true,
     order: 2,
     default: false,
@@ -63,6 +69,7 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
     id: 403,
     type: 'RELATION_TAG',
     label: '직장',
+    color: '#22A06B',
     personal: true,
     order: 3,
     default: false,
@@ -71,6 +78,7 @@ export const FALLBACK_CHIPS: ChipResponse[] = [
     id: 404,
     type: 'RELATION_TAG',
     label: '대학동기',
+    color: '#8B5CF6',
     personal: true,
     order: 4,
     default: false,
@@ -163,6 +171,17 @@ const EXTRA_FALLBACK_LIKES = [
   ['사진', '카페'],
 ]
 
+const EXTRA_FALLBACK_FAMILY_NAMES = [
+  '김',
+  '이',
+  '박',
+  '최',
+  '정',
+  '강',
+  '조',
+  '윤',
+]
+
 const EXTRA_FALLBACK_PEOPLE: PersonResponse[] = EXTRA_FALLBACK_PERSON_NAMES.map(
   (name, index) => {
     const id = index + 7
@@ -172,6 +191,8 @@ const EXTRA_FALLBACK_PEOPLE: PersonResponse[] = EXTRA_FALLBACK_PERSON_NAMES.map(
     return {
       id,
       name,
+      familyName:
+        EXTRA_FALLBACK_FAMILY_NAMES[index % EXTRA_FALLBACK_FAMILY_NAMES.length],
       birthday: {
         year: 1989 + (index % 14),
         month: (index % 12) + 1,
@@ -201,6 +222,7 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
   {
     id: 1,
     name: '유진',
+    familyName: '김',
     birthday: { year: 1995, month: 4, day: 12 },
     firstMetDate: '2023-07-07',
     lastMetDate: '2026-07-04',
@@ -208,8 +230,8 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
     gender: 'FEMALE',
     relationType: '대학 친구',
     relationTags: [
-      { id: 402, label: '친구' },
-      { id: 404, label: '대학동기' },
+      { id: 402, label: '친구', color: '#0EA5E9' },
+      { id: 404, label: '대학동기', color: '#8B5CF6' },
     ],
     likes: ['카페 투어', '산책'],
     cautions: ['매운 음식'],
@@ -219,13 +241,14 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
   {
     id: 2,
     name: '재윤',
+    familyName: '이',
     birthday: { month: 9, day: 23 },
     firstMetDate: '2025-05-07',
     lastMetDate: '2026-07-07',
     profileImageUrl: null,
     gender: 'MALE',
     relationType: '회사 동료',
-    relationTags: [{ id: 403, label: '직장' }],
+    relationTags: [{ id: 403, label: '직장', color: '#22A06B' }],
     likes: ['커피', '러닝'],
     cautions: [],
     favorite: false,
@@ -234,13 +257,14 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
   {
     id: 3,
     name: '지훈',
+    familyName: '박',
     birthday: { year: 2000, month: 11, day: 5 },
     firstMetDate: null,
     lastMetDate: '2026-06-30',
     profileImageUrl: null,
     gender: 'MALE',
     relationType: '동생',
-    relationTags: [{ id: 401, label: '가족' }],
+    relationTags: [{ id: 401, label: '가족', color: '#E85D75' }],
     likes: [],
     cautions: [],
     favorite: true,
@@ -249,13 +273,14 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
   {
     id: 4,
     name: '소연',
+    familyName: '최',
     birthday: { month: 2, day: 14 },
     firstMetDate: '2024-03-01',
     lastMetDate: '2026-07-02',
     profileImageUrl: null,
     gender: 'FEMALE',
     relationType: '친구',
-    relationTags: [{ id: 402, label: '친구' }],
+    relationTags: [{ id: 402, label: '친구', color: '#0EA5E9' }],
     likes: ['전시', '산책'],
     cautions: [],
     favorite: false,
@@ -264,13 +289,14 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
   {
     id: 5,
     name: '하은',
+    familyName: '정',
     birthday: { month: 6, day: 5 },
     firstMetDate: '2024-09-01',
     lastMetDate: '2026-06-23',
     profileImageUrl: null,
     gender: 'FEMALE',
     relationType: '친구',
-    relationTags: [{ id: 402, label: '친구' }],
+    relationTags: [{ id: 402, label: '친구', color: '#0EA5E9' }],
     likes: ['카페', '영화'],
     cautions: [],
     favorite: false,
@@ -279,13 +305,14 @@ export const FALLBACK_PERSONS: PersonResponse[] = [
   {
     id: 6,
     name: '민수',
+    familyName: '강',
     birthday: { month: 12, day: 2 },
     firstMetDate: '2023-12-11',
     lastMetDate: '2026-06-07',
     profileImageUrl: null,
     gender: 'MALE',
     relationType: '회사 동료',
-    relationTags: [{ id: 403, label: '직장' }],
+    relationTags: [{ id: 403, label: '직장', color: '#22A06B' }],
     likes: ['러닝', '커피'],
     cautions: [],
     favorite: false,
@@ -299,6 +326,11 @@ export const FALLBACK_RELATION_MAP: RelationMapResponse = {
   nodes: FALLBACK_PERSONS.map((p) => ({
     id: p.id,
     name: p.name,
+    familyName: p.familyName,
+    givenName: p.givenName,
+    fullName: p.fullName,
+    lastName: p.lastName,
+    firstName: p.firstName,
     profileImageUrl: p.profileImageUrl,
     avatarGender: p.gender,
     favorite: p.favorite,
@@ -337,75 +369,110 @@ export const FALLBACK_THROWBACK: ThrowbackResponse = {
   photoUrl: null,
 }
 
-const fallbackEvents = (
-  personId: number,
-  personName: string,
-): EventResponse[] => [
-  {
-    id: personId * 100 + 1,
-    title: '유진 결혼식',
-    memo: '결혼식 참석\n축하해주고 맛있는 거 많이 먹기',
-    occurredDate: '2024-05-26',
-    occurredTime: null,
-    category: { id: 303, label: '기념일' },
-    weather: { id: 601, label: '맑음' },
-    emotions: [{ id: 501, label: '기쁨' }],
-    persons: [{ id: personId, name: personName }],
-    photoUrls: [],
-    createdAt: null,
-  },
-  {
-    id: personId * 100 + 2,
-    title: '카페 약속',
-    memo: '오랜만에 수다\n근황 토크 + 신상 카페 발견',
-    occurredDate: '2024-04-13',
-    occurredTime: '15:00:00',
-    category: { id: 301, label: '만남' },
-    weather: { id: 601, label: '맑음' },
-    emotions: [{ id: 503, label: '편안' }],
-    persons: [{ id: personId, name: personName }],
-    photoUrls: [],
-    createdAt: null,
-  },
-  {
-    id: personId * 100 + 3,
-    title: '개발 모임',
-    memo: '코드 리뷰 + 아키텍처 이야기',
-    occurredDate: '2024-02-17',
-    occurredTime: '13:00:00',
-    category: { id: 301, label: '만남' },
-    weather: null,
-    emotions: [],
-    persons: [{ id: personId, name: personName }],
-    photoUrls: [],
-    createdAt: null,
-  },
+const FALLBACK_TIMELINE_YEARS = Array.from(
+  { length: 11 },
+  (_, index) => 2015 + index,
+)
+
+const FALLBACK_TIMELINE_TITLES = [
+  '카페에서 근황 나눈 날',
+  '함께 산책한 오후',
+  '생일 축하 메시지',
+  '전시 보고 온 날',
+  '늦은 저녁 통화',
+  '새로운 맛집 발견',
+  '주말 보드게임 모임',
+  '여행 계획 세운 날',
+  '오랜만의 점심 약속',
+  '기념일 챙긴 날',
 ]
 
+const FALLBACK_TIMELINE_CATEGORIES = FALLBACK_CHIPS.filter(
+  (chip) => chip.type === 'CATEGORY',
+).map(({ id, label, color }) => ({ id, label, color }))
+
+const FALLBACK_TIMELINE_WEATHERS = [
+  { id: 601, label: '맑음' },
+  { id: 602, label: '흐림' },
+  { id: 603, label: '비' },
+]
+
+const FALLBACK_TIMELINE_EMOTIONS = [
+  { id: 501, label: '기쁨' },
+  { id: 502, label: '감사' },
+  { id: 503, label: '편안' },
+]
+
+const FALLBACK_TIMELINE_EVENTS: EventResponse[] =
+  FALLBACK_TIMELINE_YEARS.flatMap((year) =>
+    Array.from({ length: 10 }, (_, index) => {
+      const sequence = (year - 2015) * 10 + index
+      const person = FALLBACK_PERSONS[sequence % FALLBACK_PERSONS.length]
+      const month = ((index * 5 + year) % 12) + 1
+      const day = ((index * 7 + year) % 28) + 1
+      const category =
+        FALLBACK_TIMELINE_CATEGORIES[
+          sequence % FALLBACK_TIMELINE_CATEGORIES.length
+        ]
+      const weather =
+        sequence % 4 === 0
+          ? null
+          : FALLBACK_TIMELINE_WEATHERS[
+              sequence % FALLBACK_TIMELINE_WEATHERS.length
+            ]
+      const emotion =
+        FALLBACK_TIMELINE_EMOTIONS[sequence % FALLBACK_TIMELINE_EMOTIONS.length]
+
+      return {
+        id: 10000 + sequence + 1,
+        title: FALLBACK_TIMELINE_TITLES[index],
+        memo: `${year}년에 남겨둔 샘플 타임라인 기록`,
+        occurredDate: `${year}-${String(month).padStart(2, '0')}-${String(
+          day,
+        ).padStart(2, '0')}`,
+        occurredTime:
+          index % 3 === 0
+            ? null
+            : `${String(10 + (index % 8)).padStart(2, '0')}:00:00`,
+        category,
+        weather,
+        emotions: [emotion],
+        persons: [
+          {
+            id: person.id,
+            name: person.name,
+            familyName: person.familyName,
+            givenName: person.givenName,
+            fullName: person.fullName,
+            lastName: person.lastName,
+            firstName: person.firstName,
+          },
+        ],
+        photoUrls: [],
+        createdAt: null,
+      }
+    }),
+  ).sort((a, b) => b.occurredDate.localeCompare(a.occurredDate) || b.id - a.id)
+
 export function fallbackEvent(eventId: number): EventResponse | null {
-  for (const person of FALLBACK_PERSONS) {
-    const found = fallbackEvents(person.id, person.name).find(
-      (event) => event.id === eventId,
-    )
-    if (found) return found
-  }
-  return null
+  return FALLBACK_TIMELINE_EVENTS.find((event) => event.id === eventId) ?? null
 }
 
 export function fallbackPersonTimeline(personId: number) {
-  const person =
-    FALLBACK_PERSONS.find((p) => p.id === personId) ?? FALLBACK_PERSONS[0]
-  return fallbackEvents(person.id, person.name)
+  return FALLBACK_TIMELINE_EVENTS.filter((event) =>
+    event.persons.some((person) => person.id === personId),
+  )
 }
 
 export function fallbackPersonDetail(personId: number): PersonDetailResponse {
   const base =
     FALLBACK_PERSONS.find((p) => p.id === personId) ?? FALLBACK_PERSONS[0]
+  const events = fallbackPersonTimeline(base.id)
   return {
     ...base,
     stats: {
-      meetCount: 24,
-      recordCount: 18,
+      meetCount: events.filter((event) => event.category?.id === 301).length,
+      recordCount: events.length,
       daysSinceFirstMet: 2154,
       acquaintancePeriod: '6년',
       lastMetRelative: '6일 전',
@@ -451,6 +518,11 @@ function toTimelineCard(
       {
         id: person.id,
         name: person.name,
+        familyName: person.familyName,
+        givenName: person.givenName,
+        fullName: person.fullName,
+        lastName: person.lastName,
+        firstName: person.firstName,
         profileImageUrl: person.profileImageUrl,
         favorite: person.favorite,
       },
@@ -458,12 +530,27 @@ function toTimelineCard(
   }
 }
 
-export function fallbackMyTimeline(): TimelineResponse {
-  const cards = FALLBACK_PERSONS.flatMap((person) =>
-    fallbackEvents(person.id, person.name).map((event) =>
-      toTimelineCard(event, person),
-    ),
-  ).sort((a, b) => b.occurredDate.localeCompare(a.occurredDate) || b.id - a.id)
+export function fallbackMyTimeline(
+  filters: {
+    categoryChipIds?: number[]
+    personIds?: number[]
+  } = {},
+): TimelineResponse {
+  const cards = FALLBACK_TIMELINE_EVENTS.filter((event) => {
+    const matchesCategory =
+      !filters.categoryChipIds?.length ||
+      (event.category && filters.categoryChipIds.includes(event.category.id))
+    const matchesPerson =
+      !filters.personIds?.length ||
+      event.persons.some((person) => filters.personIds?.includes(person.id))
+
+    return matchesCategory && matchesPerson
+  }).map((event) => {
+    const person =
+      FALLBACK_PERSONS.find((p) => p.id === event.persons[0]?.id) ??
+      FALLBACK_PERSONS[0]
+    return toTimelineCard(event, person)
+  })
 
   const groupMap = new Map<string, TimelineCard[]>()
   for (const card of cards) {

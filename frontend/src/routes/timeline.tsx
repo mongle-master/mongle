@@ -20,7 +20,11 @@ import { fetchChips } from '@/lib/api/chips'
 import { fetchMyTimeline } from '@/lib/api/timeline'
 import { fetchPersons } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
-import { FALLBACK_CHIPS, FALLBACK_PERSONS } from '@/lib/fallback-data'
+import {
+  FALLBACK_CHIPS,
+  FALLBACK_PERSONS,
+  fallbackMyTimeline,
+} from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
 import {
   flattenTimelineCards,
@@ -46,16 +50,23 @@ function MyTimelinePage() {
   // 활동 흐름은 필터 없는 전체 `/api/v1/timeline` 응답에서 파생한다.
   const allTimelineQuery = useQuery({
     queryKey: queryKeys.myTimeline([], []),
-    queryFn: () => fetchMyTimeline(),
+    queryFn: () => safeApi(() => fetchMyTimeline(), fallbackMyTimeline()),
   })
 
   const timelineQuery = useQuery({
     queryKey: queryKeys.myTimeline(categoryFilter, personFilter),
     queryFn: () =>
-      fetchMyTimeline({
-        categoryChipIds: categoryFilter,
-        personIds: personFilter,
-      }),
+      safeApi(
+        () =>
+          fetchMyTimeline({
+            categoryChipIds: categoryFilter,
+            personIds: personFilter,
+          }),
+        fallbackMyTimeline({
+          categoryChipIds: categoryFilter,
+          personIds: personFilter,
+        }),
+      ),
   })
 
   const chipsQuery = useQuery({
