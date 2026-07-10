@@ -5,6 +5,7 @@ import com.mongle.common.ValidationLimits
 import com.mongle.common.Validators
 import com.mongle.common.exception.BusinessException
 import com.mongle.common.exception.ErrorCode
+import com.mongle.controller.dto.ChipDisplay
 import com.mongle.controller.dto.PersonDetailResponse
 import com.mongle.controller.dto.PersonRequest
 import com.mongle.controller.dto.PersonResponse
@@ -70,8 +71,8 @@ class PersonService(
             .sortedWith(order)
         // 관계태그·라벨을 한 번에 로드해 인물별 N+1 을 막는다.
         val tagChipIdsByPerson = relationTagChipIdsByPerson(persons)
-        val tagLabels = resolveTagLabels(tagChipIdsByPerson.values.flatten())
-        return persons.map { PersonResponse.from(it, tagChipIdsByPerson[it.id].orEmpty(), tagLabels) }
+        val tagDisplays = resolveTagDisplays(tagChipIdsByPerson.values.flatten())
+        return persons.map { PersonResponse.from(it, tagChipIdsByPerson[it.id].orEmpty(), tagDisplays) }
     }
 
     private fun Person.matches(keyword: String): Boolean = name.lowercase().contains(keyword) || relationType?.lowercase()?.contains(keyword) == true
@@ -82,7 +83,7 @@ class PersonService(
             ?: throw BusinessException(ErrorCode.NOT_FOUND)
         val stats = personStatsService.statsOf(person)
         val tagChipIds = relationTagChipIdsOf(person)
-        return PersonDetailResponse.from(person, stats, tagChipIds, resolveTagLabels(tagChipIds), LocalDate.now())
+        return PersonDetailResponse.from(person, stats, tagChipIds, resolveTagDisplays(tagChipIds), LocalDate.now())
     }
 
     /** 즐겨찾기 토글(#28). 내 소유·active 인물만, 아니면 NOT_FOUND. */
@@ -190,10 +191,10 @@ class PersonService(
      */
     private fun toResponse(person: Person): PersonResponse {
         val tagChipIds = relationTagChipIdsOf(person)
-        return PersonResponse.from(person, tagChipIds, resolveTagLabels(tagChipIds))
+        return PersonResponse.from(person, tagChipIds, resolveTagDisplays(tagChipIds))
     }
 
-    private fun resolveTagLabels(chipIds: List<Long>): Map<Long, String> = chipRepository.findAllById(chipIds)
-        .mapNotNull { chip -> chip.id?.let { it to chip.label } }
+    private fun resolveTagDisplays(chipIds: List<Long>): Map<Long, ChipDisplay> = chipRepository.findAllById(chipIds)
+        .mapNotNull { chip -> chip.id?.let { it to ChipDisplay(chip.label, chip.color) } }
         .toMap()
 }

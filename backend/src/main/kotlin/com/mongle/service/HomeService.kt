@@ -1,6 +1,7 @@
 package com.mongle.service
 
 import com.mongle.controller.dto.AvatarGender
+import com.mongle.controller.dto.ChipDisplay
 import com.mongle.controller.dto.ChipRef
 import com.mongle.controller.dto.IntimacyStatus
 import com.mongle.controller.dto.MeNode
@@ -46,7 +47,7 @@ class HomeService(
             // 최종 타이브레이커 id 오름차순 — 동명이인이 있어도 조회마다 노드 순서가 흔들리지 않게(표시 결정성).
             .sortedWith(compareByDescending<Person> { it.favorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }.thenBy { it.id })
 
-        val tagLabels = resolveTagLabels(tagChipIdsByPerson.values.flatten())
+        val tagDisplays = resolveTagDisplays(tagChipIdsByPerson.values.flatten())
         val nodes = persons.map { person ->
             val stats = personStatsService.statsOf(person)
             val intimacy = IntimacyCalculator.of(stats.meetingDatesDesc, today)
@@ -57,7 +58,7 @@ class HomeService(
                 avatarGender = person.gender?.let { AvatarGender.valueOf(it.name) },
                 favorite = person.favorite,
                 recordCount = stats.recordCount,
-                relationTags = tagChipIdsByPerson[person.id].orEmpty().mapNotNull { id -> tagLabels[id]?.let { ChipRef(id, it) } },
+                relationTags = tagChipIdsByPerson[person.id].orEmpty().mapNotNull { id -> tagDisplays[id]?.let { ChipRef(id, it.label, it.color) } },
                 intimacy = intimacy,
                 firstMetDate = person.firstMetDate,
             )
@@ -110,7 +111,7 @@ class HomeService(
      * 관계태그 칩 id 목록의 라벨을 한 번에 해석한다 — id 참조라 rename 이 자동 반영되고,
      * 소프트삭제된 칩도 findAllById 로 잡혀 라벨이 유지된다(과거 참조 보존, 00-infra).
      */
-    private fun resolveTagLabels(chipIds: List<Long>): Map<Long, String> = chipRepository.findAllById(chipIds.distinct()).mapNotNull { chip -> chip.id?.let { it to chip.label } }.toMap()
+    private fun resolveTagDisplays(chipIds: List<Long>): Map<Long, ChipDisplay> = chipRepository.findAllById(chipIds.distinct()).mapNotNull { chip -> chip.id?.let { it to ChipDisplay(chip.label, chip.color) } }.toMap()
 
     companion object {
         // 회고 우선순위 ③(기념일) 판정용 공통 카테고리 라벨. ChipSeeder 의 CATEGORY 시드와 동일해야 한다.

@@ -36,5 +36,34 @@ class ChipSeeder(
                 }
             }
         }
+        backfillRelationTagColors()
+    }
+
+    private fun backfillRelationTagColors() {
+        chipRepository.findAll()
+            .filter { it.type == ChipType.RELATION_TAG && it.deletedAt == null }
+            .groupBy { it.ownerId }
+            .values
+            .forEach { tags ->
+                tags.sortedWith(compareBy<Chip> { it.displayOrder }.thenBy { it.label })
+                    .forEachIndexed { index, chip ->
+                        if (chip.color == null) {
+                            chip.changeColor(RELATION_TAG_COLORS[index % RELATION_TAG_COLORS.size])
+                        }
+                    }
+            }
+    }
+
+    companion object {
+        private val RELATION_TAG_COLORS = listOf(
+            "#E85D75",
+            "#0EA5E9",
+            "#22A06B",
+            "#8B5CF6",
+            "#F97316",
+            "#65A30D",
+            "#14B8A6",
+            "#DB2777",
+        )
     }
 }

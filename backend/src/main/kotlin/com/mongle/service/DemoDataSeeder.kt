@@ -64,7 +64,16 @@ class DemoDataSeeder(
         val today = LocalDate.now()
 
         // 관계태그는 공통용이 없어(01-chip) 데모 사용자 개인 칩으로 먼저 시드한다. 라벨→id 로 인물이 참조.
-        val relationTagIds = ensureRelationTags(ownerId, listOf("가족", "친구", "직장", "대학동기", "동네"))
+        val relationTagIds = ensureRelationTags(
+            ownerId,
+            listOf(
+                "가족" to "#E85D75",
+                "친구" to "#0EA5E9",
+                "직장" to "#22A06B",
+                "대학동기" to "#8B5CF6",
+                "동네" to "#F97316",
+            ),
+        )
 
         // 기록·인물이 참조할 공통 칩(감정·날씨·카테고리)을 라벨→id 로 해석.
         val category = commonChipIds(ChipType.CATEGORY)
@@ -195,16 +204,16 @@ class DemoDataSeeder(
     }
 
     /** 데모 사용자 개인 관계태그 칩을 라벨로 보장(있으면 재사용)하고 라벨→id 를 돌려준다. */
-    private fun ensureRelationTags(ownerId: Long, labels: List<String>): Map<String, Long> {
+    private fun ensureRelationTags(ownerId: Long, tags: List<Pair<String, String>>): Map<String, Long> {
         val existing = chipRepository
             .findByTypeAndOwnerIdAndDeletedAtIsNullOrderByDisplayOrderAsc(ChipType.RELATION_TAG, ownerId)
             .associateBy { it.label }
         var order = existing.values.maxOfOrNull { it.displayOrder }?.plus(1) ?: 0
-        return labels.associateWith { label ->
-            val chip = existing[label] ?: chipRepository.save(
-                Chip(type = ChipType.RELATION_TAG, ownerId = ownerId, label = label, displayOrder = order++),
+        return tags.associate { (label, color) ->
+            val chip = existing[label]?.apply { changeColor(color) } ?: chipRepository.save(
+                Chip(type = ChipType.RELATION_TAG, ownerId = ownerId, label = label, color = color, displayOrder = order++),
             )
-            chip.id!!
+            label to chip.id!!
         }
     }
 

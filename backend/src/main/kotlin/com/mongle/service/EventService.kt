@@ -4,6 +4,7 @@ import com.mongle.common.ValidationLimits
 import com.mongle.common.Validators
 import com.mongle.common.exception.BusinessException
 import com.mongle.common.exception.ErrorCode
+import com.mongle.controller.dto.ChipDisplay
 import com.mongle.controller.dto.EventRequest
 import com.mongle.controller.dto.EventResponse
 import com.mongle.domain.ChipType
@@ -147,10 +148,10 @@ class EventService(
         val emotionIdsByEvent = emotionIdsByEvent(events)
         val chipIds = events.flatMap { collectChipIds(it, emotionIdsByEvent[it.id].orEmpty()) }.distinct()
         val personIds = personIdsByEvent.values.flatten().distinct()
-        val chipLabels = chipRepository.findAllById(chipIds).mapNotNull { chip -> chip.id?.let { it to chip.label } }.toMap()
+        val chipDisplays = chipRepository.findAllById(chipIds).mapNotNull { chip -> chip.id?.let { it to ChipDisplay(chip.label, chip.color) } }.toMap()
         val personNames = personRepository.findAllById(personIds).mapNotNull { person -> person.id?.let { it to person.name } }.toMap()
         return events.map {
-            EventResponse.from(it, personIdsByEvent[it.id].orEmpty(), emotionIdsByEvent[it.id].orEmpty(), chipLabels, personNames)
+            EventResponse.from(it, personIdsByEvent[it.id].orEmpty(), emotionIdsByEvent[it.id].orEmpty(), chipDisplays, personNames)
         }
     }
 

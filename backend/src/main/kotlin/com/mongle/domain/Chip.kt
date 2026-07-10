@@ -32,6 +32,8 @@ class Chip(
     val ownerId: Long?,
     @Column(nullable = false)
     var label: String,
+    @Column(length = 7)
+    var color: String? = null,
     // 같은 종류·계층 안에서의 표시 순서(오름차순). order 는 SQL 예약어라 display_order.
     @Column(name = "display_order", nullable = false)
     var displayOrder: Int,
@@ -45,5 +47,9 @@ class Chip(
 
     fun rename(label: String) {
         this.label = label
+    }
+
+    fun changeColor(color: String?) {
+        this.color = color
     }
 }

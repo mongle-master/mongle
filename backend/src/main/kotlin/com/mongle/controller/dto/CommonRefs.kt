@@ -13,6 +13,13 @@ data class ChipRef(
     val id: Long,
     @field:Schema(description = "칩 라벨.", example = "만남")
     val label: String,
+    @field:Schema(description = "칩 표시 색상(hex).", example = "#0EA5E9")
+    val color: String? = null,
+)
+
+data class ChipDisplay(
+    val label: String,
+    val color: String?,
 )
 
 @Schema(description = "인물 요약 참조(id + 이름). 소프트삭제된 인물도 이름은 유지된다.")

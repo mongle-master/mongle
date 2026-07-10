@@ -93,9 +93,9 @@ data class PersonResponse(
     companion object {
         /**
          * relationTagChipIds 는 PersonRelationTag 조인 엔티티에서 서비스가 읽은 (순서 보존) 칩 id 목록,
-         * tagLabels 는 그 칩에서 해석한 (id→라벨) 맵. 소프트삭제된 칩도 라벨은 보인다.
+         * tagDisplays 는 그 칩에서 해석한 (id→표시정보) 맵. 소프트삭제된 칩도 라벨은 보인다.
          */
-        fun from(person: Person, relationTagChipIds: List<Long>, tagLabels: Map<Long, String>): PersonResponse = PersonResponse(
+        fun from(person: Person, relationTagChipIds: List<Long>, tagDisplays: Map<Long, ChipDisplay>): PersonResponse = PersonResponse(
             id = requireNotNull(person.id) { "저장되지 않은 Person은 응답으로 변환할 수 없습니다." },
             name = person.name,
             birthday = Birthday.from(person),
@@ -105,7 +105,7 @@ data class PersonResponse(
             gender = person.gender?.let { PersonGender.valueOf(it.name) },
             relationType = person.relationType,
             relationTags = relationTagChipIds.mapNotNull { id ->
-                tagLabels[id]?.let { ChipRef(id, it) }
+                tagDisplays[id]?.let { ChipRef(id, it.label, it.color) }
             },
             likes = person.likes.toList(),
             cautions = person.cautions.toList(),
@@ -183,7 +183,7 @@ data class PersonDetailResponse(
             person: Person,
             stats: PersonStatsData,
             relationTagChipIds: List<Long>,
-            tagLabels: Map<Long, String>,
+            tagDisplays: Map<Long, ChipDisplay>,
             today: LocalDate,
         ): PersonDetailResponse = PersonDetailResponse(
             id = requireNotNull(person.id) { "저장되지 않은 Person은 응답으로 변환할 수 없습니다." },
@@ -194,7 +194,7 @@ data class PersonDetailResponse(
             profileImageUrl = person.profileImageUrl,
             gender = person.gender?.let { PersonGender.valueOf(it.name) },
             relationType = person.relationType,
-            relationTags = relationTagChipIds.mapNotNull { id -> tagLabels[id]?.let { ChipRef(id, it) } },
+            relationTags = relationTagChipIds.mapNotNull { id -> tagDisplays[id]?.let { ChipRef(id, it.label, it.color) } },
             likes = person.likes.toList(),
             cautions = person.cautions.toList(),
             favorite = person.favorite,
