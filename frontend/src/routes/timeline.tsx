@@ -21,7 +21,13 @@ import { fetchPersons } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import { FALLBACK_CHIPS, FALLBACK_PERSONS } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
-import { flattenTimelineCards } from '@/lib/timeline-activity-flow'
+import {
+  flattenTimelineCards,
+  flowRecordsFromTimelineCards,
+  matchesActivityFlowSelection,
+} from '@/lib/timeline-activity-flow'
+import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
+import { recordSearch } from '@/lib/record-navigation'
 
 export const Route = createFileRoute('/timeline')({
   component: MyTimelinePage,
@@ -31,7 +37,8 @@ function MyTimelinePage() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [categoryFilter, setCategoryFilter] = useState<number[]>([])
   const [personFilter, setPersonFilter] = useState<number[]>([])
-  const [monthFilter, setMonthFilter] = useState<string | null>(null)
+  const [flowSelection, setFlowSelection] =
+    useState<ActivityFlowSelection | null>(null)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   // 활동 흐름은 필터 없는 전체 `/api/v1/timeline` 응답에서 파생한다.
@@ -67,16 +74,22 @@ function MyTimelinePage() {
     () => flattenTimelineCards(allTimelineQuery.data?.groups ?? []),
     [allTimelineQuery.data],
   )
-  const flowDates = useMemo(
-    () => allCards.map((card) => card.occurredDate),
+  const flowRecords = useMemo(
+    () => flowRecordsFromTimelineCards(allCards),
     [allCards],
   )
 
   const cards = useMemo(() => {
     const list = flattenTimelineCards(timelineQuery.data?.groups ?? [])
-    if (!monthFilter) return list
-    return list.filter((card) => card.occurredDate.startsWith(monthFilter))
-  }, [monthFilter, timelineQuery.data])
+    if (!flowSelection) return list
+    return list.filter((card) =>
+      matchesActivityFlowSelection(
+        card.occurredDate,
+        card.persons.map((person) => person.id),
+        flowSelection,
+      ),
+    )
+  }, [flowSelection, timelineQuery.data])
 
   const toggleCategory = (chipId: number) => {
     setCategoryFilter((prev) =>
@@ -95,14 +108,16 @@ function MyTimelinePage() {
   }
 
   const hasFilter =
-    categoryFilter.length > 0 || personFilter.length > 0 || monthFilter !== null
+    categoryFilter.length > 0 ||
+    personFilter.length > 0 ||
+    flowSelection !== null
   const activeFilterCount =
-    categoryFilter.length + personFilter.length + (monthFilter ? 1 : 0)
+    categoryFilter.length + personFilter.length + (flowSelection ? 1 : 0)
 
   const resetFilters = () => {
     setCategoryFilter([])
     setPersonFilter([])
-    setMonthFilter(null)
+    setFlowSelection(null)
   }
 
   return (
@@ -113,7 +128,7 @@ function MyTimelinePage() {
         <>
           <MongleLogo className="mb-5 text-foreground" />
           <h1 className="text-[22px] font-extrabold tracking-tight">
-            나의 타임라인
+            나의 몽글라인
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
             모든 사람과의 기록을 시간순으로
@@ -121,12 +136,13 @@ function MyTimelinePage() {
         </>
       }
     >
-      {allTimelineQuery.data ? (
+      {allTimelineQuery.data && persons.length > 0 ? (
         <div className="mb-2">
           <ActivityFlowChart
-            dates={flowDates}
-            selectedMonth={monthFilter}
-            onSelectMonth={setMonthFilter}
+            persons={persons}
+            records={flowRecords}
+            selectedPoint={flowSelection}
+            onSelectPoint={setFlowSelection}
           />
         </div>
       ) : null}
@@ -135,11 +151,6 @@ function MyTimelinePage() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-extrabold">필터</p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
-              {hasFilter
-                ? `${activeFilterCount}개의 조건으로 보고 있어요.`
-                : '보고 싶은 관계 기록만 가볍게 골라보세요.'}
-            </p>
           </div>
           <button
             type="button"
@@ -204,7 +215,7 @@ function MyTimelinePage() {
           <Button asChild className="mt-4" variant="outline">
             <Link
               to={persons.length === 0 ? '/people/new' : '/record'}
-              search={{ personId: undefined, eventId: undefined }}
+              search={recordSearch({})}
             >
               {persons.length === 0 ? '＋ 사람 추가' : '기록 작성'}
             </Link>
@@ -215,7 +226,10 @@ function MyTimelinePage() {
           scrollRootRef={scrollRef}
           items={cards}
           renderCard={(card) => (
-            <TimelineEventCard item={fromTimelineCard(card)} />
+            <TimelineEventCard
+              item={fromTimelineCard(card)}
+              returnTo="timeline"
+            />
           )}
         />
       )}

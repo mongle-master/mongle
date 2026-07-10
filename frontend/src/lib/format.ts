@@ -17,6 +17,19 @@ export function pickWaGa(word: string): '와' | '과' {
   return hangulHasBatchim(last) ? '과' : '와'
 }
 
+/** 백엔드 autoTitle(#37)과 동일 — placeholder·조회 표시 drift 방지 */
+export function formatAutoEventTitle(
+  persons: { name: string }[],
+  categoryLabel: string,
+): string | null {
+  const category = categoryLabel.trim()
+  const representative = persons[0]?.name.trim()
+  if (!representative || !category) return null
+  const others = persons.length - 1
+  const who = others > 0 ? `${representative} 외 ${others}명` : representative
+  return `${who} · ${category}`
+}
+
 export function formatEventDate(iso: string) {
   const [y, m, d] = iso.split('-')
   return { year: y, date: `${m}.${d}` }

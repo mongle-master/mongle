@@ -22,6 +22,9 @@ import { fetchPerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import { FALLBACK_CHIPS, fallbackPersonDetail } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
+import { matchesActivityFlowSelection } from '@/lib/timeline-activity-flow'
+import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
+import { recordSearch } from '@/lib/record-navigation'
 
 export const Route = createFileRoute('/people/$personId/timeline')({
   component: PersonTimelinePage,
@@ -32,7 +35,8 @@ function PersonTimelinePage() {
   const id = Number(personId)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [categoryFilter, setCategoryFilter] = useState<number[]>([])
-  const [monthFilter, setMonthFilter] = useState<string | null>(null)
+  const [flowSelection, setFlowSelection] =
+    useState<ActivityFlowSelection | null>(null)
 
   const personQuery = useQuery({
     queryKey: queryKeys.person(id),
@@ -62,16 +66,37 @@ function PersonTimelinePage() {
   const categoryChips =
     chipsQuery.data?.filter((c) => c.type === 'CATEGORY') ?? []
 
-  const flowDates = useMemo(
-    () => (allTimelineQuery.data ?? []).map((event) => event.occurredDate),
-    [allTimelineQuery.data],
+  const flowPersons = useMemo(
+    () =>
+      person
+        ? [
+            {
+              id: person.id,
+              name: person.name,
+              profileImageUrl: person.profileImageUrl,
+              gender: person.gender,
+            },
+          ]
+        : [],
+    [person],
+  )
+  const flowRecords = useMemo(
+    () =>
+      (allTimelineQuery.data ?? []).map((event) => ({
+        id: String(event.id),
+        date: event.occurredDate,
+        personId: id,
+      })),
+    [allTimelineQuery.data, id],
   )
 
   const events = useMemo(() => {
     const list = timelineQuery.data ?? []
-    if (!monthFilter) return list
-    return list.filter((e) => e.occurredDate.startsWith(monthFilter))
-  }, [monthFilter, timelineQuery.data])
+    if (!flowSelection) return list
+    return list.filter((event) =>
+      matchesActivityFlowSelection(event.occurredDate, [id], flowSelection),
+    )
+  }, [flowSelection, id, timelineQuery.data])
 
   const toggleCategory = (chipId: number) => {
     setCategoryFilter((prev) =>
@@ -82,7 +107,7 @@ function PersonTimelinePage() {
   }
 
   const firstMetYear = person?.firstMetDate?.slice(0, 4)
-  const hasFilter = categoryFilter.length > 0 || monthFilter !== null
+  const hasFilter = categoryFilter.length > 0 || flowSelection !== null
 
   if (!Number.isFinite(id)) {
     return (
@@ -178,13 +203,16 @@ function PersonTimelinePage() {
           </ListGroupItem>
         </ListGroup>
 
-        <div className="mb-4">
-          <ActivityFlowChart
-            dates={flowDates}
-            selectedMonth={monthFilter}
-            onSelectMonth={setMonthFilter}
-          />
-        </div>
+        {flowPersons.length > 0 ? (
+          <div className="mb-4">
+            <ActivityFlowChart
+              persons={flowPersons}
+              records={flowRecords}
+              selectedPoint={flowSelection}
+              onSelectPoint={setFlowSelection}
+            />
+          </div>
+        ) : null}
 
         <TimelineCategoryFilters
           chips={categoryChips}
@@ -196,7 +224,7 @@ function PersonTimelinePage() {
           visible={hasFilter}
           onReset={() => {
             setCategoryFilter([])
-            setMonthFilter(null)
+            setFlowSelection(null)
           }}
         />
 
@@ -212,7 +240,7 @@ function PersonTimelinePage() {
                 : '아직 함께한 기록이 없어요. 첫 순간을 새겨보세요.'}
             </p>
             <Button asChild className="mt-4" variant="outline">
-              <Link to="/record" search={{ personId: id, eventId: undefined }}>
+              <Link to="/record" search={recordSearch({ personId: id })}>
                 기록 작성
               </Link>
             </Button>
@@ -222,7 +250,11 @@ function PersonTimelinePage() {
             scrollRootRef={scrollRef}
             items={events}
             renderCard={(event) => (
-              <TimelineEventCard item={fromEventResponse(event)} />
+              <TimelineEventCard
+                item={fromEventResponse(event)}
+                returnTo="person-timeline"
+                returnPersonId={id}
+              />
             )}
           />
         )}
@@ -233,7 +265,7 @@ function PersonTimelinePage() {
         size="icon-lg"
         className="fixed right-5 bottom-6 z-40 size-12 rounded-full shadow-lg"
       >
-        <Link to="/record" search={{ personId: id, eventId: undefined }}>
+        <Link to="/record" search={recordSearch({ personId: id })}>
           ＋
         </Link>
       </Button>

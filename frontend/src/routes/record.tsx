@@ -25,34 +25,41 @@ import {
   fallbackEvent,
 } from '@/lib/fallback-data'
 import { queryKeys } from '@/lib/query-keys'
+import { formatAutoEventTitle } from '@/lib/format'
 import {
   formatOccurredTimeForApi,
   formatOccurredTimeForInput,
   validateRecordForm,
 } from '@/lib/record-validation'
 import { cn } from '@/lib/utils'
+import {
+  parseRecordReturnTo,
+  parseRecordSearchId,
+  parseEventDetailReturnTo,
+  eventDetailSearch,
+} from '@/lib/record-navigation'
 
 export const Route = createFileRoute('/record')({
   validateSearch: (search: Record<string, unknown>) => ({
-    personId:
-      typeof search.personId === 'number'
-        ? search.personId
-        : typeof search.personId === 'string'
-          ? Number(search.personId) || undefined
-          : undefined,
-    eventId:
-      typeof search.eventId === 'number'
-        ? search.eventId
-        : typeof search.eventId === 'string'
-          ? Number(search.eventId) || undefined
-          : undefined,
+    personId: parseRecordSearchId(search.personId),
+    eventId: parseRecordSearchId(search.eventId),
+    returnTo: parseRecordReturnTo(search.returnTo),
+    returnPersonId: parseRecordSearchId(search.returnPersonId),
+    detailReturnTo: parseEventDetailReturnTo(search.detailReturnTo),
+    detailReturnPersonId: parseRecordSearchId(search.detailReturnPersonId),
   }),
   component: RecordPage,
 })
 
 function RecordPage() {
-  const { personId: presetPersonId, eventId: editingEventId } =
-    Route.useSearch()
+  const {
+    personId: presetPersonId,
+    eventId: editingEventId,
+    returnTo,
+    returnPersonId,
+    detailReturnTo,
+    detailReturnPersonId,
+  } = Route.useSearch()
   const isEditing = Number.isFinite(editingEventId)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -86,7 +93,8 @@ function RecordPage() {
     queryKey: queryKeys.persons(),
     queryFn: (): Promise<PersonResponse[]> =>
       safeApi(() => fetchPersons(), FALLBACK_PERSONS),
-    initialData: FALLBACK_PERSONS,
+    // initialData면 staleTime 동안 폴백 이름(유진 등)이 고정돼 맵 API 이름과 어긋난다.
+    placeholderData: FALLBACK_PERSONS,
   })
   const eventQuery = useQuery({
     queryKey: queryKeys.event(editingEventId ?? 0),
@@ -98,7 +106,7 @@ function RecordPage() {
     enabled: isEditing,
   })
 
-  const persons = personsQuery.data
+  const persons = personsQuery.data ?? []
   const chips = chipsQuery.data
 
   const categoryChips = useMemo(
@@ -122,10 +130,34 @@ function RecordPage() {
 
   const primaryPerson = selectedPersons.at(0)
 
+  const effectiveCategoryChipId =
+    categoryChipId ?? categoryChips.at(0)?.id ?? null
   const categoryLabel =
-    categoryChips.find((c) => c.id === categoryChipId)?.label ??
-    categoryChips.at(0)?.label ??
-    ''
+    categoryChips.find((c) => c.id === effectiveCategoryChipId)?.label ?? ''
+
+  const titlePlaceholder = useMemo(() => {
+    const personsForTitle =
+      selectedPersons.length > 0
+        ? selectedPersons
+        : (eventQuery.data?.persons ?? [])
+
+    const labelForTitle =
+      categoryLabel ||
+      eventQuery.data?.category?.label ||
+      categoryChips.at(0)?.label ||
+      ''
+
+    return (
+      formatAutoEventTitle(personsForTitle, labelForTitle) ??
+      '제목을 입력해주세요'
+    )
+  }, [
+    categoryChips,
+    categoryLabel,
+    eventQuery.data?.category?.label,
+    eventQuery.data?.persons,
+    selectedPersons,
+  ])
 
   const greeting = useMemo(() => {
     if (isEditing) {
@@ -203,7 +235,41 @@ function RecordPage() {
     }
   }
 
-  const navigateAfterSave = (personId?: number) => {
+  const navigateAfterSave = (fallbackPersonId?: number) => {
+    if (returnTo === 'event-detail' && isEditing && editingEventId) {
+      void navigate({
+        to: '/events/$eventId',
+        params: { eventId: String(editingEventId) },
+        search: eventDetailSearch({
+          returnTo: detailReturnTo,
+          returnPersonId: detailReturnPersonId,
+        }),
+      })
+      return
+    }
+    if (returnTo === 'timeline') {
+      void navigate({ to: '/timeline' })
+      return
+    }
+    if (returnTo === 'person-timeline' && returnPersonId) {
+      void navigate({
+        to: '/people/$personId/timeline',
+        params: { personId: String(returnPersonId) },
+      })
+      return
+    }
+    if (returnTo === 'person-profile' && returnPersonId) {
+      void navigate({
+        to: '/people/$personId',
+        params: { personId: String(returnPersonId) },
+      })
+      return
+    }
+    if (returnTo === 'home') {
+      void navigate({ to: '/' })
+      return
+    }
+    const personId = fallbackPersonId ?? presetPersonId
     if (personId) {
       void navigate({
         to: '/people/$personId/timeline',
@@ -232,7 +298,7 @@ function RecordPage() {
     memo: memo.trim() || null,
     occurredDate,
     occurredTime: formatOccurredTimeForApi(occurredTime),
-    categoryChipId: categoryChipId ?? categoryChips.at(0)?.id ?? null,
+    categoryChipId: effectiveCategoryChipId,
     weatherChipId: null,
     emotionChipIds: [],
     personIds: selectedPersonIds,
@@ -262,17 +328,28 @@ function RecordPage() {
     saveMutation.mutate(buildPayload())
   }
 
-  const handlePhotoPick = async (file: File | null) => {
-    if (!file) return
-    if (photoUrls.length >= 5) {
+  const handlePhotoPick = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+
+    const remaining = 5 - photoUrls.length
+    if (remaining <= 0) {
       setFormError('사진은 최대 5장까지 넣을 수 있어요.')
       return
     }
+
+    const picked = Array.from(files).slice(0, remaining)
+    if (files.length > remaining) {
+      setFormError('사진은 최대 5장까지 넣을 수 있어요.')
+    } else {
+      setFormError(null)
+    }
+
     setUploadingPhoto(true)
-    setFormError(null)
     try {
-      const { url } = await uploadImage(file)
-      setPhotoUrls((prev) => [...prev, url])
+      const uploaded = await Promise.all(
+        picked.map((file) => uploadImage(file).then((result) => result.url)),
+      )
+      setPhotoUrls((prev) => [...prev, ...uploaded].slice(0, 5))
     } catch {
       setFormError('사진을 올리지 못했어요. 잠시 후 다시 시도해 주세요.')
     } finally {
@@ -282,9 +359,39 @@ function RecordPage() {
 
   const pageTitle = isEditing ? '몽글 수정' : '새 몽글'
   const isLoading = isEditing && eventQuery.isPending
+  const recordBack =
+    isEditing && returnTo === 'event-detail' && editingEventId
+      ? {
+          to: '/events/$eventId' as const,
+          params: { eventId: String(editingEventId) },
+          search: eventDetailSearch({
+            returnTo: detailReturnTo,
+            returnPersonId: detailReturnPersonId,
+          }),
+        }
+      : returnTo === 'timeline'
+        ? { to: '/timeline' as const }
+        : returnTo === 'person-timeline' && returnPersonId
+          ? {
+              to: '/people/$personId/timeline' as const,
+              params: { personId: String(returnPersonId) },
+            }
+          : returnTo === 'person-profile' && returnPersonId
+            ? {
+                to: '/people/$personId' as const,
+                params: { personId: String(returnPersonId) },
+              }
+            : returnTo === 'home'
+              ? { to: '/' as const }
+              : presetPersonId
+                ? {
+                    to: '/people/$personId/timeline' as const,
+                    params: { personId: String(presetPersonId) },
+                  }
+                : { to: '/timeline' as const }
   const recordHeader = (
     <FormPageHeader
-      back={{ to: '/' }}
+      back={recordBack}
       title={pageTitle}
       onSave={handleSave}
       saving={saveMutation.isPending}
@@ -371,13 +478,6 @@ function RecordPage() {
               <p className="text-xs font-extrabold text-muted-foreground">
                 함께한 사람
               </p>
-              <button
-                type="button"
-                onClick={() => openPersonModal()}
-                className="text-xs font-extrabold text-primary"
-              >
-                {selectedPersonIds.length > 0 ? '변경' : '선택'}
-              </button>
             </div>
             {selectedPersons.length > 0 ? (
               <button
@@ -423,7 +523,11 @@ function RecordPage() {
           <ChipSection title="만남 태그">
             <ToggleGroup
               type="single"
-              value={categoryChipId ? String(categoryChipId) : undefined}
+              value={
+                effectiveCategoryChipId
+                  ? String(effectiveCategoryChipId)
+                  : undefined
+              }
               onValueChange={(v) => setCategoryChipId(v ? Number(v) : null)}
               className="flex flex-wrap justify-start gap-2"
             >
@@ -452,7 +556,7 @@ function RecordPage() {
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={40}
                 className="border-0 bg-transparent text-xs shadow-none placeholder:text-xs focus-visible:ring-0 md:text-xs"
-                placeholder="제목을 입력해주세요"
+                placeholder={titlePlaceholder}
               />
               {categoryLabel ? (
                 <Badge variant="secondary">{categoryLabel}</Badge>
@@ -468,7 +572,7 @@ function RecordPage() {
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               maxLength={200}
-              placeholder="오늘 함께한 이야기를 적어주세요"
+              placeholder="오늘 함께한 이야기를 적어주세요 (최대 200자)"
               className="min-h-24 resize-none text-xs placeholder:text-xs md:text-xs"
             />
           </section>
@@ -495,15 +599,16 @@ function RecordPage() {
 
           <section>
             <p className="mb-2 text-xs font-extrabold text-muted-foreground">
-              사진
+              사진 ({photoUrls.length}/5)
             </p>
             <input
               ref={photoInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp,image/heic"
+              multiple
               className="hidden"
               onChange={(e) => {
-                void handlePhotoPick(e.target.files?.[0] ?? null)
+                void handlePhotoPick(e.target.files)
                 e.target.value = ''
               }}
             />

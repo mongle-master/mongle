@@ -25,6 +25,7 @@ import {
   formatDaysSinceFirstMet,
 } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
+import { recordSearch, eventDetailSearch } from '@/lib/record-navigation'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/people/$personId/')({
@@ -231,7 +232,7 @@ function PersonProfilePage() {
                     withDivider={index < recentEvents.length - 1}
                     className="py-3"
                   >
-                    <RecentEventRow event={event} />
+                    <RecentEventRow event={event} personId={id} />
                   </ListGroupItem>
                 ))}
               </ListGroup>
@@ -268,7 +269,7 @@ function PersonProfilePage() {
               <ListGroupItem className="py-0">
                 <Link
                   to="/record"
-                  search={{ personId: id, eventId: undefined }}
+                  search={recordSearch({ personId: id })}
                   className="flex items-center justify-between py-3.5 text-[15px] font-extrabold text-foreground transition-colors active:opacity-70"
                 >
                   상황 기록 작성
@@ -293,14 +294,24 @@ function PersonProfilePage() {
   )
 }
 
-function RecentEventRow({ event }: { event: EventResponse }) {
+function RecentEventRow({
+  event,
+  personId,
+}: {
+  event: EventResponse
+  personId: number
+}) {
   const photoSrc = mediaUrl(event.photoUrls[0])
   const summary = event.memo
 
   return (
     <Link
-      to="/record"
-      search={{ eventId: event.id, personId: undefined }}
+      to="/events/$eventId"
+      params={{ eventId: String(event.id) }}
+      search={eventDetailSearch({
+        returnTo: 'person-profile',
+        returnPersonId: personId,
+      })}
       className="flex min-w-0 items-center gap-3 transition-colors active:opacity-70"
     >
       <div className="min-w-0 flex-1">

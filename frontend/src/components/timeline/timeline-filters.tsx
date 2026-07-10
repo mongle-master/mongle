@@ -29,8 +29,8 @@ function PersonFilterAvatar({
     <Avatar
       size="sm"
       className={cn(
-        'size-5 bg-muted after:border-0',
-        selected && 'bg-primary/15',
+        'size-5 shrink-0 after:border-0',
+        selected ? 'bg-background ring-2 ring-background' : 'bg-muted',
       )}
     >
       {src ? <AvatarImage src={src} alt={person.name} /> : null}
@@ -38,7 +38,7 @@ function PersonFilterAvatar({
         className={cn(
           'text-[11px] font-extrabold',
           selected
-            ? 'bg-primary/15 text-primary'
+            ? 'bg-background text-foreground'
             : 'bg-muted text-muted-foreground',
         )}
       >

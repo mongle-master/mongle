@@ -1,28 +1,51 @@
 import { useMemo, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import {
   ACTIVITY_FLOW_PERIOD_OPTIONS,
-  buildRecordActivityFlow,
+  buildPersonActivityFlow,
 } from '@/lib/timeline-activity-flow'
-import type { ActivityFlowPeriod } from '@/lib/timeline-activity-flow'
+import type {
+  ActivityFlowPeriod,
+  ActivityFlowRecord,
+  ActivityFlowSelection,
+} from '@/lib/timeline-activity-flow'
+import type { PersonImageGender } from '@/lib/default-person-image'
 import { cn } from '@/lib/utils'
 
+const LANE_LABEL_WIDTH = 'w-24'
+const AXIS_LABEL_OFFSET = 'ml-26'
+
+type ActivityFlowPerson = {
+  id: number
+  name: string
+  profileImageUrl?: string | null
+  gender?: PersonImageGender
+}
+
 export function ActivityFlowChart({
-  dates,
-  selectedMonth,
-  onSelectMonth,
+  persons,
+  records,
+  selectedPoint,
+  onSelectPoint,
 }: {
-  /** 기록 발생일 YYYY-MM-DD. 각 날짜가 시간축 실제 위치에 점으로 찍힌다. */
-  dates: Array<string | null | undefined>
-  selectedMonth?: string | null
-  onSelectMonth?: (month: string | null) => void
+  /** Y축에 표시할 등록된 사람 목록 */
+  persons: ActivityFlowPerson[]
+  /** 사람별 기록 날짜 */
+  records: ActivityFlowRecord[]
+  selectedPoint?: ActivityFlowSelection | null
+  onSelectPoint?: (point: ActivityFlowSelection | null) => void
 }) {
   const [period, setPeriod] = useState<ActivityFlowPeriod>('1Y')
   const [menuOpen, setMenuOpen] = useState(false)
 
   const flow = useMemo(
-    () => buildRecordActivityFlow(dates, period),
-    [dates, period],
+    () => buildPersonActivityFlow(persons, records, period),
+    [persons, records, period],
+  )
+  const personById = useMemo(
+    () => new Map(persons.map((person) => [person.id, person])),
+    [persons],
   )
 
   if (!flow) return null
@@ -46,9 +69,6 @@ export function ActivityFlowChart({
         <div className="relative mb-1 flex items-start justify-between gap-2">
           <div>
             <p className="text-sm font-extrabold">활동 흐름</p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
-              기록한 날짜에 점이 찍혀요 · 점을 눌러 그날만 보기
-            </p>
           </div>
 
           <div className="relative shrink-0">
@@ -81,7 +101,7 @@ export function ActivityFlowChart({
                       onClick={() => {
                         setPeriod(option.value)
                         setMenuOpen(false)
-                        onSelectMonth?.(null)
+                        onSelectPoint?.(null)
                       }}
                       className={cn(
                         'flex w-full px-3 py-1.5 text-left text-[11px] font-bold',
@@ -105,37 +125,73 @@ export function ActivityFlowChart({
           </p>
         ) : null}
 
-        <div className="mt-4 flex items-center gap-2">
-          <span className="w-9 shrink-0 text-[11px] font-extrabold text-muted-foreground">
-            기록
-          </span>
-          <div className="relative h-7 flex-1">
-            <div className="absolute top-1/2 right-0 left-0 h-1 -translate-y-1/2 rounded-full bg-muted-foreground/35" />
-            {flow.points.map((point) => {
-              const isSelected = selectedMonth === point.monthKey
-              return (
-                <button
-                  key={point.id}
-                  type="button"
-                  disabled={!onSelectMonth}
-                  onClick={() =>
-                    onSelectMonth?.(isSelected ? null : point.monthKey)
-                  }
-                  style={{ left: `${point.position * 100}%` }}
-                  title={point.date}
+        <div className="mt-4 space-y-1">
+          {flow.lanes.map((lane, laneIndex) => {
+            const person = personById.get(lane.personId)
+            return (
+              <div key={lane.personId} className="flex items-center gap-2">
+                <div
                   className={cn(
-                    'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground shadow-[0_0_0_4px_rgba(0,0,0,0.04)] transition-transform hover:scale-125',
-                    isSelected &&
-                      'size-4 ring-2 ring-foreground ring-offset-2 ring-offset-card',
+                    LANE_LABEL_WIDTH,
+                    'flex min-w-0 shrink-0 items-center gap-1.5',
                   )}
-                  aria-label={`${point.date} 기록`}
-                />
-              )
-            })}
-          </div>
+                  title={lane.label}
+                >
+                  <MonogramAvatar
+                    name={lane.label}
+                    imageUrl={person?.profileImageUrl}
+                    gender={person?.gender}
+                    personId={lane.personId}
+                    className="size-5"
+                  />
+                  <span className="min-w-0 flex-1 truncate text-[11px] font-extrabold text-muted-foreground">
+                    {lane.label}
+                  </span>
+                </div>
+                <div className="relative h-7 flex-1">
+                  <div className="absolute top-1/2 right-0 left-0 h-px -translate-y-1/2 rounded-full bg-muted-foreground/10" />
+                  {lane.points.map((point, pointIndex) => {
+                    const isSelected =
+                      selectedPoint?.personId === lane.personId &&
+                      selectedPoint.date === point.date
+                    const bloomDelayMs = Math.min(
+                      laneIndex * 28 + pointIndex * 22,
+                      480,
+                    )
+                    return (
+                      <button
+                        key={point.id}
+                        type="button"
+                        disabled={!onSelectPoint}
+                        onClick={() =>
+                          onSelectPoint?.(
+                            isSelected
+                              ? null
+                              : { personId: lane.personId, date: point.date },
+                          )
+                        }
+                        style={{
+                          left: `${point.position * 100}%`,
+                          animationDelay: `${bloomDelayMs}ms`,
+                        }}
+                        title={point.date}
+                        className={cn(
+                          'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground shadow-[0_0_0_4px_rgba(0,0,0,0.04)] transition-transform hover:scale-125',
+                          'motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-50 motion-safe:fill-mode-backwards motion-safe:duration-300 motion-safe:ease-out',
+                          isSelected &&
+                            'size-4 ring-2 ring-foreground ring-offset-2 ring-offset-card',
+                        )}
+                        aria-label={`${lane.label} ${point.date} 기록`}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
         </div>
 
-        <div className="relative mt-1 ml-11 h-4">
+        <div className={cn('relative mt-1 h-4', AXIS_LABEL_OFFSET)}>
           {flow.axisLabels.map((label) => (
             <span
               key={`${label.text}-${label.position}`}

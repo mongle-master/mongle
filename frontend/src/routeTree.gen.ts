@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PeopleIndexRouteImport } from './routes/people/index'
 import { Route as PeopleNewRouteImport } from './routes/people/new'
 import { Route as PeoplePersonIdRouteImport } from './routes/people/$personId'
+import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 import { Route as PeoplePersonIdIndexRouteImport } from './routes/people/$personId.index'
 import { Route as PeoplePersonIdTimelineRouteImport } from './routes/people/$personId.timeline'
 import { Route as PeoplePersonIdEditRouteImport } from './routes/people/$personId.edit'
@@ -55,6 +56,11 @@ const PeoplePersonIdRoute = PeoplePersonIdRouteImport.update({
   path: '/people/$personId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsEventIdRoute = EventsEventIdRouteImport.update({
+  id: '/events/$eventId',
+  path: '/events/$eventId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PeoplePersonIdIndexRoute = PeoplePersonIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/record': typeof RecordRoute
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
+  '/events/$eventId': typeof EventsEventIdRoute
   '/people/$personId': typeof PeoplePersonIdRouteWithChildren
   '/people/new': typeof PeopleNewRoute
   '/people/': typeof PeopleIndexRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/record': typeof RecordRoute
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
+  '/events/$eventId': typeof EventsEventIdRoute
   '/people/new': typeof PeopleNewRoute
   '/people': typeof PeopleIndexRoute
   '/people/$personId/edit': typeof PeoplePersonIdEditRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/record': typeof RecordRoute
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
+  '/events/$eventId': typeof EventsEventIdRoute
   '/people/$personId': typeof PeoplePersonIdRouteWithChildren
   '/people/new': typeof PeopleNewRoute
   '/people/': typeof PeopleIndexRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/record'
     | '/settings'
     | '/timeline'
+    | '/events/$eventId'
     | '/people/$personId'
     | '/people/new'
     | '/people/'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/record'
     | '/settings'
     | '/timeline'
+    | '/events/$eventId'
     | '/people/new'
     | '/people'
     | '/people/$personId/edit'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/record'
     | '/settings'
     | '/timeline'
+    | '/events/$eventId'
     | '/people/$personId'
     | '/people/new'
     | '/people/'
@@ -150,6 +162,7 @@ export interface RootRouteChildren {
   RecordRoute: typeof RecordRoute
   SettingsRoute: typeof SettingsRoute
   TimelineRoute: typeof TimelineRoute
+  EventsEventIdRoute: typeof EventsEventIdRoute
   PeoplePersonIdRoute: typeof PeoplePersonIdRouteWithChildren
   PeopleNewRoute: typeof PeopleNewRoute
   PeopleIndexRoute: typeof PeopleIndexRoute
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PeoplePersonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/$eventId': {
+      id: '/events/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/events/$eventId'
+      preLoaderRoute: typeof EventsEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/people/$personId/': {
       id: '/people/$personId/'
       path: '/'
@@ -251,6 +271,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecordRoute: RecordRoute,
   SettingsRoute: SettingsRoute,
   TimelineRoute: TimelineRoute,
+  EventsEventIdRoute: EventsEventIdRoute,
   PeoplePersonIdRoute: PeoplePersonIdRouteWithChildren,
   PeopleNewRoute: PeopleNewRoute,
   PeopleIndexRoute: PeopleIndexRoute,

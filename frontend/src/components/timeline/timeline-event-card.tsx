@@ -9,7 +9,8 @@ import type {
   TimelinePerson,
 } from '@/lib/api/types'
 import { mediaUrl } from '@/lib/api/client'
-import { formatWhen } from '@/lib/format'
+import type { EventDetailReturnTo } from '@/lib/record-navigation'
+import { eventDetailSearch } from '@/lib/record-navigation'
 
 export type TimelineEventCardItem = {
   id: number
@@ -83,15 +84,27 @@ function TimelinePhotoPreview({ photoUrls }: { photoUrls: string[] }) {
   )
 }
 
-export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
-  const when = formatWhen(item.occurredDate, item.occurredTime)
+export function TimelineEventCard({
+  item,
+  returnTo,
+  returnPersonId,
+}: {
+  item: TimelineEventCardItem
+  returnTo?: EventDetailReturnTo
+  returnPersonId?: number
+}) {
   const persons = item.persons ?? []
   const photoUrls = item.photoUrls ?? []
+  const memo = item.memo?.trim() ?? ''
 
   return (
     <Link
-      to="/record"
-      search={{ eventId: item.id, personId: undefined }}
+      to="/events/$eventId"
+      params={{ eventId: String(item.id) }}
+      search={eventDetailSearch({
+        returnTo,
+        returnPersonId,
+      })}
       className="block min-w-0 flex-1"
     >
       <Card className="relative overflow-hidden py-0 shadow-[0_10px_30px_rgba(0,0,0,0.045)] transition-all hover:-translate-y-0.5 hover:bg-muted/20 hover:shadow-[0_14px_36px_rgba(0,0,0,0.07)]">
@@ -124,6 +137,11 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
                 </span>
               </div>
             ) : null}
+            {memo ? (
+              <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
+                {memo}
+              </p>
+            ) : null}
             {item.emotions && item.emotions.length > 0 ? (
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {item.emotions.map((emotion) => (
@@ -133,22 +151,6 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
                 ))}
               </div>
             ) : null}
-            <div className="mt-3 space-y-1.5 text-[12px] leading-relaxed">
-              <p>
-                <span className="mr-2 font-extrabold text-muted-foreground">
-                  언제
-                </span>
-                {when}
-              </p>
-              {item.memo ? (
-                <p>
-                  <span className="mr-2 font-extrabold text-muted-foreground">
-                    메모
-                  </span>
-                  {item.memo}
-                </p>
-              ) : null}
-            </div>
           </div>
           {photoUrls.length > 0 ? (
             <TimelinePhotoPreview photoUrls={photoUrls} />

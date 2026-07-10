@@ -16,10 +16,27 @@ export type ActivityFlowPoint = {
   id: string
   /** YYYY-MM-DD */
   date: string
-  /** YYYY-MM — 리스트 월 필터용 */
+  /** YYYY-MM */
   monthKey: string
   /** 0~1 축상 위치 (실제 날짜 비율) */
   position: number
+}
+
+/** 활동 흐름 점 선택 — 해당 사람의 해당 날짜 기록만 리스트에 표시 */
+export type ActivityFlowSelection = {
+  personId: number
+  date: string
+}
+
+export function matchesActivityFlowSelection(
+  occurredDate: string,
+  personIds: number[],
+  selection: ActivityFlowSelection | null,
+) {
+  if (!selection) return true
+  return (
+    occurredDate === selection.date && personIds.includes(selection.personId)
+  )
 }
 
 export type ActivityFlowAxisLabel = {
@@ -27,10 +44,23 @@ export type ActivityFlowAxisLabel = {
   position: number
 }
 
+export type ActivityFlowRecord = {
+  id: string
+  /** YYYY-MM-DD */
+  date: string
+  personId: number
+}
+
+export type ActivityFlowPersonLane = {
+  personId: number
+  label: string
+  points: ActivityFlowPoint[]
+}
+
 export type ActivityFlowModel = {
   period: ActivityFlowPeriod
   axisMode: 'month' | 'year'
-  points: ActivityFlowPoint[]
+  lanes: ActivityFlowPersonLane[]
   axisLabels: ActivityFlowAxisLabel[]
   hasAnyActivity: boolean
   quietMessage: string | null
@@ -134,23 +164,36 @@ function buildYearAxisLabels(start: Date, end: Date) {
   return labels
 }
 
+export function flowRecordsFromTimelineCards(
+  cards: TimelineCard[],
+): ActivityFlowRecord[] {
+  return cards.flatMap((card) =>
+    card.persons.map((person) => ({
+      id: `${card.id}-${person.id}`,
+      date: card.occurredDate,
+      personId: person.id,
+    })),
+  )
+}
+
 /**
- * 기록 실제 날짜(YYYY-MM-DD)를 연속 시간축에 비율로 찍는다.
- * 월 on/off 슬롯이 아니라, 만난 날짜 위치에 점이 분포한다.
+ * 등록된 사람별 레인에 기록 날짜(YYYY-MM-DD)를 연속 시간축 비율로 찍는다.
  */
-export function buildRecordActivityFlow(
-  dates: Array<string | null | undefined>,
+export function buildPersonActivityFlow(
+  persons: Array<{ id: number; name: string }>,
+  records: ActivityFlowRecord[],
   period: ActivityFlowPeriod = '1Y',
   now = new Date(),
 ): ActivityFlowModel | null {
-  const parsed = dates
-    .map((raw, index) => {
-      if (!raw) return null
-      const date = parseIsoDate(raw)
+  if (persons.length === 0) return null
+
+  const parsed = records
+    .map((record) => {
+      const date = parseIsoDate(record.date)
       if (!date) return null
-      return { raw: raw.slice(0, 10), date, index }
+      return { ...record, date }
     })
-    .filter((v): v is { raw: string; date: Date; index: number } => v !== null)
+    .filter((v): v is ActivityFlowRecord & { date: Date } => v !== null)
 
   const window = resolveWindow(
     period,
@@ -159,25 +202,38 @@ export function buildRecordActivityFlow(
   )
   if (!window) return null
 
-  const inWindow = parsed.filter(
+  const hasAnyActivity = parsed.some(
     (p) => p.date >= window.start && p.date <= window.end,
   )
-  const hasAnyActivity = inWindow.length > 0
   const axisMode = period === '1Y' ? 'month' : 'year'
 
-  const points = inWindow
-    .map((p) => ({
-      id: `${p.raw}-${p.index}`,
-      date: formatIso(p.date),
-      monthKey: monthKeyOf(p.date),
-      position: positionOf(p.date, window.start, window.end),
-    }))
-    .sort((a, b) => a.position - b.position || a.date.localeCompare(b.date))
+  const lanes = persons.map((person) => {
+    const points = parsed
+      .filter(
+        (p) =>
+          p.personId === person.id &&
+          p.date >= window.start &&
+          p.date <= window.end,
+      )
+      .map((p) => ({
+        id: p.id,
+        date: formatIso(p.date),
+        monthKey: monthKeyOf(p.date),
+        position: positionOf(p.date, window.start, window.end),
+      }))
+      .sort((a, b) => a.position - b.position || a.date.localeCompare(b.date))
+
+    return {
+      personId: person.id,
+      label: person.name,
+      points,
+    }
+  })
 
   return {
     period,
     axisMode,
-    points,
+    lanes,
     axisLabels:
       axisMode === 'month'
         ? buildMonthAxisLabels(window.start, window.end)

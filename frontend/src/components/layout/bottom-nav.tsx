@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Clock, Home, Plus, Settings, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { recordSearch } from '@/lib/record-navigation'
 
 type TabItem =
   | { kind: 'link'; to: string; label: string; icon: typeof Home }
@@ -24,7 +25,7 @@ export function BottomNav({ activePath }: { activePath: string }) {
               <Link
                 key="record"
                 to="/record"
-                search={{ personId: undefined, eventId: undefined }}
+                search={recordSearch({})}
                 className="-mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
               >
                 <Plus className="size-6" />
