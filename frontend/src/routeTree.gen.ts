@@ -13,7 +13,9 @@ import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RecordRouteImport } from './routes/record'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StackIndexRouteImport } from './routes/stack.index'
 import { Route as PeopleIndexRouteImport } from './routes/people/index'
+import { Route as StackSplatRouteImport } from './routes/stack.$'
 import { Route as PeopleNewRouteImport } from './routes/people/new'
 import { Route as PeoplePersonIdRouteImport } from './routes/people/$personId'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
@@ -41,9 +43,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StackIndexRoute = StackIndexRouteImport.update({
+  id: '/stack/',
+  path: '/stack/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PeopleIndexRoute = PeopleIndexRouteImport.update({
   id: '/people/',
   path: '/people/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StackSplatRoute = StackSplatRouteImport.update({
+  id: '/stack/$',
+  path: '/stack/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PeopleNewRoute = PeopleNewRouteImport.update({
@@ -85,7 +97,9 @@ export interface FileRoutesByFullPath {
   '/events/$eventId': typeof EventsEventIdRoute
   '/people/$personId': typeof PeoplePersonIdRouteWithChildren
   '/people/new': typeof PeopleNewRoute
+  '/stack/$': typeof StackSplatRoute
   '/people/': typeof PeopleIndexRoute
+  '/stack/': typeof StackIndexRoute
   '/people/$personId/edit': typeof PeoplePersonIdEditRoute
   '/people/$personId/timeline': typeof PeoplePersonIdTimelineRoute
   '/people/$personId/': typeof PeoplePersonIdIndexRoute
@@ -97,7 +111,9 @@ export interface FileRoutesByTo {
   '/timeline': typeof TimelineRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/people/new': typeof PeopleNewRoute
+  '/stack/$': typeof StackSplatRoute
   '/people': typeof PeopleIndexRoute
+  '/stack': typeof StackIndexRoute
   '/people/$personId/edit': typeof PeoplePersonIdEditRoute
   '/people/$personId/timeline': typeof PeoplePersonIdTimelineRoute
   '/people/$personId': typeof PeoplePersonIdIndexRoute
@@ -111,7 +127,9 @@ export interface FileRoutesById {
   '/events/$eventId': typeof EventsEventIdRoute
   '/people/$personId': typeof PeoplePersonIdRouteWithChildren
   '/people/new': typeof PeopleNewRoute
+  '/stack/$': typeof StackSplatRoute
   '/people/': typeof PeopleIndexRoute
+  '/stack/': typeof StackIndexRoute
   '/people/$personId/edit': typeof PeoplePersonIdEditRoute
   '/people/$personId/timeline': typeof PeoplePersonIdTimelineRoute
   '/people/$personId/': typeof PeoplePersonIdIndexRoute
@@ -126,7 +144,9 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/people/$personId'
     | '/people/new'
+    | '/stack/$'
     | '/people/'
+    | '/stack/'
     | '/people/$personId/edit'
     | '/people/$personId/timeline'
     | '/people/$personId/'
@@ -138,7 +158,9 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/events/$eventId'
     | '/people/new'
+    | '/stack/$'
     | '/people'
+    | '/stack'
     | '/people/$personId/edit'
     | '/people/$personId/timeline'
     | '/people/$personId'
@@ -151,7 +173,9 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/people/$personId'
     | '/people/new'
+    | '/stack/$'
     | '/people/'
+    | '/stack/'
     | '/people/$personId/edit'
     | '/people/$personId/timeline'
     | '/people/$personId/'
@@ -165,7 +189,9 @@ export interface RootRouteChildren {
   EventsEventIdRoute: typeof EventsEventIdRoute
   PeoplePersonIdRoute: typeof PeoplePersonIdRouteWithChildren
   PeopleNewRoute: typeof PeopleNewRoute
+  StackSplatRoute: typeof StackSplatRoute
   PeopleIndexRoute: typeof PeopleIndexRoute
+  StackIndexRoute: typeof StackIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -198,11 +224,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stack/': {
+      id: '/stack/'
+      path: '/stack'
+      fullPath: '/stack/'
+      preLoaderRoute: typeof StackIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/people/': {
       id: '/people/'
       path: '/people'
       fullPath: '/people/'
       preLoaderRoute: typeof PeopleIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stack/$': {
+      id: '/stack/$'
+      path: '/stack/$'
+      fullPath: '/stack/$'
+      preLoaderRoute: typeof StackSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/people/new': {
@@ -274,7 +314,9 @@ const rootRouteChildren: RootRouteChildren = {
   EventsEventIdRoute: EventsEventIdRoute,
   PeoplePersonIdRoute: PeoplePersonIdRouteWithChildren,
   PeopleNewRoute: PeopleNewRoute,
+  StackSplatRoute: StackSplatRoute,
   PeopleIndexRoute: PeopleIndexRoute,
+  StackIndexRoute: StackIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
