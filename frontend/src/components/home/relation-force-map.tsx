@@ -34,6 +34,7 @@ const PERSON_NODE_SIZE = 56
 const MIN_ZOOM = 0.78
 const MAX_ZOOM = 2.2
 const ZOOM_STEP = 0.18
+const MIN_ZOOMED_OUT_NODE_SCALE = 0.9
 const ORBIT_CENTER = { x: 50, y: 50 }
 const CATEGORY_COLORS = ['#2f6eea', '#28b945', '#ff8a00', '#e11d48']
 const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i
@@ -348,6 +349,7 @@ export function RelationForceMap({
               meLabel={me.label}
               people={animatedOrbitPeople}
               detailLevel={nodeDetailLevel}
+              viewportScale={viewport.scale}
               onPersonClick={openPersonTimeline}
             />
           ) : null}
@@ -356,6 +358,7 @@ export function RelationForceMap({
               people={clusterPeople}
               categories={categories}
               detailLevel={nodeDetailLevel}
+              viewportScale={viewport.scale}
               onPersonClick={openPersonTimeline}
             />
           ) : null}
@@ -363,6 +366,7 @@ export function RelationForceMap({
             <RecentFlowGraph
               people={flowPeople}
               detailLevel={nodeDetailLevel}
+              viewportScale={viewport.scale}
               onPersonClick={openPersonTimeline}
             />
           ) : null}
@@ -394,11 +398,13 @@ function OrbitGraph({
   meLabel,
   people,
   detailLevel,
+  viewportScale,
   onPersonClick,
 }: {
   meLabel: string
   people: GraphPerson[]
   detailLevel: NodeDetailLevel
+  viewportScale: number
   onPersonClick: (personId: number) => void
 }) {
   return (
@@ -414,6 +420,7 @@ function OrbitGraph({
           key={person.id}
           person={person}
           detailLevel={detailLevel}
+          viewportScale={viewportScale}
           onClick={() => onPersonClick(person.id)}
         />
       ))}
@@ -425,11 +432,13 @@ function CategoryClusterGraph({
   people,
   categories,
   detailLevel,
+  viewportScale,
   onPersonClick,
 }: {
   people: GraphPerson[]
   categories: CategoryMeta[]
   detailLevel: NodeDetailLevel
+  viewportScale: number
   onPersonClick: (personId: number) => void
 }) {
   return (
@@ -485,6 +494,7 @@ function CategoryClusterGraph({
           key={person.id}
           person={person}
           detailLevel={detailLevel}
+          viewportScale={viewportScale}
           onClick={() => onPersonClick(person.id)}
         />
       ))}
@@ -495,10 +505,12 @@ function CategoryClusterGraph({
 function RecentFlowGraph({
   people,
   detailLevel,
+  viewportScale,
   onPersonClick,
 }: {
   people: GraphPerson[]
   detailLevel: NodeDetailLevel
+  viewportScale: number
   onPersonClick: (personId: number) => void
 }) {
   const path = flowPathForPeople(people)
@@ -531,6 +543,7 @@ function RecentFlowGraph({
           key={person.id}
           person={person}
           detailLevel={detailLevel}
+          viewportScale={viewportScale}
           onClick={() => onPersonClick(person.id)}
         />
       ))}
@@ -622,13 +635,15 @@ function OrbitBackground() {
 function PersonNode({
   person,
   detailLevel,
+  viewportScale,
   onClick,
 }: {
   person: GraphPerson
   detailLevel: NodeDetailLevel
+  viewportScale: number
   onClick: () => void
 }) {
-  const nodeSize = clampPersonNodeSize(person.size)
+  const nodeSize = scaledPersonNodeSize(person.size, viewportScale)
   const showText = detailLevel !== 'compact'
   const showLastMeet = detailLevel === 'expanded'
   const displayName = formatPersonName(person)
@@ -909,9 +924,24 @@ function clampPersonNodeSize(size: number) {
   return Math.min(62, Math.max(52, Math.round(size)))
 }
 
+function scaledPersonNodeSize(size: number, viewportScale: number) {
+  const baseSize = clampPersonNodeSize(size)
+  if (!Number.isFinite(viewportScale) || viewportScale >= 1) return baseSize
+
+  const zoomProgress = (1 - viewportScale) / (1 - MIN_ZOOM)
+  const scale = 1 - clamp01(zoomProgress) * (1 - MIN_ZOOMED_OUT_NODE_SCALE)
+  return Math.round(baseSize * scale)
+}
+
 function clampZoom(scale: number) {
   if (!Number.isFinite(scale)) return 1
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale))
+}
+
+function clamp01(value: number) {
+  if (value < 0) return 0
+  if (value > 1) return 1
+  return value
 }
 
 function clampPan(value: number) {
