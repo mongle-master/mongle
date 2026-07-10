@@ -79,7 +79,6 @@ function RecordPage() {
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [formError, setFormError] = useState<string | null>(null)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
-  const [savedLocally, setSavedLocally] = useState(false)
 
   const chipsQuery = useQuery({
     queryKey: queryKeys.chips,
@@ -279,9 +278,13 @@ function RecordPage() {
       await invalidateAfterSave()
       navigateAfterSave(event.persons[0]?.id)
     },
-    onError: () => {
-      setSavedLocally(true)
-      navigateAfterSave(selectedPersonIds[0])
+    // 실패를 성공처럼 보이면 기록이 조용히 유실된다 — 에러를 보여주고 입력을 보존한다(mustpass §5).
+    onError: (error) => {
+      setFormError(
+        error instanceof Error && error.name === 'DummyModeError'
+          ? error.message
+          : '저장에 실패했어요. 잠시 후 다시 시도해 주세요.',
+      )
     },
   })
 
@@ -314,7 +317,6 @@ function RecordPage() {
       return
     }
 
-    setSavedLocally(false)
     setPersonSelectError(false)
     setFormError(null)
     saveMutation.mutate(buildPayload())
@@ -653,12 +655,6 @@ function RecordPage() {
 
           {formError ? (
             <p className="text-center text-xs text-destructive">{formError}</p>
-          ) : null}
-
-          {savedLocally ? (
-            <p className="text-center text-xs text-muted-foreground">
-              서버에 저장하지 못했지만 기록 화면은 열어둘게요.
-            </p>
           ) : null}
         </div>
       </div>
