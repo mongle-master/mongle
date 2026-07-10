@@ -5,10 +5,11 @@ import { AppShell } from '@/components/layout/app-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
 import { PersonForm, personToFormValues } from '@/components/person/person-form'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
-import { createChip, fetchChips } from '@/lib/api/chips'
+import { fetchChips } from '@/lib/api/chips'
 import { deletePerson, fetchPerson, updatePerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import { FALLBACK_CHIPS, fallbackPersonDetail } from '@/lib/fallback-data'
+import { formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 
 const PERSON_FORM_ID = 'person-form'
@@ -63,12 +64,6 @@ function EditPersonPage() {
     },
   })
 
-  const createTagMutation = useMutation({
-    mutationFn: (label: string) => createChip('RELATION_TAG', label),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.chips }),
-  })
-
   const handleDelete = () => {
     setDeleteOpen(true)
   }
@@ -97,7 +92,7 @@ function EditPersonPage() {
 
       <div className="min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
         <p className="mb-6 text-xs text-muted-foreground">
-          {person.name}님의 정보를 수정해요
+          {formatPersonName(person)}님의 정보를 수정해요
         </p>
 
         <PersonForm
@@ -108,14 +103,6 @@ function EditPersonPage() {
           relationTags={relationTags}
           submitLabel="저장하기"
           pending={updateMutation.isPending || deleteMutation.isPending}
-          onCreateRelationTag={async (label) => {
-            try {
-              const chip = await createTagMutation.mutateAsync(label)
-              return chip.id
-            } catch {
-              return null
-            }
-          }}
           onSubmit={(request) => updateMutation.mutate(request)}
           onDelete={handleDelete}
         />

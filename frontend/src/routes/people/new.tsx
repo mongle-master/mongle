@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AppShell } from '@/components/layout/app-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
 import { PersonForm, personToFormValues } from '@/components/person/person-form'
-import { createChip, fetchChips } from '@/lib/api/chips'
+import { fetchChips } from '@/lib/api/chips'
 import { createPerson } from '@/lib/api/persons'
 import { safeApi } from '@/lib/api/safe'
 import { FALLBACK_CHIPS } from '@/lib/fallback-data'
@@ -39,12 +39,6 @@ function NewPersonPage() {
     },
   })
 
-  const createTagMutation = useMutation({
-    mutationFn: (label: string) => createChip('RELATION_TAG', label),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.chips }),
-  })
-
   const handleSave = () => {
     ;(
       document.getElementById(PERSON_FORM_ID) as HTMLFormElement | null
@@ -76,14 +70,6 @@ function NewPersonPage() {
           requireFirstMetYear
           submitLabel="등록하기"
           pending={createMutation.isPending}
-          onCreateRelationTag={async (label) => {
-            try {
-              const chip = await createTagMutation.mutateAsync(label)
-              return chip.id
-            } catch {
-              return null
-            }
-          }}
           onSubmit={(request) => {
             createMutation.mutate(request, {
               onError: () => {

@@ -7,6 +7,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import {
   ListGroup,
   ListGroupInset,
@@ -182,10 +183,6 @@ function PersonListItem({
   withDivider: boolean
   onToggleFavorite: (id: number) => void
 }) {
-  const tagLabels = person.relationTags.map((t) => t.label)
-  const subtitle =
-    [person.relationType, tagLabels.join(' · ')].filter(Boolean).join(' · ') ||
-    '관계 정보 없음'
   const lastMetLabel = formatLastMetRelative(person.lastMetDate)
   const displayName = formatPersonName(person)
 
@@ -207,9 +204,33 @@ function PersonListItem({
           <p className="truncate text-[15px] font-extrabold text-foreground">
             {displayName}
           </p>
-          <p className="mt-0.5 truncate text-xs font-medium text-muted-foreground">
-            {subtitle}
-          </p>
+          <div className="mt-1 flex min-w-0 items-center gap-1.5">
+            {person.relationType ? (
+              <span className="shrink-0 text-xs font-medium text-muted-foreground">
+                {person.relationType}
+              </span>
+            ) : null}
+            {person.relationTags.length > 0 ? (
+              <span className="flex min-w-0 gap-1 overflow-hidden">
+                {person.relationTags.slice(0, 2).map((tag) => (
+                  <span
+                    key={tag.id}
+                    className={tagChipClass(false, {
+                      inactiveClassName:
+                        'h-5 max-w-20 border-transparent px-2 text-[10px]',
+                    })}
+                    style={tag.color ? coloredTagStyle(tag.color) : undefined}
+                  >
+                    <span className="truncate">{tag.label}</span>
+                  </span>
+                ))}
+              </span>
+            ) : !person.relationType ? (
+              <span className="text-xs font-medium text-muted-foreground">
+                관계 정보 없음
+              </span>
+            ) : null}
+          </div>
           <p
             className={cn(
               'mt-1 text-[11px] font-bold',
@@ -232,7 +253,7 @@ function PersonListItem({
       >
         <Star
           className={cn(
-            'size-5',
+            'size-6',
             person.favorite
               ? 'fill-foreground text-foreground'
               : 'text-muted-foreground/40',

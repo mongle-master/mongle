@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react'
-import type { ComponentProps, FormEvent } from 'react'
+import type { ComponentProps, FormEvent, ReactNode } from 'react'
 import { Star } from 'lucide-react'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { tagChipClass } from '@/components/ui/tag-chip'
+import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { uploadImage } from '@/lib/api/images'
 import type { PersonRequest } from '@/lib/api/types'
 import { validatePersonForm } from '@/lib/person-validation'
@@ -47,6 +47,23 @@ function FavoriteToggle({
     >
       <Star className={cn('size-5', active && 'fill-current')} />
     </button>
+  )
+}
+
+function FormSection({
+  title,
+  children,
+}: {
+  title: string
+  children: ReactNode
+}) {
+  return (
+    <section className="space-y-4">
+      <h2 className="px-1 text-[11px] font-extrabold tracking-wide text-muted-foreground uppercase">
+        {title}
+      </h2>
+      <div className="space-y-4">{children}</div>
+    </section>
   )
 }
 
@@ -156,7 +173,6 @@ export function formValuesToRequest(values: PersonFormValues): PersonRequest {
 export function PersonForm({
   initialValues,
   relationTags,
-  onCreateRelationTag,
   submitLabel,
   pending,
   onSubmit,
@@ -168,8 +184,7 @@ export function PersonForm({
   hideSubmitButton = false,
 }: {
   initialValues: PersonFormValues
-  relationTags: Array<{ id: number; label: string }>
-  onCreateRelationTag?: (label: string) => Promise<number | null>
+  relationTags: Array<{ id: number; label: string; color?: string | null }>
   submitLabel: string
   pending?: boolean
   onSubmit: (request: PersonRequest) => void
@@ -184,7 +199,6 @@ export function PersonForm({
   const [values, setValues] = useState(initialValues)
   const [error, setError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
-  const [newTagLabel, setNewTagLabel] = useState('')
 
   const patch = <TKey extends keyof PersonFormValues>(
     key: TKey,
@@ -214,19 +228,6 @@ export function PersonForm({
       setError('사진을 올리지 못했어요. 잠시 후 다시 시도해 주세요.')
     } finally {
       setUploading(false)
-    }
-  }
-
-  const handleAddTag = async () => {
-    const label = newTagLabel.trim()
-    if (!label || !onCreateRelationTag) return
-    const id = await onCreateRelationTag(label)
-    if (id) {
-      patch(
-        'relationTagChipIds',
-        [...values.relationTagChipIds, id].slice(0, 10),
-      )
-      setNewTagLabel('')
     }
   }
 
@@ -316,156 +317,145 @@ export function PersonForm({
         </div>
       )}
 
-      <div>
-        <FieldLabel htmlFor="name">이름</FieldLabel>
-        <Input
-          id="name"
-          value={values.name}
-          onChange={(e) => patch('name', e.target.value)}
-          className="mt-1.5"
-          maxLength={20}
-          autoFocus
-        />
-      </div>
-
-      <div>
-        <FieldLabel className="mb-2 block">성별</FieldLabel>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { value: '', label: '선택 안 함' },
-            { value: 'FEMALE', label: '여성' },
-            { value: 'MALE', label: '남성' },
-          ].map((option) => {
-            const active = values.gender === option.value
-            return (
-              <button
-                key={option.value || 'none'}
-                type="button"
-                aria-pressed={active}
-                onClick={() =>
-                  patch('gender', option.value as PersonFormValues['gender'])
-                }
-                className={cn(
-                  'h-9 rounded-lg border px-2 text-[13px] font-extrabold transition-colors',
-                  active
-                    ? 'border-foreground bg-foreground text-background'
-                    : 'border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground',
-                )}
-              >
-                {option.label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      <div>
-        <FieldLabel>생일</FieldLabel>
-        <DatePartPicker
-          year={values.birthYear}
-          month={values.birthMonth}
-          day={values.birthDay}
-          onChange={({ year, month, day }) => {
-            setValues((prev) => ({
-              ...prev,
-              birthYear: year,
-              birthMonth: month,
-              birthDay: day,
-            }))
-            setError(null)
-          }}
-        />
-      </div>
-
-      <div>
-        <FieldLabel>처음 만난 날</FieldLabel>
-        <DatePartPicker
-          year={values.firstMetYear}
-          month={values.firstMetMonth}
-          day={values.firstMetDay}
-          yearRequired={requireFirstMetYear}
-          onChange={({ year, month, day }) => {
-            setValues((prev) => ({
-              ...prev,
-              firstMetYear: year,
-              firstMetMonth: month,
-              firstMetDay: day,
-            }))
-            setError(null)
-          }}
-        />
-      </div>
-
-      {showLastMetDate ? (
+      <FormSection title="기본 정보">
         <div>
-          <FieldLabel htmlFor="lastMetDate">마지막 만난 날짜</FieldLabel>
+          <FieldLabel htmlFor="name">이름</FieldLabel>
           <Input
-            id="lastMetDate"
-            type="date"
-            value={values.lastMetDate}
-            onChange={(e) => patch('lastMetDate', e.target.value)}
+            id="name"
+            value={values.name}
+            onChange={(e) => patch('name', e.target.value)}
             className="mt-1.5"
+            maxLength={20}
+            autoFocus
           />
         </div>
-      ) : null}
 
-      <RelationTypeField
-        value={values.relationType}
-        onChange={(v) => patch('relationType', v)}
-      />
-
-      <div>
-        <FieldLabel className="mb-2 block">관계 태그</FieldLabel>
-        <div className="flex flex-wrap gap-2">
-          {relationTags.map((tag) => (
-            <button
-              key={tag.id}
-              type="button"
-              onClick={() => toggleTag(tag.id)}
-              className={tagChipClass(
-                values.relationTagChipIds.includes(tag.id),
-                {
-                  activeClassName:
-                    'border-foreground bg-foreground text-background',
-                },
-              )}
-            >
-              {tag.label}
-            </button>
-          ))}
+        <div>
+          <FieldLabel className="mb-2 block">성별</FieldLabel>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { value: '', label: '선택 안 함' },
+              { value: 'FEMALE', label: '여성' },
+              { value: 'MALE', label: '남성' },
+            ].map((option) => {
+              const active = values.gender === option.value
+              return (
+                <button
+                  key={option.value || 'none'}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() =>
+                    patch('gender', option.value as PersonFormValues['gender'])
+                  }
+                  className={cn(
+                    'h-9 rounded-lg border px-2 text-[13px] font-extrabold transition-colors',
+                    active
+                      ? 'border-foreground bg-foreground text-background'
+                      : 'border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground',
+                  )}
+                >
+                  {option.label}
+                </button>
+              )
+            })}
+          </div>
         </div>
-        {onCreateRelationTag ? (
-          <div className="mt-2 flex gap-2">
+
+        <div>
+          <FieldLabel>생일</FieldLabel>
+          <DatePartPicker
+            year={values.birthYear}
+            month={values.birthMonth}
+            day={values.birthDay}
+            onChange={({ year, month, day }) => {
+              setValues((prev) => ({
+                ...prev,
+                birthYear: year,
+                birthMonth: month,
+                birthDay: day,
+              }))
+              setError(null)
+            }}
+          />
+        </div>
+
+        <div>
+          <FieldLabel>처음 만난 날</FieldLabel>
+          <DatePartPicker
+            year={values.firstMetYear}
+            month={values.firstMetMonth}
+            day={values.firstMetDay}
+            yearRequired={requireFirstMetYear}
+            onChange={({ year, month, day }) => {
+              setValues((prev) => ({
+                ...prev,
+                firstMetYear: year,
+                firstMetMonth: month,
+                firstMetDay: day,
+              }))
+              setError(null)
+            }}
+          />
+        </div>
+
+        {showLastMetDate ? (
+          <div>
+            <FieldLabel htmlFor="lastMetDate">마지막 만난 날짜</FieldLabel>
             <Input
-              value={newTagLabel}
-              onChange={(e) => setNewTagLabel(e.target.value)}
-              placeholder="새 태그 (10자 이내)"
-              maxLength={10}
+              id="lastMetDate"
+              type="date"
+              value={values.lastMetDate}
+              onChange={(e) => patch('lastMetDate', e.target.value)}
+              className="mt-1.5"
             />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => void handleAddTag()}
-            >
-              ＋
-            </Button>
           </div>
         ) : null}
-      </div>
+      </FormSection>
 
-      <ListField
-        label="좋아하는 것"
-        items={values.likes}
-        onChange={(likes) => patch('likes', likes)}
-        tone="green"
-      />
+      <FormSection title="추가 정보">
+        <RelationTypeField
+          value={values.relationType}
+          onChange={(v) => patch('relationType', v)}
+        />
 
-      <ListField
-        label="조심할 것"
-        items={values.cautions}
-        onChange={(cautions) => patch('cautions', cautions)}
-        tone="red"
-      />
+        <div>
+          <FieldLabel className="mb-2 block">관계 태그</FieldLabel>
+          <div className="flex flex-wrap gap-2">
+            {relationTags.map((tag) => {
+              const active = values.relationTagChipIds.includes(tag.id)
+              return (
+                <button
+                  key={tag.id}
+                  type="button"
+                  onClick={() => toggleTag(tag.id)}
+                  className={tagChipClass(active)}
+                  style={
+                    tag.color ? coloredTagStyle(tag.color, active) : undefined
+                  }
+                >
+                  {tag.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </FormSection>
+
+      <FormSection title="취향">
+        <ListField
+          label="좋아하는 것"
+          items={values.likes}
+          onChange={(likes) => patch('likes', likes)}
+          tone="green"
+        />
+
+        <ListField
+          label="조심할 것"
+          items={values.cautions}
+          onChange={(cautions) => patch('cautions', cautions)}
+          tone="red"
+        />
+      </FormSection>
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 

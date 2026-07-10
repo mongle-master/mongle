@@ -22,12 +22,24 @@ export async function fetchChips(type?: ChipType) {
   return groups.flat()
 }
 
-export async function createChip(type: ChipType, label: string) {
-  return api.post('v1/chips', { json: { type, label } }).json<ChipResponse>()
+export async function createChip(
+  type: ChipType,
+  label: string,
+  color?: string | null,
+) {
+  return api
+    .post('v1/chips', { json: { type, label, color } })
+    .json<ChipResponse>()
 }
 
-export async function renameChip(id: number, label: string) {
-  return api.patch(`v1/chips/${id}`, { json: { label } }).json<ChipResponse>()
+export async function renameChip(
+  id: number,
+  label: string,
+  color?: string | null,
+) {
+  return api
+    .patch(`v1/chips/${id}`, { json: { label, color } })
+    .json<ChipResponse>()
 }
 
 export async function deleteChip(id: number) {

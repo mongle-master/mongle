@@ -1,7 +1,6 @@
 import type { ComponentProps } from 'react'
 import { useState } from 'react'
 import { X } from 'lucide-react'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { tagChipClass } from '@/components/ui/tag-chip'
@@ -136,43 +135,23 @@ export function RelationTypeField({
   value: string
   onChange: (value: string) => void
 }) {
-  // 제안 칩 선택값과 "새 태그" 입력은 별개. 제안에 있는 값이면 input은 비워 둔다.
-  const [draft, setDraft] = useState(() =>
-    (RELATION_TYPE_SUGGESTIONS as readonly string[]).includes(value)
-      ? ''
-      : value,
-  )
-
   return (
     <div>
-      <FieldLabel htmlFor="relationType">만남 태그</FieldLabel>
+      <FieldLabel>만남 태그</FieldLabel>
       <div className="mt-2 flex flex-wrap gap-2">
         {RELATION_TYPE_SUGGESTIONS.map((suggestion) => (
           <button
             key={suggestion}
             type="button"
             onClick={() => {
-              onChange(suggestion)
-              setDraft('')
+              onChange(value === suggestion ? '' : suggestion)
             }}
-            className={tagChipClass(value === suggestion && draft === '')}
+            className={tagChipClass(value === suggestion)}
           >
             {suggestion}
           </button>
         ))}
       </div>
-      <Input
-        id="relationType"
-        value={draft}
-        onChange={(e) => {
-          const next = e.target.value
-          setDraft(next)
-          onChange(next)
-        }}
-        placeholder="새 태그(10자 이내)"
-        className="mt-2"
-        maxLength={10}
-      />
     </div>
   )
 }
