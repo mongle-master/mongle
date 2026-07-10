@@ -316,7 +316,7 @@ function buildTimelineEvents({
             ? null
             : `${String(10 + (index % 8)).padStart(2, '0')}:00:00`,
         categoryChipId: category?.id ?? null,
-        weatherChipId: index % 4 === 0 ? null : weather?.id ?? null,
+        weatherChipId: index % 4 === 0 ? null : (weather?.id ?? null),
         emotionChipIds: emotion ? [emotion.id] : [],
         personIds: [person.id],
         photoUrls: [],
