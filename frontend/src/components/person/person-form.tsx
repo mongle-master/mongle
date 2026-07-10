@@ -58,10 +58,8 @@ function FormSection({
   children: ReactNode
 }) {
   return (
-    <section className="space-y-4">
-      <h2 className="px-1 text-[11px] font-extrabold tracking-wide text-muted-foreground uppercase">
-        {title}
-      </h2>
+    <section className="space-y-5 border-t border-border pt-5">
+      <h2 className="text-[15px] font-extrabold text-foreground">{title}</h2>
       <div className="space-y-4">{children}</div>
     </section>
   )
@@ -467,7 +465,7 @@ export function PersonForm({
 
       {onDelete ? (
         <Button type="button" variant="destructive" onClick={onDelete}>
-          프로필 삭제
+          인물 삭제
         </Button>
       ) : null}
     </form>
