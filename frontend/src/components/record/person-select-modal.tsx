@@ -60,7 +60,6 @@ export function PersonSelectModal({
   }
 
   const handleClose = () => {
-    if (!dismissible && draftIds.length === 0) return
     onOpenChange(false)
   }
 

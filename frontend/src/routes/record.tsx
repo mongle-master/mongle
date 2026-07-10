@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronRight, Plus, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { PersonSelectModal } from '@/components/record/person-select-modal'
+import { OccurredDateTimeField } from '@/components/record/occurred-date-time-field'
 import { AppShell } from '@/components/layout/app-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
@@ -24,7 +25,11 @@ import {
   FALLBACK_PERSONS,
   fallbackEvent,
 } from '@/lib/fallback-data'
-import { formatPersonName, formatAutoEventTitle } from '@/lib/format'
+import {
+  formatPersonName,
+  formatAutoEventTitle,
+  todayLocalIso,
+} from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import {
   formatOccurredTimeForApi,
@@ -75,9 +80,7 @@ function RecordPage() {
   const [categoryChipId, setCategoryChipId] = useState<number | null>(null)
   const [title, setTitle] = useState('')
   const [memo, setMemo] = useState('')
-  const [occurredDate, setOccurredDate] = useState(() =>
-    new Date().toISOString().slice(0, 10),
-  )
+  const [occurredDate, setOccurredDate] = useState(() => todayLocalIso())
   const [occurredTime, setOccurredTime] = useState('')
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [formError, setFormError] = useState<string | null>(null)
@@ -398,11 +401,17 @@ function RecordPage() {
       title={pageTitle}
       onSave={handleSave}
       saving={saveMutation.isPending}
+      disabled={selectedPersonIds.length === 0}
       className="px-5"
     />
   )
   const scrollBodyClass =
     'min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]'
+  const scrollBodyRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    scrollBodyRef.current?.scrollTo({ top: 0 })
+  }, [])
 
   if (isLoading) {
     return (
@@ -450,7 +459,7 @@ function RecordPage() {
     <AppShell activePath="/record" layout="fixed" className="px-0">
       {recordHeader}
 
-      <div className={scrollBodyClass}>
+      <div ref={scrollBodyRef} className={scrollBodyClass}>
         <div className="flex flex-col gap-5 px-5 pb-8">
           <button
             type="button"
@@ -482,45 +491,51 @@ function RecordPage() {
                 함께한 사람
               </p>
             </div>
-            {selectedPersons.length > 0 ? (
-              <button
-                type="button"
-                onClick={() => openPersonModal()}
-                className="flex w-full items-center gap-2 rounded-lg border border-border bg-card p-3 text-left"
-              >
-                <div className="flex -space-x-2">
-                  {selectedPersons.slice(0, 3).map((person) => (
-                    <MonogramAvatar
-                      key={person.id}
-                      name={person.name}
-                      imageUrl={person.profileImageUrl}
-                      gender={'gender' in person ? person.gender : null}
-                      personId={person.id}
-                      className="size-9 ring-2 ring-card"
-                    />
-                  ))}
-                </div>
-                <p className="min-w-0 flex-1 truncate text-sm font-extrabold">
-                  {selectedPersons.length === 1
-                    ? firstSelectedPersonName
-                    : `${firstSelectedPersonName} 외 ${selectedPersons.length - 1}명`}
+
+            <button
+              type="button"
+              onClick={() => openPersonModal(selectedPersons.length > 0)}
+              className={cn(
+                'flex min-h-[3.75rem] w-full items-center gap-2 rounded-lg border p-3 text-left',
+                personSelectError
+                  ? 'border-destructive/40 bg-destructive/10'
+                  : 'border-border bg-card',
+              )}
+            >
+              {selectedPersons.length > 0 ? (
+                <>
+                  <div className="flex -space-x-2">
+                    {selectedPersons.slice(0, 3).map((person) => (
+                      <MonogramAvatar
+                        key={person.id}
+                        name={person.name}
+                        imageUrl={person.profileImageUrl}
+                        gender={'gender' in person ? person.gender : null}
+                        personId={person.id}
+                        className="size-9 ring-2 ring-card"
+                      />
+                    ))}
+                  </div>
+                  <p className="min-w-0 flex-1 truncate text-sm font-extrabold">
+                    {selectedPersons.length === 1
+                      ? firstSelectedPersonName
+                      : `${firstSelectedPersonName} 외 ${selectedPersons.length - 1}명`}
+                  </p>
+                </>
+              ) : (
+                <p
+                  className={cn(
+                    'min-w-0 flex-1 text-sm font-extrabold',
+                    personSelectError
+                      ? 'text-destructive'
+                      : 'text-muted-foreground',
+                  )}
+                >
+                  선택된 사람이 없습니다
                 </p>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => openPersonModal(false)}
-                className={cn(
-                  'flex w-full items-center justify-center rounded-lg px-4 py-6 text-sm font-extrabold',
-                  personSelectError
-                    ? 'bg-destructive/10 text-destructive'
-                    : 'bg-primary/10 text-primary hover:bg-primary/15',
-                )}
-              >
-                사람을 선택해 주세요
-              </button>
-            )}
+              )}
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+            </button>
           </section>
 
           <ChipSection title="만남 태그">
@@ -584,20 +599,12 @@ function RecordPage() {
             <p className="mb-2 text-xs font-extrabold text-muted-foreground">
               언제
             </p>
-            <div className="flex gap-2">
-              <Input
-                type="date"
-                value={occurredDate}
-                onChange={(e) => setOccurredDate(e.target.value)}
-                className="flex-1 text-xs placeholder:text-xs md:text-xs"
-              />
-              <Input
-                type="time"
-                value={occurredTime}
-                onChange={(e) => setOccurredTime(e.target.value)}
-                className="w-[8.5rem] text-xs placeholder:text-xs md:text-xs"
-              />
-            </div>
+            <OccurredDateTimeField
+              date={occurredDate}
+              time={occurredTime}
+              onDateChange={setOccurredDate}
+              onTimeChange={setOccurredTime}
+            />
           </section>
 
           <section>

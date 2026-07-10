@@ -1,3 +1,5 @@
+import { todayLocalIso } from '@/lib/format'
+
 const TITLE_MAX = 40
 const TEXT_MAX = 200
 const PHOTO_MAX = 5
@@ -21,8 +23,7 @@ export function validateRecordForm(data: {
   if (data.photoUrls.length > PHOTO_MAX) {
     return `사진은 최대 ${PHOTO_MAX}장까지 넣을 수 있어요.`
   }
-  const today = new Date().toISOString().slice(0, 10)
-  if (data.occurredDate > today) {
+  if (data.occurredDate > todayLocalIso()) {
     return '오늘 이후 날짜는 선택할 수 없어요.'
   }
   return null

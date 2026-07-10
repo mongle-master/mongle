@@ -55,6 +55,14 @@ export function formatAutoEventTitle(
   return `${who} · ${category}`
 }
 
+/** 로컬 자정 기준 오늘 날짜('YYYY-MM-DD'). toISOString()은 UTC라 KST 00~09시엔 하루 전으로 밀린다 */
+export function todayLocalIso(date = new Date()) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export function formatEventDate(iso: string) {
   const [y, m, d] = iso.split('-')
   return { year: y, date: `${m}.${d}` }

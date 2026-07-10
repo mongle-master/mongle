@@ -7,6 +7,7 @@ export function FormPageHeader({
   title,
   onSave,
   saving = false,
+  disabled = false,
   saveLabel = '저장',
   className,
 }: {
@@ -14,6 +15,7 @@ export function FormPageHeader({
   title: string
   onSave?: () => void
   saving?: boolean
+  disabled?: boolean
   saveLabel?: string
   className?: string
 }) {
@@ -29,7 +31,7 @@ export function FormPageHeader({
         <button
           type="button"
           onClick={onSave}
-          disabled={saving}
+          disabled={saving || disabled}
           className="text-right text-[15px] font-extrabold disabled:opacity-50"
         >
           {saving ? '저장 중' : saveLabel}
