@@ -18,12 +18,14 @@ class WebConfig(
         resolvers.add(authUserArgumentResolver)
     }
 
-    // 전 오리진 허용 — 인증이 쿠키가 아니라 Authorization 헤더의 Bearer 토큰이라
-    // 크리덴셜(allowCredentials) 없이 와일드카드가 안전하다. 덕분에 프론트 배포
-    // 도메인이 바뀌거나 늘어나도(로컬 dev·Vercel 프리뷰 등) 코드 변경이 없다.
+    // 허용 오리진 = Vercel 프로덕션 + 로컬 dev 전 포트.
+    // allowedOrigins 는 포트 와일드카드를 못 받아서 allowedOriginPatterns 를 쓴다(:[*] = 임의 포트).
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOrigins("*")
+            .allowedOriginPatterns(
+                "https://mongle-master.vercel.app",
+                "http://localhost:[*]",
+            )
             .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             .allowedHeaders("*")
             .maxAge(3600)

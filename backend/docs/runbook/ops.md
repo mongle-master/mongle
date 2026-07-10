@@ -5,7 +5,7 @@
 ## 상태 확인
 
 ```bash
-curl -s http://localhost:8080/actuator/health   # {"status":"UP"}
+curl -s http://localhost:18080/actuator/health  # {"status":"UP"} (도커 호스트 노출 포트 18080)
 docker compose ps                               # db·backend 둘 다 healthy 인지
 docker compose logs -f backend                  # 앱 로그 (에러는 GlobalExceptionHandler가 남긴다)
 docker compose logs -f db                       # MySQL 로그
@@ -32,7 +32,7 @@ docker compose stop backend && tar czf mongle-backup-$(date +%Y%m%d).tgz data/ &
 | 증상 | 원인 → 조치 |
 |---|---|
 | 모든 API가 401 | 토큰 누락/만료 → `POST /api/v1/auth/token` 재발급 (local.md) |
-| 8080 이미 사용 중 | 비도커 `bootRun`과 도커 backend 동시 실행 → 하나 내리기 |
+| 18080 이미 사용 중 (도커 기동 실패) | 다른 프로세스가 호스트 18080 점유 → 점유 프로세스 종료(`lsof -i :18080`) 또는 compose 포트 변경. bootRun(8080)과 도커(18080)는 포트가 달라 서로 충돌하지 않는다 |
 | backend가 재시작 반복 | db 헬시 전 기동 실패가 아니라면 `docker compose logs backend`에서 datasource 접속 오류 확인 → `data/mysql` 손상 시 백업 복구 또는 초기화 |
 | 스키마 불일치 에러 | `ddl-auto: update`는 가산만 한다. 컬럼 타입 변경 릴리스 후엔 데이터 초기화(`docker compose down && rm -rf data`) 또는 수동 ALTER |
 | 시드가 안 보임 | 시드는 빈 DB에서만 멱등 실행 → 초기화 후 재기동하면 다시 깔린다. demo 유저 소유이므로 `{"username":"demo"}` 토큰으로 조회해야 보인다 |

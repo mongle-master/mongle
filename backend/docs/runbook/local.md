@@ -10,8 +10,9 @@ cd backend
 docker compose up -d --build   # 첫 빌드는 의존성 다운로드로 수 분 걸린다
 ```
 
-- 컨테이너 2개가 뜬다: **db**(MySQL 8.4) + **backend**(8080). backend는 db 헬시 이후 기동된다.
-- 서버: http://localhost:8080 (기동 완료 판단: `curl http://localhost:8080/actuator/health` → `{"status":"UP"}`)
+- 컨테이너 2개가 뜬다: **db**(MySQL 8.4) + **backend**(호스트 18080 → 컨테이너 8080). backend는 db 헬시 이후 기동된다.
+- 서버: http://localhost:18080 (기동 완료 판단: `curl http://localhost:18080/actuator/health` → `{"status":"UP"}`)
+  - 호스트 노출은 18080, 컨테이너 내부 앱 포트는 8080. 프론트 dev 프록시(`frontend/vite.config.ts`)는 기본으로 Render 배포 백엔드를 가리키므로, 로컬 도커 백엔드에 붙이려면 `BACKEND_URL=http://localhost:18080 pnpm dev`.
 - 데이터: `backend/data/mysql/`(DB)·`backend/data/images/`(업로드 이미지)에 영속화. 컨테이너를 지워도 남는다.
 - DB 직접 접속(디버깅): `mysql -h127.0.0.1 -P13306 -umongle -pmongle mongle`
 - 기동 시 자동 시드: 공통 칩(감정6·날씨5·카테고리4) + demo 유저 소유의 샘플 인물·기록. 이미 있으면 스킵(멱등).
@@ -21,18 +22,18 @@ docker compose up -d --build   # 첫 빌드는 의존성 다운로드로 수 분
 모든 `/api/v1/**`는 Bearer 토큰이 필요하다(무토큰 = 401). 데모 로그인은 username만 받는다:
 
 ```bash
-TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/token \
+TOKEN=$(curl -s -X POST http://localhost:18080/api/v1/auth/token \
   -H 'Content-Type: application/json' -d '{"username":"demo"}' | jq -r .token)
 
-curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/persons
+curl -s -H "Authorization: Bearer $TOKEN" http://localhost:18080/api/v1/persons
 ```
 
 - `demo` 유저가 시드 데이터의 소유자다. 다른 username을 주면 빈 데이터의 새 유저가 만들어진다.
 
 ## API 문서
 
-- Swagger UI: http://localhost:8080/swagger-ui/index.html (무인증. 우상단 Authorize에 토큰 입력)
-- OpenAPI JSON: http://localhost:8080/v3/api-docs
+- Swagger UI: http://localhost:18080/swagger-ui/index.html (무인증. 우상단 Authorize에 토큰 입력)
+- OpenAPI JSON: http://localhost:18080/v3/api-docs
 
 ## 중지·리셋
 
@@ -49,7 +50,7 @@ cd backend && ./gradlew bootRun
 ```
 
 - 이때는 MySQL 없이 **H2 파일 DB**(`backend/data/mongle.mv.db`, application.yml 기본값)를 쓴다 — 도커 실행과 데이터가 분리된다.
-- 같은 8080 포트를 쓰므로 도커 backend와 동시에 띄우지 말 것.
+- bootRun은 호스트 **8080**에 뜨고 도커 backend는 호스트 **18080**이라 포트는 충돌하지 않는다. bootRun으로 띄운 서버에 프론트를 붙이려면 `BACKEND_URL=http://localhost:8080 pnpm dev`.
 
 ## 환경변수 (기본값은 application.yml / compose)
 

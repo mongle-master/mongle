@@ -10,6 +10,12 @@ import { fileURLToPath } from 'node:url'
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
 import { playwright } from '@vitest/browser-playwright'
 
+// dev 프록시가 붙을 백엔드. 기본은 Render 배포 서버, 로컬 백엔드로 붙으려면
+// BACKEND_URL=http://localhost:18080 pnpm dev (도커. bootRun이면 8080 — backend/docs/runbook/local.md)
+// 프록시(서버 간 호출)를 쓰는 이유: 브라우저 직접 호출과 달리 백엔드 CORS 배포 상태와 무관하게 동작한다.
+const backendTarget =
+  process.env.BACKEND_URL ?? 'https://mongle-backend.onrender.com'
+
 const dirname =
   typeof __dirname !== 'undefined'
     ? __dirname
@@ -22,14 +28,12 @@ const config = defineConfig({
   },
   server: {
     proxy: {
-      // 백엔드 로컬 기본 포트 8080 (backend/docs/runbook/local.md 기준).
-      // 도커·bootRun 모두 8080 → 프론트는 /api·/images를 이 포트로 프록시한다.
       '/api': {
-        target: 'http://localhost:8080',
+        target: backendTarget,
         changeOrigin: true,
       },
       '/images': {
-        target: 'http://localhost:8080',
+        target: backendTarget,
         changeOrigin: true,
       },
     },
