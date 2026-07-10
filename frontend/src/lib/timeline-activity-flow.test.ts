@@ -79,24 +79,63 @@ describe('buildPersonActivityFlow', () => {
     ])
   })
 
-  it('RECENT falls back to the full year when there is no record this year', () => {
+  it('anchors RECENT to the latest record year when records are historical', () => {
     const flow = buildPersonActivityFlow(
       [{ id: 1, name: '민수' }],
-      [],
+      [
+        { id: '1', date: '2024-11-17', personId: 1 },
+        { id: '2', date: '2025-03-10', personId: 1 },
+        { id: '3', date: '2025-07-17', personId: 1 },
+      ],
       'RECENT',
       new Date(2026, 6, 8),
     )
 
     expect(flow?.axisLabels.map((label) => label.text)).toEqual([
-      '1월',
-      '2월',
       '3월',
       '4월',
       '5월',
       '6월',
       '7월',
     ])
-    expect(flow?.quietMessage).toBe('올해는 아직 기록이 없어요')
+    expect(flow?.lanes[0]?.points.map((point) => point.date)).toEqual([
+      '2025-03-10',
+      '2025-07-17',
+    ])
+    expect(flow?.quietMessage).toBeNull()
+  })
+
+  it('anchors year range filters to the latest record date when records are historical', () => {
+    const records = [
+      { id: '2023', date: '2023-01-15', personId: 1 },
+      { id: '2024', date: '2024-02-10', personId: 1 },
+      { id: '2025', date: '2025-11-17', personId: 1 },
+    ]
+
+    const oneYear = buildPersonActivityFlow(
+      [{ id: 1, name: '민수' }],
+      records,
+      '1Y',
+      new Date(2026, 6, 8),
+    )
+    const threeYears = buildPersonActivityFlow(
+      [{ id: 1, name: '민수' }],
+      records,
+      '3Y',
+      new Date(2026, 6, 8),
+    )
+
+    expect(oneYear?.axisLabels.at(0)?.text).toBe('1월')
+    expect(oneYear?.axisLabels.at(-1)?.text).toBe('11월')
+    expect(oneYear?.lanes[0]?.points.map((point) => point.date)).toEqual([
+      '2025-11-17',
+    ])
+    expect(threeYears?.axisLabels.map((label) => label.text)).toEqual([
+      '2023',
+      '2024',
+      '2025',
+    ])
+    expect(threeYears?.lanes[0]?.points).toHaveLength(3)
   })
 
   it('shrinks dot size as person count or per-lane meeting frequency grows', () => {

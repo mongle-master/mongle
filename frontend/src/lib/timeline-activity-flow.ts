@@ -127,12 +127,24 @@ function resolveWindow(
   recordDates: Date[],
   now = new Date(),
 ): { start: Date; end: Date } | null {
-  const end = startOfDay(now)
+  const today = startOfDay(now)
+  const latestRecord =
+    recordDates.length > 0
+      ? recordDates.reduce((a, b) => (a > b ? a : b))
+      : null
+  // 데모/과거 데이터처럼 최신 기록이 오늘보다 이전 연도에 멈춰 있으면
+  // 빈 현재 연도 대신 최신 기록일을 기준으로 기간 필터를 잡는다.
+  const end =
+    latestRecord &&
+    latestRecord < today &&
+    latestRecord.getFullYear() < today.getFullYear()
+      ? latestRecord
+      : today
   if (period === '1Y') {
-    return { start: localDate(now.getFullYear(), 1, 1), end }
+    return { start: localDate(end.getFullYear(), 1, 1), end }
   }
   if (period === 'RECENT') {
-    const yearStart = localDate(now.getFullYear(), 1, 1)
+    const yearStart = localDate(end.getFullYear(), 1, 1)
     const inYear = recordDates.filter((d) => d >= yearStart && d <= end)
     if (inYear.length === 0) return { start: yearStart, end }
     // 올해 기록이 존재하는 첫 달의 1일부터 표시해 앞쪽 빈 달을 잘라낸다.
@@ -143,10 +155,10 @@ function resolveWindow(
     }
   }
   if (period === '3Y') {
-    return { start: localDate(now.getFullYear() - 2, 1, 1), end }
+    return { start: localDate(end.getFullYear() - 2, 1, 1), end }
   }
   if (period === '5Y') {
-    return { start: localDate(now.getFullYear() - 4, 1, 1), end }
+    return { start: localDate(end.getFullYear() - 4, 1, 1), end }
   }
   if (recordDates.length === 0) return null
   const earliest = recordDates.reduce((a, b) => (a < b ? a : b))
