@@ -26,7 +26,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "18080:8080"
     volumes:
       - ./data:/app/data # 업로드 이미지 영속화 (DB는 db 서비스가 담당)
     environment:

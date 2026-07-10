@@ -12,7 +12,7 @@ docker compose up -d --build   # 첫 빌드는 의존성 다운로드로 수 분
 
 - 컨테이너 2개가 뜬다: **db**(MySQL 8.4) + **backend**(호스트 18080 → 컨테이너 8080). backend는 db 헬시 이후 기동된다.
 - 서버: http://localhost:18080 (기동 완료 판단: `curl http://localhost:18080/actuator/health` → `{"status":"UP"}`)
-  - 호스트 노출은 18080, 컨테이너 내부 앱 포트는 8080. 프론트 dev 프록시(`frontend/vite.config.ts`)는 기본으로 Render 배포 백엔드를 가리키므로, 로컬 도커 백엔드에 붙이려면 `BACKEND_URL=http://localhost:18080 pnpm dev`.
+  - 호스트 노출은 18080, 컨테이너 내부 앱 포트는 8080. 프론트 dev 프록시(`frontend/vite.config.ts`)는 기본으로 로컬 도커 백엔드를 가리킨다.
 - 데이터: `backend/data/mysql/`(DB)·`backend/data/images/`(업로드 이미지)에 영속화. 컨테이너를 지워도 남는다.
 - DB 직접 접속(디버깅): `mysql -h127.0.0.1 -P13306 -umongle -pmongle mongle`
 - 기동 시 자동 시드: 공통 칩(감정6·날씨5·카테고리4) + demo 유저 소유의 샘플 인물·기록. 이미 있으면 스킵(멱등).
