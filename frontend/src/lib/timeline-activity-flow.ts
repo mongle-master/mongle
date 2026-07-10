@@ -1,11 +1,12 @@
 import type { TimelineCard } from '@/lib/api/types'
 
-export type ActivityFlowPeriod = 'ALL' | '5Y' | '3Y' | '1Y'
+export type ActivityFlowPeriod = 'ALL' | '5Y' | '3Y' | '1Y' | 'RECENT'
 
 export const ACTIVITY_FLOW_PERIOD_OPTIONS: Array<{
   value: ActivityFlowPeriod
   label: string
 }> = [
+  { value: 'RECENT', label: '최근' },
   { value: 'ALL', label: '전체' },
   { value: '5Y', label: '5년' },
   { value: '3Y', label: '3년' },
@@ -20,6 +21,22 @@ export type ActivityFlowPoint = {
   monthKey: string
   /** 0~1 축상 위치 (실제 날짜 비율) */
   position: number
+  /** 점 안에 넣을 기록 첫 사진 (없으면 null) */
+  photoUrl: string | null
+}
+
+/** 점 지름 단계 — md/lg에서만 점 안에 사진을 넣는다 (sm은 너무 작아 생략) */
+export type ActivityFlowDotSize = 'sm' | 'md' | 'lg'
+
+// 사람 수 또는 한 레인 내 최대 만남 횟수가 많을수록 점이 겹쳐 보이기 쉬워
+// 점을 작게 그린다. 경험적으로 고른 임계값이라 필요하면 조정한다.
+function resolveDotSize(
+  personCount: number,
+  maxPointsPerLane: number,
+): ActivityFlowDotSize {
+  if (personCount > 8 || maxPointsPerLane > 10) return 'sm'
+  if (personCount > 4 || maxPointsPerLane > 5) return 'md'
+  return 'lg'
 }
 
 /** 활동 흐름 점 선택 — 해당 사람의 해당 날짜 기록만 리스트에 표시 */
@@ -49,6 +66,8 @@ export type ActivityFlowRecord = {
   /** YYYY-MM-DD */
   date: string
   personId: number
+  /** 기록의 첫 번째 사진 URL (없으면 null) */
+  photoUrl?: string | null
 }
 
 export type ActivityFlowPersonLane = {
@@ -64,6 +83,7 @@ export type ActivityFlowModel = {
   axisLabels: ActivityFlowAxisLabel[]
   hasAnyActivity: boolean
   quietMessage: string | null
+  dotSize: ActivityFlowDotSize
 }
 
 function pad2(n: number) {
@@ -110,6 +130,17 @@ function resolveWindow(
   const end = startOfDay(now)
   if (period === '1Y') {
     return { start: localDate(now.getFullYear(), 1, 1), end }
+  }
+  if (period === 'RECENT') {
+    const yearStart = localDate(now.getFullYear(), 1, 1)
+    const inYear = recordDates.filter((d) => d >= yearStart && d <= end)
+    if (inYear.length === 0) return { start: yearStart, end }
+    // 올해 기록이 존재하는 첫 달의 1일부터 표시해 앞쪽 빈 달을 잘라낸다.
+    const earliest = inYear.reduce((a, b) => (a < b ? a : b))
+    return {
+      start: localDate(earliest.getFullYear(), earliest.getMonth() + 1, 1),
+      end,
+    }
   }
   if (period === '3Y') {
     return { start: localDate(now.getFullYear() - 2, 1, 1), end }
@@ -172,6 +203,7 @@ export function flowRecordsFromTimelineCards(
       id: `${card.id}-${person.id}`,
       date: card.occurredDate,
       personId: person.id,
+      photoUrl: card.photoUrls[0] ?? null,
     })),
   )
 }
@@ -205,7 +237,7 @@ export function buildPersonActivityFlow(
   const hasAnyActivity = parsed.some(
     (p) => p.date >= window.start && p.date <= window.end,
   )
-  const axisMode = period === '1Y' ? 'month' : 'year'
+  const axisMode = period === '1Y' || period === 'RECENT' ? 'month' : 'year'
 
   const lanes = persons.map((person) => {
     const points = parsed
@@ -220,6 +252,7 @@ export function buildPersonActivityFlow(
         date: formatIso(p.date),
         monthKey: monthKeyOf(p.date),
         position: positionOf(p.date, window.start, window.end),
+        photoUrl: p.photoUrl ?? null,
       }))
       .sort((a, b) => a.position - b.position || a.date.localeCompare(b.date))
 
@@ -229,6 +262,11 @@ export function buildPersonActivityFlow(
       points,
     }
   })
+
+  const maxPointsPerLane = lanes.reduce(
+    (max, lane) => Math.max(max, lane.points.length),
+    0,
+  )
 
   return {
     period,
@@ -241,11 +279,12 @@ export function buildPersonActivityFlow(
     hasAnyActivity,
     quietMessage: hasAnyActivity
       ? null
-      : period === '1Y'
+      : period === '1Y' || period === 'RECENT'
         ? '올해는 아직 기록이 없어요'
         : period === 'ALL'
           ? '아직 기록이 없어요'
           : `최근 ${period === '5Y' ? '5' : '3'}년은 조용했어요`,
+    dotSize: resolveDotSize(persons.length, maxPointsPerLane),
   }
 }
 

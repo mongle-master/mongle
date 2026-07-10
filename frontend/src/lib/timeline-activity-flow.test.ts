@@ -59,6 +59,86 @@ describe('buildPersonActivityFlow', () => {
     expect(flow?.lanes[1]?.points).toHaveLength(1)
   })
 
+  it('RECENT trims leading empty months to the first month with a record', () => {
+    const flow = buildPersonActivityFlow(
+      [{ id: 1, name: '민수' }],
+      [
+        { id: '1', date: '2026-03-17', personId: 1 },
+        { id: '2', date: '2026-05-03', personId: 1 },
+      ],
+      'RECENT',
+      new Date(2026, 6, 8),
+    )
+
+    expect(flow?.axisLabels.map((label) => label.text)).toEqual([
+      '3월',
+      '4월',
+      '5월',
+      '6월',
+      '7월',
+    ])
+  })
+
+  it('RECENT falls back to the full year when there is no record this year', () => {
+    const flow = buildPersonActivityFlow(
+      [{ id: 1, name: '민수' }],
+      [],
+      'RECENT',
+      new Date(2026, 6, 8),
+    )
+
+    expect(flow?.axisLabels.map((label) => label.text)).toEqual([
+      '1월',
+      '2월',
+      '3월',
+      '4월',
+      '5월',
+      '6월',
+      '7월',
+    ])
+    expect(flow?.quietMessage).toBe('올해는 아직 기록이 없어요')
+  })
+
+  it('shrinks dot size as person count or per-lane meeting frequency grows', () => {
+    const manyPersons = Array.from({ length: 9 }, (_, i) => ({
+      id: i + 1,
+      name: `사람${i + 1}`,
+    }))
+    const flowCrowded = buildPersonActivityFlow(
+      manyPersons,
+      [{ id: '1', date: '2026-03-17', personId: 1 }],
+      '1Y',
+      new Date(2026, 6, 8),
+    )
+    expect(flowCrowded?.dotSize).toBe('sm')
+
+    const flowFew = buildPersonActivityFlow(
+      [{ id: 1, name: '민수' }],
+      [{ id: '1', date: '2026-03-17', personId: 1 }],
+      '1Y',
+      new Date(2026, 6, 8),
+    )
+    expect(flowFew?.dotSize).toBe('lg')
+  })
+
+  it('carries the first photo of a record onto its point', () => {
+    const flow = buildPersonActivityFlow(
+      [{ id: 1, name: '민수' }],
+      [
+        {
+          id: '1',
+          date: '2026-03-17',
+          personId: 1,
+          photoUrl: '/images/a.jpg',
+        },
+      ],
+      '1Y',
+      new Date(2026, 6, 8),
+    )
+
+    expect(flow?.lanes[0]?.points[0]?.photoUrl).toBe('/images/a.jpg')
+  })
+
   it('filters by person and exact date, not month only', () => {
     const selection = { personId: 1, date: '2026-03-17' }
 

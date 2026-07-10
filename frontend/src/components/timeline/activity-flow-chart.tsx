@@ -6,15 +6,29 @@ import {
   buildPersonActivityFlow,
 } from '@/lib/timeline-activity-flow'
 import type {
+  ActivityFlowDotSize,
   ActivityFlowPeriod,
   ActivityFlowRecord,
   ActivityFlowSelection,
 } from '@/lib/timeline-activity-flow'
 import type { PersonImageGender } from '@/lib/default-person-image'
+import { mediaUrl } from '@/lib/api/client'
 import { cn } from '@/lib/utils'
 
 const LANE_LABEL_WIDTH = 'w-24'
 const AXIS_LABEL_OFFSET = 'ml-26'
+
+// 점 지름 단계별 기본/선택 크기. sm 단계는 사진을 넣기엔 너무 작아 항상 민무늬 점으로 둔다.
+const DOT_SIZE_CLASS: Record<ActivityFlowDotSize, string> = {
+  sm: 'size-2',
+  md: 'size-3',
+  lg: 'size-4',
+}
+const DOT_SIZE_SELECTED_CLASS: Record<ActivityFlowDotSize, string> = {
+  sm: 'size-3',
+  md: 'size-4',
+  lg: 'size-5',
+}
 
 type ActivityFlowPerson = {
   id: number
@@ -158,6 +172,9 @@ export function ActivityFlowChart({
                       laneIndex * 28 + pointIndex * 22,
                       480,
                     )
+                    // sm 단계는 점이 너무 작아 사진을 생략하고 민무늬 점으로 표시한다.
+                    const photoSrc =
+                      flow.dotSize === 'sm' ? null : mediaUrl(point.photoUrl)
                     return (
                       <button
                         key={point.id}
@@ -176,13 +193,25 @@ export function ActivityFlowChart({
                         }}
                         title={point.date}
                         className={cn(
-                          'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground shadow-[0_0_0_4px_rgba(0,0,0,0.04)] transition-transform hover:scale-125',
+                          'absolute top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full shadow-[0_0_0_4px_rgba(0,0,0,0.04)] transition-transform hover:scale-125',
+                          photoSrc ? 'bg-muted' : 'bg-foreground',
                           'motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-50 motion-safe:fill-mode-backwards motion-safe:duration-300 motion-safe:ease-out',
+                          isSelected
+                            ? DOT_SIZE_SELECTED_CLASS[flow.dotSize]
+                            : DOT_SIZE_CLASS[flow.dotSize],
                           isSelected &&
-                            'size-4 ring-2 ring-foreground ring-offset-2 ring-offset-card',
+                            'ring-2 ring-foreground ring-offset-2 ring-offset-card',
                         )}
                         aria-label={`${lane.label} ${point.date} 기록`}
-                      />
+                      >
+                        {photoSrc ? (
+                          <img
+                            src={photoSrc}
+                            alt=""
+                            className="size-full object-cover"
+                          />
+                        ) : null}
+                      </button>
                     )
                   })}
                 </div>
