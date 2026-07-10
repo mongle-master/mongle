@@ -14,7 +14,8 @@
   선택 목록 = 공통 + 그 사용자 개인.
 - 사용자 식별은 **JWT Bearer 토큰**에서만 온다(고정 데모 사용자 하드코딩 없음). 아래 인증 절 참조.
 - 글자수·개수 한도를 넘기면 저장하지 않고 §12.5 문구로 거절한다.
-- 업로드 이미지는 각 10MB 이하, 확장자 jpg·jpeg·png·heic·webp 만 허용한다.
+- 업로드 이미지는 각 10MB 이하, 확장자 jpg·jpeg·png·heic·webp 만 허용한다. 이 검증은 저장 매체(로컬 FS·Supabase Storage)와 무관하게 동일하다(`ImageValidator`).
+- 배포(`prod` 프로필)는 `MONGLE_JWT_SECRET`·DB 접속(`SPRING_DATASOURCE_*`)·`SUPABASE_*` 를 환경변수로 **필수** 요구한다 — 미주입 시 기동 실패로 조기 발견(데모 기본 시크릿은 prod 에서 쓰지 않는다).
 
 ## 에러 코드 ↔ 상태 ↔ 문구 (§12.5 매핑)
 
@@ -91,5 +92,5 @@
 - 서비스 계층 검증: `com.mongle.common.Validators` (length/required/notFuture/dateOrder/selectionCount/chipKindCount).
 - 글자수: 서비스에서 `Validators.maxLength(value, ValidationLimits.X)` — **DTO `@field:Size` 금지**(@Valid 실패가 INVALID_INPUT 으로 뭉개져 LENGTH_EXCEEDED 를 잃음).
 - 현재 사용자: 컨트롤러 파라미터 `@AuthUser user: UserPrincipal` (id·username 자유 선택, JWT Bearer 토큰에서 해석 — 위 인증 절). 서비스에는 `user.id` 를 넘긴다.
-- 이미지: `ImageStorageService.store(file): StoredImage(filename, url)` — 용도별 개수는 도메인이 강제.
+- 이미지: `ImageStorage.store(file): StoredImage(filename, url)` — 용도별 개수는 도메인이 강제. 저장 매체는 프로필로 교체(`LocalImageStorage` ↔ prod `SupabaseImageStorage`), 검증은 `ImageValidator` 공통. `url` 은 클라가 `<img src>` 로 바로 쓰는 값(로컬 `/images/{f}`, prod Supabase 공개 URL).
 - 소프트삭제 엔티티: `com.mongle.domain.SoftDeletableEntity` 상속 → `softDelete()` / `deleted`.

@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/v1/images")
 class ImageController(
-    private val imageStorageService: ImageStorageService,
+    private val imageStorage: ImageStorage,
 ) {
     @Operation(
         summary = "이미지 업로드",
@@ -48,5 +48,5 @@ class ImageController(
         // 인증 강제용 주입(값 미사용) — 저장 파일은 사용자 무관 랜덤 파일명이고, 소유 연결은 도메인 저장 단계가 한다. 정적 서빙(GET /images/**)은 무인증 유지.
         @AuthUser user: UserPrincipal,
         @RequestParam("file") file: MultipartFile,
-    ): StoredImage = imageStorageService.store(file)
+    ): StoredImage = imageStorage.store(file)
 }

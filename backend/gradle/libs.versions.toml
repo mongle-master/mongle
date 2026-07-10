@@ -58,6 +58,7 @@ springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openap
 # Database drivers
 h2 = { module = "com.h2database:h2" }
 mysql-connector-j = { module = "com.mysql:mysql-connector-j" }
+postgresql = { module = "org.postgresql:postgresql" }
 
 # Testing
 spring-mockk = { module = "com.ninja-squad:springmockk", version.ref = "spring-mockk" }

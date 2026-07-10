@@ -49,6 +49,7 @@ dependencies {
     // Database drivers
     runtimeOnly(libs.h2)
     runtimeOnly(libs.mysql.connector.j)
+    runtimeOnly(libs.postgresql) // 배포(prod) — Supabase Postgres
 
     // Test
     testImplementation(libs.bundles.testing)

@@ -1,0 +1,36 @@
+# 배포(Render + Supabase) 프로필. 활성화: SPRING_PROFILES_ACTIVE=prod
+# 로컬 개발(H2 파일 + 로컬 FS)은 이 파일을 로드하지 않는다 — 기본 application.yml 이 담당.
+# 모든 시크릿·접속정보는 환경변수 필수(데모 기본값 사용 금지). 미주입 시 기동 실패로 조기 발견.
+spring:
+  datasource:
+    # 예: jdbc:postgresql://db.xxxx.supabase.co:5432/postgres
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    # 기본 application.yml 의 H2 드라이버를 명시적으로 덮어쓴다(프로필 병합 시 상속되므로 필수).
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      # 로컬과 동일하게 가산적 스키마 갱신(네이티브 쿼리·마이그레이션 없음).
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: false
+
+mongle:
+  # 이미지: Supabase Storage 로 저장(SupabaseImageStorage). base-dir/url-path 는 공통 검증 프로퍼티
+  # 바인딩·WebConfig 정적핸들러 등록을 위해 유지되나 prod 에선 실제로 쓰이지 않는다.
+  image:
+    base-dir: ./data/images
+    url-path: /images
+    max-bytes: 10MB
+    allowed-extensions: jpg,jpeg,png,heic,webp
+  supabase:
+    url: ${SUPABASE_URL}
+    bucket: ${SUPABASE_BUCKET:mongle-images}
+    service-key: ${SUPABASE_SERVICE_KEY}
+  jwt:
+    # 데모 기본값 금지 — 배포에선 반드시 랜덤 시크릿 주입(HS256 최소 32바이트).
+    secret: ${MONGLE_JWT_SECRET}
+    expiration: ${MONGLE_JWT_EXPIRATION:30d}
