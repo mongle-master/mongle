@@ -16,6 +16,7 @@
 - 글자수·개수 한도를 넘기면 저장하지 않고 §12.5 문구로 거절한다.
 - 업로드 이미지는 각 10MB 이하, 확장자 jpg·jpeg·png·heic·webp 만 허용한다. 이 검증은 저장 매체(로컬 FS·Supabase Storage)와 무관하게 동일하다(`ImageValidator`).
 - 배포(`prod` 프로필)는 `MONGLE_JWT_SECRET`·DB 접속(`SPRING_DATASOURCE_*`)·`SUPABASE_*` 를 환경변수로 **필수** 요구한다 — 미주입 시 기동 실패로 조기 발견(데모 기본 시크릿은 prod 에서 쓰지 않는다).
+- CORS 는 전 오리진 허용이다 — 프론트는 어느 오리진(로컬 dev·배포 도메인)에서든 API 를 직접 호출할 수 있다. 인증이 쿠키가 아닌 Authorization 헤더 기반이라 크리덴셜 없는 와일드카드가 안전하다(`WebConfig`).
 
 ## 에러 코드 ↔ 상태 ↔ 문구 (§12.5 매핑)
 

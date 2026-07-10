@@ -46,7 +46,7 @@ class TimelineService(
         return buildActivityFlow(eventRepository.findByPersonId(personId))
     }
 
-    // 활동 흐름(Activity Flow) 응답 객체를 생성한다. 
+    // 활동 흐름(Activity Flow) 응답 객체를 생성한다.
     // 이 함수는 주어진 이벤트 리스트에서 활동 레인별(만남/연락/추억) 최근 6개월간 기록 유무 매트릭스와
     // 각 레인에 해당하는 카테고리 집계 결과를 통해 ActivityFlowResponse를 만든다.
     private fun buildActivityFlow(events: List<Event>): ActivityFlowResponse {
