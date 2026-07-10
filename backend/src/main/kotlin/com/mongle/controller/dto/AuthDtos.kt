@@ -23,4 +23,6 @@ data class TokenResponse(
     val userId: UUID,
     @field:Schema(description = "로그인 이름.", example = "정순원")
     val username: String,
+    @field:Schema(description = "최초 프로필 설정 완료 여부.", example = "false")
+    val profileSetupCompleted: Boolean,
 )
