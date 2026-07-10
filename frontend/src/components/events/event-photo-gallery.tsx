@@ -117,17 +117,29 @@ export function EventPhotoGallery({ photoUrls }: { photoUrls: string[] }) {
           <div className="absolute inset-0 bg-foreground/55 backdrop-blur-[2px]" />
 
           <div className="relative flex h-full w-full max-w-md flex-col px-5">
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation()
-                setViewerOpen(false)
-              }}
-              className="mt-[max(1rem,env(safe-area-inset-top))] ml-auto flex size-9 shrink-0 items-center justify-center rounded-full bg-background/90 text-foreground"
-              aria-label="닫기"
-            >
-              <X className="size-5" />
-            </button>
+            <div className="mt-[max(1rem,env(safe-area-inset-top))] flex items-center justify-between">
+              {photoUrls.length > 1 ? (
+                <span
+                  onClick={(event) => event.stopPropagation()}
+                  className="rounded-full bg-background/90 px-3 py-1 text-xs font-extrabold text-foreground"
+                >
+                  {activeIndex + 1} / {photoUrls.length}
+                </span>
+              ) : (
+                <span />
+              )}
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setViewerOpen(false)
+                }}
+                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-background/90 text-foreground"
+                aria-label="닫기"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
 
             <div
               className="relative flex min-h-0 flex-1 items-center justify-center px-7 py-8"
@@ -142,7 +154,7 @@ export function EventPhotoGallery({ photoUrls }: { photoUrls: string[] }) {
                     event.stopPropagation()
                     goPrev()
                   }}
-                  className="absolute left-5 hidden size-10 items-center justify-center rounded-full bg-background/90 text-foreground md:flex"
+                  className="absolute left-5 flex size-10 items-center justify-center rounded-full bg-background/90 text-foreground"
                   aria-label="이전 사진"
                 >
                   <ChevronLeft className="size-6" />
@@ -170,7 +182,7 @@ export function EventPhotoGallery({ photoUrls }: { photoUrls: string[] }) {
                     event.stopPropagation()
                     goNext()
                   }}
-                  className="absolute right-5 hidden size-10 items-center justify-center rounded-full bg-background/90 text-foreground md:flex"
+                  className="absolute right-5 flex size-10 items-center justify-center rounded-full bg-background/90 text-foreground"
                   aria-label="다음 사진"
                 >
                   <ChevronRight className="size-6" />
