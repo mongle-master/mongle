@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { AppScreen } from '@stackflow/plugin-basic-ui'
+import { AppScreen } from '@/stackflow/components/app-screen'
 import type { ActivityComponentType } from '@stackflow/react'
 import { StackTabBar } from '@/stackflow/components/stack-tab-bar'
 import { HomeTab } from '@/stackflow/tabs/home-tab'

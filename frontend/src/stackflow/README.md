@@ -11,7 +11,8 @@
 - 인물 프로필↔타임라인 토글이 매번 push → 여기서는 step(`replaceStep`)이라 히스토리 불변.
 - 탭 전환마다 화면 언마운트 → 상태 소실. 단일 Main activity가 탭을 품어(당근 공식 데모 패턴)
   검색어·필터·스크롤이 보존된다.
-- 모바일 push/pop 전환·iOS 엣지 스와이프백이 공짜로 온다 (basic-ui cupertino).
+- 모바일 push/pop 전환이 공짜로 온다 (basic-ui cupertino). 인앱 엣지 스와이프백은
+  모바일 브라우저 네이티브 제스처와 이중 pop을 만들어 끈다 (`components/app-screen.tsx`).
 
 ## 구조
 
@@ -61,11 +62,14 @@
   그리므로, 사용자 제스처발 popstate에는 stackflow 전환을 생략한다
   (`browser-nav-transition.ts` + styles.css). 앱 내 pop이 history-sync를 통해
   만들어내는 popstate는 history.back/go 래핑으로 구분해 애니메이션을 유지한다.
+- **브라우저 제스처 이중 pop 방지**: basic-ui cupertino의 인앱 엣지 스와이프백은
+  네이티브 제스처가 터치를 가로채며 보내는 touchcancel을 완료로 판정해 pop()을
+  추가 실행하므로(한 스와이프 = pop 2회), 전 AppScreen에서 비활성한다
+  (`components/app-screen.tsx`). 엣지 스와이프 = 네이티브 제스처 1회 pop만 남는다.
 
 - dev 콘솔의 "Cannot update a component (Transitioner) while rendering (Stack)" 경고:
   초기 진입 시 history-sync의 동기 replaceState를 TSR 구독이 받아서 나는 개발용 경고로,
   동작엔 영향 없음. TSR 라우트를 완전히 제거하면 사라진다.
-- basic-ui 셸이 디자인과 안 맞으면 `@stackflow/react-ui-core` 훅으로 커스텀 셸 교체 가능
-  (스와이프백 유지).
+- basic-ui 셸이 디자인과 안 맞으면 `@stackflow/react-ui-core` 훅으로 커스텀 셸 교체 가능.
 - TSR(router-plugin·routeTree) 완전 제거 여부는 별도 결정 — 현재는 리다이렉트·devtools
   셸로만 사용.

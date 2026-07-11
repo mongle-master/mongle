@@ -1,4 +1,4 @@
-import { AppScreen } from '@stackflow/plugin-basic-ui'
+import { AppScreen } from '@/stackflow/components/app-screen'
 import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 
