@@ -166,6 +166,16 @@
   .dark *::-webkit-scrollbar-thumb:hover {
     background: oklch(0.58 0 0 / 0.55);
   }
+
+  /* stackflow AppScreen의 paper 스크롤 레이어(overflow-y: scroll 고정)는
+     ::-webkit-scrollbar { display: none }으로 스크롤바를 숨기는 설계인데,
+     위의 전역 scrollbar-width: thin이 표준 속성이라 webkit 숨김을 무효화함
+     (Chrome 121+는 scrollbar-width가 있으면 ::-webkit-scrollbar를 무시).
+     paper에 상시 스크롤바 gutter가 생기지 않도록 숨김 의도를 복원한다.
+     실제 콘텐츠 스크롤바는 activity 내부 컨테이너가 표시한다. */
+  [data-part='paper'] > div {
+    scrollbar-width: none;
+  }
 }
 
 /* iOS Safari 네이티브 뒤로가기 제스처와 stackflow 전환의 이중 재생 방지.
