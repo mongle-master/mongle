@@ -23,6 +23,7 @@ import {
 import { cn } from '@/lib/utils'
 
 const MEMO_MAX = 200 // 백엔드 memo 상한과 일치
+const EMOTION_MAX = 5 // 백엔드 ValidationLimits.EMOTION_PER_EVENT_MAX와 일치
 
 // 감정 칩(명사)을 "오늘은 ___다" 문장에 맞는 과거 서술형으로 바꾼다.
 // 한국어 활용은 규칙화가 어려워(es-hangul도 조사만 지원) 알려진 값만 매핑한다.
@@ -155,7 +156,13 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   }, [eventQuery.data?.persons, persons, selectedPersonIds])
 
   const primaryPerson = selectedPersons.at(0)
-  const personLabel = primaryPerson ? `${primaryPerson.name}님` : ''
+  let personLabel = ''
+  if (primaryPerson) {
+    personLabel =
+      selectedPersons.length === 1
+        ? `${primaryPerson.name}님`
+        : `${primaryPerson.name}님 외 ${selectedPersons.length - 1}명`
+  }
 
   const categoryLabel =
     categoryChips.find((c) => c.id === categoryChipId)?.label ??
@@ -181,9 +188,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     setSelectedPersonIds(event.persons.map((p) => p.id))
     setWhat(event.memo ?? '')
     setOccurredDate(event.occurredDate)
-    setOccurredTime(
-      formatOccurredTimeForInput(event.occurredTime) || nowTimeStr(),
-    )
+    setOccurredTime(formatOccurredTimeForInput(event.occurredTime))
     setCategoryChipId(event.category?.id ?? null)
     setEmotionChipIds(event.emotions.map((e) => e.id))
     setWeatherChipId(event.weather?.id ?? null)
@@ -255,9 +260,22 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     saveMutation.mutate(buildPayload())
   }
 
-  // 감정은 하나만 고른다(같은 걸 다시 누르면 해제).
-  const selectEmotion = (id: number) => {
-    setEmotionChipIds((prev) => (prev[0] === id ? [] : [id]))
+  const togglePerson = (id: number) => {
+    setSelectedPersonIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((personId) => personId !== id)
+        : [...prev, id],
+    )
+  }
+
+  const toggleEmotion = (id: number) => {
+    setEmotionChipIds((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((emotionId) => emotionId !== id)
+      }
+      if (prev.length >= EMOTION_MAX) return prev
+      return [...prev, id]
+    })
   }
 
   const handlePhotoPick = async (files: FileList | null) => {
@@ -332,43 +350,61 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   }
 
   const saving = saveMutation.isPending
-  // 감정은 하나. 문장 빈칸 단어 + 그 감정의 색.
-  const selEmotionIdx = emotionChips.findIndex(
-    (c) => c.id === emotionChipIds[0],
-  )
-  const selEmotionWord =
-    selEmotionIdx >= 0 ? emotionPast(emotionChips[selEmotionIdx].label) : ''
-  const selEmotionColor =
-    selEmotionIdx >= 0 ? EMOTION_TEXT[selEmotionIdx % EMOTION_TEXT.length] : ''
+  const selectedEmotionWords = emotionChipIds.flatMap((id) => {
+    const emotion = emotionChips.find((chip) => chip.id === id)
+    return emotion ? [`${emotionPast(emotion.label)}다`] : []
+  })
 
   return (
     <funnel.Render
       person={({ history }) => (
-        <StepFrame onBack={() => pop()}>
+        <StepFrame
+          onBack={() => pop()}
+          footer={
+            <NextBar
+              onNext={() => history.push('emotion', {})}
+              disabled={selectedPersonIds.length === 0}
+            />
+          }
+        >
           <h2 className="text-2xl font-bold">누구와의 기록이에요?</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            함께한 사람을 모두 골라주세요. {selectedPersonIds.length}명 선택
+          </p>
           <ul className="mt-5 flex flex-col">
             {[...persons]
               .sort((a, b) => Number(b.favorite) - Number(a.favorite))
-              .map((person) => (
-                <li key={person.id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedPersonIds([person.id])
-                      history.push('emotion', {})
-                    }}
-                    className="flex w-full items-center gap-3 border-b border-border/70 py-2.5 text-left"
-                  >
-                    <MonogramAvatar
-                      name={person.name}
-                      imageUrl={person.profileImageUrl}
-                      favorite={person.favorite}
-                      className="size-12"
-                    />
-                    <span className="text-lg">{person.name}</span>
-                  </button>
-                </li>
-              ))}
+              .map((person) => {
+                const selected = selectedPersonIds.includes(person.id)
+                return (
+                  <li key={person.id}>
+                    <button
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => togglePerson(person.id)}
+                      className="flex w-full items-center gap-3 border-b border-border/70 py-2.5 text-left"
+                    >
+                      <MonogramAvatar
+                        name={person.name}
+                        imageUrl={person.profileImageUrl}
+                        favorite={person.favorite}
+                        className="size-12"
+                      />
+                      <span className="flex-1 text-lg">{person.name}</span>
+                      <span
+                        className={cn(
+                          'flex size-6 items-center justify-center rounded-full border',
+                          selected
+                            ? 'border-foreground/85 bg-foreground/85 text-background'
+                            : 'border-border text-transparent',
+                        )}
+                      >
+                        <Check className="size-4" />
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
           </ul>
         </StepFrame>
       )}
@@ -388,37 +424,37 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             />
           </div>
 
-          {/* 밑줄 빈칸은 선택 여부와 무관하게 항상 보이고, 고른 감정이 그 위에 얹힌다. */}
-          <p className="mt-8 font-hand text-center text-3xl text-foreground/85">
-            오늘은{' '}
-            <span
-              className={cn(
-                'inline-block min-w-[3.5rem] text-center underline decoration-foreground/30 decoration-2 underline-offset-[6px]',
-                selEmotionColor,
-              )}
-            >
-              {selEmotionWord || '\u00A0\u00A0'}
-            </span>
-            다.
-          </p>
+          <div className="mt-8 text-center">
+            <p className="font-hand text-2xl text-foreground/70">오늘은</p>
+            <p className="font-hand mt-2 min-h-11 text-3xl text-foreground/85">
+              {selectedEmotionWords.length > 0
+                ? selectedEmotionWords.join(' · ')
+                : '\u00A0'}
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              최대 {EMOTION_MAX}개 · {emotionChipIds.length}개 선택
+            </p>
+          </div>
 
           <div className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-3 font-hand">
             {emotionChips.map((chip, i) => {
-              const on = emotionChipIds[0] === chip.id
+              const on = emotionChipIds.includes(chip.id)
               return (
                 <button
                   key={chip.id}
                   type="button"
-                  onClick={() => selectEmotion(chip.id)}
+                  aria-pressed={on}
+                  disabled={!on && emotionChipIds.length >= EMOTION_MAX}
+                  onClick={() => toggleEmotion(chip.id)}
                   className={cn(
-                    'text-3xl transition',
+                    'text-3xl transition disabled:opacity-20',
                     EMOTION_TEXT[i % EMOTION_TEXT.length],
                     on
                       ? 'underline decoration-2 underline-offset-8 opacity-100'
                       : 'opacity-40',
                   )}
                 >
-                  {emotionPast(chip.label)}
+                  {emotionPast(chip.label)}다
                 </button>
               )
             })}
@@ -617,12 +653,19 @@ function StepFrame({
 }
 
 // 다음 단계로. 하단을 여백 없이 채운다.
-function NextBar({ onNext }: { onNext: () => void }) {
+function NextBar({
+  onNext,
+  disabled = false,
+}: {
+  onNext: () => void
+  disabled?: boolean
+}) {
   return (
     <button
       type="button"
       onClick={onNext}
-      className="sticky bottom-0 w-full bg-foreground/85 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-lg font-bold text-background"
+      disabled={disabled}
+      className="sticky bottom-0 w-full bg-foreground/85 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-lg font-bold text-background disabled:opacity-30"
     >
       이어서
     </button>
