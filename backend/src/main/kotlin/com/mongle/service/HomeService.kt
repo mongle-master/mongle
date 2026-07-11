@@ -1,5 +1,7 @@
 package com.mongle.service
 
+import com.mongle.common.exception.BusinessException
+import com.mongle.common.exception.ErrorCode
 import com.mongle.controller.dto.AvatarGender
 import com.mongle.controller.dto.ChipDisplay
 import com.mongle.controller.dto.ChipRef
@@ -15,6 +17,7 @@ import com.mongle.domain.Person
 import com.mongle.repository.ChipRepository
 import com.mongle.repository.EventRepository
 import com.mongle.repository.PersonRepository
+import com.mongle.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -30,6 +33,7 @@ class HomeService(
     private val eventRepository: EventRepository,
     private val personService: PersonService,
     private val eventService: EventService,
+    private val userRepository: UserRepository,
 ) {
     /**
      * 관계 지도(#40 #41 #42). 내 소유·active 인물을 노드로, 나↔인물을 엣지로 낸다.
@@ -38,6 +42,8 @@ class HomeService(
      * 관계태그 필터(#42)는 합집합(OR) — 하나라도 가진 인물을 남긴다(넓혀 보기). 빈 필터는 전체. 흐린 표시는 멀어짐 전용이라 섞지 않고, 조건 밖 인물은 아예 뺀다.
      */
     fun relationMap(userId: UUID, filterTagChipIds: List<Long>): RelationMapResponse {
+        val user = userRepository.findById(userId)
+            .orElseThrow { BusinessException(ErrorCode.NOT_FOUND) }
         val today = LocalDate.now()
         val filter = filterTagChipIds.toSet()
         // 관계태그(조인 엔티티)는 필터·표시 양쪽에 쓰이므로 전체 인물분을 한 번에 로드한 뒤 필터한다.
@@ -65,7 +71,16 @@ class HomeService(
             )
         }
         val edges = nodes.map { RelationEdge(personId = it.id, distant = it.intimacy.status == IntimacyStatus.DISTANT) }
-        return RelationMapResponse(me = MeNode(), nodes = nodes, edges = edges)
+        return RelationMapResponse(
+            me = MeNode(
+                id = user.id,
+                name = user.username,
+                profileImageUrl = user.profileImageUrl,
+                avatarGender = user.gender?.let { AvatarGender.valueOf(it.name) },
+            ),
+            nodes = nodes,
+            edges = edges,
+        )
     }
 
     /**

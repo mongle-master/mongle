@@ -66,7 +66,13 @@ export type PersonRequest = {
 export type IntimacyStatus = 'UNKNOWN' | 'NORMAL' | 'DISTANT'
 
 export type RelationMapResponse = {
-  me: { label: string }
+  me: {
+    label: string
+    id: string
+    name: string
+    profileImageUrl: string | null
+    avatarGender: 'FEMALE' | 'MALE' | null
+  }
   nodes: Array<
     PersonNameFields & {
       id: number
