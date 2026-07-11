@@ -12,7 +12,6 @@ import {
 } from '@/components/timeline/timeline-event-card'
 import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell'
-import { PersonPageHeader } from '@/components/person/person-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { ListGroup, ListGroupItem } from '@/components/ui/list-group'
@@ -23,15 +22,8 @@ import { formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { matchesActivityFlowSelection } from '@/lib/timeline-activity-flow'
 import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
-import type { PersonView } from '@/stackflow/stackflow.config'
 
-export function PersonTimelineView({
-  personId,
-  onSelectView,
-}: {
-  personId: string
-  onSelectView: (view: PersonView) => void
-}) {
+export function PersonTimelineView({ personId }: { personId: string }) {
   const id = Number(personId)
   const { push } = useFlow()
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -115,12 +107,7 @@ export function PersonTimelineView({
 
   if (!Number.isFinite(id)) {
     return (
-      <TimelineScrollShell
-        scrollRef={scrollRef}
-        header={
-          <p className="text-sm text-muted-foreground">잘못된 경로예요.</p>
-        }
-      >
+      <TimelineScrollShell scrollRef={scrollRef}>
         <p className="py-20 text-center text-sm text-muted-foreground">
           잘못된 경로예요.
         </p>
@@ -130,12 +117,7 @@ export function PersonTimelineView({
 
   if (personQuery.isPending || timelineQuery.isPending) {
     return (
-      <TimelineScrollShell
-        scrollRef={scrollRef}
-        header={
-          <PersonPageHeader active="timeline" onSelectView={onSelectView} />
-        }
-      >
+      <TimelineScrollShell scrollRef={scrollRef}>
         <p className="py-12 text-center text-sm text-muted-foreground">
           불러오는 중…
         </p>
@@ -145,12 +127,7 @@ export function PersonTimelineView({
 
   if (!person) {
     return (
-      <TimelineScrollShell
-        scrollRef={scrollRef}
-        header={
-          <PersonPageHeader active="timeline" onSelectView={onSelectView} />
-        }
-      >
+      <TimelineScrollShell scrollRef={scrollRef}>
         <p className="py-20 text-center text-sm text-muted-foreground">
           사람 정보를 불러오지 못했어요.
         </p>
@@ -160,12 +137,7 @@ export function PersonTimelineView({
 
   return (
     <>
-      <TimelineScrollShell
-        scrollRef={scrollRef}
-        header={
-          <PersonPageHeader active="timeline" onSelectView={onSelectView} />
-        }
-      >
+      <TimelineScrollShell scrollRef={scrollRef}>
         <div className="mb-4">
           <h1 className="text-[22px] font-black tracking-tight">
             {formatPersonName(person)}
@@ -266,7 +238,7 @@ export function PersonTimelineView({
 
       <Button
         size="icon-lg"
-        className="absolute right-5 bottom-6 z-40 size-12 rounded-full shadow-lg"
+        className="absolute right-0 bottom-4 z-40 size-12 rounded-full shadow-lg"
         onClick={() => push('Record', { personId })}
       >
         ＋
