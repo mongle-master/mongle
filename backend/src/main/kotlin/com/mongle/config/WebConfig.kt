@@ -14,14 +14,11 @@ class WebConfig(
         resolvers.add(authUserArgumentResolver)
     }
 
-    // 허용 오리진 = Vercel 프로덕션 + 로컬 dev 전 포트.
-    // allowedOrigins 는 포트 와일드카드를 못 받아서 allowedOriginPatterns 를 쓴다(:[*] = 임의 포트).
+    // 전 오리진 허용(mustpass 00-infra) — Vercel preview 오리진은 배포마다 달라 열거 불가.
+    // 인증이 쿠키가 아닌 Authorization 헤더 기반이라 크리덴셜 없는 와일드카드가 안전하다.
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOriginPatterns(
-                "https://mongle-master.vercel.app",
-                "http://localhost:[*]",
-            )
+            .allowedOriginPatterns("*")
             .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             .allowedHeaders("*")
             .maxAge(3600)
