@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
+import { ChevronLeft } from 'lucide-react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
@@ -62,10 +63,10 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
           <button
             type="button"
             onClick={() => pop()}
-            className="text-left text-lg font-extrabold text-muted-foreground"
+            className="inline-flex items-center justify-self-start text-muted-foreground"
             aria-label="뒤로 가기"
           >
-            ‹
+            <ChevronLeft className="size-6" />
           </button>
           <h1 className="text-center text-base font-extrabold">몽글 상세</h1>
           <span aria-hidden className="text-right" />
@@ -85,10 +86,10 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         <button
           type="button"
           onClick={() => pop()}
-          className="text-left text-lg font-extrabold text-muted-foreground"
+          className="inline-flex items-center justify-self-start text-muted-foreground"
           aria-label="뒤로 가기"
         >
-          ‹
+          <ChevronLeft className="size-6" />
         </button>
         <h1 className="text-center text-base font-extrabold">몽글 상세</h1>
         <button
