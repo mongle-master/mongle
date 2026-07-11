@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { defineConfig } from '@stackflow/config'
 import { stackflow } from '@stackflow/react'
 import { basicRendererPlugin } from '@stackflow/plugin-renderer-basic'
@@ -48,17 +48,19 @@ const { Stack: OnboardingStack, actions: onboardingActions } = stackflow({
   ],
 })
 
-// 인스턴스가 모듈 스코프라 언마운트-재마운트(에러→재시도)에도 push 중복을 막는다.
-// 재방문 퍼널은 initialActivity가 이미 프로필이므로 push할 것이 없다.
-let profilePushed = getUserIdentity() !== null
-
 export function OnboardingFlow({
   showProfileStep,
   ...contextValue
 }: OnboardingContextValue & { showProfileStep: boolean }) {
+  // false→true "전이"에만 push한다.
+  // - 재방문 퍼널: 첫 렌더부터 true지만 initialActivity가 이미 프로필이라 push 불필요
+  // - 프로필에서 이름 단계로 pop한 뒤: true가 유지될 뿐 전이가 아니므로 재push 없음
+  // - 이름 재제출: 새 identity 인증(loading, false) → profile(true) 전이 → 다시 push
+  const prevShowProfileStep = useRef(showProfileStep)
   useEffect(() => {
-    if (showProfileStep && !profilePushed) {
-      profilePushed = true
+    const wasShowing = prevShowProfileStep.current
+    prevShowProfileStep.current = showProfileStep
+    if (showProfileStep && !wasShowing) {
       onboardingActions.push('OnboardingProfile', {})
     }
   }, [showProfileStep])

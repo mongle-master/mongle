@@ -47,8 +47,10 @@
 - 인증 전이라 앱 스택을 마운트하면 데이터 화면이 무토큰 쿼리를 쏘게 되고,
 - history-sync 없이 URL을 안 건드려야 딥링크가 온보딩 완료 후 그대로 살아난다.
 
-단계 전환은 push(슬라이드), 프로필 단계는 `preventSwipeBack`(이름 제출 시 identity가
-서버에 커밋되므로 전진 전용). 부트스트랩 상태 머신(main.tsx)과는 activity params가 아니라
+단계 전환은 push(슬라이드). 프로필→이름 뒤로가기(pop)를 허용하며, 이름을 고쳐 재제출하면
+**새 identity(UUID)로 재인증**한다 — 백엔드가 기존 UUID의 이름 변경을 받지 않아서이고,
+프로필 완료 전에는 시드가 없어 잃는 데이터도 없다(구 UUID 사용자는 서버에 잔류).
+부트스트랩 상태 머신(main.tsx)과는 activity params가 아니라
 `OnboardingContext`로 대화한다. stackflow의 components 타입이 Register 전체 키를 요구해서
 두 인스턴스가 `activity-components.ts` 맵 하나를 공유한다.
 

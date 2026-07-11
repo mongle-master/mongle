@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Camera, RefreshCw } from 'lucide-react'
+import { Camera, ChevronLeft, RefreshCw } from 'lucide-react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { Button } from '@/components/ui/button'
 import { uploadImage } from '@/lib/api/images'
@@ -20,9 +20,12 @@ const GENDER_OPTIONS: Array<{ value: Gender; label: string }> = [
 
 export function ProfileOnboarding({
   username,
+  onBack,
   onComplete,
 }: {
   username: string
+  /** 이름 단계로 되돌아가기 (스택 pop) */
+  onBack?: () => void
   onComplete: (profile: UserProfileInput) => Promise<void>
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
@@ -93,7 +96,19 @@ export function ProfileOnboarding({
         className="absolute bottom-8 -left-28 size-64 rounded-full bg-amber-200/20 blur-3xl"
       />
 
-      <MongleLogo className="relative text-foreground" />
+      <div className="relative flex items-center gap-2">
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="-ml-2 inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label="이름 다시 정하기"
+          >
+            <ChevronLeft className="size-6" />
+          </button>
+        ) : null}
+        <MongleLogo className="text-foreground" />
+      </div>
 
       <section className="relative my-auto py-8 text-center">
         <p className="text-sm font-extrabold text-primary">
