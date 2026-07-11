@@ -8,6 +8,7 @@ import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { DateStrip, TimeWheel } from '@/components/record/date-time-wheel'
+import { AppScreen } from '@/stackflow/components/app-screen'
 import { fetchChips } from '@/lib/api/chips'
 import { createEvent, fetchEvent, updateEvent } from '@/lib/api/events'
 import { uploadImage } from '@/lib/api/images'
@@ -27,20 +28,35 @@ const EMOTION_MAX = 5 // 백엔드 ValidationLimits.EMOTION_PER_EVENT_MAX와 일
 
 // 감정 칩(명사)을 "오늘은 ___다" 문장에 맞는 과거 서술형으로 바꾼다.
 // 한국어 활용은 규칙화가 어려워(es-hangul도 조사만 지원) 알려진 값만 매핑한다.
+// 백엔드 ChipSeeder 의 감정 시드 라벨은 전부 여기 있어야 한다 — 빠지면 "반가움다"처럼 깨진다.
 const EMOTION_PAST: Record<string, string> = {
+  반가움: '반가웠',
+  뭉클: '뭉클했',
+  편안: '편안했',
+  즐거움: '즐거웠',
+  고마움: '고마웠',
+  설렘: '설렜',
+  든든: '든든했',
+  서운: '서운했',
+  아쉬움: '아쉬웠',
+  속상: '속상했',
+  그냥: '그냥 그랬',
+  // 이하는 과거 시드·개인 칩에서 올 수 있는 라벨.
   기쁨: '기뻤',
   감사: '감사했',
-  편안: '편안했',
   행복: '행복했',
   뿌듯: '뿌듯했',
   슬픔: '슬펐',
-  서운: '서운했',
   우울: '우울했',
   불안: '불안했',
   신남: '신났',
   피곤: '피곤했',
 }
-const emotionPast = (label: string) => EMOTION_PAST[label] ?? label
+// 매핑에 없는 라벨(사용자 개인 칩 등)에 '다'를 붙이면 "반가움다"처럼 깨지므로 원형 그대로 둔다.
+const emotionWord = (label: string) => {
+  const past = EMOTION_PAST[label]
+  return past ? `${past}다` : label
+}
 
 // 감정은 칩(테두리) 대신 색상 있는 글자만. 리터럴이라 Tailwind JIT가 스캔한다.
 const EMOTION_TEXT = [
@@ -352,7 +368,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const saving = saveMutation.isPending
   const selectedEmotionWords = emotionChipIds.flatMap((id) => {
     const emotion = emotionChips.find((chip) => chip.id === id)
-    return emotion ? [`${emotionPast(emotion.label)}다`] : []
+    return emotion ? [emotionWord(emotion.label)] : []
   })
 
   return (
@@ -454,7 +470,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                       : 'opacity-40',
                   )}
                 >
-                  {emotionPast(chip.label)}다
+                  {emotionWord(chip.label)}
                 </button>
               )
             })}
@@ -596,13 +612,22 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   )
 }
 
-// 몰입형 껍데기: 앱 헤더/하단 탭바 없이 전체화면 + 손글씨 폰트 기본.
-function BareShell({ children }: { children: React.ReactNode }) {
+// 몰입형 껍데기: 앱 헤더/하단 탭바 없이 전체화면.
+// AppScreen 래핑은 필수 — 없으면 push 되어도 아래 activity(탭 화면)를 덮지 못해
+// "+ 눌러도 아무 일 없음"이 된다. fullScreen 모달 present는 stackflow/README 계약.
+// AppScreen 컨테이너(absolute inset)에 갇히므로 dvh 대신 h-full 기준.
+function RecordScreen({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-background">
-      {children}
-    </div>
+    <AppScreen CUPERTINO_ONLY_modalPresentationStyle="fullScreen">
+      <div className="mx-auto flex h-full max-w-md flex-col overflow-y-auto bg-background">
+        {children}
+      </div>
+    </AppScreen>
   )
+}
+
+function BareShell({ children }: { children: React.ReactNode }) {
+  return <RecordScreen>{children}</RecordScreen>
 }
 
 function StepFrame({
@@ -621,7 +646,7 @@ function StepFrame({
   children: React.ReactNode
 }) {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-background">
+    <RecordScreen>
       <header className="flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
         <button
           type="button"
@@ -648,7 +673,7 @@ function StepFrame({
       </header>
       <main className="flex flex-1 flex-col px-5 pt-4 pb-6">{children}</main>
       {footer}
-    </div>
+    </RecordScreen>
   )
 }
 
