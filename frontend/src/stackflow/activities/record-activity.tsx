@@ -371,29 +371,12 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
 
       <div ref={scrollBodyRef} className={scrollBodyClass}>
         <div className="flex flex-col gap-5 px-5 pb-8">
-          <button
-            type="button"
-            onClick={() => openPersonModal()}
-            className="text-left"
-          >
-            {primaryPerson ? (
-              <MonogramAvatar
-                name={primaryPerson.name}
-                imageUrl={primaryPerson.profileImageUrl}
-                gender={'gender' in primaryPerson ? primaryPerson.gender : null}
-                personId={primaryPerson.id}
-                className="size-9"
-              />
-            ) : (
-              <div className="flex size-9 items-center justify-center rounded-full border border-dashed border-muted-foreground text-muted-foreground">
-                ?
-              </div>
-            )}
-            <h2 className="mt-2 text-xl font-extrabold">{greeting.title}</h2>
+          <div>
+            <h2 className="text-xl font-extrabold">{greeting.title}</h2>
             <p className="mt-1 text-xs text-muted-foreground">
               {greeting.subtitle}
             </p>
-          </button>
+          </div>
 
           <section>
             <div className="mb-2 flex items-center justify-between">
