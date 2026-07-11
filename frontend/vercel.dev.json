@@ -13,11 +13,5 @@
     "minimumCacheTTL": 2678400,
     "qualities": [80],
     "formats": ["image/avif", "image/webp"]
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+  }
 }
