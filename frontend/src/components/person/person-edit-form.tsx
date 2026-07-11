@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { DatePartPicker } from '@/components/person/first-met-date-picker'
+import { DateWheel } from '@/components/person/date-wheel'
 import { ListField, RelationTypeField } from '@/components/person/person-fields'
 import {
   GENDER_OPTIONS,
@@ -165,20 +165,23 @@ export function PersonEditForm({
           </div>
           <div>
             <p className="text-xs font-extrabold">생일</p>
-            <DatePartPicker
-              year={values.birthYear}
-              month={values.birthMonth}
-              day={values.birthDay}
-              onChange={({ year, month, day }) => {
-                setValues((previous) => ({
-                  ...previous,
-                  birthYear: year,
-                  birthMonth: month,
-                  birthDay: day,
-                }))
-                setError(null)
-              }}
-            />
+            <div className="mt-3">
+              <DateWheel
+                yearOptional
+                year={values.birthYear}
+                month={values.birthMonth}
+                day={values.birthDay}
+                onChange={({ year, month, day }) => {
+                  setValues((previous) => ({
+                    ...previous,
+                    birthYear: year,
+                    birthMonth: month,
+                    birthDay: day,
+                  }))
+                  setError(null)
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -243,20 +246,22 @@ export function PersonEditForm({
         <div className="flex flex-col gap-6">
           <div>
             <p className="text-xs font-extrabold">처음 만난 날</p>
-            <DatePartPicker
-              year={values.firstMetYear}
-              month={values.firstMetMonth}
-              day={values.firstMetDay}
-              onChange={({ year, month, day }) => {
-                setValues((previous) => ({
-                  ...previous,
-                  firstMetYear: year,
-                  firstMetMonth: month,
-                  firstMetDay: day,
-                }))
-                setError(null)
-              }}
-            />
+            <div className="mt-3">
+              <DateWheel
+                year={values.firstMetYear}
+                month={values.firstMetMonth}
+                day={values.firstMetDay}
+                onChange={({ year, month, day }) => {
+                  setValues((previous) => ({
+                    ...previous,
+                    firstMetYear: year,
+                    firstMetMonth: month,
+                    firstMetDay: day,
+                  }))
+                  setError(null)
+                }}
+              />
+            </div>
           </div>
           <div>
             <label htmlFor="lastMetDate" className="text-xs font-extrabold">
