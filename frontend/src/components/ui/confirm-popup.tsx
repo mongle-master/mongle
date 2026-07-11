@@ -31,8 +31,11 @@ export function ConfirmPopup({
     if (!pending) onOpenChange(false)
   }
 
+  const overlayRoot = document.getElementById('stack-overlay-root')
+  if (!overlayRoot) return null
+
   return createPortal(
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-5">
+    <div className="pointer-events-auto absolute inset-0 flex items-center justify-center p-5">
       <button
         type="button"
         className="absolute inset-0 bg-black/45"
@@ -98,6 +101,6 @@ export function ConfirmPopup({
         </div>
       </div>
     </div>,
-    document.body,
+    overlayRoot,
   )
 }
