@@ -9,6 +9,11 @@ import { OnboardingContext } from '@/stackflow/onboarding/onboarding-context'
 import type { OnboardingContextValue } from '@/stackflow/onboarding/onboarding-context'
 import { getUserIdentity } from '@/lib/user-identity'
 
+// basic-ui CSS는 앱 스택(stackflow.ts)에서도 import하지만, 그 모듈은 인증 후
+// 라우트 청크에서야 로드된다. 온보딩이 먼저 뜨므로 여기서도 반드시 불러와야
+// AppScreen의 absolute 겹침 배치·전환 스타일이 적용된다.
+import '@stackflow/plugin-basic-ui/index.css'
+
 // 인증 전 전용 스택. 앱 스택(stackflow.ts)과 분리한 이유:
 // 1) 온보딩 동안 데이터 화면(Main 등)이 마운트되어 무토큰 쿼리를 쏘면 안 되고,
 // 2) history-sync 없이 URL을 건드리지 않아야 딥링크가 온보딩 완료 후 그대로 살아난다.
