@@ -22,6 +22,7 @@ import {
   validateRecordForm,
 } from '@/lib/record-validation'
 import { cn } from '@/lib/utils'
+import { useEnterDone } from '@/stackflow/use-enter-done'
 
 const MEMO_MAX = 200 // 백엔드 memo 상한과 일치
 const EMOTION_MAX = 5 // 백엔드 ValidationLimits.EMOTION_PER_EVENT_MAX와 일치
@@ -112,6 +113,10 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const presetPersonId = parseId(params.personId)
   const editingEventId = parseId(params.eventId)
   const isEditing = editingEventId !== undefined
+  // 인물 화면(프로필/타임라인)에서 진입하면 personId가 프리셋된다. 이때는 상세
+  // 흐름의 연장이라 일반 push 슬라이드로, 하단 ＋·이벤트 수정은 모달 present로 뜬다.
+  const slideIn = presetPersonId !== undefined
+  const enterDone = useEnterDone()
   const { push, pop, replace } = useFlow()
   const queryClient = useQueryClient()
   const photoInputRef = useRef<HTMLInputElement>(null)
@@ -334,9 +339,10 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const isLoading =
     personsQuery.isPending || (isEditing && eventQuery.isPending)
 
-  if (isLoading) {
+  // 퍼널 본문 마운트가 무거워 enter 전환 중에는 로딩 셸만 둔다 (use-enter-done.ts)
+  if (isLoading || !enterDone) {
     return (
-      <BareShell>
+      <BareShell slideIn={slideIn}>
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           불러오는 중…
         </p>
@@ -346,7 +352,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
 
   if (!isEditing && persons.length === 0) {
     return (
-      <BareShell>
+      <BareShell slideIn={slideIn}>
         <div className="flex flex-1 flex-col items-center justify-center px-5 text-center">
           <p className="text-sm text-muted-foreground">
             먼저 함께한 사람을 추가해 주세요.
@@ -366,7 +372,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
 
   if (isEditing && !eventQuery.data) {
     return (
-      <BareShell>
+      <BareShell slideIn={slideIn}>
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           기록을 찾을 수 없어요.
         </p>
@@ -384,6 +390,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     <funnel.Render
       person={({ history }) => (
         <StepFrame
+          slideIn={slideIn}
           onBack={() => pop()}
           footer={
             <NextBar
@@ -435,6 +442,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
       )}
       emotion={({ history }) => (
         <StepFrame
+          slideIn={slideIn}
           centerLabel={personLabel}
           onBack={() => (startStep === 'person' ? history.back() : pop())}
           onDone={handleSave}
@@ -490,6 +498,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
       )}
       what={({ history }) => (
         <StepFrame
+          slideIn={slideIn}
           centerLabel={personLabel}
           onBack={() => history.back()}
           onDone={handleSave}
@@ -574,6 +583,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
       )}
       detail={({ history }) => (
         <StepFrame
+          slideIn={slideIn}
           centerLabel={personLabel}
           onBack={() => history.back()}
           onDone={handleSave}
@@ -625,11 +635,20 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
 
 // 몰입형 껍데기: 앱 헤더/하단 탭바 없이 전체화면.
 // AppScreen 래핑은 필수 — 없으면 push 되어도 아래 activity(탭 화면)를 덮지 못해
-// "+ 눌러도 아무 일 없음"이 된다. fullScreen 모달 present는 stackflow/README 계약.
+// "+ 눌러도 아무 일 없음"이 된다. 전환은 stackflow/README 계약:
+// slideIn(인물 화면 진입)이면 일반 push 슬라이드, 아니면 fullScreen 모달 present.
 // AppScreen 컨테이너(absolute inset)에 갇히므로 dvh 대신 h-full 기준.
-function RecordScreen({ children }: { children: React.ReactNode }) {
+function RecordScreen({
+  slideIn,
+  children,
+}: {
+  slideIn: boolean
+  children: React.ReactNode
+}) {
   return (
-    <AppScreen CUPERTINO_ONLY_modalPresentationStyle="fullScreen">
+    <AppScreen
+      CUPERTINO_ONLY_modalPresentationStyle={slideIn ? undefined : 'fullScreen'}
+    >
       <div className="mx-auto flex h-full max-w-md flex-col overflow-y-auto bg-background">
         {children}
       </div>
@@ -637,11 +656,18 @@ function RecordScreen({ children }: { children: React.ReactNode }) {
   )
 }
 
-function BareShell({ children }: { children: React.ReactNode }) {
-  return <RecordScreen>{children}</RecordScreen>
+function BareShell({
+  slideIn,
+  children,
+}: {
+  slideIn: boolean
+  children: React.ReactNode
+}) {
+  return <RecordScreen slideIn={slideIn}>{children}</RecordScreen>
 }
 
 function StepFrame({
+  slideIn,
   centerLabel,
   onBack,
   onDone,
@@ -649,6 +675,7 @@ function StepFrame({
   footer,
   children,
 }: {
+  slideIn: boolean
   centerLabel?: string
   onBack: () => void
   onDone?: () => void
@@ -657,7 +684,7 @@ function StepFrame({
   children: React.ReactNode
 }) {
   return (
-    <RecordScreen>
+    <RecordScreen slideIn={slideIn}>
       <header className="flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
         <button
           type="button"

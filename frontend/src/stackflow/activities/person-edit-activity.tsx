@@ -10,6 +10,7 @@ import { fetchChips } from '@/lib/api/chips'
 import { deletePerson, fetchPerson, updatePerson } from '@/lib/api/persons'
 import { formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
+import { useEnterDone } from '@/stackflow/use-enter-done'
 
 const PERSON_FORM_ID = 'person-form'
 
@@ -19,6 +20,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
   const { personId } = params
   const id = Number(personId)
   const { pop } = useFlow()
+  const enterDone = useEnterDone()
   const queryClient = useQueryClient()
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -68,11 +70,12 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
     )?.requestSubmit()
   }
 
-  if (!Number.isFinite(id) || personQuery.isPending) {
+  // 폼 마운트가 무거워 enter 전환 중에는 로딩 셸만 둔다 (use-enter-done.ts)
+  if (!Number.isFinite(id) || !enterDone || personQuery.isPending) {
     return (
       <ActivityShell layout="fixed">
         <p className="py-20 text-center text-sm text-muted-foreground">
-          {personQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
+          {Number.isFinite(id) ? '불러오는 중…' : '잘못된 경로예요.'}
         </p>
       </ActivityShell>
     )

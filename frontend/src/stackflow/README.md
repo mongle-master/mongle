@@ -16,15 +16,15 @@
 
 ## 구조
 
-| activity      | URL                                     | 전환                                       |
-| ------------- | --------------------------------------- | ------------------------------------------ |
-| `Main`        | `/:tab` (home·timeline·people·settings) | 탭 셸. 탭 전환 = `replaceStep`(히스토리 X) |
-| `Person`      | `/people/:personId` (`?view=timeline`)  | push. 프로필/타임라인 = step               |
-| `PersonNew`   | `/people/new`                           | push. 등록 후 `replace('Person')`          |
-| `PersonEdit`  | `/people/:personId/edit`                | push. 저장 pop / 삭제 pop(2)               |
-| `EventDetail` | `/events/:eventId`                      | push. 뒤로가기 = pop, returnTo 불필요      |
-| `Record`      | `/record` (`?personId=&eventId=`)       | fullScreen 모달 present, 아래 탭 유지      |
-| `NotFound`    | `/404`                                  | history-sync fallback                      |
+| activity      | URL                                     | 전환                                                                                       |
+| ------------- | --------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `Main`        | `/:tab` (home·timeline·people·settings) | 탭 셸. 탭 전환 = `replaceStep`(히스토리 X)                                                 |
+| `Person`      | `/people/:personId` (`?view=timeline`)  | push. 프로필/타임라인 = step                                                               |
+| `PersonNew`   | `/people/new`                           | push. 등록 후 `replace('Person')`                                                          |
+| `PersonEdit`  | `/people/:personId/edit`                | push. 저장 pop / 삭제 pop(2)                                                               |
+| `EventDetail` | `/events/:eventId`                      | push. 뒤로가기 = pop, returnTo 불필요                                                      |
+| `Record`      | `/record` (`?personId=&eventId=`)       | personId 프리셋(인물 화면 진입) = push, 그 외(하단 ＋·기록 수정) = fullScreen 모달 present |
+| `NotFound`    | `/404`                                  | history-sync fallback                                                                      |
 
 - **TSR과의 역할 분담**: splat(`routes/$.tsx`) 하나가 `<Stack/>`을 마운트하고 URL 해석은
   history-sync 소관. TSR에는 별칭 리다이렉트만 남는다 — `/` → `/home`(routes/index.tsx),
