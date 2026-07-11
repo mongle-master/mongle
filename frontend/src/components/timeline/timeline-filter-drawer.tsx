@@ -58,7 +58,7 @@ export function TimelineFilterDrawer({
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="mx-auto w-full max-w-md overflow-hidden rounded-t-[2rem] border-x border-border bg-background shadow-2xl">
+      <DrawerContent className="mx-auto w-full max-w-md overflow-hidden rounded-t-[3rem] border-x border-border bg-background shadow-2xl">
         <DrawerHeader className="px-5 pt-5 text-left">
           <DrawerTitle className="text-lg font-extrabold tracking-tight">
             필터 설정
