@@ -8,6 +8,7 @@ import { layoutOrganicRelationMap } from '@/lib/relation-map-layout'
 import type { RelationMapResponse } from '@/lib/api/types'
 
 type RelationNode = RelationMapResponse['nodes'][number]
+type MeNode = RelationMapResponse['me']
 
 type GraphPerson = RelationNode & {
   categoryLabel: string
@@ -346,7 +347,7 @@ export function RelationForceMap({
         >
           {activeGraphIndex === 0 ? (
             <OrbitGraph
-              meLabel={me.label}
+              me={me}
               people={animatedOrbitPeople}
               detailLevel={nodeDetailLevel}
               viewportScale={viewport.scale}
@@ -395,25 +396,45 @@ export function RelationForceMap({
 }
 
 function OrbitGraph({
-  meLabel,
+  me,
   people,
   detailLevel,
   viewportScale,
   onPersonClick,
 }: {
-  meLabel: string
+  me: MeNode
   people: GraphPerson[]
   detailLevel: NodeDetailLevel
   viewportScale: number
   onPersonClick: (personId: number) => void
 }) {
+  const imageSrc = meImageUrl(me)
+
   return (
     <>
       <OrbitBackground />
-      <div className="absolute top-1/2 left-1/2 grid size-[76px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white shadow-[0_0_0_1px_rgba(24,24,27,0.04),0_0_44px_rgba(255,198,109,0.58),0_0_82px_rgba(255,220,156,0.32)] dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_46px_rgba(255,198,109,0.34),0_0_84px_rgba(255,220,156,0.18)]">
-        <div className="grid size-[42px] place-items-center rounded-full bg-zinc-950 text-[22px] font-black text-white shadow-[0_10px_20px_rgba(24,24,27,0.22)] dark:bg-white dark:text-zinc-950 dark:shadow-[0_10px_20px_rgba(0,0,0,0.3)]">
-          {meLabel}
+      <div className="absolute top-1/2 left-1/2 z-20 flex -translate-x-1/2 -translate-y-[38px] flex-col items-center">
+        <div className="grid size-[76px] place-items-center rounded-full bg-white shadow-[0_0_0_1px_rgba(24,24,27,0.04),0_0_44px_rgba(255,198,109,0.58),0_0_82px_rgba(255,220,156,0.32)] dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_46px_rgba(255,198,109,0.34),0_0_84px_rgba(255,220,156,0.18)]">
+          <img
+            src={imageSrc}
+            alt={`${me.name} 프로필`}
+            className="size-[62px] rounded-full object-cover shadow-[0_10px_20px_rgba(24,24,27,0.14)] dark:shadow-[0_10px_20px_rgba(0,0,0,0.28)]"
+            onError={(event) => {
+              const target = event.currentTarget
+              if (target.dataset.fallback === '1') return
+              target.dataset.fallback = '1'
+              target.src = defaultPersonImageUrl({
+                id: me.id,
+                name: me.name,
+                gender: me.avatarGender,
+              })
+            }}
+            data-fallback={imageSrc.startsWith('/default-people/') ? '1' : '0'}
+          />
         </div>
+        <span className="mt-1.5 max-w-24 truncate rounded-full bg-background/88 px-2 py-1 text-[12px] leading-none font-black text-zinc-950 shadow-[0_4px_12px_rgba(24,24,27,0.08)] backdrop-blur-sm dark:text-zinc-50">
+          {me.name}
+        </span>
       </div>
       {people.map((person) => (
         <PersonNode
@@ -1002,6 +1023,19 @@ function nodeImageUrl(node: RelationNode) {
     id: node.id,
     name: node.name,
     gender: readExplicitGender(node),
+  })
+}
+
+function meImageUrl(me: MeNode) {
+  if (me.profileImageUrl?.startsWith('/default-people/')) {
+    return me.profileImageUrl
+  }
+  const src = mediaUrl(me.profileImageUrl)
+  if (src) return src
+  return defaultPersonImageUrl({
+    id: me.id,
+    name: me.name,
+    gender: me.avatarGender,
   })
 }
 

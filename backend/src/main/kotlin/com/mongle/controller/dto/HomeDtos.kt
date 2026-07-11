@@ -2,6 +2,7 @@ package com.mongle.controller.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
+import java.util.UUID
 
 /**
  * 관계 지도(#40) 응답 — 프론트가 그래프로 그린다.
@@ -15,16 +16,20 @@ data class RelationMapResponse(
     val nodes: List<PersonNode>,
     @field:Schema(description = "나↔인물 연결선 목록.")
     val edges: List<RelationEdge>,
-) {
-    companion object {
-        val ME = MeNode()
-    }
-}
+)
 
 @Schema(description = "관계 지도 중심의 '나' 노드.")
 data class MeNode(
     @field:Schema(description = "중심 노드 표시 라벨.", example = "나")
     val label: String = "나",
+    @field:Schema(description = "사용자 UUID.", example = "8e0ca8f5-a713-4a90-9df1-15f0be0d843c")
+    val id: UUID,
+    @field:Schema(description = "사용자 표시 이름.", example = "성빈")
+    val name: String,
+    @field:Schema(description = "사용자 프로필 이미지 URL(없을 수 있음).", example = "/images/me.jpg")
+    val profileImageUrl: String?,
+    @field:Schema(description = "기본 아바타 성별 힌트.", example = "MALE")
+    val avatarGender: AvatarGender?,
 )
 
 /** 인물 노드. 관계태그 라벨은 칩 id 로 해석(소프트삭제 칩도 라벨 유지). 친밀도는 #41. */
