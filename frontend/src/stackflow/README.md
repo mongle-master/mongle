@@ -38,6 +38,19 @@
   하드코딩). 인바운드 매칭은 슬래시 유무 모두 허용하므로 동작엔 영향 없다.
 - 셸 컴포넌트: 탭 화면은 `components/tab-shell.tsx`, push 화면은
   `components/activity-shell.tsx` (구 AppShell의 대응물, dvh 대신 h-full 기준).
+  데스크톱 컨테이너는 `components/stack-viewport.tsx` (앱·온보딩 스택 공용).
+
+## 온보딩 퍼널 (`onboarding/`)
+
+온보딩(이름 → 프로필)도 스택 내비게이션이지만 **별도 stackflow 인스턴스**다:
+
+- 인증 전이라 앱 스택을 마운트하면 데이터 화면이 무토큰 쿼리를 쏘게 되고,
+- history-sync 없이 URL을 안 건드려야 딥링크가 온보딩 완료 후 그대로 살아난다.
+
+단계 전환은 push(슬라이드), 프로필 단계는 `preventSwipeBack`(이름 제출 시 identity가
+서버에 커밋되므로 전진 전용). 부트스트랩 상태 머신(main.tsx)과는 activity params가 아니라
+`OnboardingContext`로 대화한다. stackflow의 components 타입이 Register 전체 키를 요구해서
+두 인스턴스가 `activity-components.ts` 맵 하나를 공유한다.
 
 ## 남은 것 / 알려진 것
 

@@ -19,6 +19,10 @@ declare module '@stackflow/config' {
     EventDetail: { eventId: string }
     Record: { personId?: string; eventId?: string }
     NotFound: object
+    // 온보딩 퍼널(인증 전 전용 스택, onboarding/onboarding-flow.tsx)의 activity.
+    // Register는 전역 하나라 여기 함께 선언한다.
+    OnboardingName: object
+    OnboardingProfile: object
   }
 }
 

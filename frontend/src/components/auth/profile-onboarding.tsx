@@ -83,7 +83,7 @@ export function ProfileOnboarding({
   }
 
   return (
-    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col overflow-hidden bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
+    <main className="relative flex h-full flex-col overflow-y-auto bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
       <div
         aria-hidden
         className="absolute -top-20 -right-20 size-64 rounded-full bg-primary/8 blur-3xl"
