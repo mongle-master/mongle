@@ -18,6 +18,8 @@ declare module '@stackflow/config' {
     PersonEdit: { personId: string }
     EventDetail: { eventId: string }
     Record: { personId?: string; eventId?: string }
+    HomeSettings: object
+    TagSettings: object
     NotFound: object
     // 온보딩 퍼널(인증 전 전용 스택, onboarding/onboarding-flow.tsx)의 activity.
     // Register는 전역 하나라 여기 함께 선언한다.
@@ -93,6 +95,24 @@ export const stackConfig = defineConfig({
         path: '/record',
         defaultHistory: () => [
           { activityName: 'Main', activityParams: { tab: 'home' } },
+        ],
+      },
+    },
+    {
+      name: 'HomeSettings',
+      route: {
+        path: '/settings/home',
+        defaultHistory: () => [
+          { activityName: 'Main', activityParams: { tab: 'settings' } },
+        ],
+      },
+    },
+    {
+      name: 'TagSettings',
+      route: {
+        path: '/settings/tags',
+        defaultHistory: () => [
+          { activityName: 'Main', activityParams: { tab: 'settings' } },
         ],
       },
     },
