@@ -15,7 +15,7 @@ docker compose up -d --build   # 첫 빌드는 의존성 다운로드로 수 분
     - 호스트 노출은 18080, 컨테이너 내부 앱 포트는 8080. 프론트 dev 프록시(`frontend/vite.config.ts`)는 기본으로 로컬 도커 백엔드를 가리킨다.
 - 데이터: `backend/data/mysql/`의 DB에 영속화. 이미지는 프론트의 Vercel Blob 직접 업로드가 담당한다.
 - DB 직접 접속(디버깅): `mysql -h127.0.0.1 -P13306 -umongle -pmongle mongle`
-- 기동 시 자동 시드: 공통 칩(감정6·날씨5·카테고리4). 사용자 샘플 데이터는 인증 후 `POST /api/v1/seed`가 사용자별 최초 1회 생성한다.
+- 기동 시 자동 시드: 공통 칩(감정11·날씨5·카테고리4). 사용자 샘플 데이터는 인증 후 `POST /api/v1/seed`가 사용자별 최초 1회 생성한다.
 
 ## 첫 호출 (JWT 필수)
 

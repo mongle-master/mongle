@@ -4,6 +4,14 @@
 @import '@fontsource/pretendard/700.css';
 @import '@fontsource/pretendard/800.css';
 
+/* 손글씨 폰트(온글잎 은별): 기록 작성 등 유저 입력·감성 화면 기본 서체 */
+@font-face {
+  font-family: 'Onglip Eunbyeol';
+  src: url('./assets/fonts/onglip-eunbyeol.ttf') format('truetype');
+  font-weight: 400 800;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -113,6 +121,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: var(--font-sans);
+  --font-hand: 'Onglip Eunbyeol', var(--font-sans);
 }
 
 @layer base {

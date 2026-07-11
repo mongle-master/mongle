@@ -59,6 +59,9 @@ importers:
       '@vercel/blob':
         specifier: ^2.6.1
         version: 2.6.1
+      '@use-funnel/browser':
+        specifier: ^0.0.17
+        version: 0.0.17(react@19.2.7)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -95,6 +98,9 @@ importers:
       react-hook-form:
         specifier: ^7.81.0
         version: 7.81.0(react@19.2.7)
+      react-mobile-picker:
+        specifier: ^1.2.0
+        version: 1.2.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       shadcn:
         specifier: ^4.13.0
         version: 4.13.0(typescript@6.0.3)
@@ -3363,6 +3369,16 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@use-funnel/browser@0.0.17':
+    resolution: {integrity: sha512-saexLJSpTwm02If0I6oY6s1Z7cPwkEGqHvBg+IVokDywcrkhZA9MpxDHT27GSrNlhJHRxis/3g/xIQ48UYfp2Q==}
+    peerDependencies:
+      react: '>=16.8'
+
+  '@use-funnel/core@0.1.0':
+    resolution: {integrity: sha512-KEjBKTbOh5wd6CQZ1jYWhI6KuGrI9Pjn9CkmUgAYzonsyZE0lsiZ2/1RwsaWcxVO5RJBgfwCM8dRpibwm7An9w==}
+    peerDependencies:
+      react: '>=16.8'
+
   '@valibot/to-json-schema@1.7.1':
     resolution: {integrity: sha512-3qkmU6KXWh8GIThEAW3kuRHPQBMjWkKy+Ppz3WkUucx53DTpOa6siMn4xDGSOhlVyMrDaJTCTMLYPZVAIk1P0A==}
     peerDependencies:
@@ -5864,6 +5880,12 @@ packages:
     engines: {node: '>=12'}
     peerDependencies:
       react: '>=16.13.1'
+
+  react-mobile-picker@1.2.0:
+    resolution: {integrity: sha512-utIgq/rqJfDw+qL3CA6j5e3JqlAoc1kHucJi2vNiwspjaa1XJurJN/FKWBSgui1wV0gzS0BYutd2CbwcyR2eDA==}
+    peerDependencies:
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
 
   react-remove-scroll-bar@2.3.8:
     resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
@@ -9723,6 +9745,15 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
 
+  '@use-funnel/browser@0.0.17(react@19.2.7)':
+    dependencies:
+      '@use-funnel/core': 0.1.0(react@19.2.7)
+      react: 19.2.7
+
+  '@use-funnel/core@0.1.0(react@19.2.7)':
+    dependencies:
+      react: 19.2.7
+
   '@valibot/to-json-schema@1.7.1(valibot@1.2.0(typescript@6.0.3))':
     dependencies:
       valibot: 1.2.0(typescript@6.0.3)
@@ -12518,6 +12549,11 @@ snapshots:
     dependencies:
       jerrypick: 1.1.2
       react: 19.2.7
+
+  react-mobile-picker@1.2.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+    dependencies:
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
 
   react-remove-scroll-bar@2.3.8(@types/react@19.2.17)(react@19.2.7):
     dependencies:
