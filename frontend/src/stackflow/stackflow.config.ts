@@ -3,10 +3,6 @@ import { defineConfig } from '@stackflow/config'
 // (route는 @stackflow/config가 아니라 plugin-history-sync가 선언한다)
 import type {} from '@stackflow/plugin-history-sync'
 
-// 지금은 기존 TSR 라우트와 URL 소유권이 겹치지 않도록 전부 /stack 아래에 둔다.
-// 화면 이전이 끝나면 이 프리픽스를 제거하고 TSR 라우트를 삭제하는 것이 컷오버다.
-export const STACK_PREFIX = '/stack'
-
 export const MAIN_TABS = ['home', 'timeline', 'people', 'settings'] as const
 export type MainTab = (typeof MAIN_TABS)[number]
 
@@ -18,23 +14,29 @@ declare module '@stackflow/config' {
   interface Register {
     Main: { tab: MainTab }
     Person: { personId: string; view?: PersonView }
+    PersonNew: object
+    PersonEdit: { personId: string }
     EventDetail: { eventId: string }
     Record: { personId?: string; eventId?: string }
     NotFound: object
   }
 }
 
-function isMainTab(value: string | undefined): value is MainTab {
+export function isMainTab(value: string | undefined): value is MainTab {
   return MAIN_TABS.includes(value as MainTab)
 }
 
+// URL 생성(fill)은 해당 activity의 가장 구체적인 라우트 하나만 쓰므로
+// activity당 라우트는 1개로 유지한다. 별칭이 필요하면 TSR 레벨 리다이렉트로 처리
+// (`/` → `/home`은 routes/index.tsx, 구 `/people/:id/timeline`은 routes/people.$personId.timeline.tsx).
 export const stackConfig = defineConfig({
   activities: [
     {
       name: 'Main',
       route: {
-        path: `${STACK_PREFIX}/:tab`,
-        // 알 수 없는 탭 세그먼트는 홈으로 흡수한다 (throw 시 폴백 동작이 보장되지 않음)
+        // `/timeline`·`/people`·`/settings` 기존 URL이 그대로 탭 딥링크가 된다
+        path: '/:tab',
+        // 알 수 없는 탭 세그먼트는 홈으로 흡수한다 (decode throw 시 폴백 동작이 보장되지 않음)
         decode: (params) => ({
           tab: isMainTab(params.tab) ? params.tab : 'home',
         }),
@@ -43,17 +45,39 @@ export const stackConfig = defineConfig({
     {
       name: 'Person',
       route: {
-        path: `${STACK_PREFIX}/people/:personId`,
-        // 딥링크로 바로 진입해도 뒤로가기가 앱 이탈이 아니라 사람 탭으로 떨어지게 한다
+        path: '/people/:personId',
+        // 딥링크로 바로 진입해도 뒤로가기가 앱 이탈이 아니라 탭 화면으로 떨어지게 한다
         defaultHistory: () => [
           { activityName: 'Main', activityParams: { tab: 'people' } },
         ],
       },
     },
     {
+      name: 'PersonNew',
+      route: {
+        path: '/people/new',
+        defaultHistory: () => [
+          { activityName: 'Main', activityParams: { tab: 'people' } },
+        ],
+      },
+    },
+    {
+      name: 'PersonEdit',
+      route: {
+        path: '/people/:personId/edit',
+        defaultHistory: (params) => [
+          { activityName: 'Main', activityParams: { tab: 'people' } },
+          {
+            activityName: 'Person',
+            activityParams: { personId: params.personId },
+          },
+        ],
+      },
+    },
+    {
       name: 'EventDetail',
       route: {
-        path: `${STACK_PREFIX}/events/:eventId`,
+        path: '/events/:eventId',
         defaultHistory: () => [
           { activityName: 'Main', activityParams: { tab: 'timeline' } },
         ],
@@ -62,7 +86,7 @@ export const stackConfig = defineConfig({
     {
       name: 'Record',
       route: {
-        path: `${STACK_PREFIX}/record`,
+        path: '/record',
         defaultHistory: () => [
           { activityName: 'Main', activityParams: { tab: 'home' } },
         ],
@@ -70,7 +94,7 @@ export const stackConfig = defineConfig({
     },
     {
       name: 'NotFound',
-      route: `${STACK_PREFIX}/404`,
+      route: '/404',
     },
   ],
   transitionDuration: 270,

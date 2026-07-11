@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useFlow } from '@stackflow/react'
 import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { mediaUrl } from '@/lib/api/client'
@@ -64,7 +64,7 @@ export function RelationForceMap({
   nodes: RelationMapResponse['nodes']
   edges: RelationMapResponse['edges']
 }) {
-  const navigate = useNavigate()
+  const { push } = useFlow()
   const pointerPositionsRef = useRef(
     new Map<number, { x: number; y: number }>(),
   )
@@ -118,10 +118,7 @@ export function RelationForceMap({
       return
     }
 
-    navigate({
-      to: '/people/$personId/timeline',
-      params: { personId: String(personId) },
-    })
+    push('Person', { personId: String(personId), view: 'timeline' })
   }
 
   useEffect(() => {

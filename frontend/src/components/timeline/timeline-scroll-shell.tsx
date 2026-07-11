@@ -1,19 +1,18 @@
 import type { ReactNode, RefObject } from 'react'
-import { AppShell } from '@/components/layout/app-shell'
 
+// 고정 헤더 + 내부 스크롤 본문. 바깥 셸(TabShell/ActivityShell의 fixed 레이아웃)이
+// 세로 flex 컨테이너라는 전제로 동작한다.
 export function TimelineScrollShell({
-  activePath,
   header,
   scrollRef,
   children,
 }: {
-  activePath: string
   header: ReactNode
   scrollRef: RefObject<HTMLDivElement | null>
   children: ReactNode
 }) {
   return (
-    <AppShell activePath={activePath} layout="fixed">
+    <>
       <header className="shrink-0 pb-4">{header}</header>
       <div
         ref={scrollRef}
@@ -21,6 +20,6 @@ export function TimelineScrollShell({
       >
         {children}
       </div>
-    </AppShell>
+    </>
   )
 }

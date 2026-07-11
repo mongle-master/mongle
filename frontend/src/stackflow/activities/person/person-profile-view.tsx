@@ -1,8 +1,7 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useFlow } from '@stackflow/react'
 import { ChevronRight } from 'lucide-react'
 import { useState } from 'react'
-import { AppShell } from '@/components/layout/app-shell'
 import { PersonPageHeader } from '@/components/person/person-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
@@ -23,16 +22,17 @@ import {
   formatPersonName,
 } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
-import { recordSearch, eventDetailSearch } from '@/lib/record-navigation'
+import type { PersonView } from '@/stackflow/stackflow.config'
 
-export const Route = createFileRoute('/people/$personId/')({
-  component: PersonProfilePage,
-})
-
-function PersonProfilePage() {
-  const { personId } = Route.useParams()
+export function PersonProfileView({
+  personId,
+  onSelectView,
+}: {
+  personId: string
+  onSelectView: (view: PersonView) => void
+}) {
   const id = Number(personId)
-  const navigate = useNavigate()
+  const { push, pop } = useFlow()
   const queryClient = useQueryClient()
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -55,27 +55,23 @@ function PersonProfilePage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['persons'] })
       await queryClient.invalidateQueries({ queryKey: ['home'] })
-      void navigate({ to: '/people' })
+      pop()
     },
   })
 
   if (!Number.isFinite(id) || personQuery.isPending) {
     return (
-      <AppShell activePath="/people" layout="fixed">
-        <p className="py-20 text-center text-sm text-muted-foreground">
-          {personQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
-        </p>
-      </AppShell>
+      <p className="py-20 text-center text-sm text-muted-foreground">
+        {personQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
+      </p>
     )
   }
 
   if (!person) {
     return (
-      <AppShell activePath="/people" layout="fixed">
-        <p className="py-20 text-center text-sm text-muted-foreground">
-          사람 정보를 불러오지 못했어요.
-        </p>
-      </AppShell>
+      <p className="py-20 text-center text-sm text-muted-foreground">
+        사람 정보를 불러오지 못했어요.
+      </p>
     )
   }
 
@@ -103,9 +99,9 @@ function PersonProfilePage() {
   ].filter((row): row is { label: string; value: string } => row !== null)
 
   return (
-    <AppShell activePath="/people" layout="fixed">
+    <>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <PersonPageHeader personId={personId} active="profile" />
+        <PersonPageHeader active="profile" onSelectView={onSelectView} />
 
         <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
           <section>
@@ -202,14 +198,14 @@ function PersonProfilePage() {
                 <p className="text-[11px] font-extrabold tracking-wide text-muted-foreground uppercase">
                   최근 함께한 일
                 </p>
-                <Link
-                  to="/people/$personId/timeline"
-                  params={{ personId }}
+                <button
+                  type="button"
+                  onClick={() => onSelectView('timeline')}
                   className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   aria-label="최근 함께한 일 전체 보기"
                 >
                   <ChevronRight className="size-5" />
-                </Link>
+                </button>
               </div>
               <ListGroup>
                 {recentEvents.map((event, index) => (
@@ -218,7 +214,7 @@ function PersonProfilePage() {
                     withDivider={index < recentEvents.length - 1}
                     className="py-3"
                   >
-                    <RecentEventRow event={event} personId={id} />
+                    <RecentEventRow event={event} />
                   </ListGroupItem>
                 ))}
               </ListGroup>
@@ -253,24 +249,24 @@ function PersonProfilePage() {
             <ListGroupLabel>작업</ListGroupLabel>
             <ListGroup>
               <ListGroupItem className="py-0">
-                <Link
-                  to="/record"
-                  search={recordSearch({ personId: id })}
-                  className="flex items-center justify-between py-3.5 text-[15px] font-extrabold text-foreground transition-colors active:opacity-70"
+                <button
+                  type="button"
+                  onClick={() => push('Record', { personId })}
+                  className="flex w-full items-center justify-between py-3.5 text-[15px] font-extrabold text-foreground transition-colors active:opacity-70"
                 >
                   상황 기록 작성
                   <ChevronRight className="size-5 text-muted-foreground" />
-                </Link>
+                </button>
               </ListGroupItem>
               <ListGroupItem className="py-0">
-                <Link
-                  to="/people/$personId/edit"
-                  params={{ personId }}
-                  className="flex items-center justify-between py-3.5 text-[15px] font-extrabold text-foreground transition-colors active:opacity-70"
+                <button
+                  type="button"
+                  onClick={() => push('PersonEdit', { personId })}
+                  className="flex w-full items-center justify-between py-3.5 text-[15px] font-extrabold text-foreground transition-colors active:opacity-70"
                 >
                   프로필 수정
                   <ChevronRight className="size-5 text-muted-foreground" />
-                </Link>
+                </button>
               </ListGroupItem>
               <ListGroupItem withDivider={false} className="py-0">
                 <button
@@ -298,29 +294,21 @@ function PersonProfilePage() {
         pending={deleteMutation.isPending}
         onConfirm={() => deleteMutation.mutate()}
       />
-    </AppShell>
+    </>
   )
 }
 
-function RecentEventRow({
-  event,
-  personId,
-}: {
-  event: EventResponse
-  personId: number
-}) {
+function RecentEventRow({ event }: { event: EventResponse }) {
   const photoSrc = mediaUrl(event.photoUrls[0])
   const summary = event.memo
 
+  const { push } = useFlow()
+
   return (
-    <Link
-      to="/events/$eventId"
-      params={{ eventId: String(event.id) }}
-      search={eventDetailSearch({
-        returnTo: 'person-profile',
-        returnPersonId: personId,
-      })}
-      className="flex min-w-0 items-center gap-3 transition-colors active:opacity-70"
+    <button
+      type="button"
+      onClick={() => push('EventDetail', { eventId: String(event.id) })}
+      className="flex w-full min-w-0 items-center gap-3 text-left transition-colors active:opacity-70"
     >
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
@@ -361,7 +349,7 @@ function RecentEventRow({
         </div>
       ) : null}
       <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
-    </Link>
+    </button>
   )
 }
 

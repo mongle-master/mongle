@@ -5,6 +5,8 @@ import { historySyncPlugin } from '@stackflow/plugin-history-sync'
 import { stackConfig } from '@/stackflow/stackflow.config'
 import { MainActivity } from '@/stackflow/activities/main-activity'
 import { PersonActivity } from '@/stackflow/activities/person-activity'
+import { PersonNewActivity } from '@/stackflow/activities/person-new-activity'
+import { PersonEditActivity } from '@/stackflow/activities/person-edit-activity'
 import { EventDetailActivity } from '@/stackflow/activities/event-detail-activity'
 import { RecordActivity } from '@/stackflow/activities/record-activity'
 import { NotFoundActivity } from '@/stackflow/activities/not-found-activity'
@@ -16,6 +18,8 @@ export const { Stack } = stackflow({
   components: {
     Main: MainActivity,
     Person: PersonActivity,
+    PersonNew: PersonNewActivity,
+    PersonEdit: PersonEditActivity,
     EventDetail: EventDetailActivity,
     Record: RecordActivity,
     NotFound: NotFoundActivity,

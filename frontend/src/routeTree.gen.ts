@@ -9,33 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TimelineRouteImport } from './routes/timeline'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as RecordRouteImport } from './routes/record'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as StackIndexRouteImport } from './routes/stack.index'
-import { Route as PeopleIndexRouteImport } from './routes/people/index'
-import { Route as StackSplatRouteImport } from './routes/stack.$'
-import { Route as PeopleNewRouteImport } from './routes/people/new'
-import { Route as PeoplePersonIdRouteImport } from './routes/people/$personId'
-import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
-import { Route as PeoplePersonIdIndexRouteImport } from './routes/people/$personId.index'
-import { Route as PeoplePersonIdTimelineRouteImport } from './routes/people/$personId.timeline'
-import { Route as PeoplePersonIdEditRouteImport } from './routes/people/$personId.edit'
+import { Route as PeoplePersonIdTimelineRouteImport } from './routes/people.$personId.timeline'
 
-const TimelineRoute = TimelineRouteImport.update({
-  id: '/timeline',
-  path: '/timeline',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecordRoute = RecordRouteImport.update({
-  id: '/record',
-  path: '/record',
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,178 +23,49 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StackIndexRoute = StackIndexRouteImport.update({
-  id: '/stack/',
-  path: '/stack/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PeopleIndexRoute = PeopleIndexRouteImport.update({
-  id: '/people/',
-  path: '/people/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StackSplatRoute = StackSplatRouteImport.update({
-  id: '/stack/$',
-  path: '/stack/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PeopleNewRoute = PeopleNewRouteImport.update({
-  id: '/people/new',
-  path: '/people/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PeoplePersonIdRoute = PeoplePersonIdRouteImport.update({
-  id: '/people/$personId',
-  path: '/people/$personId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventsEventIdRoute = EventsEventIdRouteImport.update({
-  id: '/events/$eventId',
-  path: '/events/$eventId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PeoplePersonIdIndexRoute = PeoplePersonIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PeoplePersonIdRoute,
-} as any)
 const PeoplePersonIdTimelineRoute = PeoplePersonIdTimelineRouteImport.update({
-  id: '/timeline',
-  path: '/timeline',
-  getParentRoute: () => PeoplePersonIdRoute,
-} as any)
-const PeoplePersonIdEditRoute = PeoplePersonIdEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => PeoplePersonIdRoute,
+  id: '/people/$personId/timeline',
+  path: '/people/$personId/timeline',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/record': typeof RecordRoute
-  '/settings': typeof SettingsRoute
-  '/timeline': typeof TimelineRoute
-  '/events/$eventId': typeof EventsEventIdRoute
-  '/people/$personId': typeof PeoplePersonIdRouteWithChildren
-  '/people/new': typeof PeopleNewRoute
-  '/stack/$': typeof StackSplatRoute
-  '/people/': typeof PeopleIndexRoute
-  '/stack/': typeof StackIndexRoute
-  '/people/$personId/edit': typeof PeoplePersonIdEditRoute
+  '/$': typeof SplatRoute
   '/people/$personId/timeline': typeof PeoplePersonIdTimelineRoute
-  '/people/$personId/': typeof PeoplePersonIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/record': typeof RecordRoute
-  '/settings': typeof SettingsRoute
-  '/timeline': typeof TimelineRoute
-  '/events/$eventId': typeof EventsEventIdRoute
-  '/people/new': typeof PeopleNewRoute
-  '/stack/$': typeof StackSplatRoute
-  '/people': typeof PeopleIndexRoute
-  '/stack': typeof StackIndexRoute
-  '/people/$personId/edit': typeof PeoplePersonIdEditRoute
+  '/$': typeof SplatRoute
   '/people/$personId/timeline': typeof PeoplePersonIdTimelineRoute
-  '/people/$personId': typeof PeoplePersonIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/record': typeof RecordRoute
-  '/settings': typeof SettingsRoute
-  '/timeline': typeof TimelineRoute
-  '/events/$eventId': typeof EventsEventIdRoute
-  '/people/$personId': typeof PeoplePersonIdRouteWithChildren
-  '/people/new': typeof PeopleNewRoute
-  '/stack/$': typeof StackSplatRoute
-  '/people/': typeof PeopleIndexRoute
-  '/stack/': typeof StackIndexRoute
-  '/people/$personId/edit': typeof PeoplePersonIdEditRoute
+  '/$': typeof SplatRoute
   '/people/$personId/timeline': typeof PeoplePersonIdTimelineRoute
-  '/people/$personId/': typeof PeoplePersonIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/record'
-    | '/settings'
-    | '/timeline'
-    | '/events/$eventId'
-    | '/people/$personId'
-    | '/people/new'
-    | '/stack/$'
-    | '/people/'
-    | '/stack/'
-    | '/people/$personId/edit'
-    | '/people/$personId/timeline'
-    | '/people/$personId/'
+  fullPaths: '/' | '/$' | '/people/$personId/timeline'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/record'
-    | '/settings'
-    | '/timeline'
-    | '/events/$eventId'
-    | '/people/new'
-    | '/stack/$'
-    | '/people'
-    | '/stack'
-    | '/people/$personId/edit'
-    | '/people/$personId/timeline'
-    | '/people/$personId'
-  id:
-    | '__root__'
-    | '/'
-    | '/record'
-    | '/settings'
-    | '/timeline'
-    | '/events/$eventId'
-    | '/people/$personId'
-    | '/people/new'
-    | '/stack/$'
-    | '/people/'
-    | '/stack/'
-    | '/people/$personId/edit'
-    | '/people/$personId/timeline'
-    | '/people/$personId/'
+  to: '/' | '/$' | '/people/$personId/timeline'
+  id: '__root__' | '/' | '/$' | '/people/$personId/timeline'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  RecordRoute: typeof RecordRoute
-  SettingsRoute: typeof SettingsRoute
-  TimelineRoute: typeof TimelineRoute
-  EventsEventIdRoute: typeof EventsEventIdRoute
-  PeoplePersonIdRoute: typeof PeoplePersonIdRouteWithChildren
-  PeopleNewRoute: typeof PeopleNewRoute
-  StackSplatRoute: typeof StackSplatRoute
-  PeopleIndexRoute: typeof PeopleIndexRoute
-  StackIndexRoute: typeof StackIndexRoute
+  SplatRoute: typeof SplatRoute
+  PeoplePersonIdTimelineRoute: typeof PeoplePersonIdTimelineRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/timeline': {
-      id: '/timeline'
-      path: '/timeline'
-      fullPath: '/timeline'
-      preLoaderRoute: typeof TimelineRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/record': {
-      id: '/record'
-      path: '/record'
-      fullPath: '/record'
-      preLoaderRoute: typeof RecordRouteImport
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -224,99 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/stack/': {
-      id: '/stack/'
-      path: '/stack'
-      fullPath: '/stack/'
-      preLoaderRoute: typeof StackIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/people/': {
-      id: '/people/'
-      path: '/people'
-      fullPath: '/people/'
-      preLoaderRoute: typeof PeopleIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/stack/$': {
-      id: '/stack/$'
-      path: '/stack/$'
-      fullPath: '/stack/$'
-      preLoaderRoute: typeof StackSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/people/new': {
-      id: '/people/new'
-      path: '/people/new'
-      fullPath: '/people/new'
-      preLoaderRoute: typeof PeopleNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/people/$personId': {
-      id: '/people/$personId'
-      path: '/people/$personId'
-      fullPath: '/people/$personId'
-      preLoaderRoute: typeof PeoplePersonIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/events/$eventId': {
-      id: '/events/$eventId'
-      path: '/events/$eventId'
-      fullPath: '/events/$eventId'
-      preLoaderRoute: typeof EventsEventIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/people/$personId/': {
-      id: '/people/$personId/'
-      path: '/'
-      fullPath: '/people/$personId/'
-      preLoaderRoute: typeof PeoplePersonIdIndexRouteImport
-      parentRoute: typeof PeoplePersonIdRoute
-    }
     '/people/$personId/timeline': {
       id: '/people/$personId/timeline'
-      path: '/timeline'
+      path: '/people/$personId/timeline'
       fullPath: '/people/$personId/timeline'
       preLoaderRoute: typeof PeoplePersonIdTimelineRouteImport
-      parentRoute: typeof PeoplePersonIdRoute
-    }
-    '/people/$personId/edit': {
-      id: '/people/$personId/edit'
-      path: '/edit'
-      fullPath: '/people/$personId/edit'
-      preLoaderRoute: typeof PeoplePersonIdEditRouteImport
-      parentRoute: typeof PeoplePersonIdRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface PeoplePersonIdRouteChildren {
-  PeoplePersonIdEditRoute: typeof PeoplePersonIdEditRoute
-  PeoplePersonIdTimelineRoute: typeof PeoplePersonIdTimelineRoute
-  PeoplePersonIdIndexRoute: typeof PeoplePersonIdIndexRoute
-}
-
-const PeoplePersonIdRouteChildren: PeoplePersonIdRouteChildren = {
-  PeoplePersonIdEditRoute: PeoplePersonIdEditRoute,
-  PeoplePersonIdTimelineRoute: PeoplePersonIdTimelineRoute,
-  PeoplePersonIdIndexRoute: PeoplePersonIdIndexRoute,
-}
-
-const PeoplePersonIdRouteWithChildren = PeoplePersonIdRoute._addFileChildren(
-  PeoplePersonIdRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  RecordRoute: RecordRoute,
-  SettingsRoute: SettingsRoute,
-  TimelineRoute: TimelineRoute,
-  EventsEventIdRoute: EventsEventIdRoute,
-  PeoplePersonIdRoute: PeoplePersonIdRouteWithChildren,
-  PeopleNewRoute: PeopleNewRoute,
-  StackSplatRoute: StackSplatRoute,
-  PeopleIndexRoute: PeopleIndexRoute,
-  StackIndexRoute: StackIndexRoute,
+  SplatRoute: SplatRoute,
+  PeoplePersonIdTimelineRoute: PeoplePersonIdTimelineRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

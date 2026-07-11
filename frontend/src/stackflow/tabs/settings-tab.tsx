@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Check,
@@ -13,7 +12,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
-import { AppShell } from '@/components/layout/app-shell'
+import { TabShell } from '@/stackflow/components/tab-shell'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { useTheme } from '@/components/theme-provider'
 import { Button } from '@/components/ui/button'
@@ -43,10 +42,6 @@ import { queryKeys } from '@/lib/query-keys'
 import { clearUserIdentity } from '@/lib/user-identity'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/settings')({
-  component: SettingsPage,
-})
-
 const TAG_GROUPS = [
   {
     type: 'CATEGORY' as const,
@@ -61,9 +56,9 @@ const TAG_GROUPS = [
   label: string
 }>
 
-function SettingsPage() {
+export function SettingsTab() {
   return (
-    <AppShell activePath="/settings" layout="fixed">
+    <TabShell layout="fixed">
       <header className="shrink-0 pb-4">
         <MongleLogo className="mb-5 text-foreground" />
         <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
@@ -78,7 +73,7 @@ function SettingsPage() {
         <TestSettingSection />
         <AppInfoSection />
       </div>
-    </AppShell>
+    </TabShell>
   )
 }
 

@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useFlow } from '@stackflow/react'
+import type { ActivityComponentType } from '@stackflow/react'
 import { useState } from 'react'
-import { AppShell } from '@/components/layout/app-shell'
+import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
 import { PersonForm, personToFormValues } from '@/components/person/person-form'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
@@ -12,14 +13,12 @@ import { queryKeys } from '@/lib/query-keys'
 
 const PERSON_FORM_ID = 'person-form'
 
-export const Route = createFileRoute('/people/$personId/edit')({
-  component: EditPersonPage,
-})
-
-function EditPersonPage() {
-  const { personId } = Route.useParams()
+export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
+  params,
+}) => {
+  const { personId } = params
   const id = Number(personId)
-  const navigate = useNavigate()
+  const { pop } = useFlow()
   const queryClient = useQueryClient()
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -45,10 +44,7 @@ function EditPersonPage() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.person(id) })
       await queryClient.invalidateQueries({ queryKey: ['persons'] })
       await queryClient.invalidateQueries({ queryKey: ['home'] })
-      void navigate({
-        to: '/people/$personId',
-        params: { personId },
-      })
+      pop()
     },
   })
 
@@ -57,7 +53,8 @@ function EditPersonPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['persons'] })
       await queryClient.invalidateQueries({ queryKey: ['home'] })
-      void navigate({ to: '/people' })
+      // 아래에 깔린 프로필도 삭제된 인물이므로 두 단계를 걷어낸다
+      pop(2)
     },
   })
 
@@ -73,21 +70,21 @@ function EditPersonPage() {
 
   if (!Number.isFinite(id) || personQuery.isPending) {
     return (
-      <AppShell activePath="/people" layout="fixed">
+      <ActivityShell layout="fixed">
         <p className="py-20 text-center text-sm text-muted-foreground">
           {personQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
         </p>
-      </AppShell>
+      </ActivityShell>
     )
   }
 
   if (!person || personQuery.isError) {
     return (
-      <AppShell activePath="/people" layout="fixed">
+      <ActivityShell layout="fixed">
         <p className="py-20 text-center text-sm text-destructive">
           사람 정보를 불러오지 못했어요.
         </p>
-      </AppShell>
+      </ActivityShell>
     )
   }
 
@@ -99,9 +96,9 @@ function EditPersonPage() {
   })
 
   return (
-    <AppShell activePath="/people" layout="fixed" className="px-0">
+    <ActivityShell layout="fixed" className="px-0">
       <FormPageHeader
-        back={{ to: '/people/$personId', params: { personId } }}
+        onBack={() => pop()}
         title="프로필 수정"
         onSave={handleSave}
         saving={updateMutation.isPending || deleteMutation.isPending}
@@ -142,6 +139,6 @@ function EditPersonPage() {
         pending={deleteMutation.isPending}
         onConfirm={() => deleteMutation.mutate()}
       />
-    </AppShell>
+    </ActivityShell>
   )
 }

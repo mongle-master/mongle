@@ -1,5 +1,5 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { useFlow } from '@stackflow/react'
 import { useMemo, useRef, useState } from 'react'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
 import {
@@ -23,15 +23,17 @@ import { formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { matchesActivityFlowSelection } from '@/lib/timeline-activity-flow'
 import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
-import { recordSearch } from '@/lib/record-navigation'
+import type { PersonView } from '@/stackflow/stackflow.config'
 
-export const Route = createFileRoute('/people/$personId/timeline')({
-  component: PersonTimelinePage,
-})
-
-function PersonTimelinePage() {
-  const { personId } = Route.useParams()
+export function PersonTimelineView({
+  personId,
+  onSelectView,
+}: {
+  personId: string
+  onSelectView: (view: PersonView) => void
+}) {
   const id = Number(personId)
+  const { push } = useFlow()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [categoryFilter, setCategoryFilter] = useState<number[]>([])
   const [flowSelection, setFlowSelection] =
@@ -111,7 +113,6 @@ function PersonTimelinePage() {
   if (!Number.isFinite(id)) {
     return (
       <TimelineScrollShell
-        activePath="/people"
         scrollRef={scrollRef}
         header={
           <p className="text-sm text-muted-foreground">잘못된 경로예요.</p>
@@ -127,9 +128,10 @@ function PersonTimelinePage() {
   if (personQuery.isPending || timelineQuery.isPending) {
     return (
       <TimelineScrollShell
-        activePath="/people"
         scrollRef={scrollRef}
-        header={<PersonPageHeader personId={personId} active="timeline" />}
+        header={
+          <PersonPageHeader active="timeline" onSelectView={onSelectView} />
+        }
       >
         <p className="py-12 text-center text-sm text-muted-foreground">
           불러오는 중…
@@ -141,9 +143,10 @@ function PersonTimelinePage() {
   if (!person) {
     return (
       <TimelineScrollShell
-        activePath="/people"
         scrollRef={scrollRef}
-        header={<PersonPageHeader personId={personId} active="timeline" />}
+        header={
+          <PersonPageHeader active="timeline" onSelectView={onSelectView} />
+        }
       >
         <p className="py-20 text-center text-sm text-muted-foreground">
           사람 정보를 불러오지 못했어요.
@@ -155,9 +158,10 @@ function PersonTimelinePage() {
   return (
     <>
       <TimelineScrollShell
-        activePath="/people"
         scrollRef={scrollRef}
-        header={<PersonPageHeader personId={personId} active="timeline" />}
+        header={
+          <PersonPageHeader active="timeline" onSelectView={onSelectView} />
+        }
       >
         <div className="mb-4">
           <h1 className="text-[22px] font-black tracking-tight">
@@ -238,10 +242,12 @@ function PersonTimelinePage() {
                 ? '이 조건에 맞는 기록이 없어요.'
                 : '아직 함께한 기록이 없어요. 첫 순간을 새겨보세요.'}
             </p>
-            <Button asChild className="mt-4" variant="outline">
-              <Link to="/record" search={recordSearch({ personId: id })}>
-                기록 작성
-              </Link>
+            <Button
+              className="mt-4"
+              variant="outline"
+              onClick={() => push('Record', { personId })}
+            >
+              기록 작성
             </Button>
           </div>
         ) : (
@@ -249,24 +255,18 @@ function PersonTimelinePage() {
             scrollRootRef={scrollRef}
             items={events}
             renderCard={(event) => (
-              <TimelineEventCard
-                item={fromEventResponse(event)}
-                returnTo="person-timeline"
-                returnPersonId={id}
-              />
+              <TimelineEventCard item={fromEventResponse(event)} />
             )}
           />
         )}
       </TimelineScrollShell>
 
       <Button
-        asChild
         size="icon-lg"
-        className="fixed right-5 bottom-6 z-40 size-12 rounded-full shadow-lg"
+        className="absolute right-5 bottom-6 z-40 size-12 rounded-full shadow-lg"
+        onClick={() => push('Record', { personId })}
       >
-        <Link to="/record" search={recordSearch({ personId: id })}>
-          ＋
-        </Link>
+        ＋
       </Button>
     </>
   )

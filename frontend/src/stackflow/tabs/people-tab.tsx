@@ -1,9 +1,9 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useFlow } from '@stackflow/react'
 import { Plus, Search, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
-import { AppShell } from '@/components/layout/app-shell'
+import { TabShell } from '@/stackflow/components/tab-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,13 +21,10 @@ import { formatLastMetRelative, formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/people/')({
-  component: PeopleListPage,
-})
-
 type PersonSort = 'NAME' | 'RECENT'
 
-function PeopleListPage() {
+export function PeopleTab() {
+  const { push } = useFlow()
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<PersonSort>('NAME')
   const queryClient = useQueryClient()
@@ -58,7 +55,7 @@ function PeopleListPage() {
   const showSections = sort === 'NAME' && !query.trim() && favorites.length > 0
 
   return (
-    <AppShell activePath="/people" layout="fixed">
+    <TabShell layout="fixed">
       <header className="shrink-0 pb-4">
         <MongleLogo className="mb-5 text-foreground" />
         <div className="flex items-start justify-between gap-3">
@@ -72,13 +69,14 @@ function PeopleListPage() {
                 : '함께한 사람을 찾고 관리해요'}
             </p>
           </div>
-          <Link
-            to="/people/new"
+          <button
+            type="button"
+            onClick={() => push('PersonNew', {})}
             className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-[13px] font-extrabold text-primary-foreground"
           >
             <Plus className="size-4" />
             추가
-          </Link>
+          </button>
         </div>
       </header>
 
@@ -124,7 +122,11 @@ function PeopleListPage() {
             사람 목록을 불러오지 못했어요.
           </p>
         ) : totalCount === 0 ? (
-          <PeopleEmptyState query={query} onClear={() => setQuery('')} />
+          <PeopleEmptyState
+            query={query}
+            onClear={() => setQuery('')}
+            onAddPerson={() => push('PersonNew', {})}
+          />
         ) : showSections ? (
           <>
             <PersonSection
@@ -148,7 +150,7 @@ function PeopleListPage() {
           />
         )}
       </div>
-    </AppShell>
+    </TabShell>
   )
 }
 
@@ -192,12 +194,14 @@ function PersonListItem({
   const lastMetLabel = formatLastMetRelative(person.lastMetDate)
   const displayName = formatPersonName(person)
 
+  const { push } = useFlow()
+
   return (
     <ListGroupItem withDivider={withDivider} className="relative py-3">
-      <Link
-        to="/people/$personId"
-        params={{ personId: String(person.id) }}
-        className="flex items-center gap-3 pr-10 transition-colors active:opacity-70"
+      <button
+        type="button"
+        onClick={() => push('Person', { personId: String(person.id) })}
+        className="flex w-full items-center gap-3 pr-10 text-left transition-colors active:opacity-70"
       >
         <MonogramAvatar
           name={person.name}
@@ -250,7 +254,7 @@ function PersonListItem({
               : `마지막 만남 · ${lastMetLabel}`}
           </p>
         </div>
-      </Link>
+      </button>
       <button
         type="button"
         aria-label={person.favorite ? '즐겨찾기 해제' : '즐겨찾기'}
@@ -273,9 +277,11 @@ function PersonListItem({
 function PeopleEmptyState({
   query,
   onClear,
+  onAddPerson,
 }: {
   query: string
   onClear: () => void
+  onAddPerson: () => void
 }) {
   const trimmed = query.trim()
 
@@ -303,13 +309,14 @@ function PeopleEmptyState({
               검색 지우기
             </Button>
           ) : (
-            <Link
-              to="/people/new"
+            <button
+              type="button"
+              onClick={() => onAddPerson()}
               className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-extrabold text-primary-foreground"
             >
               <Plus className="size-4" />
               사람 추가
-            </Link>
+            </button>
           )}
         </ListGroupItem>
       </ListGroup>
