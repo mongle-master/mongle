@@ -10,6 +10,7 @@ import {
   ListGroupItem,
   ListGroupLabel,
 } from '@/components/ui/list-group'
+import { Skeleton } from '@/components/ui/skeleton'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { fetchPersonTimeline } from '@/lib/api/events'
 import { deletePerson, fetchPerson } from '@/lib/api/persons'
@@ -59,11 +60,59 @@ export function PersonProfileView({
     },
   })
 
-  if (!Number.isFinite(id) || personQuery.isPending) {
+  if (!Number.isFinite(id)) {
     return (
       <p className="py-20 text-center text-sm text-muted-foreground">
-        {personQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
+        잘못된 경로예요.
       </p>
+    )
+  }
+
+  if (personQuery.isPending) {
+    return (
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <PersonPageHeader active="profile" onSelectView={onSelectView} />
+        <div
+          role="status"
+          aria-label="불러오는 중"
+          className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24"
+        >
+          <ListGroup>
+            <ListGroupItem withDivider={false} className="py-4">
+              <div className="flex items-start gap-4">
+                <Skeleton className="size-20 rounded-full" />
+                <div className="min-w-0 flex-1">
+                  <Skeleton className="h-7 w-32" />
+                  <Skeleton className="mt-2 h-4 w-16" />
+                  <div className="mt-2 flex gap-1.5">
+                    <Skeleton className="h-7 w-16 rounded-full" />
+                    <Skeleton className="h-7 w-20 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            </ListGroupItem>
+          </ListGroup>
+          <ListGroup>
+            <ListGroupItem withDivider={false}>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                {[0, 1, 2, 3].map((cell) => (
+                  <div key={cell}>
+                    <Skeleton className="h-3.5 w-16" />
+                    <Skeleton className="mt-1.5 h-5 w-20" />
+                  </div>
+                ))}
+              </div>
+            </ListGroupItem>
+          </ListGroup>
+          <ListGroup>
+            {[0, 1, 2].map((row) => (
+              <ListGroupItem key={row} withDivider={row < 2} className="py-3.5">
+                <Skeleton className="h-5 w-28" />
+              </ListGroupItem>
+            ))}
+          </ListGroup>
+        </div>
+      </div>
     )
   }
 

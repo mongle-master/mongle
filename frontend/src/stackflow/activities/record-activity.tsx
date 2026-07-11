@@ -11,6 +11,7 @@ import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { tagChipBaseClass } from '@/components/ui/tag-chip'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -326,9 +327,29 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     return (
       <ActivityShell layout="fixed" className="px-0" presentation="modal">
         {recordHeader}
-        <p className="px-5 py-20 text-center text-sm text-muted-foreground">
-          불러오는 중…
-        </p>
+        <div
+          role="status"
+          aria-label="불러오는 중"
+          className="mt-6 space-y-6 px-5"
+        >
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-36" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-11 w-full rounded-lg" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-28 w-full rounded-lg" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-9 w-20 rounded-full" />
+            <Skeleton className="h-9 w-24 rounded-full" />
+            <Skeleton className="h-9 w-16 rounded-full" />
+          </div>
+        </div>
       </ActivityShell>
     )
   }

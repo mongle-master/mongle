@@ -16,6 +16,7 @@ import { PersonPageHeader } from '@/components/person/person-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { ListGroup, ListGroupItem } from '@/components/ui/list-group'
+import { Skeleton } from '@/components/ui/skeleton'
 import { fetchChips } from '@/lib/api/chips'
 import { fetchPersonTimeline } from '@/lib/api/events'
 import { fetchPerson } from '@/lib/api/persons'
@@ -133,9 +134,36 @@ export function PersonTimelineView({
           <PersonPageHeader active="timeline" onSelectView={onSelectView} />
         }
       >
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          불러오는 중…
-        </p>
+        <div role="status" aria-label="불러오는 중">
+          <div className="mb-4">
+            <Skeleton className="h-7 w-32" />
+            <Skeleton className="mt-2 h-3.5 w-40" />
+          </div>
+          <ListGroup className="mb-4">
+            <ListGroupItem
+              withDivider={false}
+              className="flex items-center gap-3 py-3"
+            >
+              <Skeleton className="size-10 rounded-full" />
+              <div className="flex gap-6">
+                {[0, 1].map((stat) => (
+                  <div key={stat}>
+                    <Skeleton className="h-5 w-14" />
+                    <Skeleton className="mt-1.5 h-3 w-16" />
+                  </div>
+                ))}
+              </div>
+            </ListGroupItem>
+          </ListGroup>
+          <ListGroup>
+            {[0, 1, 2].map((row) => (
+              <ListGroupItem key={row} withDivider={row < 2} className="py-3">
+                <Skeleton className="h-4 w-3/5" />
+                <Skeleton className="mt-2 h-3 w-24" />
+              </ListGroupItem>
+            ))}
+          </ListGroup>
+        </div>
       </TimelineScrollShell>
     )
   }

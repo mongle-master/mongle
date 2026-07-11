@@ -6,6 +6,7 @@ import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
 import { PersonForm, personToFormValues } from '@/components/person/person-form'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
+import { Skeleton } from '@/components/ui/skeleton'
 import { fetchChips } from '@/lib/api/chips'
 import { deletePerson, fetchPerson, updatePerson } from '@/lib/api/persons'
 import { formatPersonName } from '@/lib/format'
@@ -68,12 +69,43 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
     )?.requestSubmit()
   }
 
-  if (!Number.isFinite(id) || personQuery.isPending) {
+  if (!Number.isFinite(id)) {
     return (
       <ActivityShell layout="fixed">
         <p className="py-20 text-center text-sm text-muted-foreground">
-          {personQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
+          잘못된 경로예요.
         </p>
+      </ActivityShell>
+    )
+  }
+
+  if (personQuery.isPending) {
+    return (
+      <ActivityShell layout="fixed" className="px-0">
+        <FormPageHeader
+          onBack={() => pop()}
+          title="프로필 수정"
+          className="px-5"
+        />
+        <div
+          role="status"
+          aria-label="불러오는 중"
+          className="mt-6 space-y-6 px-5"
+        >
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-4 w-52" />
+          </div>
+          <div className="flex justify-center py-2">
+            <Skeleton className="size-24 rounded-full" />
+          </div>
+          {[0, 1, 2].map((row) => (
+            <div key={row} className="space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-11 w-full rounded-lg" />
+            </div>
+          ))}
+        </div>
       </ActivityShell>
     )
   }
