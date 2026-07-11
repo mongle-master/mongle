@@ -7,6 +7,7 @@ import { TabShell } from '@/stackflow/components/tab-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import {
   ListGroup,
@@ -95,19 +96,15 @@ export function PeopleTab() {
               </ListGroupInset>
             </ListGroupItem>
             <ListGroupItem withDivider={false}>
-              <ListGroupInset className="flex gap-1 p-1">
-                <SortButton
-                  active={sort === 'NAME'}
-                  onClick={() => setSort('NAME')}
-                >
-                  이름순
-                </SortButton>
-                <SortButton
-                  active={sort === 'RECENT'}
-                  onClick={() => setSort('RECENT')}
-                >
-                  최근 만남순
-                </SortButton>
+              <ListGroupInset className="p-1">
+                <SegmentedControl
+                  value={sort}
+                  onValueChange={setSort}
+                  options={[
+                    { value: 'NAME', label: '이름순' },
+                    { value: 'RECENT', label: '최근 만남순' },
+                  ]}
+                />
               </ListGroupInset>
             </ListGroupItem>
           </ListGroup>
@@ -321,30 +318,5 @@ function PeopleEmptyState({
         </ListGroupItem>
       </ListGroup>
     </section>
-  )
-}
-
-function SortButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'flex flex-1 items-center justify-center rounded-lg py-2.5 text-[13px] font-extrabold transition-colors',
-        active
-          ? 'bg-foreground text-background shadow-sm'
-          : 'text-muted-foreground hover:text-foreground',
-      )}
-    >
-      {children}
-    </button>
   )
 }
