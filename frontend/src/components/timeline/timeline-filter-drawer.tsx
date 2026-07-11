@@ -10,7 +10,6 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -58,14 +57,14 @@ export function TimelineFilterDrawer({
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="mx-auto w-full max-w-md overflow-hidden border-x border-border bg-background shadow-2xl data-[vaul-drawer-direction=bottom]:rounded-t-[5rem]">
+      <DrawerContent
+        aria-describedby={undefined}
+        className="mx-auto w-full max-w-md overflow-hidden border-x border-border bg-background shadow-2xl data-[vaul-drawer-direction=bottom]:rounded-t-[5rem]"
+      >
         <DrawerHeader className="px-5 pt-5 text-left">
           <DrawerTitle className="text-lg font-extrabold tracking-tight">
             필터 설정
           </DrawerTitle>
-          <DrawerDescription className="text-xs font-medium">
-            카테고리와 사람을 선택해 기록을 좁혀보세요.
-          </DrawerDescription>
         </DrawerHeader>
 
         <div className="min-h-0 overflow-y-auto px-5 py-2">
