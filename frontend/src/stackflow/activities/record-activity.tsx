@@ -201,6 +201,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const invalidateAfterSave = async () => {
     await queryClient.invalidateQueries({ queryKey: ['home'] })
     await queryClient.invalidateQueries({ queryKey: ['persons'] })
+    // 인물 타임라인 상단 요약(함께한 기록·마지막 만남)은 ['person', id]의
+    // stats에서 나온다. 목록(person-timeline)만 무효화하면 요약이 stale.
+    await queryClient.invalidateQueries({ queryKey: ['person'] })
     await queryClient.invalidateQueries({ queryKey: ['my-timeline'] })
     await queryClient.invalidateQueries({ queryKey: ['person-timeline'] })
     if (isEditing) {
