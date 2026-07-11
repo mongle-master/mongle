@@ -42,6 +42,7 @@
 
 - 발급: `POST /api/v1/auth/token` body `{ "userId": UUID, "username": string }` → `{ token, userId, username, profileSetupCompleted }`.
   비밀번호가 없는 데모 인증이다. 없는 `userId`면 요청의 UUID와 이름으로 사용자를 만들고, 이후에는 같은 UUID로 토큰을 재발급한다.
+  사용자 식별자는 UUID이며 username은 중복 가능한 표시 이름이다.
 - 사용: 이후 모든 보호 API 는 `Authorization: Bearer {token}` 를 보낸다. HS256, claim `sub` = userId 문자열, claim `username` = 로그인 이름.
 - 주입: 컨트롤러가 `@AuthUser user: UserPrincipal` 을 받으면 리졸버가 헤더의 토큰을 파싱·검증해 채운다.
   `UserPrincipal(id, username)` 은 토큰 클레임만으로 구성 — 요청당 DB 조회 없음. 컨트롤러는 id·username 중 필요한 것만 골라 쓴다.
