@@ -84,7 +84,7 @@ export function TimelineFilterDrawer({
           <TimelineFilterReset visible={hasFilter} onReset={onReset} />
         </div>
 
-        <DrawerFooter className="border-t border-border px-5 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <DrawerFooter className="px-5 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <DrawerClose asChild>
             <Button className="h-11 rounded-full font-extrabold">완료</Button>
           </DrawerClose>
