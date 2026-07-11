@@ -1,10 +1,10 @@
 # mongle-frontend
 
-관계도감(mongle) 프론트엔드 — TanStack Start + Vite.
+관계도감(mongle) 프론트엔드 — React + Vite.
 
-> **전체 스택(프론트+백엔드)을 한 번에 띄우려면 루트 [README.md](../README.md)를 따르라.** 이 문서는 프론트 단독 실행·개발 참조다.
+> 전체 스택 실행 방법은 루트 [README.md](../README.md)를 따른다.
 
-# Getting Started
+## 실행
 
 전제:
 
@@ -20,14 +20,10 @@ pnpm exec vercel pull  # 최초 1회 및 env 변경 시
 pnpm dev            # http://localhost:3000
 ```
 
-## 배포 백엔드로 붙기 (로컬 백엔드 없이 개발)
-
-백엔드 데모 서버가 Render에 떠 있다: **`https://mongle-backend.onrender.com`** (배포 구성은 [backend/docs/runbook/deploy.md](../backend/docs/runbook/deploy.md)).
-
-API 베이스는 `VITE_API_URL`로 바꾼다(기본값 `/api` = 로컬 프록시, `src/lib/api/client.ts`):
+다른 백엔드에 연결할 때는 Vite 프록시 대상을 지정한다.
 
 ```bash
-VITE_API_URL=https://mongle-backend.onrender.com/api pnpm dev
+BACKEND_URL=https://mongle-backend.onrender.com pnpm dev
 ```
 
 curl로 직접 확인:
@@ -68,193 +64,31 @@ Vercel CLI를 처음 사용하는 PC에서는 로그인과 `mongle` 프로젝트
 
 Blob 원본 URL은 백엔드의 프로필·기록 URL 필드에 저장된다. 화면에서는 `/_vercel/image`를 통해 허용된 너비로 리사이징하고 AVIF/WebP로 변환된 이미지를 받는다.
 
-# Building For Production
-
-To build this application for production:
+## 프로덕션 빌드
 
 ```bash
 pnpm build
 ```
 
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+## 검증
 
 ```bash
 pnpm test
-```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
-
-## Linting & Formatting
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
-
-```bash
 pnpm lint
-pnpm format
-pnpm check
+pnpm typecheck
+pnpm build
 ```
 
-## Routing
+## 내비게이션
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+화면과 브라우저 history는 Stackflow가 단독으로 관리한다. Activity·URL·딥링크 규칙은
+[`src/stackflow/README.md`](src/stackflow/README.md)를 따른다.
 
-### Adding A Route
+## 주요 기술
 
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from '@tanstack/react-router'
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+- React
+- Vite
+- Stackflow
+- TanStack Query
+- Tailwind CSS
+- Vitest

@@ -1,9 +1,8 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import { RouterProvider } from '@tanstack/react-router'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { AuthStatusScreen } from './components/auth/auth-status-screen'
-import { getRouter } from './router'
+import { ThemeProvider } from './components/theme-provider'
 import { queryClient } from './lib/query-client'
 import {
   authenticateUser,
@@ -14,6 +13,10 @@ import type { UserProfileInput } from './lib/api/auth'
 import { createUserIdentity, getUserIdentity } from './lib/user-identity'
 import type { UserIdentity } from './lib/user-identity'
 import { installBrowserNavTransitionSkip } from './stackflow/browser-nav-transition'
+import { normalizeStackUrl } from './stackflow/normalize-stack-url'
+import { StackViewport } from './stackflow/components/stack-viewport'
+
+import './styles.css'
 
 // 온보딩 퍼널은 신규 방문에만 필요하므로, 프로필 설정을 마친 재방문에서는
 // 스택 번들을 아예 로드하지 않도록 lazy로 가른다.
@@ -23,9 +26,16 @@ const OnboardingFlow = lazy(() =>
   })),
 )
 
+const AppStack = lazy(async () => {
+  // 온보딩 중에는 딥링크를 그대로 보존하고, 인증 완료 후 앱 스택을 불러오기 직전에만
+  // 별칭을 정규화해 history-sync가 최종 URL을 초기 location으로 캡처하게 한다.
+  normalizeStackUrl()
+  const { Stack } = await import('./stackflow/stackflow')
+  return { default: Stack }
+})
+
 installBrowserNavTransitionSkip()
 
-const router = getRouter()
 const rootElement = document.getElementById('app')!
 
 function AppBootstrap() {
@@ -64,9 +74,15 @@ function AppBootstrap() {
 
   if (authState === 'ready') {
     return (
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <StackViewport>
+            <Suspense fallback={null}>
+              <AppStack />
+            </Suspense>
+          </StackViewport>
+        </QueryClientProvider>
+      </ThemeProvider>
     )
   }
 

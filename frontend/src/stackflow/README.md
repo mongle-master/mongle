@@ -1,7 +1,7 @@
 # stackflow 내비게이션
 
 [daangn/stackflow](https://github.com/daangn/stackflow) v2 기반 스택 내비게이션.
-앱의 모든 화면이 activity이며, TSR은 부트스트랩 셸(`routes/__root.tsx` + splat `routes/$.tsx`)로만 남는다.
+앱의 모든 화면과 브라우저 history를 Stackflow가 단독으로 소유한다.
 
 ## 왜 stackflow인가 (구 구조의 페인포인트)
 
@@ -26,14 +26,14 @@
 | `Record`      | `/record` (`?personId=&eventId=`)       | personId 프리셋(인물 화면 진입) = push, 그 외(하단 ＋·기록 수정) = fullScreen 모달 present |
 | `NotFound`    | `/404`                                  | history-sync fallback                                                                      |
 
-- **TSR과의 역할 분담**: splat(`routes/$.tsx`) 하나가 `<Stack/>`을 마운트하고 URL 해석은
-  history-sync 소관. TSR에는 별칭 리다이렉트만 남는다 — `/` → `/home`(routes/index.tsx),
-  구 `/people/:id/timeline` → `/people/:id?view=timeline`(routes/people.$personId.timeline.tsx).
+- **URL 소유권**: `history-sync`가 URL 해석·push/pop과 history state를 전부 담당한다.
+  `/` → `/home`, 구 `/people/:id/timeline` → `/people/:id?view=timeline` 별칭은
+  `normalize-stack-url.ts`가 Stackflow 모듈 로드 전에 `replaceState`로 정규화한다.
   URL 생성(fill)이 activity의 가장 구체적인 라우트 하나만 쓰므로 **activity당 라우트는 1개**를
-  유지하고 별칭은 TSR 리다이렉트로 처리한다.
+  유지한다.
 - **딥링크**: 상세 URL 직접 진입 시 `defaultHistory`가 아래에 Main(해당 탭)을 깔아
   뒤로가기가 앱 이탈이 되지 않는다.
-- **데스크톱**: `routes/$.tsx`가 스택 전체를 `mx-auto max-w-md`(448px) relative 컨테이너에
+- **데스크톱**: `main.tsx`가 스택 전체를 `mx-auto max-w-md`(448px) relative 컨테이너에
   가둔다. basic-ui 화면은 fixed가 아니라 positioned 조상 기준 absolute라 슬라이드도 그 안에서만 일어난다.
 - history-sync가 **생성하는 URL에는 항상 trailing slash가 붙는다**(`/home/`, 라이브러리
   하드코딩). 인바운드 매칭은 슬래시 유무 모두 허용하므로 동작엔 영향 없다.
@@ -67,9 +67,4 @@
   추가 실행하므로(한 스와이프 = pop 2회), 전 AppScreen에서 비활성한다
   (`components/app-screen.tsx`). 엣지 스와이프 = 네이티브 제스처 1회 pop만 남는다.
 
-- dev 콘솔의 "Cannot update a component (Transitioner) while rendering (Stack)" 경고:
-  초기 진입 시 history-sync의 동기 replaceState를 TSR 구독이 받아서 나는 개발용 경고로,
-  동작엔 영향 없음. TSR 라우트를 완전히 제거하면 사라진다.
 - basic-ui 셸이 디자인과 안 맞으면 `@stackflow/react-ui-core` 훅으로 커스텀 셸 교체 가능.
-- TSR(router-plugin·routeTree) 완전 제거 여부는 별도 결정 — 현재는 리다이렉트·devtools
-  셸로만 사용.
