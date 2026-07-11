@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { useMemo, useRef, useState } from 'react'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
@@ -45,10 +45,13 @@ export function PersonTimelineView({
     enabled: Number.isFinite(id),
   })
 
+  // 필터 토글마다 queryKey가 바뀌는데, 이전 데이터를 유지하지 않으면
+  // 새 키의 isPending 동안 화면 전체가 로딩 상태로 교체되어 깜빡인다.
   const timelineQuery = useQuery({
     queryKey: queryKeys.personTimeline(id, categoryFilter),
     queryFn: () => fetchPersonTimeline(id, categoryFilter),
     enabled: Number.isFinite(id),
+    placeholderData: keepPreviousData,
   })
 
   // 활동 흐름은 카테고리 필터와 무관한 전체 기록 날짜로 그린다.
