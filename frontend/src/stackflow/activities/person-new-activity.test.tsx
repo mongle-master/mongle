@@ -71,7 +71,7 @@ describe('PersonNewActivity', () => {
     await user.click(screen.getByRole('button', { name: '다음' }))
 
     expect(screen.getByText('어떤 사이예요?')).toBeInTheDocument()
-    // 이름 단계에는 없던 저장(✓)이 관계 단계부터 상시 노출된다
+    // 이름 단계에는 없던 저장 아이콘이 관계 단계부터 상시 노출된다
     expect(screen.getByRole('button', { name: '저장' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '친구' }))

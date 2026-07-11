@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { useFunnel } from '@use-funnel/browser'
-import { Check, ChevronLeft, ImagePlus, Plus, X } from 'lucide-react'
+import { Check, ChevronLeft, ImagePlus, Plus, Save, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Textarea } from '@/components/ui/textarea'
@@ -676,7 +676,7 @@ function StepFrame({
             aria-label="저장"
             className="flex size-9 items-center justify-center rounded-full text-foreground/70 disabled:opacity-50"
           >
-            <Check className="size-6" strokeWidth={2.5} />
+            <Save className="size-6" />
           </button>
         ) : (
           <span className="size-9" />

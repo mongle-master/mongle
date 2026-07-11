@@ -1,4 +1,4 @@
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Save } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function FormPageHeader({
@@ -7,7 +7,6 @@ export function FormPageHeader({
   onSave,
   saving = false,
   disabled = false,
-  saveLabel = '저장',
   className,
 }: {
   onBack: () => void
@@ -15,7 +14,6 @@ export function FormPageHeader({
   onSave?: () => void
   saving?: boolean
   disabled?: boolean
-  saveLabel?: string
   className?: string
 }) {
   return (
@@ -36,9 +34,10 @@ export function FormPageHeader({
           type="button"
           onClick={onSave}
           disabled={saving || disabled}
-          className="text-right text-[15px] font-extrabold disabled:opacity-50"
+          aria-label="저장"
+          className="inline-flex items-center justify-self-end disabled:opacity-50"
         >
-          {saving ? '저장 중' : saveLabel}
+          <Save className="size-6" />
         </button>
       ) : (
         <span aria-hidden className="text-right" />
