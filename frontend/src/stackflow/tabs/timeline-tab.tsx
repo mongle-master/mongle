@@ -1,14 +1,9 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
-import { ChevronDown } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
-import {
-  TimelineCategoryFilters,
-  TimelineFilterReset,
-  TimelinePersonFilters,
-} from '@/components/timeline/timeline-filters'
+import { TimelineFilterDrawer } from '@/components/timeline/timeline-filter-drawer'
 import {
   fromTimelineCard,
   TimelineEventCard,
@@ -27,7 +22,6 @@ import {
 } from '@/lib/timeline-activity-flow'
 import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
 import { TabShell } from '@/stackflow/components/tab-shell'
-import { cn } from '@/lib/utils'
 
 export function TimelineTab() {
   const { push } = useFlow()
@@ -36,7 +30,6 @@ export function TimelineTab() {
   const [personFilter, setPersonFilter] = useState<number[]>([])
   const [flowSelection, setFlowSelection] =
     useState<ActivityFlowSelection | null>(null)
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   // 활동 흐름은 필터 없는 전체 `/api/v1/timeline` 응답에서 파생한다.
   const allTimelineQuery = useQuery({
@@ -149,47 +142,19 @@ export function TimelineTab() {
 
         <div className="px-1 py-2">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-extrabold">필터</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsFilterOpen((open) => !open)}
-              className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-border bg-background px-3 text-xs font-extrabold text-foreground transition-colors hover:bg-muted/60"
-              aria-expanded={isFilterOpen}
-            >
-              {hasFilter ? (
-                <span className="rounded-full bg-foreground px-1.5 py-0.5 text-[10px] leading-none text-background">
-                  {activeFilterCount}
-                </span>
-              ) : null}
-              {isFilterOpen ? '접기' : '필터 열기'}
-              <ChevronDown
-                className={cn(
-                  'size-3 text-muted-foreground transition-transform',
-                  isFilterOpen && 'rotate-180',
-                )}
-                aria-hidden
-              />
-            </button>
+            <p className="text-sm font-extrabold">필터</p>
+            <TimelineFilterDrawer
+              categoryChips={categoryChips}
+              persons={persons}
+              selectedCategoryIds={categoryFilter}
+              selectedPersonIds={personFilter}
+              activeFilterCount={activeFilterCount}
+              hasFilter={hasFilter}
+              onToggleCategory={toggleCategory}
+              onTogglePerson={togglePerson}
+              onReset={resetFilters}
+            />
           </div>
-          {isFilterOpen ? (
-            <div className="mt-3 border-t border-border/60 pt-3">
-              <TimelineCategoryFilters
-                chips={categoryChips}
-                selectedIds={categoryFilter}
-                onToggle={toggleCategory}
-              />
-
-              <TimelinePersonFilters
-                persons={persons}
-                selectedIds={personFilter}
-                onToggle={togglePerson}
-              />
-
-              <TimelineFilterReset visible={hasFilter} onReset={resetFilters} />
-            </div>
-          ) : null}
         </div>
 
         {timelineQuery.isPending ? (
