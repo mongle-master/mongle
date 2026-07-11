@@ -63,7 +63,7 @@ export function PeopleTab() {
             <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
               사람
             </h1>
-            <p className="mt-2 text-[15px] font-medium text-muted-foreground">
+            <p className="mt-2 text-[12px] font-medium text-muted-foreground">
               {totalCount > 0
                 ? `함께한 사람 ${totalCount}명`
                 : '함께한 사람을 찾고 관리해요'}
