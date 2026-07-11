@@ -4,11 +4,12 @@ import type { ActivityComponentType } from '@stackflow/react'
 import { useState } from 'react'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
-import { PersonForm, personToFormValues } from '@/components/person/person-form'
+import { PersonEditForm } from '@/components/person/person-edit-form'
+import { personToFormValues } from '@/components/person/person-form'
+import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { fetchChips } from '@/lib/api/chips'
 import { deletePerson, fetchPerson, updatePerson } from '@/lib/api/persons'
-import { formatPersonName } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
 import { useEnterDone } from '@/stackflow/use-enter-done'
 
@@ -64,12 +65,6 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
     setDeleteOpen(true)
   }
 
-  const handleSave = () => {
-    ;(
-      document.getElementById(PERSON_FORM_ID) as HTMLFormElement | null
-    )?.requestSubmit()
-  }
-
   // 폼 마운트가 무거워 enter 전환 중에는 로딩 셸만 둔다 (use-enter-done.ts)
   if (!Number.isFinite(id) || !enterDone || personQuery.isPending) {
     return (
@@ -103,23 +98,17 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
       <FormPageHeader
         onBack={() => pop()}
         title="프로필 수정"
-        onSave={handleSave}
-        saving={updateMutation.isPending || deleteMutation.isPending}
         className="px-5"
       />
 
-      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
-        <div className="px-5 pb-8">
-          <PersonForm
+      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
+        <div className="px-5 pt-4">
+          <PersonEditForm
             key={person.id}
             formId={PERSON_FORM_ID}
-            hideSubmitButton
             initialValues={initialValues}
             relationTags={relationTags}
-            submitLabel="저장하기"
             pending={updateMutation.isPending || deleteMutation.isPending}
-            greetingTitle="프로필을 수정해요"
-            greetingSubtitle={`${formatPersonName(person)}님의 정보를 바꿔요`}
             onSubmit={(request) => updateMutation.mutate(request)}
             onDelete={handleDelete}
           />
@@ -130,6 +119,18 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
             </p>
           ) : null}
         </div>
+      </div>
+
+      <div className="shrink-0 border-t border-border/70 bg-background px-5 pt-3 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+        <Button
+          type="submit"
+          form={PERSON_FORM_ID}
+          size="lg"
+          className="h-12 w-full text-base font-extrabold"
+          disabled={updateMutation.isPending || deleteMutation.isPending}
+        >
+          {updateMutation.isPending ? '저장 중…' : '변경사항 저장'}
+        </Button>
       </div>
 
       <ConfirmPopup
