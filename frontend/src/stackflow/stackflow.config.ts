@@ -31,8 +31,8 @@ export function isMainTab(value: string | undefined): value is MainTab {
 }
 
 // URL 생성(fill)은 해당 activity의 가장 구체적인 라우트 하나만 쓰므로
-// activity당 라우트는 1개로 유지한다. 별칭이 필요하면 TSR 레벨 리다이렉트로 처리
-// (`/` → `/home`은 routes/index.tsx, 구 `/people/:id/timeline`은 routes/people.$personId.timeline.tsx).
+// activity당 라우트는 1개로 유지한다. 인바운드 별칭은 Stackflow 초기화 전에
+// normalize-stack-url.ts에서 canonical URL로 교체한다.
 export const stackConfig = defineConfig({
   activities: [
     {
@@ -102,5 +102,4 @@ export const stackConfig = defineConfig({
     },
   ],
   transitionDuration: 270,
-  initialActivity: () => 'Main',
 })

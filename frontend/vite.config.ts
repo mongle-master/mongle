@@ -1,6 +1,4 @@
 import { defineConfig } from 'vitest/config'
-import { devtools } from '@tanstack/devtools-vite'
-import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import svgr from 'vite-plugin-svgr'
@@ -39,12 +37,7 @@ const config = defineConfig({
     codeInspectorPlugin({
       bundler: 'vite',
     }),
-    devtools(),
     tailwindcss(),
-    tanstackRouter({
-      target: 'react',
-      autoCodeSplitting: true,
-    }),
     svgr(),
     viteReact(),
   ],
