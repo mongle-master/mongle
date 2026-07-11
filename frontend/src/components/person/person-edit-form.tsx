@@ -89,7 +89,7 @@ export function PersonEditForm({
     <form
       id={formId}
       onSubmit={handleSubmit}
-      className="flex flex-col gap-6 pb-6"
+      className="flex flex-col gap-10 pb-6"
     >
       <input
         ref={fileRef}
@@ -118,10 +118,13 @@ export function PersonEditForm({
       ) : null}
 
       <section aria-labelledby="person-basic-heading">
-        <h2 id="person-basic-heading" className="mb-5 text-base font-extrabold">
+        <h2
+          id="person-basic-heading"
+          className="mb-6 text-xl font-extrabold tracking-tight"
+        >
           기본 정보
         </h2>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-6">
           <div>
             <label htmlFor="name" className="text-xs font-extrabold">
               이름
@@ -180,17 +183,14 @@ export function PersonEditForm({
         </div>
       </section>
 
-      <section
-        aria-labelledby="person-relation-heading"
-        className="border-t border-border/70 pt-6"
-      >
+      <section aria-labelledby="person-relation-heading">
         <h2
           id="person-relation-heading"
-          className="mb-5 text-base font-extrabold"
+          className="mb-6 text-xl font-extrabold tracking-tight"
         >
           관계
         </h2>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-6">
           <div>
             <p className="mb-3 text-xs font-extrabold">한마디로</p>
             <RelationTypeField
@@ -200,7 +200,7 @@ export function PersonEditForm({
             />
           </div>
           {relationTags.length > 0 ? (
-            <div className="border-t border-border/70 pt-4">
+            <div>
               <p className="mb-3 text-xs font-extrabold">관계 태그</p>
               <div className="flex flex-wrap gap-2">
                 {relationTags.map((tag) => {
@@ -233,14 +233,14 @@ export function PersonEditForm({
         </div>
       </section>
 
-      <section
-        aria-labelledby="person-dates-heading"
-        className="border-t border-border/70 pt-6"
-      >
-        <h2 id="person-dates-heading" className="mb-5 text-base font-extrabold">
+      <section aria-labelledby="person-dates-heading">
+        <h2
+          id="person-dates-heading"
+          className="mb-6 text-xl font-extrabold tracking-tight"
+        >
           함께한 날짜
         </h2>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-6">
           <div>
             <p className="text-xs font-extrabold">처음 만난 날</p>
             <DatePartPicker
@@ -273,17 +273,14 @@ export function PersonEditForm({
         </div>
       </section>
 
-      <section
-        aria-labelledby="person-memory-heading"
-        className="border-t border-border/70 pt-6"
-      >
+      <section aria-labelledby="person-memory-heading">
         <h2
           id="person-memory-heading"
-          className="mb-5 text-base font-extrabold"
+          className="mb-6 text-xl font-extrabold tracking-tight"
         >
           기억 메모
         </h2>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-6">
           <ListField
             label="좋아하는 것"
             items={values.likes}
@@ -292,7 +289,7 @@ export function PersonEditForm({
             compact
             placeholder="예: 산책, 라떼"
           />
-          <div className="border-t border-border/70 pt-4">
+          <div>
             <ListField
               label="조심할 것"
               items={values.cautions}
@@ -305,7 +302,7 @@ export function PersonEditForm({
         </div>
       </section>
 
-      <div className="border-t border-border/70 pt-2 text-center">
+      <div className="text-center">
         <Button
           type="button"
           variant="ghost"
