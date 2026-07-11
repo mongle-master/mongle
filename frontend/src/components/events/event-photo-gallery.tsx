@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { mediaUrl } from '@/lib/api/client'
+import { optimizedImageUrl } from '@/lib/image-url'
 import { cn } from '@/lib/utils'
 
 const PREVIEW_LIMIT = 4
@@ -79,7 +79,7 @@ export function EventPhotoGallery({ photoUrls }: { photoUrls: string[] }) {
     <>
       <div className="mt-5 grid grid-cols-4 gap-2">
         {previews.map((url, index) => {
-          const src = mediaUrl(url)
+          const src = optimizedImageUrl(url, 640)
           if (!src) return null
           const isOverflowTile = index === PREVIEW_LIMIT - 1 && hiddenCount > 0
 
@@ -162,7 +162,7 @@ export function EventPhotoGallery({ photoUrls }: { photoUrls: string[] }) {
               ) : null}
 
               {(() => {
-                const src = mediaUrl(photoUrls[activeIndex])
+                const src = optimizedImageUrl(photoUrls[activeIndex], 1080)
                 if (!src) return null
                 return (
                   <img

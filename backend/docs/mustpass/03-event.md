@@ -33,13 +33,13 @@
 ## 사진 (must, #35)
 
 - 기록당 **최대 5장**(`EVENT_PHOTO_MAX`). 초과면 400 `SELECTION_LIMIT` "사진은 최대 5장까지 넣을 수 있어요."(PRD 04 §6).
-- 미리 업로드된 경로(url) 참조 방식(`POST /api/v1/images`, 프로필 사진과 동일 컨벤션). **첨부 순서 보존**.
+- Vercel Blob에 미리 업로드된 URL 참조 방식. **첨부 순서 보존**.
 
 ## 자동 제목 (must, #37)
 
 - 제목은 선택. **미입력(공백 포함) 시 저장 값은 null** 이고, 조회 응답에서 계산해 내려준다.
-  - 단일 인물: `{대표 이름} · {카테고리}`
-  - 다중 인물: `{대표 이름} 외 N명 · {카테고리}` (N = 연결 인물 수 − 1)
+    - 단일 인물: `{대표 이름} · {카테고리}`
+    - 다중 인물: `{대표 이름} 외 N명 · {카테고리}` (N = 연결 인물 수 − 1)
 - **조회 시 계산**(저장 확정 안 함) — 인물명·카테고리 라벨은 id 참조라 rename 이 지난 기록 제목에도 반영돼야 하기 때문(§12.2 철학과 일치).
 
 ## 날짜 검증 (must, #39 · §12.4)
@@ -50,10 +50,10 @@
 
 ## 글자수 (must, §12.3)
 
-| 대상 | 한도 | 초과 시 |
-|---|---|---|
+| 대상 | 한도                    | 초과 시                                             |
+| ---- | ----------------------- | --------------------------------------------------- |
 | 제목 | 40자(`EVENT_TITLE_MAX`) | 400 `LENGTH_EXCEEDED` "최대 40자까지 쓸 수 있어요." |
-| 메모 | 200자(`MEMO_MAX`) | 400 `LENGTH_EXCEEDED` |
+| 메모 | 200자(`MEMO_MAX`)       | 400 `LENGTH_EXCEEDED`                               |
 
 - 빈 문자열·공백만인 제목/메모는 **미입력으로 취급**(null 저장). 제목이 null 이면 자동 제목(#37).
 
@@ -61,9 +61,9 @@
 
 - **최소 저장 조건 = 연결 인물 ≥1**. 나머지(제목·메모·감정·날씨·사진·시간)는 전부 선택, 카테고리·날짜는 기본값 자동.
 - 저장 후 연결된 **각 인물**의 파생값을 갱신한다:
-  - **마지막 만남:** 카테고리가 `만남`인 기록이면 각 인물 `updateLastMetIfNewer(기록 날짜)`([02-person](02-person.md) 진입점). 더 최근일 때만 앞당긴다.
-  - `만남` 앵커 = 공통 CATEGORY 칩 label `만남`(공통 칩은 rename·삭제 불가라 안정적 식별자).
-  - **함께한 기록 수·만난 횟수**는 조회 시 계산(#30) — 여기서 저장하지 않는다.
+    - **마지막 만남:** 카테고리가 `만남`인 기록이면 각 인물 `updateLastMetIfNewer(기록 날짜)`([02-person](02-person.md) 진입점). 더 최근일 때만 앞당긴다.
+    - `만남` 앵커 = 공통 CATEGORY 칩 label `만남`(공통 칩은 rename·삭제 불가라 안정적 식별자).
+    - **함께한 기록 수·만난 횟수**는 조회 시 계산(#30) — 여기서 저장하지 않는다.
 
 ## 단건 조회 · 수정 (must, #38)
 
@@ -73,28 +73,28 @@
 
 ## 계약 · 엣지 (표)
 
-| 상황 | 입력 | 기대 결과 |
-|---|---|---|
-| 연결 인물 0명 | POST /api/v1/events | 400 `REQUIRED_FIELD` "함께한 사람을 한 명 이상 선택해 주세요." |
-| 타인/없는/삭제된 인물 id | POST /api/v1/events | 404 `NOT_FOUND` |
-| 인물 1명만·나머지 미입력 | POST /api/v1/events | 201, 카테고리=만남·날짜=오늘·제목 자동 |
-| 제목 41자 | POST /api/v1/events | 400 `LENGTH_EXCEEDED` |
-| 메모 201자 | POST /api/v1/events | 400 `LENGTH_EXCEEDED` |
-| 감정 6개 | POST /api/v1/events | 400 `SELECTION_LIMIT` "감정은 최대 5개까지 고를 수 있어요." |
-| 사진 6장 | POST /api/v1/events | 400 `SELECTION_LIMIT` "사진은 최대 5장까지 넣을 수 있어요." |
-| 감정 자리에 날씨 칩 id | POST /api/v1/events | 404 `NOT_FOUND` |
-| 없는·타인 칩 id | POST /api/v1/events | 404 `NOT_FOUND` |
-| 카테고리 미지정 | POST /api/v1/events | 201, 기본 카테고리(만남) |
-| 날짜 미지정 | POST /api/v1/events | 201, 오늘 |
-| 날짜 = 내일 | POST /api/v1/events | 400 `FUTURE_DATE` |
-| 날짜 = 과거 | POST /api/v1/events | 201 |
-| 만남 기록 저장(날짜 최신) | POST /api/v1/events | 201, 각 인물 마지막 만남 = 기록 날짜 |
-| 만남 기록 저장(날짜 과거) | POST /api/v1/events | 201, 인물 마지막 만남 불변 |
-| 제목 미입력·단일 인물 | GET /api/v1/events/{id} | title = `{이름} · {카테고리}` |
-| 제목 미입력·3명 | GET /api/v1/events/{id} | title = `{대표 이름} 외 2명 · {카테고리}` |
-| 인물/칩 rename 후 조회 | GET /api/v1/events/{id} | 바뀐 이름·라벨로 보임(id 참조) |
-| 타인/없는 기록 조회·수정 | GET·PUT /api/v1/events/{id} | 404 `NOT_FOUND` |
-| 소프트삭제된 칩 참조 조회 | GET /api/v1/events/{id} | 라벨 값 그대로([00-infra](00-infra.md)) |
+| 상황                      | 입력                        | 기대 결과                                                      |
+| ------------------------- | --------------------------- | -------------------------------------------------------------- |
+| 연결 인물 0명             | POST /api/v1/events         | 400 `REQUIRED_FIELD` "함께한 사람을 한 명 이상 선택해 주세요." |
+| 타인/없는/삭제된 인물 id  | POST /api/v1/events         | 404 `NOT_FOUND`                                                |
+| 인물 1명만·나머지 미입력  | POST /api/v1/events         | 201, 카테고리=만남·날짜=오늘·제목 자동                         |
+| 제목 41자                 | POST /api/v1/events         | 400 `LENGTH_EXCEEDED`                                          |
+| 메모 201자                | POST /api/v1/events         | 400 `LENGTH_EXCEEDED`                                          |
+| 감정 6개                  | POST /api/v1/events         | 400 `SELECTION_LIMIT` "감정은 최대 5개까지 고를 수 있어요."    |
+| 사진 6장                  | POST /api/v1/events         | 400 `SELECTION_LIMIT` "사진은 최대 5장까지 넣을 수 있어요."    |
+| 감정 자리에 날씨 칩 id    | POST /api/v1/events         | 404 `NOT_FOUND`                                                |
+| 없는·타인 칩 id           | POST /api/v1/events         | 404 `NOT_FOUND`                                                |
+| 카테고리 미지정           | POST /api/v1/events         | 201, 기본 카테고리(만남)                                       |
+| 날짜 미지정               | POST /api/v1/events         | 201, 오늘                                                      |
+| 날짜 = 내일               | POST /api/v1/events         | 400 `FUTURE_DATE`                                              |
+| 날짜 = 과거               | POST /api/v1/events         | 201                                                            |
+| 만남 기록 저장(날짜 최신) | POST /api/v1/events         | 201, 각 인물 마지막 만남 = 기록 날짜                           |
+| 만남 기록 저장(날짜 과거) | POST /api/v1/events         | 201, 인물 마지막 만남 불변                                     |
+| 제목 미입력·단일 인물     | GET /api/v1/events/{id}     | title = `{이름} · {카테고리}`                                  |
+| 제목 미입력·3명           | GET /api/v1/events/{id}     | title = `{대표 이름} 외 2명 · {카테고리}`                      |
+| 인물/칩 rename 후 조회    | GET /api/v1/events/{id}     | 바뀐 이름·라벨로 보임(id 참조)                                 |
+| 타인/없는 기록 조회·수정  | GET·PUT /api/v1/events/{id} | 404 `NOT_FOUND`                                                |
+| 소프트삭제된 칩 참조 조회 | GET /api/v1/events/{id}     | 라벨 값 그대로([00-infra](00-infra.md))                        |
 
 ## 후속 에이전트가 소비하는 EventRepository 쿼리 (열어둠)
 

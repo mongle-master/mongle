@@ -1,8 +1,8 @@
 import type { ChipResponse, PersonResponse } from '@/lib/api/types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { tagChipClass } from '@/components/ui/tag-chip'
-import { mediaUrl } from '@/lib/api/client'
 import { formatPersonName, monogram } from '@/lib/format'
+import { optimizedImageUrl } from '@/lib/image-url'
 import { cn } from '@/lib/utils'
 
 export const timelineFilterChipClass = (selected: boolean) =>
@@ -23,7 +23,7 @@ function PersonFilterAvatar({
   person: PersonResponse
   selected: boolean
 }) {
-  const src = mediaUrl(person.profileImageUrl)
+  const src = optimizedImageUrl(person.profileImageUrl, 64)
 
   return (
     <Avatar

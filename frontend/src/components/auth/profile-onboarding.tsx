@@ -3,12 +3,12 @@ import { Camera, ChevronLeft, RefreshCw } from 'lucide-react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { Button } from '@/components/ui/button'
 import { uploadImage } from '@/lib/api/images'
-import { mediaUrl } from '@/lib/api/client'
 import {
   DEFAULT_FEMALE_PERSON_IMAGES,
   DEFAULT_MALE_PERSON_IMAGES,
 } from '@/lib/default-person-image'
 import type { UserProfileInput } from '@/lib/api/auth'
+import { optimizedImageUrl } from '@/lib/image-url'
 import { cn } from '@/lib/utils'
 
 type Gender = Exclude<UserProfileInput['gender'], null>
@@ -44,7 +44,7 @@ export function ProfileOnboarding({
   const selectedImageUrl = uploadedImageUrl ?? defaultImageUrl
   const previewImageUrl = selectedImageUrl.startsWith('/default-people/')
     ? selectedImageUrl
-    : mediaUrl(selectedImageUrl)
+    : optimizedImageUrl(selectedImageUrl, 640)
   const pending = uploading || saving
 
   const selectGender = (nextGender: Gender) => {
@@ -190,7 +190,7 @@ export function ProfileOnboarding({
         <input
           ref={fileRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/heic"
+          accept="image/jpeg,image/png,image/webp"
           className="hidden"
           onChange={(event) => {
             void handleUpload(event.target.files?.[0] ?? null)

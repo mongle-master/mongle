@@ -1,5 +1,5 @@
 # Render Blueprint — 백엔드 배포(카드-프리 무료 티어).
-# DB·이미지는 Render 밖 Supabase 에 두어 재배포에도 보존된다(무료 디스크는 휘발성).
+# DB는 Render 밖 Supabase 에 두어 재배포에도 보존된다.
 # 적용: Render 대시보드 → New → Blueprint → 이 레포 선택. 아래 sync:false 값은 배포 시 입력.
 services:
   - type: web
@@ -20,16 +20,10 @@ services:
         value: prod
       - key: MONGLE_JWT_SECRET
         generateValue: true # Render 가 랜덤 시크릿 생성(데모 기본값 대체)
-      # ↓ Supabase 에서 발급받아 배포 시 입력(대시보드에 마스킹 저장)
+      # ↓ Supabase DB 접속 정보를 배포 시 입력(대시보드에 마스킹 저장)
       - key: SPRING_DATASOURCE_URL
         sync: false
       - key: SPRING_DATASOURCE_USERNAME
         sync: false
       - key: SPRING_DATASOURCE_PASSWORD
         sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_KEY
-        sync: false
-      - key: SUPABASE_BUCKET
-        value: mongle-images

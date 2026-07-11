@@ -19,17 +19,6 @@ spring:
       enabled: false
 
 mongle:
-  # 이미지: Supabase Storage 로 저장(SupabaseImageStorage). base-dir/url-path 는 공통 검증 프로퍼티
-  # 바인딩·WebConfig 정적핸들러 등록을 위해 유지되나 prod 에선 실제로 쓰이지 않는다.
-  image:
-    base-dir: ./data/images
-    url-path: /images
-    max-bytes: 10MB
-    allowed-extensions: jpg,jpeg,png,heic,webp
-  supabase:
-    url: ${SUPABASE_URL}
-    bucket: ${SUPABASE_BUCKET:mongle-images}
-    service-key: ${SUPABASE_SERVICE_KEY}
   jwt:
     # 데모 기본값 금지 — 배포에선 반드시 랜덤 시크릿 주입(HS256 최소 32바이트).
     secret: ${MONGLE_JWT_SECRET}

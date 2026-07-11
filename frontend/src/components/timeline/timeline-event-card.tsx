@@ -8,8 +8,8 @@ import type {
   TimelineCard,
   TimelinePerson,
 } from '@/lib/api/types'
-import { mediaUrl } from '@/lib/api/client'
 import { formatPersonName } from '@/lib/format'
+import { optimizedImageUrl } from '@/lib/image-url'
 
 export type TimelineEventCardItem = {
   id: number
@@ -69,7 +69,7 @@ export function fromEventResponse(event: EventResponse): TimelineEventCardItem {
 
 function TimelinePhotoPreview({ photoUrls }: { photoUrls: string[] }) {
   const firstPhoto = photoUrls[0]
-  const src = mediaUrl(firstPhoto)
+  const src = optimizedImageUrl(firstPhoto, 256)
   if (!src) return null
 
   return (

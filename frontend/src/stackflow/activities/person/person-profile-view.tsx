@@ -14,7 +14,7 @@ import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { fetchPersonTimeline } from '@/lib/api/events'
 import { deletePerson, fetchPerson } from '@/lib/api/persons'
 import type { EventResponse } from '@/lib/api/types'
-import { mediaUrl } from '@/lib/api/client'
+import { optimizedImageUrl } from '@/lib/image-url'
 import {
   formatAbsoluteDate,
   formatBirthday,
@@ -299,7 +299,7 @@ export function PersonProfileView({
 }
 
 function RecentEventRow({ event }: { event: EventResponse }) {
-  const photoSrc = mediaUrl(event.photoUrls[0])
+  const photoSrc = optimizedImageUrl(event.photoUrls[0], 128)
   const summary = event.memo
 
   const { push } = useFlow()

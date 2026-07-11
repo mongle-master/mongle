@@ -301,7 +301,7 @@ export function PersonForm({
       <input
         ref={fileRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/heic"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={(e) => void handlePhoto(e.target.files?.[0] ?? null)}
       />

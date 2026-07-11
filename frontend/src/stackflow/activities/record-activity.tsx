@@ -19,7 +19,7 @@ import { createEvent, fetchEvent, updateEvent } from '@/lib/api/events'
 import { uploadImage } from '@/lib/api/images'
 import { fetchPersons } from '@/lib/api/persons'
 import type { EventRequest, PersonResponse } from '@/lib/api/types'
-import { mediaUrl } from '@/lib/api/client'
+import { optimizedImageUrl } from '@/lib/image-url'
 import {
   formatPersonName,
   formatAutoEventTitle,
@@ -524,7 +524,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             <input
               ref={photoInputRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp,image/heic"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               className="hidden"
               onChange={(e) => {
@@ -534,7 +534,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             />
             <div className="flex flex-wrap gap-2">
               {photoUrls.map((url) => {
-                const src = mediaUrl(url)
+                const src = optimizedImageUrl(url, 256)
                 return (
                   <div key={url} className="relative size-16">
                     {src ? (

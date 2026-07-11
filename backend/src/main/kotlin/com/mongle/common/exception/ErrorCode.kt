@@ -24,8 +24,5 @@ enum class ErrorCode(
     CATEGORY_REQUIRED(HttpStatus.BAD_REQUEST, Messages.CATEGORY_REQUIRED),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요해요."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
-    UNSUPPORTED_IMAGE_TYPE(HttpStatus.BAD_REQUEST, Messages.UNSUPPORTED_IMAGE_TYPE),
-    IMAGE_TOO_LARGE(HttpStatus.BAD_REQUEST, Messages.IMAGE_TOO_LARGE),
-    SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, Messages.SAVE_FAILED),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
 }
