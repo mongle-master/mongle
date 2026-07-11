@@ -15,11 +15,11 @@ export function TimelineScrollShell({
   return (
     <>
       {header !== undefined ? (
-        <header className="shrink-0 pb-4">{header}</header>
+        <header className="shrink-0">{header}</header>
       ) : null}
       <div
         ref={scrollRef}
-        className="min-h-0 min-w-0 flex-1 overflow-y-auto pt-1 pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]"
+        className="min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]"
       >
         {children}
       </div>
