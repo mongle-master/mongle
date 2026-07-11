@@ -164,6 +164,7 @@ export function RelationTypeField({
         <button
           key={suggestion}
           type="button"
+          aria-pressed={value === suggestion}
           onClick={() => {
             onChange(value === suggestion ? '' : suggestion)
           }}
