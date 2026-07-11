@@ -372,19 +372,28 @@ export function RelationForceMap({
       </div>
 
       <div className="absolute right-0 bottom-2 left-0 z-20 flex flex-col items-center gap-3 px-4">
-        <div className="flex justify-center gap-3">
+        {/* 지도 컨테이너가 pointerdown에서 setPointerCapture를 걸면 click이 컨테이너로
+            리타게팅되어 버튼 onClick이 무시된다. 줌 컨트롤과 동일하게 전파를 차단한다. */}
+        <div
+          className="flex justify-center gap-3"
+          onPointerDown={(event) => event.stopPropagation()}
+        >
           {Array.from({ length: GRAPH_COUNT }).map((_, index) => (
             <button
               key={index}
               type="button"
-              className={`size-2.5 rounded-full transition-colors ${
-                activeGraphIndex === index
-                  ? 'bg-zinc-950 dark:bg-zinc-50'
-                  : 'bg-zinc-300 dark:bg-zinc-700'
-              }`}
+              className="-m-1.5 p-1.5"
               onClick={() => setActiveGraphIndex(index)}
               aria-label={`그래프 ${index + 1}`}
-            />
+            >
+              <span
+                className={`block size-2.5 rounded-full transition-colors ${
+                  activeGraphIndex === index
+                    ? 'bg-zinc-950 dark:bg-zinc-50'
+                    : 'bg-zinc-300 dark:bg-zinc-700'
+                }`}
+              />
+            </button>
           ))}
         </div>
       </div>
