@@ -1,4 +1,4 @@
-import { AppScreen } from '@stackflow/plugin-basic-ui'
+import { AppScreen } from '@/stackflow/components/app-screen'
 import { cn } from '@/lib/utils'
 
 // push되는(탭 바 없는) activity의 공용 셸. 구 AppShell에서 BottomNav를 뺀 대응물.
