@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { ChevronDown } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
@@ -44,6 +44,8 @@ export function TimelineTab() {
     queryFn: () => fetchMyTimeline(),
   })
 
+  // 필터 토글마다 queryKey가 바뀌는데, 이전 데이터를 유지하지 않으면
+  // 새 키의 isPending 동안 피드 전체가 로딩 문구로 교체되어 화면이 깜빡인다.
   const timelineQuery = useQuery({
     queryKey: queryKeys.myTimeline(categoryFilter, personFilter),
     queryFn: () =>
@@ -51,6 +53,7 @@ export function TimelineTab() {
         categoryChipIds: categoryFilter,
         personIds: personFilter,
       }),
+    placeholderData: keepPreviousData,
   })
 
   const chipsQuery = useQuery({
