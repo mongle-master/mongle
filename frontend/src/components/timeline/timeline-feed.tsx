@@ -38,7 +38,7 @@ export function TimelineFeed<T extends TimelineFeedItem>({
         <section key={group.year} className="relative">
           <div
             className={cn(
-              'sticky z-10 mb-3 border-b border-border bg-background/95 py-1 backdrop-blur-sm',
+              'sticky z-10 mb-3 border-b border-border bg-background/95 py-3 backdrop-blur-sm',
               scrollRootRef
                 ? 'top-0'
                 : 'top-[max(2.5rem,env(safe-area-inset-top))] -mx-5 px-5',
