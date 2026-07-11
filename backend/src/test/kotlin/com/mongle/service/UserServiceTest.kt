@@ -6,6 +6,7 @@ import com.mongle.domain.UserGender
 import com.mongle.repository.UserRepository
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import java.util.Optional
 import java.util.UUID
@@ -46,5 +47,17 @@ class UserServiceTest {
         assertEquals(null, response.profileImageUrl)
         assertEquals(null, response.gender)
         assertTrue(response.profileSetupCompleted)
+    }
+
+    @Test
+    fun `현재 사용자를 삭제한다`() {
+        val userId = UUID.randomUUID()
+        val user = User(userId, "성빈")
+        every { userRepository.findById(userId) } returns Optional.of(user)
+        every { userRepository.delete(user) } returns Unit
+
+        userService.deleteCurrentUser(userId)
+
+        verify(exactly = 1) { userRepository.delete(user) }
     }
 }

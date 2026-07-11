@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createUserIdentity, getUserIdentity } from './user-identity'
+import {
+  clearUserIdentity,
+  createUserIdentity,
+  getUserIdentity,
+} from './user-identity'
 
 const USER_ID = '8e0ca8f5-a713-4a90-9df1-15f0be0d843c'
 
@@ -21,6 +25,15 @@ describe('user identity', () => {
 
   it('ignores malformed local storage data', () => {
     localStorage.setItem('mongle_user_identity', '{')
+
+    expect(getUserIdentity()).toBeNull()
+  })
+
+  it('clears the persisted identity', () => {
+    vi.spyOn(crypto, 'randomUUID').mockReturnValue(USER_ID)
+    createUserIdentity('성빈')
+
+    clearUserIdentity()
 
     expect(getUserIdentity()).toBeNull()
   })

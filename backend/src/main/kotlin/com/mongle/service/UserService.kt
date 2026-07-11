@@ -21,4 +21,11 @@ class UserService(
         user.completeProfileSetup(request.profileImageUrl, request.gender)
         return UserProfileResponse.from(user)
     }
+
+    @Transactional
+    fun deleteCurrentUser(userId: UUID) {
+        val user = userRepository.findById(userId)
+            .orElseThrow { BusinessException(ErrorCode.NOT_FOUND) }
+        userRepository.delete(user)
+    }
 }

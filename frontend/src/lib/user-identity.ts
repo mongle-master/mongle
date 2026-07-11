@@ -26,3 +26,7 @@ export function createUserIdentity(username: string): UserIdentity {
   localStorage.setItem(USER_IDENTITY_KEY, JSON.stringify(identity))
   return identity
 }
+
+export function clearUserIdentity() {
+  localStorage.removeItem(USER_IDENTITY_KEY)
+}
