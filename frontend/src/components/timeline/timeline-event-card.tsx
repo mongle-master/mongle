@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { useFlow } from '@stackflow/react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
@@ -9,8 +9,6 @@ import type {
   TimelinePerson,
 } from '@/lib/api/types'
 import { mediaUrl } from '@/lib/api/client'
-import type { EventDetailReturnTo } from '@/lib/record-navigation'
-import { eventDetailSearch } from '@/lib/record-navigation'
 import { formatPersonName } from '@/lib/format'
 
 export type TimelineEventCardItem = {
@@ -91,28 +89,17 @@ function TimelinePhotoPreview({ photoUrls }: { photoUrls: string[] }) {
   )
 }
 
-export function TimelineEventCard({
-  item,
-  returnTo,
-  returnPersonId,
-}: {
-  item: TimelineEventCardItem
-  returnTo?: EventDetailReturnTo
-  returnPersonId?: number
-}) {
+export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
+  const { push } = useFlow()
   const persons = item.persons ?? []
   const photoUrls = item.photoUrls ?? []
   const memo = item.memo?.trim() ?? ''
 
   return (
-    <Link
-      to="/events/$eventId"
-      params={{ eventId: String(item.id) }}
-      search={eventDetailSearch({
-        returnTo,
-        returnPersonId,
-      })}
-      className="block min-w-0 flex-1"
+    <button
+      type="button"
+      onClick={() => push('EventDetail', { eventId: String(item.id) })}
+      className="block min-w-0 flex-1 text-left"
     >
       <Card className="relative overflow-hidden py-0 shadow-[0_10px_30px_rgba(0,0,0,0.045)] transition-all hover:-translate-y-0.5 hover:bg-muted/20 hover:shadow-[0_14px_36px_rgba(0,0,0,0.07)]">
         <CardContent className="p-4">
@@ -166,6 +153,6 @@ export function TimelineEventCard({
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </button>
   )
 }

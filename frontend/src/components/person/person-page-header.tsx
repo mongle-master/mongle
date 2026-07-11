@@ -1,24 +1,28 @@
-import { Link } from '@tanstack/react-router'
+import { useFlow } from '@stackflow/react'
 import { ChevronLeft } from 'lucide-react'
 import { PersonTabNav } from '@/components/person/person-tab-nav'
+import type { PersonView } from '@/stackflow/stackflow.config'
 
 export function PersonPageHeader({
-  personId,
   active,
+  onSelectView,
 }: {
-  personId: string
-  active: 'profile' | 'timeline'
+  active: PersonView
+  onSelectView: (view: PersonView) => void
 }) {
+  const { pop } = useFlow()
+
   return (
     <header className="shrink-0 pb-4">
-      <Link
-        to="/people"
+      <button
+        type="button"
+        onClick={() => pop()}
         className="mb-4 inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        aria-label="사람 목록으로 돌아가기"
+        aria-label="뒤로 가기"
       >
         <ChevronLeft className="size-6" />
-      </Link>
-      <PersonTabNav personId={personId} active={active} />
+      </button>
+      <PersonTabNav active={active} onSelect={onSelectView} />
     </header>
   )
 }

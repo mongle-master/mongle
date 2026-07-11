@@ -25,6 +25,12 @@
   "dependencies": {
     "@fontsource/pretendard": "^5.2.5",
     "@hookform/resolvers": "^5.4.0",
+    "@stackflow/config": "^2.0.0",
+    "@stackflow/core": "^2.0.1",
+    "@stackflow/plugin-basic-ui": "^1.18.2",
+    "@stackflow/plugin-history-sync": "^1.11.2",
+    "@stackflow/plugin-renderer-basic": "^1.1.14",
+    "@stackflow/react": "^2.1.1",
     "@suspensive/react": "^3.21.3",
     "@suspensive/react-query": "^3.21.3",
     "@tailwindcss/vite": "^4.1.18",

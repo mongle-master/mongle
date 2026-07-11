@@ -5,14 +5,16 @@ import { Input } from '@/components/ui/input'
 
 export function NameOnboarding({
   onSubmit,
+  pending = false,
 }: {
   onSubmit: (username: string) => void
+  pending?: boolean
 }) {
   const [username, setUsername] = useState('')
   const normalized = username.trim()
 
   return (
-    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col overflow-hidden bg-background px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
+    <main className="relative flex h-full flex-col overflow-hidden bg-background px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
       <div
         aria-hidden
         className="absolute -top-24 -right-20 size-64 rounded-full bg-primary/10 blur-3xl"
@@ -28,7 +30,7 @@ export function NameOnboarding({
         className="relative my-auto"
         onSubmit={(event) => {
           event.preventDefault()
-          if (normalized) onSubmit(normalized)
+          if (normalized && !pending) onSubmit(normalized)
         }}
       >
         <p className="mb-3 text-sm font-extrabold text-primary">
@@ -60,10 +62,10 @@ export function NameOnboarding({
         <Button
           type="submit"
           size="lg"
-          disabled={!normalized}
+          disabled={!normalized || pending}
           className="mt-4 h-14 w-full rounded-2xl text-base font-extrabold"
         >
-          다음
+          {pending ? '공간을 여는 중...' : '다음'}
         </Button>
       </form>
 

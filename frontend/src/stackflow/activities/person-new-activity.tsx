@@ -1,6 +1,7 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AppShell } from '@/components/layout/app-shell'
+import { useFlow } from '@stackflow/react'
+import type { ActivityComponentType } from '@stackflow/react'
+import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
 import { PersonForm, personToFormValues } from '@/components/person/person-form'
 import { fetchChips } from '@/lib/api/chips'
@@ -9,12 +10,8 @@ import { queryKeys } from '@/lib/query-keys'
 
 const PERSON_FORM_ID = 'person-form'
 
-export const Route = createFileRoute('/people/new')({
-  component: NewPersonPage,
-})
-
-function NewPersonPage() {
-  const navigate = useNavigate()
+export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
+  const { pop, replace } = useFlow()
   const queryClient = useQueryClient()
 
   const chipsQuery = useQuery({
@@ -30,10 +27,8 @@ function NewPersonPage() {
     onSuccess: async (person) => {
       await queryClient.invalidateQueries({ queryKey: ['persons'] })
       await queryClient.invalidateQueries({ queryKey: ['home'] })
-      void navigate({
-        to: '/people/$personId',
-        params: { personId: String(person.id) },
-      })
+      // 등록 화면을 새 인물 프로필로 갈아끼워, 뒤로가기 시 폼이 다시 나오지 않게 한다
+      replace('Person', { personId: String(person.id) })
     },
   })
 
@@ -44,9 +39,9 @@ function NewPersonPage() {
   }
 
   return (
-    <AppShell activePath="/people" layout="fixed" className="px-0">
+    <ActivityShell layout="fixed" className="px-0">
       <FormPageHeader
-        back={{ to: '/people' }}
+        onBack={() => pop()}
         title="사람 추가"
         onSave={handleSave}
         saving={createMutation.isPending}
@@ -83,6 +78,6 @@ function NewPersonPage() {
           ) : null}
         </div>
       </div>
-    </AppShell>
+    </ActivityShell>
   )
 }

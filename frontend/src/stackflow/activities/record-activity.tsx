@@ -1,10 +1,11 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useFlow } from '@stackflow/react'
+import type { ActivityComponentType } from '@stackflow/react'
 import { ChevronRight, Plus, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { PersonSelectModal } from '@/components/record/person-select-modal'
 import { OccurredDateTimeField } from '@/components/record/occurred-date-time-field'
-import { AppShell } from '@/components/layout/app-shell'
+import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
@@ -31,36 +32,18 @@ import {
   validateRecordForm,
 } from '@/lib/record-validation'
 import { cn } from '@/lib/utils'
-import {
-  parseRecordReturnTo,
-  parseRecordSearchId,
-  parseEventDetailReturnTo,
-  eventDetailSearch,
-} from '@/lib/record-navigation'
 
-export const Route = createFileRoute('/record')({
-  validateSearch: (search: Record<string, unknown>) => ({
-    personId: parseRecordSearchId(search.personId),
-    eventId: parseRecordSearchId(search.eventId),
-    returnTo: parseRecordReturnTo(search.returnTo),
-    returnPersonId: parseRecordSearchId(search.returnPersonId),
-    detailReturnTo: parseEventDetailReturnTo(search.detailReturnTo),
-    detailReturnPersonId: parseRecordSearchId(search.detailReturnPersonId),
-  }),
-  component: RecordPage,
-})
+function parseId(value: string | undefined): number | undefined {
+  if (value === undefined) return undefined
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
 
-function RecordPage() {
-  const {
-    personId: presetPersonId,
-    eventId: editingEventId,
-    returnTo,
-    returnPersonId,
-    detailReturnTo,
-    detailReturnPersonId,
-  } = Route.useSearch()
-  const isEditing = Number.isFinite(editingEventId)
-  const navigate = useNavigate()
+export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
+  const presetPersonId = parseId(params.personId)
+  const editingEventId = parseId(params.eventId)
+  const isEditing = editingEventId !== undefined
+  const { push, pop, replace } = useFlow()
   const queryClient = useQueryClient()
   const photoInputRef = useRef<HTMLInputElement>(null)
   const hydratedEventId = useRef<number | null>(null)
@@ -200,7 +183,7 @@ function RecordPage() {
     if (!isEditing || !eventQuery.data) return
     if (hydratedEventId.current === editingEventId) return
     const event = eventQuery.data
-    hydratedEventId.current = editingEventId ?? null
+    hydratedEventId.current = editingEventId
     setSelectedPersonIds(event.persons.map((p) => p.id))
     setTitle(event.title)
     setMemo(event.memo ?? '')
@@ -222,59 +205,29 @@ function RecordPage() {
     await queryClient.invalidateQueries({ queryKey: ['person-timeline'] })
     if (isEditing) {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.event(editingEventId!),
+        queryKey: queryKeys.event(editingEventId),
       })
     }
   }
 
+  // 수정 = 아래에 깔린 화면(이벤트 상세)으로 pop.
+  // 새 기록 = 첫 연결 사람의 타임라인으로 replace — 뒤로가기 시 기록 폼이 다시 나오지 않는다.
   const navigateAfterSave = (fallbackPersonId?: number) => {
-    if (returnTo === 'event-detail' && isEditing && editingEventId) {
-      void navigate({
-        to: '/events/$eventId',
-        params: { eventId: String(editingEventId) },
-        search: eventDetailSearch({
-          returnTo: detailReturnTo,
-          returnPersonId: detailReturnPersonId,
-        }),
-      })
-      return
-    }
-    if (returnTo === 'timeline') {
-      void navigate({ to: '/timeline' })
-      return
-    }
-    if (returnTo === 'person-timeline' && returnPersonId) {
-      void navigate({
-        to: '/people/$personId/timeline',
-        params: { personId: String(returnPersonId) },
-      })
-      return
-    }
-    if (returnTo === 'person-profile' && returnPersonId) {
-      void navigate({
-        to: '/people/$personId',
-        params: { personId: String(returnPersonId) },
-      })
-      return
-    }
-    if (returnTo === 'home') {
-      void navigate({ to: '/' })
+    if (isEditing) {
+      pop()
       return
     }
     const personId = fallbackPersonId ?? presetPersonId
     if (personId) {
-      void navigate({
-        to: '/people/$personId/timeline',
-        params: { personId: String(personId) },
-      })
+      replace('Person', { personId: String(personId), view: 'timeline' })
       return
     }
-    void navigate({ to: '/timeline' })
+    pop()
   }
 
   const saveMutation = useMutation({
     mutationFn: (body: EventRequest) =>
-      isEditing ? updateEvent(editingEventId!, body) : createEvent(body),
+      isEditing ? updateEvent(editingEventId, body) : createEvent(body),
     onSuccess: async (event) => {
       await invalidateAfterSave()
       navigateAfterSave(event.persons[0]?.id)
@@ -351,39 +304,9 @@ function RecordPage() {
 
   const pageTitle = isEditing ? '몽글 수정' : '새 몽글'
   const isLoading = isEditing && eventQuery.isPending
-  const recordBack =
-    isEditing && returnTo === 'event-detail' && editingEventId
-      ? {
-          to: '/events/$eventId' as const,
-          params: { eventId: String(editingEventId) },
-          search: eventDetailSearch({
-            returnTo: detailReturnTo,
-            returnPersonId: detailReturnPersonId,
-          }),
-        }
-      : returnTo === 'timeline'
-        ? { to: '/timeline' as const }
-        : returnTo === 'person-timeline' && returnPersonId
-          ? {
-              to: '/people/$personId/timeline' as const,
-              params: { personId: String(returnPersonId) },
-            }
-          : returnTo === 'person-profile' && returnPersonId
-            ? {
-                to: '/people/$personId' as const,
-                params: { personId: String(returnPersonId) },
-              }
-            : returnTo === 'home'
-              ? { to: '/' as const }
-              : presetPersonId
-                ? {
-                    to: '/people/$personId/timeline' as const,
-                    params: { personId: String(presetPersonId) },
-                  }
-                : { to: '/timeline' as const }
   const recordHeader = (
     <FormPageHeader
-      back={recordBack}
+      onBack={() => pop()}
       title={pageTitle}
       onSave={handleSave}
       saving={saveMutation.isPending}
@@ -401,48 +324,49 @@ function RecordPage() {
 
   if (isLoading) {
     return (
-      <AppShell activePath="/record" layout="fixed" className="px-0">
+      <ActivityShell layout="fixed" className="px-0" presentation="modal">
         {recordHeader}
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           불러오는 중…
         </p>
-      </AppShell>
+      </ActivityShell>
     )
   }
 
   if (!isEditing && persons.length === 0) {
     return (
-      <AppShell activePath="/record" layout="fixed" className="px-0">
+      <ActivityShell layout="fixed" className="px-0" presentation="modal">
         {recordHeader}
         <div className="flex flex-col items-center px-5 py-20 text-center">
           <p className="text-sm text-muted-foreground">
             먼저 함께한 사람을 추가해 주세요.
           </p>
-          <Link
-            to="/people/new"
+          <button
+            type="button"
+            onClick={() => push('PersonNew', {})}
             className="mt-5 inline-flex items-center gap-1 rounded-full bg-primary/12 px-4 py-2.5 text-sm font-extrabold text-primary hover:bg-primary/18"
           >
             <Plus className="size-4" />
             사람 추가
-          </Link>
+          </button>
         </div>
-      </AppShell>
+      </ActivityShell>
     )
   }
 
   if (isEditing && !eventQuery.data) {
     return (
-      <AppShell activePath="/record" layout="fixed" className="px-0">
+      <ActivityShell layout="fixed" className="px-0" presentation="modal">
         {recordHeader}
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           기록을 찾을 수 없어요.
         </p>
-      </AppShell>
+      </ActivityShell>
     )
   }
 
   return (
-    <AppShell activePath="/record" layout="fixed" className="px-0">
+    <ActivityShell layout="fixed" className="px-0" presentation="modal">
       {recordHeader}
 
       <div ref={scrollBodyRef} className={scrollBodyClass}>
@@ -676,7 +600,7 @@ function RecordPage() {
           setPersonModalDismissible(true)
         }}
       />
-    </AppShell>
+    </ActivityShell>
   )
 }
 

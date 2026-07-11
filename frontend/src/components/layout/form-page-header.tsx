@@ -1,9 +1,7 @@
-import { Link } from '@tanstack/react-router'
-import type { LinkProps } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 
 export function FormPageHeader({
-  back,
+  onBack,
   title,
   onSave,
   saving = false,
@@ -11,7 +9,7 @@ export function FormPageHeader({
   saveLabel = '저장',
   className,
 }: {
-  back: LinkProps
+  onBack: () => void
   title: string
   onSave?: () => void
   saving?: boolean
@@ -23,9 +21,14 @@ export function FormPageHeader({
     <header
       className={cn('grid shrink-0 grid-cols-3 items-center py-1', className)}
     >
-      <Link {...back} className="text-lg font-extrabold text-muted-foreground">
+      <button
+        type="button"
+        onClick={onBack}
+        className="text-left text-lg font-extrabold text-muted-foreground"
+        aria-label="뒤로 가기"
+      >
         ‹
-      </Link>
+      </button>
       <h1 className="text-center text-base font-extrabold">{title}</h1>
       {onSave ? (
         <button

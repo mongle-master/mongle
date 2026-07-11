@@ -1,6 +1,7 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { AppShell } from '@/components/layout/app-shell'
+import { useFlow } from '@stackflow/react'
+import type { ActivityComponentType } from '@stackflow/react'
+import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
 import { fetchEvent } from '@/lib/api/events'
@@ -8,33 +9,15 @@ import { fetchPersons } from '@/lib/api/persons'
 import { EventPhotoGallery } from '@/components/events/event-photo-gallery'
 import { formatWhen } from '@/lib/format'
 import { queryKeys } from '@/lib/query-keys'
-import {
-  parseEventDetailReturnTo,
-  parseRecordSearchId,
-  recordEditFromEventDetail,
-  resolveEventDetailBack,
-} from '@/lib/record-navigation'
 
-export const Route = createFileRoute('/events/$eventId')({
-  validateSearch: (search: Record<string, unknown>) => ({
-    returnTo: parseEventDetailReturnTo(search.returnTo),
-    returnPersonId: parseRecordSearchId(search.returnPersonId),
-  }),
-  component: EventDetailPage,
-})
-
-function EventDetailPage() {
-  const { eventId } = Route.useParams()
-  const { returnTo, returnPersonId } = Route.useSearch()
+// 어디서 push되든 뒤로가기 = pop 하나로 끝난다.
+// (구 라우트의 returnTo/returnPersonId 복귀 경로 시뮬레이션을 대체)
+export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
+  params,
+}) => {
+  const { eventId } = params
   const id = Number(eventId)
-  const detailSearch = { returnTo, returnPersonId }
-  const back = resolveEventDetailBack(detailSearch)
-  const shellActivePath =
-    returnTo === 'home'
-      ? '/'
-      : returnTo === 'person-timeline' || returnTo === 'person-profile'
-        ? '/people'
-        : '/timeline'
+  const { push, pop } = useFlow()
 
   const eventQuery = useQuery({
     queryKey: queryKeys.event(id),
@@ -53,64 +36,68 @@ function EventDetailPage() {
 
   if (!Number.isFinite(id)) {
     return (
-      <AppShell activePath={shellActivePath}>
+      <ActivityShell>
         <p className="py-20 text-center text-sm text-muted-foreground">
           잘못된 경로예요.
         </p>
-      </AppShell>
+      </ActivityShell>
     )
   }
 
   if (eventQuery.isPending) {
     return (
-      <AppShell activePath={shellActivePath}>
+      <ActivityShell>
         <p className="py-20 text-center text-sm text-muted-foreground">
           불러오는 중…
         </p>
-      </AppShell>
+      </ActivityShell>
     )
   }
 
   const event = eventQuery.data
   if (!event) {
     return (
-      <AppShell activePath={shellActivePath}>
+      <ActivityShell>
         <header className="grid shrink-0 grid-cols-3 items-center py-1">
-          <Link
-            {...back}
-            className="text-lg font-extrabold text-muted-foreground"
+          <button
+            type="button"
+            onClick={() => pop()}
+            className="text-left text-lg font-extrabold text-muted-foreground"
+            aria-label="뒤로 가기"
           >
             ‹
-          </Link>
+          </button>
           <h1 className="text-center text-base font-extrabold">몽글 상세</h1>
           <span aria-hidden className="text-right" />
         </header>
         <p className="py-20 text-center text-sm text-muted-foreground">
           기록을 찾을 수 없어요.
         </p>
-      </AppShell>
+      </ActivityShell>
     )
   }
 
   const memo = event.memo?.trim() ?? ''
 
   return (
-    <AppShell activePath={shellActivePath} className="px-0">
+    <ActivityShell className="px-0">
       <header className="grid shrink-0 grid-cols-3 items-center px-5 py-1">
-        <Link
-          {...back}
-          className="text-lg font-extrabold text-muted-foreground"
+        <button
+          type="button"
+          onClick={() => pop()}
+          className="text-left text-lg font-extrabold text-muted-foreground"
+          aria-label="뒤로 가기"
         >
           ‹
-        </Link>
+        </button>
         <h1 className="text-center text-base font-extrabold">몽글 상세</h1>
-        <Link
-          to="/record"
-          search={recordEditFromEventDetail(id, detailSearch)}
+        <button
+          type="button"
+          onClick={() => push('Record', { eventId: String(id) })}
           className="text-right text-[15px] font-extrabold"
         >
           수정
-        </Link>
+        </button>
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-8 [-webkit-overflow-scrolling:touch]">
@@ -137,10 +124,12 @@ function EventDetailPage() {
             {event.persons.map((person) => {
               const profile = personById.get(person.id)
               return (
-                <Link
+                <button
                   key={person.id}
-                  to="/people/$personId"
-                  params={{ personId: String(person.id) }}
+                  type="button"
+                  onClick={() =>
+                    push('Person', { personId: String(person.id) })
+                  }
                   className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 py-1 pr-2.5 pl-1 transition-colors hover:bg-muted"
                 >
                   <MonogramAvatar
@@ -154,7 +143,7 @@ function EventDetailPage() {
                   <span className="text-xs font-extrabold text-foreground">
                     {person.name}
                   </span>
-                </Link>
+                </button>
               )
             })}
           </div>
@@ -184,6 +173,6 @@ function EventDetailPage() {
 
         <EventPhotoGallery photoUrls={event.photoUrls} />
       </div>
-    </AppShell>
+    </ActivityShell>
   )
 }
