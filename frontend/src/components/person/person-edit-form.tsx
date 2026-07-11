@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { CalendarDays, Heart, Link2, Trash2, UserRound } from 'lucide-react'
 import { DatePartPicker } from '@/components/person/first-met-date-picker'
 import { ListField, RelationTypeField } from '@/components/person/person-fields'
 import {
@@ -119,19 +118,11 @@ export function PersonEditForm({
       ) : null}
 
       <section aria-labelledby="person-basic-heading">
-        <div className="mb-3 flex items-start gap-3 px-1">
-          <UserRound className="mt-0.5 size-5 text-muted-foreground" />
+        <h2 id="person-basic-heading" className="mb-5 text-base font-extrabold">
+          기본 정보
+        </h2>
+        <div className="flex flex-col gap-5">
           <div>
-            <h2 id="person-basic-heading" className="text-base font-extrabold">
-              기본 정보
-            </h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              프로필에서 가장 먼저 보이는 정보예요.
-            </p>
-          </div>
-        </div>
-        <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
-          <div className="p-4">
             <label htmlFor="name" className="text-xs font-extrabold">
               이름
             </label>
@@ -145,7 +136,7 @@ export function PersonEditForm({
               enterKeyHint="done"
             />
           </div>
-          <div className="p-4">
+          <div>
             <p className="mb-3 text-xs font-extrabold">성별</p>
             <div className="flex flex-wrap gap-2">
               {GENDER_OPTIONS.map((option) => {
@@ -169,7 +160,7 @@ export function PersonEditForm({
               })}
             </div>
           </div>
-          <div className="p-4">
+          <div>
             <p className="text-xs font-extrabold">생일</p>
             <DatePartPicker
               year={values.birthYear}
@@ -189,22 +180,17 @@ export function PersonEditForm({
         </div>
       </section>
 
-      <section aria-labelledby="person-relation-heading">
-        <div className="mb-3 flex items-start gap-3 px-1">
-          <Link2 className="mt-0.5 size-5 text-muted-foreground" />
-          <div>
-            <h2
-              id="person-relation-heading"
-              className="text-base font-extrabold"
-            >
-              관계
-            </h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              어떤 사이인지 빠르게 구분할 수 있어요.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-4 shadow-xs">
+      <section
+        aria-labelledby="person-relation-heading"
+        className="border-t border-border/70 pt-6"
+      >
+        <h2
+          id="person-relation-heading"
+          className="mb-5 text-base font-extrabold"
+        >
+          관계
+        </h2>
+        <div className="flex flex-col gap-5">
           <div>
             <p className="mb-3 text-xs font-extrabold">한마디로</p>
             <RelationTypeField
@@ -247,20 +233,15 @@ export function PersonEditForm({
         </div>
       </section>
 
-      <section aria-labelledby="person-dates-heading">
-        <div className="mb-3 flex items-start gap-3 px-1">
-          <CalendarDays className="mt-0.5 size-5 text-muted-foreground" />
+      <section
+        aria-labelledby="person-dates-heading"
+        className="border-t border-border/70 pt-6"
+      >
+        <h2 id="person-dates-heading" className="mb-5 text-base font-extrabold">
+          함께한 날짜
+        </h2>
+        <div className="flex flex-col gap-5">
           <div>
-            <h2 id="person-dates-heading" className="text-base font-extrabold">
-              함께한 날짜
-            </h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              기억나지 않는 값은 비워 두어도 괜찮아요.
-            </p>
-          </div>
-        </div>
-        <div className="divide-y divide-border/70 overflow-visible rounded-2xl border border-border bg-card shadow-xs">
-          <div className="p-4">
             <p className="text-xs font-extrabold">처음 만난 날</p>
             <DatePartPicker
               year={values.firstMetYear}
@@ -277,7 +258,7 @@ export function PersonEditForm({
               }}
             />
           </div>
-          <div className="p-4">
+          <div>
             <label htmlFor="lastMetDate" className="text-xs font-extrabold">
               마지막으로 만난 날
             </label>
@@ -292,19 +273,17 @@ export function PersonEditForm({
         </div>
       </section>
 
-      <section aria-labelledby="person-memory-heading">
-        <div className="mb-3 flex items-start gap-3 px-1">
-          <Heart className="mt-0.5 size-5 text-muted-foreground" />
-          <div>
-            <h2 id="person-memory-heading" className="text-base font-extrabold">
-              기억 메모
-            </h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              다음 만남에 도움이 될 내용을 짧게 남겨요.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-4 shadow-xs">
+      <section
+        aria-labelledby="person-memory-heading"
+        className="border-t border-border/70 pt-6"
+      >
+        <h2
+          id="person-memory-heading"
+          className="mb-5 text-base font-extrabold"
+        >
+          기억 메모
+        </h2>
+        <div className="flex flex-col gap-5">
           <ListField
             label="좋아하는 것"
             items={values.likes}
@@ -326,26 +305,17 @@ export function PersonEditForm({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
-        <div className="flex items-start gap-3">
-          <Trash2 className="mt-0.5 size-5 shrink-0 text-destructive" />
-          <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-extrabold">이 인물 삭제</h2>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              함께 새긴 기록까지 모두 사라지며 되돌릴 수 없어요.
-            </p>
-            <Button
-              type="button"
-              variant="destructive"
-              className="mt-3 h-10 w-full"
-              disabled={pending}
-              onClick={onDelete}
-            >
-              인물 삭제
-            </Button>
-          </div>
-        </div>
-      </section>
+      <div className="border-t border-border/70 pt-2 text-center">
+        <Button
+          type="button"
+          variant="ghost"
+          className="text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+          disabled={pending}
+          onClick={onDelete}
+        >
+          인물 삭제
+        </Button>
+      </div>
     </form>
   )
 }
