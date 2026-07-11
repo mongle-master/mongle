@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { Clock3, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { RelationForceMap } from '@/components/home/relation-force-map'
@@ -10,14 +10,20 @@ import { TabShell } from '@/stackflow/components/tab-shell'
 import { Card } from '@/components/ui/card'
 import { fetchRelationMap, fetchThrowback } from '@/lib/api/home'
 import type { RelationMapResponse } from '@/lib/api/types'
-import { getDefaultHomePeriod, isPersonInHomePeriod } from '@/lib/home-period'
+import {
+  getDefaultHomePeriod,
+  isPersonInHomePeriod,
+  subscribeDefaultHomePeriod,
+} from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { queryKeys } from '@/lib/query-keys'
 
 export function HomeTab() {
   const { push } = useFlow()
-  // 탭 마운트(첫 방문) 시 설정에 저장된 기본 기간으로 초기화. 탭에서 바꾼 값은 세션 동안 유지된다.
+  // 탭 마운트(첫 방문) 시 설정에 저장된 기본 기간으로 초기화. 탭에서 바꾼 값은 세션 동안 유지되고,
+  // 설정 탭에서 기본 기간을 바꾸면 그 값으로 덮어쓴다(홈 탭은 hidden 유지라 리마운트되지 않음).
   const [period, setPeriod] = useState<HomePeriod>(() => getDefaultHomePeriod())
+  useEffect(() => subscribeDefaultHomePeriod(setPeriod), [])
   const [throwbackDismissed, setThrowbackDismissed] = useState(false)
   const [throwbackExiting, setThrowbackExiting] = useState(false)
 
