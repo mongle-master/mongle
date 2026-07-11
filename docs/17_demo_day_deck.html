@@ -1,0 +1,599 @@
+<title>mongle — 관계도감 발표자료</title>
+<style>
+  :root{
+    --paper:#ffffff; --ink:#141414;
+    --mut:rgba(20,20,20,.62); --line:rgba(20,20,20,.16); --fill:rgba(20,20,20,.045); --dot:rgba(20,20,20,.13);
+    --mut-i:rgba(255,255,255,.68); --line-i:rgba(255,255,255,.22); --fill-i:rgba(255,255,255,.07);
+    --sans:"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Noto Sans KR",system-ui,-apple-system,sans-serif;
+    --serif:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#0f0f0f; --ink:#f2f2f2;
+      --mut:rgba(242,242,242,.64); --line:rgba(242,242,242,.2); --fill:rgba(242,242,242,.06); --dot:rgba(242,242,242,.14);
+      --mut-i:rgba(15,15,15,.66); --line-i:rgba(15,15,15,.22); --fill-i:rgba(15,15,15,.06);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0f0f0f; --ink:#f2f2f2;
+    --mut:rgba(242,242,242,.64); --line:rgba(242,242,242,.2); --fill:rgba(242,242,242,.06); --dot:rgba(242,242,242,.14);
+    --mut-i:rgba(15,15,15,.66); --line-i:rgba(15,15,15,.22); --fill-i:rgba(15,15,15,.06);
+  }
+  :root[data-theme="light"]{
+    --paper:#ffffff; --ink:#141414;
+    --mut:rgba(20,20,20,.62); --line:rgba(20,20,20,.16); --fill:rgba(20,20,20,.045); --dot:rgba(20,20,20,.13);
+    --mut-i:rgba(255,255,255,.68); --line-i:rgba(255,255,255,.22); --fill-i:rgba(255,255,255,.07);
+  }
+
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink)}
+  body{font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  *,*::before,*::after{box-sizing:border-box}
+
+  .deck{position:fixed;inset:0;overflow:hidden}
+  .slide{
+    --sbg:var(--paper); --sfg:var(--ink); --smut:var(--mut); --sline:var(--line); --sfill:var(--fill); --sdot:var(--dot);
+    position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+    background:var(--sbg);color:var(--sfg);
+    background-image:radial-gradient(var(--sdot) 1px,transparent 1.4px);
+    background-size:26px 26px;
+    opacity:0;visibility:hidden;transition:opacity .3s ease;
+  }
+  .slide.active{opacity:1;visibility:visible;z-index:2}
+  .slide.inv{--sbg:var(--ink);--sfg:var(--paper);--smut:var(--mut-i);--sline:var(--line-i);--sfill:var(--fill-i);--sdot:transparent}
+
+  .wrap{min-height:100%;display:flex;flex-direction:column;padding:clamp(20px,4.5vmin,56px) clamp(22px,6vw,96px)}
+  .core{margin:auto 0;width:100%;max-width:1180px;align-self:center}
+  .head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;width:100%;max-width:1180px;align-self:center}
+  .eyebrow{font-family:var(--mono);font-size:clamp(10px,1.3vmin,12px);letter-spacing:.24em;text-transform:uppercase;color:var(--smut)}
+  .wordmark{font-family:var(--serif);font-style:italic;font-size:clamp(11px,1.5vmin,14px);color:var(--smut);white-space:nowrap}
+  .foot{display:flex;justify-content:space-between;align-items:baseline;width:100%;max-width:1180px;align-self:center;color:var(--smut);font-family:var(--mono);font-size:11px}
+
+  h1{font-size:clamp(30px,5.4vw,72px);line-height:1.08;letter-spacing:-.03em;font-weight:900;margin:.35em 0 .25em;text-wrap:balance}
+  h1 .thin{font-weight:300}
+  .sub{font-size:clamp(15px,2vw,21px);line-height:1.55;color:var(--smut);max-width:34em;margin:0 0 1em;text-wrap:pretty}
+  .sub strong{color:var(--sfg);font-weight:700}
+  .kicker{border-top:1px solid var(--sline);margin-top:clamp(14px,2.4vmin,26px);padding-top:clamp(10px,1.8vmin,18px);font-size:clamp(14px,1.7vw,18px);font-weight:700;letter-spacing:-.01em}
+  .kicker .mono{font-family:var(--mono);font-weight:400;font-size:.82em;color:var(--smut)}
+
+  .rule{border:0;border-top:1px solid var(--sline);margin:clamp(12px,2vmin,20px) 0}
+
+  /* quote rows (S3) */
+  .qrows{display:flex;flex-direction:column;border-top:1px solid var(--sline)}
+  .qrow{display:grid;grid-template-columns:minmax(84px,140px) 1fr;gap:18px;padding:clamp(10px,1.9vmin,18px) 0;border-bottom:1px solid var(--sline);align-items:baseline}
+  .qrow .tag{font-family:var(--mono);font-size:clamp(11px,1.4vmin,13px);letter-spacing:.14em;color:var(--smut)}
+  .qrow p{margin:0;font-size:clamp(15px,2.1vw,22px);line-height:1.5;font-weight:600;letter-spacing:-.015em;text-wrap:pretty}
+  .qrow p em{font-style:normal;color:var(--smut);font-weight:400}
+
+  /* generic list blocks */
+  .plist{display:flex;flex-direction:column;gap:clamp(8px,1.6vmin,14px);margin:0;padding:0;list-style:none}
+  .plist li{display:grid;grid-template-columns:14px 1fr;gap:14px;font-size:clamp(14px,1.8vw,18px);line-height:1.55}
+  .plist li::before{content:"—";color:var(--smut)}
+  .plist b{font-weight:800}
+  .plist .d{color:var(--smut)}
+
+  /* cards */
+  .grid{display:grid;gap:clamp(10px,1.6vmin,16px)}
+  .cards-3{grid-template-columns:repeat(3,1fr)}
+  .cards-2{grid-template-columns:repeat(2,1fr)}
+  .card{border:1px solid var(--sline);background:var(--sbg);padding:clamp(12px,2vmin,20px);display:flex;flex-direction:column;gap:8px}
+  .card.fill{background:var(--sfill)}
+  .card.dark{background:var(--sfg);color:var(--sbg);border-color:var(--sfg)}
+  .card h3{margin:0;font-size:clamp(15px,1.9vw,19px);font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+  .card .role{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:3px 9px;opacity:.75;white-space:nowrap}
+  .card ul{margin:0;padding:0;list-style:none;font-size:clamp(12.5px,1.5vw,14.5px);line-height:1.55;color:var(--smut);display:flex;flex-direction:column;gap:2px}
+  .card.dark ul{color:color-mix(in srgb,var(--sbg) 72%,transparent)}
+  .card .wit{margin-top:auto;padding-top:8px;font-size:clamp(12.5px,1.5vw,14px);font-weight:600;border-top:1px dashed var(--sline)}
+  .card.dark .wit{border-top-color:color-mix(in srgb,var(--sbg) 30%,transparent)}
+  .avatar{font-size:clamp(22px,3vmin,30px);filter:grayscale(1);line-height:1}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.8vmin,18px)}
+  .stat{border-top:2px solid var(--sfg);padding-top:10px}
+  .stat .n{font-family:var(--serif);font-size:clamp(30px,5.4vmin,58px);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .stat .n sup{font-size:.45em;letter-spacing:0}
+  .stat .l{margin-top:6px;font-size:clamp(11.5px,1.4vw,13.5px);color:var(--smut);line-height:1.45}
+
+  /* flow (relay) */
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--sline)}
+  .leg{padding:clamp(12px,1.9vmin,20px);border-left:1px solid var(--sline);display:flex;flex-direction:column;gap:6px;background:var(--sbg)}
+  .leg:first-child{border-left:0}
+  .leg .no{font-family:var(--serif);font-style:italic;font-size:clamp(15px,2vmin,19px);color:var(--smut)}
+  .leg h4{margin:0;font-size:clamp(14px,1.8vw,17.5px);font-weight:800;letter-spacing:-.01em}
+  .leg p{margin:0;font-size:clamp(12px,1.5vw,14px);line-height:1.55;color:var(--smut);text-wrap:pretty}
+  .leg p b{color:var(--sfg)}
+  .leg.hot{background:var(--sfill)}
+
+  /* layers (docs) */
+  .layers{display:flex;flex-direction:column;border:1px solid var(--sline)}
+  .layer{display:grid;grid-template-columns:minmax(96px,150px) 1fr minmax(100px,170px);gap:16px;align-items:center;padding:clamp(10px,1.7vmin,16px) clamp(12px,1.9vmin,20px);border-top:1px solid var(--sline)}
+  .layer:first-child{border-top:0}
+  .layer .nm{font-family:var(--mono);font-weight:700;font-size:clamp(13px,1.7vw,16px)}
+  .layer .ds{font-size:clamp(12.5px,1.6vw,15px);line-height:1.5;color:var(--smut)}
+  .layer .ds b{color:var(--sfg)}
+  .layer .lf{font-family:var(--mono);font-size:clamp(10.5px,1.3vw,12px);letter-spacing:.08em;color:var(--smut);text-align:right;white-space:nowrap}
+  .layer.ghost{background:var(--sfill)}
+  .layer.ghost .nm{text-decoration:line-through;text-decoration-thickness:1px;text-underline-offset:2px}
+
+  /* table */
+  .twrap{overflow-x:auto;border:1px solid var(--sline)}
+  table{border-collapse:collapse;width:100%;min-width:640px}
+  th,td{padding:clamp(8px,1.5vmin,14px) clamp(10px,1.6vmin,16px);text-align:left;font-size:clamp(12px,1.5vw,14.5px);line-height:1.45;border-top:1px solid var(--sline);vertical-align:top}
+  thead th{border-top:0;font-family:var(--mono);font-size:clamp(10.5px,1.3vw,12px);letter-spacing:.12em;text-transform:uppercase;color:var(--smut);font-weight:600}
+  td:first-child,th:first-child{color:var(--smut)}
+  td.us{font-weight:800;background:var(--sfill)}
+  .marks{font-family:var(--mono)}
+
+  /* mascot */
+  .mascot{position:relative;width:clamp(96px,15vmin,170px);aspect-ratio:1;background:var(--sfg);border-radius:53% 47% 56% 44%/48% 55% 45% 52%;animation:mongle 7s ease-in-out infinite alternate;flex:0 0 auto}
+  .mascot i{position:absolute;top:42%;width:9%;aspect-ratio:1;background:var(--sbg);border-radius:50%}
+  .mascot i:first-child{left:33%}
+  .mascot i:last-child{right:33%}
+  .mascot.sm{width:clamp(56px,7vmin,84px)}
+  @keyframes mongle{
+    0%{border-radius:53% 47% 56% 44%/48% 55% 45% 52%;transform:translateY(0)}
+    50%{border-radius:46% 54% 44% 56%/55% 46% 54% 45%}
+    100%{border-radius:57% 43% 49% 51%/44% 57% 43% 56%;transform:translateY(-4%)}
+  }
+
+  /* title layout */
+  .titleRow{display:flex;align-items:center;gap:clamp(20px,4vmin,48px);flex-wrap:wrap}
+  .title-name{font-size:clamp(52px,11vw,150px);font-weight:900;letter-spacing:-.045em;line-height:.98;margin:0}
+  .title-en{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(22px,3.6vw,44px);letter-spacing:0;color:var(--smut);display:block;margin-bottom:.2em}
+  .teamline{font-family:var(--mono);font-size:clamp(11px,1.4vmin,13px);color:var(--smut);letter-spacing:.06em}
+
+  .const{position:absolute;right:clamp(8px,4vw,70px);top:8%;width:min(34vw,420px);opacity:.5;pointer-events:none}
+  .const line{stroke:var(--sline);stroke-width:1}
+  .const .gone{stroke-dasharray:4 5}
+  .const circle{fill:var(--sfg)}
+  .const circle.hollow{fill:var(--sbg);stroke:var(--smut);stroke-dasharray:3 3}
+
+  /* demo slide */
+  .demoTitle{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(46px,9vw,120px);letter-spacing:-.02em;line-height:1;margin:0 0 .3em}
+  .scenes{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.8vmin,18px)}
+  .scene{border:1px solid var(--sline);padding:clamp(12px,2vmin,20px)}
+  .scene .no{font-family:var(--serif);font-style:italic;font-size:clamp(18px,2.6vmin,26px);color:var(--smut)}
+  .scene h4{margin:.35em 0 .3em;font-size:clamp(15px,1.9vw,19px);font-weight:800}
+  .scene p{margin:0;color:var(--smut);font-size:clamp(12.5px,1.5vw,14.5px);line-height:1.55}
+
+  /* tabbar mock */
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--sline);margin-bottom:clamp(12px,2vmin,20px)}
+  .tab{padding:10px 6px;text-align:center;font-family:var(--mono);font-size:clamp(10.5px,1.3vw,12.5px);letter-spacing:.08em;border-left:1px solid var(--sline);color:var(--smut)}
+  .tab:first-child{border-left:0}
+  .tab.plus{background:var(--sfg);color:var(--sbg);font-weight:700;font-size:clamp(13px,1.7vw,16px)}
+  .tabrows{counter-reset:none}
+  .tabrow{display:grid;grid-template-columns:minmax(90px,150px) 1fr;gap:16px;padding:clamp(7px,1.3vmin,12px) 0;border-bottom:1px solid var(--sline);align-items:baseline}
+  .tabrow .t{font-weight:800;font-size:clamp(13.5px,1.7vw,16.5px)}
+  .tabrow .x{color:var(--smut);font-size:clamp(12.5px,1.6vw,15px);line-height:1.5}
+  .tabrow .x b{color:var(--sfg)}
+
+  /* closing */
+  .bigquote{font-size:clamp(19px,3.1vw,34px);line-height:1.5;font-weight:600;letter-spacing:-.02em;max-width:26em;text-wrap:pretty;margin:0}
+  .bigquote::before{content:"“";font-family:var(--serif);display:block;font-size:2.2em;line-height:.4;margin-bottom:.25em;color:var(--smut)}
+
+  /* chrome */
+  .chrome{position:fixed;z-index:50;color:#fff;mix-blend-mode:difference;font-family:var(--mono)}
+  #progress{top:0;left:0;height:2px;background:#fff;width:0%;transition:width .25s ease}
+  #counter{right:clamp(14px,2.5vw,28px);bottom:clamp(12px,2.2vmin,22px);font-size:12px;letter-spacing:.14em}
+  #navbtns{left:clamp(14px,2.5vw,28px);bottom:clamp(8px,1.8vmin,16px);display:flex;gap:6px}
+  #navbtns button{all:unset;cursor:pointer;color:#fff;font-size:20px;line-height:1;padding:6px 10px;border:1px solid rgba(255,255,255,.55)}
+  #navbtns button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  #hint{left:50%;transform:translateX(-50%);bottom:clamp(12px,2.2vmin,22px);font-size:10.5px;letter-spacing:.12em;opacity:.65}
+  @media (max-width:720px){#hint{display:none}}
+
+  .rise{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .rise.d1{animation-delay:.08s}.rise.d2{animation-delay:.16s}.rise.d3{animation-delay:.24s}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  @media (prefers-reduced-motion:reduce){
+    .mascot{animation:none}
+    .rise{animation:none}
+    .slide{transition:none}
+  }
+
+  @media (max-width:860px){
+    .cards-3{grid-template-columns:repeat(2,1fr)}
+    .flow{grid-template-columns:repeat(2,1fr)}
+    .leg{border-top:1px solid var(--sline)}
+    .leg:nth-child(-n+2){border-top:0}
+    .leg:nth-child(3){border-left:0}
+    .scenes{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .layer{grid-template-columns:minmax(84px,110px) 1fr;grid-auto-rows:auto}
+    .layer .lf{grid-column:2;text-align:left}
+    .const{display:none}
+  }
+  @media (max-width:560px){
+    .cards-3,.cards-2,.flow{grid-template-columns:1fr}
+    .leg{border-left:0;border-top:1px solid var(--sline)}
+    .leg:first-child{border-top:0}
+    .qrow{grid-template-columns:1fr;gap:4px}
+  }
+
+  @media print{
+    .deck{position:static}
+    .slide{position:relative;inset:auto;opacity:1;visibility:visible;page-break-after:always;min-height:100vh;overflow:visible}
+    .chrome{display:none}
+  }
+</style>
+
+<div class="deck" id="deck">
+
+  <!-- S1 · 타이틀 -->
+  <section class="slide" aria-label="타이틀">
+    <svg class="const" viewBox="0 0 400 300" aria-hidden="true">
+      <line x1="200" y1="150" x2="90" y2="60"/><line x1="200" y1="150" x2="320" y2="80"/>
+      <line x1="200" y1="150" x2="330" y2="210"/><line x1="200" y1="150" x2="120" y2="240"/>
+      <line class="gone" x1="200" y1="150" x2="40" y2="160"/>
+      <line x1="90" y1="60" x2="320" y2="80"/>
+      <circle cx="200" cy="150" r="7"/><circle cx="90" cy="60" r="4.5"/><circle cx="320" cy="80" r="4"/>
+      <circle cx="330" cy="210" r="4.5"/><circle cx="120" cy="240" r="4"/>
+      <circle class="hollow" cx="40" cy="160" r="4.5"/>
+    </svg>
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Sprint Demo Day — 2026.07</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <div class="titleRow rise">
+          <div class="mascot" aria-hidden="true"><i></i><i></i></div>
+          <div>
+            <span class="title-en">mongle</span>
+            <h1 class="title-name">관계도감</h1>
+          </div>
+        </div>
+        <p class="sub rise d1" style="margin-top:1.2em"><strong>함께한 순간, 몽글몽글 쌓이는 중.</strong><br>사람 중심으로 기록하는 개인 관계 기록 서비스</p>
+        <p class="teamline rise d2">🪿 구스 · 🐰 진 · 🫎 순돌 · ☀️ 써니 · ☁️ 깃수 &nbsp;×&nbsp; Claude</p>
+      </div>
+      <div class="foot"><span>SPRINT 2026.07.05 → 07.11</span><span>01</span></div>
+    </div>
+  </section>
+
+  <!-- S2 · 팀 -->
+  <section class="slide" aria-label="팀원 소개">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Team</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">다섯 사람, <span class="thin">그리고 하나의 AI</span></h1>
+        <div class="grid cards-3 rise d1">
+          <div class="card">
+            <h3><span class="avatar">🪿</span>구스 <span class="role">PL</span></h3>
+            <ul><li>프로젝트 리딩 · 일정 관리</li><li>개발 환경 구축 · 배포 관리</li><li>브랜치 전략 · 컨벤션 · 협업 프로세스</li></ul>
+            <p class="wit">규칙을 만들고, 훅으로 지킨다.</p>
+          </div>
+          <div class="card">
+            <h3><span class="avatar">🐰</span>진 <span class="role">Proto·UI</span></h3>
+            <ul><li>서비스 프로토타입 제작</li><li>공통 레이아웃 · 베이스 UI</li><li>디자인 시스템 적용</li></ul>
+            <p class="wit">팀이 본 첫 화면은 전부 이 손에서 나왔다.</p>
+          </div>
+          <div class="card">
+            <h3><span class="avatar">🫎</span>순돌 <span class="role">BE·QA</span></h3>
+            <ul><li>백엔드 DB · API 설계와 구현</li><li>API 연동 지원</li><li>프론트엔드 QA · 기능 검증</li></ul>
+            <p class="wit">API를 만들고, 프론트를 의심한다.</p>
+          </div>
+          <div class="card">
+            <h3><span class="avatar">☀️</span>써니 <span class="role">Viz·FE</span></h3>
+            <ul><li>관계 맵 시각화 방식 연구</li><li>타임라인 · 기록 작성 페이지</li><li>데이터 시각화 기능</li></ul>
+            <p class="wit">흩어진 관계에 빛을 비춰, 지도로 만든다.</p>
+          </div>
+          <div class="card">
+            <h3><span class="avatar">☁️</span>깃수 <span class="role">FE·UX</span></h3>
+            <ul><li>프로토타입 고도화 · 디자인 검토</li><li>홈 대시보드 · 프로필 페이지</li><li>UI/UX 개선 · 프론트 고도화</li></ul>
+            <p class="wit">거친 화면을 구름처럼 매끈하게 다듬는다.</p>
+          </div>
+          <div class="card dark">
+            <h3><span class="avatar">✳︎</span>Claude <span class="role">6번째 팀원</span></h3>
+            <ul><li>전체 커밋 191개 중 94개 공동저작 — 49%</li><li>PRD · mustpass · 코드 · 배포 전 구간 참여</li></ul>
+            <p class="wit">잠들지 않고, 서운해하지도 않는다.</p>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span>TEAM</span><span>02</span></div>
+    </div>
+  </section>
+
+  <!-- S3 · 문제 오프닝 -->
+  <section class="slide" aria-label="문제 제기">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Problem</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">“그때 그 친구,<br>요즘 어떻게 지낼까”</h1>
+        <p class="sub rise d1">누구나 한 번쯤 떠올려 본 질문. 그런데 그 사람과의 기억은, 지금 어디에 있을까.</p>
+        <div class="qrows rise d2">
+          <div class="qrow"><span class="tag">연락처</span><p>“연락처에는 사람이 있지만, <em>어떤 관계인지와 함께한 기록이 없다.”</em></p></div>
+          <div class="qrow"><span class="tag">캘린더</span><p>“캘린더에는 일정이 있지만, <em>그 사람과 어떤 일이 있었는지 남지 않는다.”</em></p></div>
+          <div class="qrow"><span class="tag">메모앱</span><p>“메모앱에는 기록할 수 있지만, <em>사람별로 다시 보기 어렵다.”</em></p></div>
+          <div class="qrow"><span class="tag">사진첩</span><p>“사진첩에는 순간이 있지만, <em>관계의 흐름으로 정리되지 않는다.”</em></p></div>
+        </div>
+      </div>
+      <div class="foot"><span>WHY WE BUILT IT</span><span>03</span></div>
+    </div>
+  </section>
+
+  <!-- S4 · 핵심 문제 -->
+  <section class="slide" aria-label="핵심 문제">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Problem</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">관계의 기록은 어디에나 있고,<br><span class="thin">어디에도 없다</span></h1>
+        <p class="sub rise d1">“사람과의 관계 정보가 고정 정보, 추억, 취향, 만남 기록으로 흩어져 있어 <strong>한눈에 관계를 이해하기 어렵다.”</strong></p>
+        <ul class="plist rise d2">
+          <li><span><b>감으로 짜맞춘다</b> <span class="d">— 마지막 만남을 확인하려면 대화방과 사진첩을 일일이 거슬러 올라간다.</span></span></li>
+          <li><span><b>알아차릴 계기가 없다</b> <span class="d">— 소원해진 사람은 그 사실조차 모른 채 그대로 잊힌다.</span></span></li>
+          <li><span><b>단서가 사라진다</b> <span class="d">— ‘그때 친했지’라는 감각만 남고, 왜 가까웠는지는 흐려진다.</span></span></li>
+        </ul>
+      </div>
+      <div class="foot"><span>WHY WE BUILT IT</span><span>04</span></div>
+    </div>
+  </section>
+
+  <!-- S5 · 해결책 선언 -->
+  <section class="slide inv" aria-label="해결책">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Solution</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">사람 중심의 지도 <span class="thin">×</span><br>시간의 연대기</h1>
+        <p class="sub rise d1">내가 만난 사람과 함께한 순간을 <strong>사람 중심으로</strong> 저장하고, 시간이 흐른 뒤에도 <strong>관계의 맥락</strong>을 다시 꺼내볼 수 있게 하는 개인 관계 기록 서비스.</p>
+        <p class="kicker rise d2">“단순한 ‘기록’이 아니라 ‘기억’에 가치를 둔다.” <span class="mono">— 연락처가 아니라, 관계의 도감</span></p>
+      </div>
+      <div class="foot"><span>SOLUTION</span><span>05</span></div>
+    </div>
+  </section>
+
+  <!-- S6 · 제품 구조 -->
+  <section class="slide" aria-label="제품 구조">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Product</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">다섯 개의 탭, <span class="thin">하나의 도감</span></h1>
+        <div class="tabbar rise d1" aria-hidden="true">
+          <span class="tab">홈</span><span class="tab">타임라인</span><span class="tab plus">＋</span><span class="tab">사람</span><span class="tab">설정</span>
+        </div>
+        <div class="rise d2">
+          <div class="tabrow"><span class="t">홈</span><span class="x"><b>나를 중심에 둔 관계 지도.</b> 사람이 노드로, 관계가 선으로 — 흩어져 있던 관계가 한 화면에 모인다.</span></div>
+          <div class="tabrow"><span class="t">타임라인</span><span class="x"><b>나의 통합 연대기.</b> 모든 사람과의 기록이 시간축 하나로 흐른다.</span></div>
+          <div class="tabrow"><span class="t">＋ 기록</span><span class="x"><b>30초 기록.</b> 감정·날씨·카테고리는 칩으로 톡톡. 필수는 ‘함께한 사람’ 하나뿐.</span></div>
+          <div class="tabrow"><span class="t">사람</span><span class="x"><b>인물 도감.</b> 좋아하는 것과 ‘조심할 것’, 생일 D-day, 처음과 마지막으로 만난 날.</span></div>
+          <div class="tabrow"><span class="t">설정</span><span class="x"><b>나만의 어휘.</b> 감정·날씨·카테고리·관계태그 칩을 직접 만들고 고친다.</span></div>
+        </div>
+      </div>
+      <div class="foot"><span>PRODUCT</span><span>06</span></div>
+    </div>
+  </section>
+
+  <!-- S7 · 철학 -->
+  <section class="slide" aria-label="제품 철학">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Product</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">디테일이 <span class="thin">곧 철학</span></h1>
+        <ul class="plist rise d1" style="margin-top:.6em">
+          <li><span><b>점수를 매기지 않는다</b> <span class="d">— 관계를 점수화·서열화하는 표현은 전 화면에서 금지. 활동 차트도 횟수 없이 ‘있었다’만 점으로.</span></span></li>
+          <li><span><b>알림 대신, 빈 자리</b> <span class="d">— “남들은 ‘연락하세요’ 알림, 우리는 빈 자리 자체를 보여준다.” 멀어짐은 그 사람의 평소 만남 주기를 기준으로 조용히 흐려질 뿐.</span></span></li>
+          <li><span><b>1년 전 오늘</b> <span class="d">— 같은 날의 기록이 있을 때만 카드가 뜬다. 다시 연락할 핑계를 건네는 방식.</span></span></li>
+          <li><span><b>싫어하는 것이 아니라 ‘조심할 것’</b> <span class="d">— 말투까지 관계를 아끼는 쪽으로.</span></span></li>
+          <li><span><b>유채색 0</b> <span class="d">— 블랙&화이트 에디토리얼. 색으로 사람을 구분하지 않는다. 오늘 이 발표가 흑백인 이유이기도 하다.</span></span></li>
+        </ul>
+      </div>
+      <div class="foot"><span>PRODUCT</span><span>07</span></div>
+    </div>
+  </section>
+
+  <!-- S8 · Live Demo -->
+  <section class="slide inv" aria-label="라이브 데모">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Demo</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <p class="demoTitle rise">Live Demo</p>
+        <div class="scenes rise d1">
+          <div class="scene"><span class="no">i.</span><h4>잊고 있던 친구</h4><p>관계 지도에서 흐려진 노드 하나를 발견한다.</p></div>
+          <div class="scene"><span class="no">ii.</span><h4>추억 다시 보기</h4><p>그 사람의 연대기를 시간순으로 걸어 내려간다.</p></div>
+          <div class="scene"><span class="no">iii.</span><h4>1년 전 오늘</h4><p>같은 날의 기록이, 다시 연락할 핑계가 된다.</p></div>
+        </div>
+        <p class="kicker rise d2">여기서부터는 화면을 앱으로 넘깁니다.</p>
+      </div>
+      <div class="foot"><span>LIVE</span><span>08</span></div>
+    </div>
+  </section>
+
+  <!-- S9 · AI 파트 표지 -->
+  <section class="slide" aria-label="AI 활용 개요">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">How We Built It</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">이걸 6일 만에, <span class="thin">어떻게?</span></h1>
+        <p class="sub rise d1">우리가 AI를 쓴 방법 — <strong>우리 팀 개발 팁을 공유합니다.</strong></p>
+        <div class="stats rise d2">
+          <div class="stat"><div class="n">6<sup>일</sup></div><div class="l">07.05 INIT → 07.11 데모</div></div>
+          <div class="stat"><div class="n">5<sup>+1</sup></div><div class="l">다섯 사람, 그리고 Claude</div></div>
+          <div class="stat"><div class="n">191</div><div class="l">커밋 — 6일, 모든 브랜치</div></div>
+          <div class="stat"><div class="n">49<sup>%</sup></div><div class="l">AI 공동저작 커밋 (94/191)</div></div>
+          <div class="stat"><div class="n">29</div><div class="l">문서(docs) 커밋 — 코드보다 문서 먼저</div></div>
+          <div class="stat"><div class="n">0</div><div class="l">테스트 코드 — 대신 mustpass 불변식 문서</div></div>
+        </div>
+      </div>
+      <div class="foot"><span>HOW WE USED AI</span><span>09</span></div>
+    </div>
+  </section>
+
+  <!-- S10 · 릴레이 -->
+  <section class="slide" aria-label="릴레이 협업">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">How We Used AI — 1</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">역할 경계를 없앤 <span class="thin">릴레이 개발</span></h1>
+        <p class="sub rise d1">목표: <strong>프론트가 백엔드 코드를, 백엔드가 프론트 코드를 만진다.</strong> 그래서 모두가 하나의 요구사항(PRD)을 보고, 항상 PRD를 먼저 고친 뒤 코드를 고쳤다.</p>
+        <div class="flow rise d2">
+          <div class="leg"><span class="no">1st</span><h4>PRD</h4><p>한 사람이 요구사항을 쓴다. ‘무엇을’만, 구현은 없이.</p></div>
+          <div class="leg hot"><span class="no">2nd</span><h4>1차 코드</h4><p>FE·BE 각자. 임무는 기능이 아니라 <b>암묵지를 전부 꺼내놓는 것</b> — 배포 방식, 컨벤션, 기존 코드.</p></div>
+          <div class="leg"><span class="no">3rd</span><h4>이어받기</h4><p>다른 사람이 PRD를 먼저 수정하고, 디자인·기능을 바꾸고 리팩토링한다.</p></div>
+          <div class="leg"><span class="no">4th</span><h4>QA</h4><p>또 다른 사람이 검증한다. 만든 사람은 자기 코드를 못 믿으니까.</p></div>
+        </div>
+        <p class="kicker rise d3">실측 — BE 리드가 FE 커밋을, FE 셋이 각자 BE 커밋을 남겼다. <span class="mono">“배포 이어하기 핸드오프 프롬프트”가 커밋으로 남아 있다.</span></p>
+      </div>
+      <div class="foot"><span>HOW WE USED AI</span><span>10</span></div>
+    </div>
+  </section>
+
+  <!-- S11 · 하네스 -->
+  <section class="slide" aria-label="근접 코드가 최고의 하네스">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">How We Used AI — 2</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">“근접 코드가<br>최고의 하네스”</h1>
+        <p class="sub rise d1">AI는 옆에 있는 코드를 하네스 삼아 다음 코드를 쓴다. 그러니 <strong>컨벤션 통일이 곧 품질의 재생산</strong>이다 — 어떤 파일을 열어도 같은 품질이 나오게.</p>
+        <div class="grid cards-3 rise d2">
+          <div class="card fill"><h3><span class="role">.claude/rules</span></h3><ul><li>아키텍처 규칙을 파일로 성문화</li><li>엔티티는 id로만 참조 — JPA 연관관계 금지</li><li>Swagger 설명 없는 API는 리뷰 반려</li></ul></div>
+          <div class="card fill"><h3><span class="role">commit-msg 훅</span></h3><ul><li>Conventional Commits 강제</li><li>영어 type(scope) + 한국어 제목</li><li>형식이 틀리면 커밋 자체가 거부된다</li></ul></div>
+          <div class="card fill"><h3><span class="role">CI</span></h3><ul><li>lint → format → typecheck → build</li><li>사람이 안 봐도 무너지지 않는 바닥</li></ul></div>
+        </div>
+      </div>
+      <div class="foot"><span>HOW WE USED AI</span><span>11</span></div>
+    </div>
+  </section>
+
+  <!-- S12 · 문서 4층 -->
+  <section class="slide" aria-label="문서 4층 구조">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">How We Used AI — 3</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">문서를 수명별로 <span class="thin">4층으로 쪼갠다</span></h1>
+        <p class="sub rise d1">문서와 코드가 어긋나는(drift) 이유는 문서가 코드의 ‘what’을 복사하기 때문. 그래서 <strong>층마다 수명을 다르게</strong> 가져갔다.</p>
+        <div class="layers rise d2">
+          <div class="layer"><span class="nm">docs/prd</span><span class="ds"><b>‘무엇을’만.</b> 기획자의 고도에서 쓴 단일 진실(SSOT). 코드 수정 전에 항상 먼저 본다.</span><span class="lf">영속</span></div>
+          <div class="layer"><span class="nm">mustpass</span><span class="ds"><b>반드시 지킬 불변식 표.</b> 테스트 코드 대신 “믿고 가는 문서” — 엣지를 AI가 임의 판단하지 못하게 못박는다.</span><span class="lf">영속</span></div>
+          <div class="layer ghost"><span class="nm">docs/temp</span><span class="ds"><b>이번 세션의 구현 계획.</b> 일부러 gitignore — what이 문서에 남는 순간 drift가 시작된다.</span><span class="lf">세션 후 폐기</span></div>
+          <div class="layer"><span class="nm">주석</span><span class="ds"><b>코드로 설명 못 하는 암묵지만.</b> PRD 복붙 금지. 같은 주석이 반복되면 공통화 신호.</span><span class="lf">코드 옆</span></div>
+        </div>
+        <p class="kicker rise d3">+ runbook만 보고 배포 재현 · 노트북을 넘는 ‘핸드오프 프롬프트’ · 세션 규범은 메모리로 다음 AI에게 승계</p>
+      </div>
+      <div class="foot"><span>HOW WE USED AI</span><span>12</span></div>
+    </div>
+  </section>
+
+  <!-- S13 · 팁 -->
+  <section class="slide" aria-label="개발 팁">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">How We Used AI — 4</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">가져가셔도 됩니다 <span class="thin">— 팀 개발 팁</span></h1>
+        <div class="grid cards-2 rise d1" style="margin-top:.6em">
+          <div class="card"><h3>Issue 하나 크기로 던져라</h3><ul><li>“이 Issue 범위만 구현해” — 스코프 폭주를 막는 한 문장. 이슈 발급도 AI가 일괄로.</li></ul></div>
+          <div class="card"><h3>포크는 대화로, 디테일은 추천대로</h3><ul><li>제품 방향이 갈리면 사람과 대화, 사소한 구현은 AI 추천대로. 의사결정에도 계층이 있다.</li></ul></div>
+          <div class="card"><h3>데모엔 테스트 대신 mustpass</h3><ul><li>유지비가 속도를 죽이는 구간에선 불변식을 문서로 못박고 믿고 간다. 프로덕션 전환 시 재검토.</li></ul></div>
+          <div class="card"><h3>세션 계획은 git 밖에</h3><ul><li>구현 계획이 리포지토리에 남는 순간 문서는 거짓말을 시작한다.</li></ul></div>
+          <div class="card"><h3>문서는 코드와 가까울수록 좋다</h3><ul><li>암묵지는 주석으로. 배포는 runbook으로. 규칙은 .claude/rules로 — 전부 코드 옆에.</li></ul></div>
+          <div class="card"><h3>규칙은 사람이 아니라 훅이 지킨다</h3><ul><li>커밋의 49%를 AI와 함께 썼지만 히스토리가 균일한 이유.</li></ul></div>
+        </div>
+      </div>
+      <div class="foot"><span>HOW WE USED AI</span><span>13</span></div>
+    </div>
+  </section>
+
+  <!-- S14 · 시장 비교 -->
+  <section class="slide" aria-label="타 서비스와의 차이">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Market</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">시장은 두 진영, <span class="thin">우리는 그 사이의 공백</span></h1>
+        <p class="sub rise d1"><strong>인맥 관리 진영</strong>은 “안 잊게 챙겨주는” 자동 수집·리마인드(Mesh·Dex·Covve·리멤버), <strong>저널 진영</strong>은 “나의 하루를 음미하는” 자기 서사(Day One·Daylio·하루콩). 관계도감은 어느 쪽도 아니다.</p>
+        <div class="twrap rise d2">
+          <table>
+            <thead><tr><th></th><th>인맥 관리 진영</th><th>저널 진영</th><th>관계도감</th></tr></thead>
+            <tbody>
+              <tr><td>기록의 중심</td><td>사람 — 비즈니스 인맥</td><td>나의 하루</td><td class="us">사람 — 사적 관계</td></tr>
+              <tr><td>목적</td><td>연락 리마인드</td><td>자기 서사</td><td class="us">관계의 서사와 기억</td></tr>
+              <tr><td>화면 구조</td><td>리스트</td><td>캘린더·피드</td><td class="us">관계 지도(그래프)</td></tr>
+              <tr><td>감정</td><td>없음</td><td>날짜에 붙는다</td><td class="us">사람에 붙는다</td></tr>
+              <tr><td>데이터</td><td>자동 수집</td><td>수동 일기</td><td class="us">의도적 30초 기록</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="kicker rise d3">개인용 ‘관계 지도’는 비어 있던 자리다 — 그래프 도구는 전부 비즈니스·창작용이었고, 국내 최근접 서비스 ‘인물’도 리스트 구조다.</p>
+      </div>
+      <div class="foot"><span>MARKET</span><span>14</span></div>
+    </div>
+  </section>
+
+  <!-- S15 · 향후 -->
+  <section class="slide" aria-label="향후 활용 가능성">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Next</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <h1 class="rise">다음 층은 <span class="thin">이미 설계에 있다</span></h1>
+        <p class="sub rise d1">전부 PRD와 백로그에 근거가 남아 있는 확장 경로다.</p>
+        <ul class="plist rise d2">
+          <li><span><b>가져오기(import)</b> <span class="d">— 카톡 대화 .txt, LinkedIn CSV, 캘린더. “직접 내보낸 파일 업로드”가 약관·법을 지키는 유일한 경로라는 분석까지 PRD에 있다.</span></span></li>
+          <li><span><b>AI 관계 요약·성향 분석</b> <span class="d">— 기록이 쌓이면 “당신은 오래된 관계를 오래 지키는 사람” 같은 한 문장을 돌려준다.</span></span></li>
+          <li><span><b>관계 온도와 재연락 넛지</b> <span class="d">— ‘멀어짐’ 판정 로직은 이미 구현돼 있다. 온도 곡선은 자연 확장.</span></span></li>
+          <li><span><b>공동 기억</b> <span class="d">— 같은 추억을 서로의 시점에서. 기록이 관계를 다시 잇는 매개가 된다.</span></span></li>
+          <li><span><b>나만의 책</b> <span class="d">— 쌓인 연대기를 물성 있는 아카이브로 묶는다.</span></span></li>
+        </ul>
+      </div>
+      <div class="foot"><span>NEXT</span><span>15</span></div>
+    </div>
+  </section>
+
+  <!-- S16 · 클로징 -->
+  <section class="slide inv" aria-label="클로징">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Thanks</span><span class="wordmark">mongle · 관계도감</span></div>
+      <div class="core">
+        <p class="bigquote rise">시간이 지나 관계가 멀어지거나, 혹은 내가 더 이상 이 세상에 없더라도, 이 기록은 남아서 그 시절 잠깐이라도 곁에 있었던 사람들을 기억할 수 있는 하나의 개인적인 메모리가 될 수 있다.</p>
+        <div class="titleRow rise d2" style="margin-top:clamp(20px,4vmin,44px);align-items:center">
+          <div class="mascot sm" aria-hidden="true"><i></i><i></i></div>
+          <p class="sub" style="margin:0"><strong>함께한 순간, 몽글몽글 쌓이는 중.</strong><br>감사합니다 — 관계도감 · mongle</p>
+        </div>
+      </div>
+      <div class="foot"><span>구스 · 진 · 순돌 · 써니 · 깃수 × CLAUDE</span><span>16</span></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="chrome" id="progress"></div>
+<div class="chrome" id="counter" aria-live="polite">01 / 16</div>
+<div class="chrome" id="navbtns">
+  <button id="prev" aria-label="이전 슬라이드">‹</button>
+  <button id="next" aria-label="다음 슬라이드">›</button>
+</div>
+<div class="chrome" id="hint">← → 이동 · F 전체화면</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var n=slides.length,cur=0;
+  var counter=document.getElementById('counter'),bar=document.getElementById('progress');
+  function pad(x){return (x<10?'0':'')+x}
+  function go(i,push){
+    cur=Math.max(0,Math.min(n-1,i));
+    slides.forEach(function(s,k){s.classList.toggle('active',k===cur)});
+    counter.textContent=pad(cur+1)+' / '+pad(n);
+    bar.style.width=((cur+1)/n*100)+'%';
+    if(push!==false){try{history.replaceState(null,'','#'+(cur+1))}catch(e){}}
+    var a=slides[cur];a.scrollTop=0;
+    a.querySelectorAll('.rise').forEach(function(el){el.style.animation='none';void el.offsetWidth;el.style.animation=''});
+  }
+  function next(){go(cur+1)} function prev(){go(cur-1)}
+  document.getElementById('next').addEventListener('click',next);
+  document.getElementById('prev').addEventListener('click',prev);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next()}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev()}
+    else if(e.key==='Home'){e.preventDefault();go(0)}
+    else if(e.key==='End'){e.preventDefault();go(n-1)}
+    else if(e.key==='f'||e.key==='F'){
+      if(document.fullscreenElement){document.exitFullscreen&&document.exitFullscreen()}
+      else{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}
+    }
+  });
+  var tx=null,ty=null;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(tx===null)return;
+    var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.4){dx<0?next():prev()}
+    tx=ty=null;
+  },{passive:true});
+  var h=parseInt((location.hash||'').replace('#',''),10);
+  go(isNaN(h)?0:h-1,false);
+})();
+</script>
