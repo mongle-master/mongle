@@ -16,7 +16,7 @@ import { ListField, RelationTypeField } from '@/components/person/person-fields'
 import { DatePartPicker } from '@/components/person/first-met-date-picker'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 
-function ProfileHero({
+export function ProfileHero({
   name,
   imageUrl,
   favorite,
@@ -204,7 +204,7 @@ export function formValuesToRequest(values: PersonFormValues): PersonRequest {
   }
 }
 
-const GENDER_OPTIONS = [
+export const GENDER_OPTIONS = [
   { value: '', label: '선택 안 함' },
   { value: 'FEMALE', label: '여성' },
   { value: 'MALE', label: '남성' },
