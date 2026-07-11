@@ -22,13 +22,6 @@ object Messages {
     const val CATEGORY_REQUIRED = "카테고리는 최소 1개가 필요해요."
     const val SELECTION_LIMIT = "선택할 수 있는 최대 개수를 넘었어요."
 
-    // 이미지
-    const val UNSUPPORTED_IMAGE_TYPE = "jpg·png·heic·webp 이미지만 올릴 수 있어요."
-    const val IMAGE_TOO_LARGE = "이미지는 각 10MB 이하만 올릴 수 있어요."
-
-    // 저장 실패
-    const val SAVE_FAILED = "저장에 실패했어요. 잠시 후 다시 시도해 주세요."
-
     fun lengthExceeded(max: Int) = "최대 ${max}자까지 쓸 수 있어요."
 
     fun chipKindLimitExceeded(max: Int) = "칩은 종류별로 최대 ${max}개까지 만들 수 있어요."

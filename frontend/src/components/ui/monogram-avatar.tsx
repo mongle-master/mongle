@@ -1,9 +1,9 @@
 import { Star } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { mediaUrl } from '@/lib/api/client'
 import { defaultPersonImageUrl } from '@/lib/default-person-image'
 import type { PersonImageGender } from '@/lib/default-person-image'
 import { monogram } from '@/lib/format'
+import { optimizedImageUrl } from '@/lib/image-url'
 import { cn } from '@/lib/utils'
 
 export function MonogramAvatar({
@@ -23,7 +23,7 @@ export function MonogramAvatar({
   gender?: PersonImageGender
   personId?: number | null
 }) {
-  const apiSrc = mediaUrl(imageUrl)
+  const apiSrc = optimizedImageUrl(imageUrl, 128)
   const src =
     apiSrc ??
     defaultPersonImageUrl({

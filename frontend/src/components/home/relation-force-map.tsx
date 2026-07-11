@@ -1,7 +1,7 @@
 import { useFlow } from '@stackflow/react'
 import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { mediaUrl } from '@/lib/api/client'
+import { optimizedImageUrl } from '@/lib/image-url'
 import { defaultPersonImageUrl } from '@/lib/default-person-image'
 import { formatPersonName } from '@/lib/format'
 import { layoutOrganicRelationMap } from '@/lib/relation-map-layout'
@@ -1014,7 +1014,7 @@ function formatDaysSinceLastMeet(days: number) {
 }
 
 function nodeImageUrl(node: RelationNode) {
-  const src = mediaUrl(node.profileImageUrl)
+  const src = optimizedImageUrl(node.profileImageUrl, 128)
   if (src) return src
   return defaultPersonImageUrl({
     id: node.id,
@@ -1027,7 +1027,7 @@ function meImageUrl(me: MeNode) {
   if (me.profileImageUrl?.startsWith('/default-people/')) {
     return me.profileImageUrl
   }
-  const src = mediaUrl(me.profileImageUrl)
+  const src = optimizedImageUrl(me.profileImageUrl, 128)
   if (src) return src
   return defaultPersonImageUrl({
     id: me.id,

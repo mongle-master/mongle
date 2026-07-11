@@ -31,10 +31,6 @@ const config = defineConfig({
         target: backendTarget,
         changeOrigin: true,
       },
-      '/images': {
-        target: backendTarget,
-        changeOrigin: true,
-      },
     },
   },
   plugins: [

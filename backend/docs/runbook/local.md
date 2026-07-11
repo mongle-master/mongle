@@ -12,8 +12,8 @@ docker compose up -d --build   # 첫 빌드는 의존성 다운로드로 수 분
 
 - 컨테이너 2개가 뜬다: **db**(MySQL 8.4) + **backend**(호스트 18080 → 컨테이너 8080). backend는 db 헬시 이후 기동된다.
 - 서버: http://localhost:18080 (기동 완료 판단: `curl http://localhost:18080/actuator/health` → `{"status":"UP"}`)
-  - 호스트 노출은 18080, 컨테이너 내부 앱 포트는 8080. 프론트 dev 프록시(`frontend/vite.config.ts`)는 기본으로 로컬 도커 백엔드를 가리킨다.
-- 데이터: `backend/data/mysql/`(DB)·`backend/data/images/`(업로드 이미지)에 영속화. 컨테이너를 지워도 남는다.
+    - 호스트 노출은 18080, 컨테이너 내부 앱 포트는 8080. 프론트 dev 프록시(`frontend/vite.config.ts`)는 기본으로 로컬 도커 백엔드를 가리킨다.
+- 데이터: `backend/data/mysql/`의 DB에 영속화. 이미지는 프론트의 Vercel Blob 직접 업로드가 담당한다.
 - DB 직접 접속(디버깅): `mysql -h127.0.0.1 -P13306 -umongle -pmongle mongle`
 - 기동 시 자동 시드: 공통 칩(감정6·날씨5·카테고리4). 사용자 샘플 데이터는 인증 후 `POST /api/v1/seed`가 사용자별 최초 1회 생성한다.
 
@@ -56,9 +56,9 @@ cd backend && ./gradlew bootRun
 
 ## 환경변수 (기본값은 application.yml / compose)
 
-| 변수 | 용도 | 기본 |
-|---|---|---|
-| `MONGLE_JWT_SECRET` | JWT HS256 서명 키(32바이트↑) | 데모 키 (프로덕션 금지) |
-| `MYSQL_PASSWORD` / `MYSQL_ROOT_PASSWORD` | compose MySQL 계정 | mongle / root |
-| `SPRING_DATASOURCE_URL` 등 | DB 연결(compose가 MySQL로 주입, 미지정 시 H2) | H2 파일 |
-| `SERVER_PORT` | 포트 | 8080 |
+| 변수                                     | 용도                                          | 기본                    |
+| ---------------------------------------- | --------------------------------------------- | ----------------------- |
+| `MONGLE_JWT_SECRET`                      | JWT HS256 서명 키(32바이트↑)                  | 데모 키 (프로덕션 금지) |
+| `MYSQL_PASSWORD` / `MYSQL_ROOT_PASSWORD` | compose MySQL 계정                            | mongle / root           |
+| `SPRING_DATASOURCE_URL` 등               | DB 연결(compose가 MySQL로 주입, 미지정 시 H2) | H2 파일                 |
+| `SERVER_PORT`                            | 포트                                          | 8080                    |

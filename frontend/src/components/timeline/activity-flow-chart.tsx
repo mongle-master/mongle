@@ -12,7 +12,7 @@ import type {
   ActivityFlowSelection,
 } from '@/lib/timeline-activity-flow'
 import type { PersonImageGender } from '@/lib/default-person-image'
-import { mediaUrl } from '@/lib/api/client'
+import { optimizedImageUrl } from '@/lib/image-url'
 import { cn } from '@/lib/utils'
 
 const LANE_LABEL_WIDTH = 'w-24'
@@ -208,7 +208,9 @@ export function ActivityFlowChart({
                     )
                     // sm 단계는 점이 너무 작아 사진을 생략하고 민무늬 점으로 표시한다.
                     const photoSrc =
-                      flow.dotSize === 'sm' ? null : mediaUrl(point.photoUrl)
+                      flow.dotSize === 'sm'
+                        ? null
+                        : optimizedImageUrl(point.photoUrl, 64)
                     return (
                       <button
                         key={point.id}

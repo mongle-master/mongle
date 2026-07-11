@@ -11,8 +11,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
-import org.springframework.web.multipart.MaxUploadSizeExceededException
-import org.springframework.web.multipart.support.MissingServletRequestPartException
 import org.springframework.web.servlet.resource.NoResourceFoundException
 
 private val log = KotlinLogging.logger {}
@@ -68,15 +66,12 @@ class GlobalExceptionHandler {
         return ErrorCode.INVALID_INPUT.toResponse()
     }
 
-    // 필수 쿼리 파라미터·multipart 파트 누락. 클라이언트 오류 → 400.
-    @ExceptionHandler(MissingServletRequestParameterException::class, MissingServletRequestPartException::class)
-    fun handleMissingParameter(e: Exception): ResponseEntity<ErrorResponse> {
+    // 필수 쿼리 파라미터 누락. 클라이언트 오류 → 400.
+    @ExceptionHandler(MissingServletRequestParameterException::class)
+    fun handleMissingParameter(e: MissingServletRequestParameterException): ResponseEntity<ErrorResponse> {
         log.warn { "Missing request parameter: ${e.message}" }
         return ErrorCode.INVALID_INPUT.toResponse()
     }
-
-    @ExceptionHandler(MaxUploadSizeExceededException::class)
-    fun handleUploadSize(e: MaxUploadSizeExceededException): ResponseEntity<ErrorResponse> = ErrorCode.IMAGE_TOO_LARGE.toResponse()
 
     // 정적 리소스 폴백까지 매칭 실패한 미존재 경로. 500(INTERNAL_ERROR)로 새지 않게 404로 응답한다.
     @ExceptionHandler(NoResourceFoundException::class)
