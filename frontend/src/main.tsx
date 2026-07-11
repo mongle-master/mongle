@@ -13,6 +13,7 @@ import {
 import type { UserProfileInput } from './lib/api/auth'
 import { createUserIdentity, getUserIdentity } from './lib/user-identity'
 import type { UserIdentity } from './lib/user-identity'
+import { installBrowserNavTransitionSkip } from './stackflow/browser-nav-transition'
 
 // 온보딩 퍼널은 신규 방문에만 필요하므로, 프로필 설정을 마친 재방문에서는
 // 스택 번들을 아예 로드하지 않도록 lazy로 가른다.
@@ -21,6 +22,8 @@ const OnboardingFlow = lazy(() =>
     default: m.OnboardingFlow,
   })),
 )
+
+installBrowserNavTransitionSkip()
 
 const router = getRouter()
 const rootElement = document.getElementById('app')!

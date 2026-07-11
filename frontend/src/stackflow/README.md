@@ -56,6 +56,11 @@
 
 ## 남은 것 / 알려진 것
 
+- **Safari 이중 전환 방지**: Safari(iOS 전 브라우저·macOS 트랙패드)는 뒤로가기 제스처에
+  브라우저 자체 스냅샷 전환을 그리므로, 사용자 제스처발 popstate에는 stackflow 전환을
+  생략한다(`browser-nav-transition.ts` + styles.css). 앱 내 pop이 history-sync를 통해
+  만들어내는 popstate는 history.back/go 래핑으로 구분해 애니메이션을 유지한다.
+
 - dev 콘솔의 "Cannot update a component (Transitioner) while rendering (Stack)" 경고:
   초기 진입 시 history-sync의 동기 replaceState를 TSR 구독이 받아서 나는 개발용 경고로,
   동작엔 영향 없음. TSR 라우트를 완전히 제거하면 사라진다.

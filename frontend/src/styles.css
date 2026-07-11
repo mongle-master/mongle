@@ -167,3 +167,10 @@
     background: oklch(0.58 0 0 / 0.55);
   }
 }
+
+/* iOS Safari 네이티브 뒤로가기 제스처와 stackflow 전환의 이중 재생 방지.
+   popstate 직후 stackflow/browser-nav-transition.ts가 이 속성을 잠깐 붙인다. */
+html[data-browser-nav-transition-skip] * {
+  --stackflow-plugin-basic-ui-transition-duration: 0ms !important;
+  --stackflow-plugin-basic-ui-computed-transition-duration: 0ms !important;
+}
