@@ -4,6 +4,8 @@ import { PersonNewActivity } from '@/stackflow/activities/person-new-activity'
 import { PersonEditActivity } from '@/stackflow/activities/person-edit-activity'
 import { EventDetailActivity } from '@/stackflow/activities/event-detail-activity'
 import { RecordActivity } from '@/stackflow/activities/record-activity'
+import { HomeSettingsActivity } from '@/stackflow/activities/settings/home-settings-activity'
+import { TagSettingsActivity } from '@/stackflow/activities/settings/tag-settings-activity'
 import { NotFoundActivity } from '@/stackflow/activities/not-found-activity'
 import { OnboardingNameActivity } from '@/stackflow/onboarding/onboarding-name-activity'
 import { OnboardingProfileActivity } from '@/stackflow/onboarding/onboarding-profile-activity'
@@ -18,6 +20,8 @@ export const activityComponents = {
   PersonEdit: PersonEditActivity,
   EventDetail: EventDetailActivity,
   Record: RecordActivity,
+  HomeSettings: HomeSettingsActivity,
+  TagSettings: TagSettingsActivity,
   NotFound: NotFoundActivity,
   OnboardingName: OnboardingNameActivity,
   OnboardingProfile: OnboardingProfileActivity,
