@@ -1,4 +1,4 @@
-import type { StorybookConfig } from '@storybook/tanstack-react'
+import type { StorybookConfig } from '@storybook/react-vite'
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
@@ -9,6 +9,6 @@ const config: StorybookConfig = {
     '@storybook/addon-docs',
     '@storybook/addon-mcp',
   ],
-  framework: '@storybook/tanstack-react',
+  framework: '@storybook/react-vite',
 }
 export default config
