@@ -1,8 +1,7 @@
 import type { ChipResponse, PersonResponse } from '@/lib/api/types'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { tagChipClass } from '@/components/ui/tag-chip'
-import { formatPersonName, monogram } from '@/lib/format'
-import { optimizedImageUrl } from '@/lib/image-url'
+import { formatPersonName } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 export const timelineFilterChipClass = (selected: boolean) =>
@@ -15,38 +14,6 @@ const personFilterChipClass = (selected: boolean) =>
       ? 'border-foreground bg-foreground text-background'
       : 'border-border/80 bg-background text-foreground hover:border-foreground/30 hover:bg-muted/60',
   )
-
-function PersonFilterAvatar({
-  person,
-  selected,
-}: {
-  person: PersonResponse
-  selected: boolean
-}) {
-  const src = optimizedImageUrl(person.profileImageUrl, 64)
-
-  return (
-    <Avatar
-      size="sm"
-      className={cn(
-        'size-5 shrink-0 after:border-0',
-        selected ? 'bg-background ring-2 ring-background' : 'bg-muted',
-      )}
-    >
-      {src ? <AvatarImage src={src} alt={person.name} /> : null}
-      <AvatarFallback
-        className={cn(
-          'text-[11px] font-extrabold',
-          selected
-            ? 'bg-background text-foreground'
-            : 'bg-muted text-muted-foreground',
-        )}
-      >
-        {monogram(person.name)}
-      </AvatarFallback>
-    </Avatar>
-  )
-}
 
 export function TimelineCategoryFilters({
   chips,
@@ -109,7 +76,13 @@ export function TimelinePersonFilters({
               aria-pressed={selected}
               className={personFilterChipClass(selected)}
             >
-              <PersonFilterAvatar person={person} selected={selected} />
+              <MonogramAvatar
+                name={person.name}
+                imageUrl={person.profileImageUrl}
+                gender={person.gender ?? undefined}
+                personId={person.id}
+                className={cn('size-6', selected && 'ring-2 ring-background')}
+              />
               <span className="truncate">{displayName}</span>
             </button>
           )
