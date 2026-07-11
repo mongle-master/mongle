@@ -23,28 +23,45 @@ function Avatar({
   )
 }
 
+// Radix Avatar.Image는 new Image() onload가 완료될 때까지 img를 렌더하지 않아,
+// 브라우저 캐시에 있는 이미지도 마운트마다 최소 1프레임 fallback이 번쩍인다.
+// Stackflow push 진입 시 activity 전체가 새로 마운트되므로 모든 화면 진입에서
+// 아바타가 깜빡이는 원인이 된다. 일반 img는 캐시된 이미지를 같은 프레임에
+// 그리므로 Radix를 쓰지 않고, 로드 실패 시에만 fallback이 보이도록 img를 숨긴다.
 function AvatarImage({
   className,
+  src,
+  onError,
   ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+}: React.ComponentProps<'img'>) {
+  const [failedSrc, setFailedSrc] = React.useState<string | null>(null)
+
+  if (!src || failedSrc === src) {
+    return null
+  }
+
   return (
-    <AvatarPrimitive.Image
+    <img
       data-slot="avatar-image"
+      src={src}
       className={cn(
-        'aspect-square size-full rounded-full object-cover',
+        'absolute inset-0 aspect-square size-full rounded-full object-cover',
         className,
       )}
+      onError={(event) => {
+        setFailedSrc(src)
+        onError?.(event)
+      }}
       {...props}
     />
   )
 }
 
-function AvatarFallback({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+// AvatarImage가 absolute로 위에 겹쳐지므로 fallback은 항상 렌더한다.
+// 이미지 로드 전/실패 시에만 아래에서 드러난다.
+function AvatarFallback({ className, ...props }: React.ComponentProps<'span'>) {
   return (
-    <AvatarPrimitive.Fallback
+    <span
       data-slot="avatar-fallback"
       className={cn(
         'flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs',
