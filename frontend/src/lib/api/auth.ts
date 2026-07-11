@@ -31,3 +31,7 @@ export async function authenticateUser(identity: UserIdentity) {
 export async function completeUserProfile(profile: UserProfileInput) {
   await api.patch('v1/users/me/profile', { json: profile })
 }
+
+export async function deleteCurrentUser() {
+  await api.delete('v1/users/me')
+}

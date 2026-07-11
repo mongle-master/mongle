@@ -7,12 +7,15 @@ import com.mongle.controller.dto.UserProfileResponse
 import com.mongle.service.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "사용자", description = "인증된 사용자의 프로필을 관리한다.")
+@Tag(name = "사용자", description = "인증된 사용자를 관리한다.")
 @RestController
 @RequestMapping("/api/v1/users/me")
 class UserController(
@@ -27,4 +30,14 @@ class UserController(
         @AuthUser user: UserPrincipal,
         @RequestBody request: UserProfileRequest,
     ): UserProfileResponse = userService.completeProfileSetup(user.id, request)
+
+    @Operation(
+        summary = "현재 사용자 삭제",
+        description = "테스트를 위해 현재 사용자를 삭제한다.",
+    )
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteCurrentUser(
+        @AuthUser user: UserPrincipal,
+    ) = userService.deleteCurrentUser(user.id)
 }

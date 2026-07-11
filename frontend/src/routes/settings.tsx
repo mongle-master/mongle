@@ -6,6 +6,7 @@ import {
   Palette,
   Pencil,
   Plus,
+  RotateCcw,
   Sun,
   Trash2,
   X,
@@ -32,11 +33,14 @@ import {
   tagChipClass,
 } from '@/components/ui/tag-chip'
 import { createChip, deleteChip, fetchChips, renameChip } from '@/lib/api/chips'
+import { deleteCurrentUser } from '@/lib/api/auth'
 import type { ChipResponse, ChipType } from '@/lib/api/types'
+import { clearToken } from '@/lib/auth-token'
 import { getDefaultHomePeriod, setDefaultHomePeriod } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { isImeComposing } from '@/lib/keyboard'
 import { queryKeys } from '@/lib/query-keys'
+import { clearUserIdentity } from '@/lib/user-identity'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/settings')({
@@ -71,9 +75,69 @@ function SettingsPage() {
         <HomePeriodSettingSection />
         <TagManagementSection />
         <ThemeSettingSection />
+        <TestSettingSection />
         <AppInfoSection />
       </div>
     </AppShell>
+  )
+}
+
+function TestSettingSection() {
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const resetMutation = useMutation({
+    mutationFn: deleteCurrentUser,
+    onSuccess: () => {
+      clearToken()
+      clearUserIdentity()
+      window.location.replace('/')
+    },
+  })
+
+  return (
+    <section>
+      <ListGroupLabel>테스트</ListGroupLabel>
+      <ListGroup>
+        <ListGroupItem withDivider={false}>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[15px] font-extrabold text-foreground">
+                테스트 사용자 초기화
+              </p>
+              <p className="mt-1 text-xs font-medium text-muted-foreground">
+                새 사용자 흐름을 처음부터 확인해요
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={resetMutation.isPending}
+              onClick={() => setConfirmOpen(true)}
+              className="h-9 shrink-0 rounded-full px-3 font-extrabold"
+            >
+              <RotateCcw className="size-3.5" />
+              초기화
+            </Button>
+          </div>
+          {resetMutation.isError ? (
+            <p className="mt-3 text-xs font-bold text-destructive">
+              초기화하지 못했어요. 잠시 후 다시 시도해 주세요.
+            </p>
+          ) : null}
+        </ListGroupItem>
+      </ListGroup>
+
+      <ConfirmPopup
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="테스트 사용자를 초기화할까요?"
+        description="현재 사용자를 삭제하고 이름 입력 화면부터 다시 시작해요."
+        confirmLabel="초기화"
+        destructive
+        pending={resetMutation.isPending}
+        onConfirm={() => resetMutation.mutate()}
+      />
+    </section>
   )
 }
 
