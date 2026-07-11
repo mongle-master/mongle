@@ -3,7 +3,7 @@ import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { useFunnel } from '@use-funnel/browser'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { Check, ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Save } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { DateWheel } from '@/components/person/date-wheel'
 import { ListField, RelationTypeField } from '@/components/person/person-fields'
@@ -327,7 +327,7 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
             aria-label="저장"
             className="flex size-9 items-center justify-center rounded-full text-foreground/70 disabled:opacity-50"
           >
-            <Check className="size-6" strokeWidth={2.5} />
+            <Save className="size-6" />
           </button>
         ) : (
           <span className="size-9" />
