@@ -322,6 +322,15 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     initial: { step: startStep, context: {} },
   })
 
+  // 선택한 사람은 메모리 상태라 새로고침하면 사라진다. 사람 없이 뒤 단계
+  // URL(record.step=emotion 등)로 들어오면 빈 화면이 되므로 사람 단계로 되돌린다.
+  useEffect(() => {
+    if (isEditing || presetPersonId) return
+    if (funnel.step !== 'person' && selectedPersonIds.length === 0) {
+      void funnel.history.replace('person', {})
+    }
+  }, [funnel, isEditing, presetPersonId, selectedPersonIds.length])
+
   const isLoading =
     personsQuery.isPending || (isEditing && eventQuery.isPending)
 
@@ -436,7 +445,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             <MonogramAvatar
               name={primaryPerson?.name ?? ''}
               imageUrl={primaryPerson?.profileImageUrl}
-              className="size-[62vw] max-w-72"
+              // size-[62vw]는 뷰포트 기준이라 데스크톱에서 폭 상한(max-w)만 걸면
+              // 높이가 그대로 남아 화면을 채우는 세로 알약이 된다 — 양축 모두 상한.
+              className="size-[62vw] max-h-72 max-w-72"
             />
           </div>
 
