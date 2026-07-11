@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -30,7 +31,7 @@ export function ConfirmPopup({
     if (!pending) onOpenChange(false)
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-5">
       <button
         type="button"
@@ -96,6 +97,7 @@ export function ConfirmPopup({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
