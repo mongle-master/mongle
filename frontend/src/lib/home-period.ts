@@ -33,12 +33,28 @@ export function getDefaultHomePeriod(): HomePeriod {
   return 'ALL'
 }
 
+type HomePeriodListener = (period: HomePeriod) => void
+
+const listeners = new Set<HomePeriodListener>()
+
+/**
+ * Main activity가 방문한 탭을 hidden으로만 유지해 홈 탭이 리마운트되지 않으므로,
+ * 설정 탭에서 기본 기간을 바꾸면 구독으로 즉시 전달해야 한다.
+ */
+export function subscribeDefaultHomePeriod(listener: HomePeriodListener) {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
+}
+
 export function setDefaultHomePeriod(period: HomePeriod) {
   try {
     localStorage.setItem(HOME_PERIOD_STORAGE_KEY, period)
   } catch {
     // ignore
   }
+  listeners.forEach((listener) => listener(period))
 }
 
 function daysSinceLocalDate(isoDate: string, today = new Date()) {
