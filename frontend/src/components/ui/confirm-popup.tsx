@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -30,8 +31,11 @@ export function ConfirmPopup({
     if (!pending) onOpenChange(false)
   }
 
-  return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-5">
+  const overlayRoot = document.getElementById('stack-overlay-root')
+  if (!overlayRoot) return null
+
+  return createPortal(
+    <div className="pointer-events-auto absolute inset-0 flex items-center justify-center p-5">
       <button
         type="button"
         className="absolute inset-0 bg-black/45"
@@ -96,6 +100,7 @@ export function ConfirmPopup({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    overlayRoot,
   )
 }

@@ -5,6 +5,10 @@ export function StackViewport({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative mx-auto h-dvh w-full max-w-md overflow-hidden bg-background sm:border-x sm:border-border">
       {children}
+      <div
+        id="stack-overlay-root"
+        className="pointer-events-none absolute inset-0 z-[70]"
+      />
     </div>
   )
 }
