@@ -72,4 +72,21 @@ describe('PersonEditForm', () => {
 
     expect(onDelete).toHaveBeenCalledOnce()
   })
+
+  it('keeps compact memory inputs full width on mobile', () => {
+    render(
+      <PersonEditForm
+        initialValues={personToFormValues({ name: '민지' })}
+        relationTags={[]}
+        onSubmit={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    for (const placeholder of ['예: 산책, 라떼', '예: 매운 음식']) {
+      expect(
+        screen.getByPlaceholderText(placeholder).parentElement,
+      ).toHaveClass('w-full')
+    }
+  })
 })

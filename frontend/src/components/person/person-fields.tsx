@@ -83,6 +83,7 @@ export function ListField({
         <div
           className={cn(
             'flex h-10 min-h-10 flex-1 flex-wrap items-center gap-1.5 overflow-hidden rounded-lg border border-border bg-card px-2 shadow-xs',
+            compact && 'w-full sm:w-auto',
             items.length > 0 && 'h-auto min-h-10 py-1.5',
             'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
           )}
