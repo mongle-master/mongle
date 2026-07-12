@@ -1,7 +1,7 @@
 import { defineConfig } from 'orval'
 
-const openApiUrl =
-  process.env.OPENAPI_URL ?? 'http://localhost:8080/v3/api-docs'
+const apiUrl = process.env.VITE_API_URL ?? 'http://localhost:8080/api'
+const openApiUrl = new URL('/v3/api-docs', apiUrl).toString()
 
 export default defineConfig({
   mongleApi: {
