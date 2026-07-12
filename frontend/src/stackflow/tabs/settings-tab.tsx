@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/list-group'
 import { Switch } from '@/components/ui/switch'
 import { userMutation } from '@/apis/mutations'
+import { resetAnalytics } from '@/lib/analytics'
 import { clearToken } from '@/lib/auth-token'
 import { clearUserIdentity } from '@/lib/user-identity'
 import { TabShell } from '@/stackflow/components/tab-shell'
@@ -25,6 +26,7 @@ export function SettingsTab() {
   const resetMutation = useMutation({
     ...userMutation.removeCurrent(),
     onSuccess: () => {
+      resetAnalytics()
       clearToken()
       clearUserIdentity()
       window.location.replace('/')
