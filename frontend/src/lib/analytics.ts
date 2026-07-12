@@ -10,7 +10,21 @@ export function initializeAnalytics() {
   initializationPromise ??= amplitude
     .initAll(apiKey, {
       analytics: {
-        autocapture: false,
+        autocapture: {
+          attribution: false,
+          pageViews: false,
+          sessions: true,
+          formInteractions: false,
+          fileDownloads: false,
+          elementInteractions: false,
+          pageUrlEnrichment: false,
+          networkTracking: false,
+          webVitals: false,
+          frustrationInteractions: false,
+        },
+        remoteConfig: {
+          fetchRemoteConfig: false,
+        },
       },
       sessionReplay: {
         sampleRate: 1,
@@ -28,6 +42,13 @@ export async function setAnalyticsUserId(userId: string) {
 
   await initializeAnalytics()
   amplitude.setUserId(userId)
+}
+
+export async function trackScreenView(screen: string) {
+  if (!apiKey) return
+
+  await initializeAnalytics()
+  amplitude.track('screen_viewed', { screen })
 }
 
 export function resetAnalytics() {
