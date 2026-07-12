@@ -67,7 +67,7 @@ export function ListField({
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       {label ? (
         <FieldLabel className={cn('block', compact ? 'mb-2' : 'mb-2')}>
           {label}
@@ -76,13 +76,15 @@ export function ListField({
       <div
         className={cn(
           'flex gap-2',
-          compact ? 'flex-col sm:flex-row' : 'flex-row',
-          items.length > 0 ? 'items-start sm:items-start' : 'items-center',
+          compact
+            ? 'flex-col items-stretch sm:flex-row sm:items-start'
+            : 'flex-row',
+          !compact && (items.length > 0 ? 'items-start' : 'items-center'),
         )}
       >
         <div
           className={cn(
-            'flex h-10 min-h-10 flex-1 flex-wrap items-center gap-1.5 overflow-hidden rounded-lg border border-border bg-card px-2 shadow-xs',
+            'flex h-10 min-h-10 min-w-0 max-w-full flex-1 flex-wrap items-center gap-1.5 overflow-hidden rounded-lg border border-border bg-card px-2 shadow-xs',
             items.length > 0 && 'h-auto min-h-10 py-1.5',
             'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
           )}
