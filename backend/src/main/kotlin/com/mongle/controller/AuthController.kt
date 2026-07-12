@@ -29,6 +29,7 @@ class AuthController(
         description = "브라우저가 생성한 UUID로 JWT를 발급한다. 처음 보는 UUID면 요청 이름으로 사용자를 만든다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "발급한 토큰과 사용자 상태.", useReturnTypeSchema = true),
         ApiResponse(
             responseCode = "400",
             description = "이름 누락(REQUIRED_FIELD) 또는 글자수 초과(LENGTH_EXCEEDED).",

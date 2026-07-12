@@ -1,37 +1,35 @@
-import { api } from '@/lib/api/client'
+import {
+  completeProfileSetup,
+  issueToken,
+  seed,
+} from '@/apis/generated/mongle-api'
+import type { UserProfileRequest } from '@/apis/generated/models'
 import { setToken } from '@/lib/auth-token'
 import type { UserIdentity } from '@/lib/user-identity'
-
-type TokenResponse = {
-  token: string
-  profileSetupCompleted: boolean
-}
 
 export type UserProfileInput = {
   profileImageUrl: string | null
   gender: 'FEMALE' | 'MALE' | null
 }
 
-async function issueToken(identity: UserIdentity) {
-  const res = await api
-    .post('v1/auth/token', { json: identity })
-    .json<TokenResponse>()
+async function authenticate(identity: UserIdentity) {
+  const res = await issueToken(identity)
   setToken(res.token)
   return res
 }
 
 export async function seedCurrentUser() {
-  await api.post('v1/seed')
+  await seed()
 }
 
 export async function authenticateUser(identity: UserIdentity) {
-  return issueToken(identity)
+  return authenticate(identity)
 }
 
 export async function completeUserProfile(profile: UserProfileInput) {
-  await api.patch('v1/users/me/profile', { json: profile })
-}
-
-export async function deleteCurrentUser() {
-  await api.delete('v1/users/me')
+  const request: UserProfileRequest = {
+    profileImageUrl: profile.profileImageUrl ?? undefined,
+    gender: profile.gender ?? undefined,
+  }
+  await completeProfileSetup(request)
 }

@@ -38,10 +38,12 @@ class PersonController(
     private val personService: PersonService,
 ) {
     @Operation(
+        operationId = "getPersons",
         summary = "인물 디렉토리 조회",
         description = "내 인물 목록을 정렬·검색해 반환한다. 어느 정렬이든 즐겨찾기는 항상 상단 그룹으로 뜬다. query 로 이름 검색을 한다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "인물 목록.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
     )
     @GetMapping
@@ -54,10 +56,12 @@ class PersonController(
     ): List<PersonResponse> = personService.directory(user.id, sort, query)
 
     @Operation(
+        operationId = "getPerson",
         summary = "인물 상세 조회",
         description = "기본 정보에 파생 스탯(만남 횟수·기록 수·알고 지낸 기간·마지막 만남)을 더해 반환한다. 마지막 만난 날은 수기 입력과 기록의 max 를 재계산한 값이다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "인물 상세.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "404", description = "내 인물이 아님·존재하지 않음(NOT_FOUND).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
     )
@@ -68,10 +72,12 @@ class PersonController(
     ): PersonDetailResponse = personService.detail(user.id, id)
 
     @Operation(
+        operationId = "createPerson",
         summary = "인물 등록",
         description = "이름만 필수로 인물을 등록한다. 관계태그 칩은 내 것이면서 보이는 것만 붙일 수 있고, 만난 날짜는 미래일 수 없으며 마지막 만난 날은 처음 만난 날 이후여야 한다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "201", description = "등록한 인물.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "400", description = "이름 누락(REQUIRED_FIELD)·글자수 초과(LENGTH_EXCEEDED)·태그/취향 개수 초과(SELECTION_LIMIT)·미래 날짜(FUTURE_DATE)·날짜 역순(DATE_ORDER)·잘못된 생일(INVALID_INPUT).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "404", description = "내 것이 아니거나 보이지 않는 관계태그 칩 연결(NOT_FOUND).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
@@ -84,10 +90,12 @@ class PersonController(
     ): PersonResponse = personService.register(user.id, request)
 
     @Operation(
+        operationId = "updatePerson",
         summary = "인물 수정",
         description = "인물 정보를 통째로 교체한다(등록과 같은 검증). 관계태그·취향도 요청 값으로 재구성한다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "수정한 인물.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "400", description = "이름 누락(REQUIRED_FIELD)·글자수 초과(LENGTH_EXCEEDED)·태그/취향 개수 초과(SELECTION_LIMIT)·미래 날짜(FUTURE_DATE)·날짜 역순(DATE_ORDER)·잘못된 생일(INVALID_INPUT).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "404", description = "내 인물이 아님·존재하지 않음, 또는 내 것이 아닌 관계태그 칩 연결(NOT_FOUND).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
@@ -100,10 +108,12 @@ class PersonController(
     ): PersonResponse = personService.update(user.id, id, request)
 
     @Operation(
+        operationId = "togglePersonFavorite",
         summary = "즐겨찾기 토글",
         description = "인물의 즐겨찾기 여부를 뒤집는다. 즐겨찾기는 디렉토리·관계 지도에서 항상 상단 그룹으로 뜬다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "즐겨찾기 변경 결과.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "404", description = "내 인물이 아님·존재하지 않음(NOT_FOUND).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
     )
@@ -114,6 +124,7 @@ class PersonController(
     ): PersonResponse = personService.toggleFavorite(user.id, id)
 
     @Operation(
+        operationId = "deletePerson",
         summary = "인물 삭제",
         description = "인물을 소프트삭제한다. 과거 기록의 인물 참조(이름)는 유지된다.",
     )

@@ -23,11 +23,10 @@ import {
 } from '@/components/ui/step-slide'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { AppScreen } from '@/stackflow/components/app-screen'
-import { fetchChips } from '@/lib/api/chips'
+import { personMutation } from '@/apis/mutations'
+import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
 import { uploadImage } from '@/lib/api/images'
-import { createPerson } from '@/lib/api/persons'
 import { validatePersonForm } from '@/lib/person-validation'
-import { queryKeys } from '@/lib/query-keys'
 
 // 새 단계는 여기 키와 STEP_ORDER에 추가하고 아래 stepBody에 섹션을 더하면 된다.
 type PersonNewSteps = {
@@ -59,10 +58,7 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
     setFormError(null)
   }
 
-  const chipsQuery = useQuery({
-    queryKey: queryKeys.chips,
-    queryFn: () => fetchChips(),
-  })
+  const chipsQuery = useQuery(chipQuery.all())
   const relationTags =
     chipsQuery.data?.filter((c) => c.type === 'RELATION_TAG') ?? []
 
@@ -73,10 +69,10 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
   const direction = useStepSlideDirection(funnel.step, STEP_ORDER)
 
   const createMutation = useMutation({
-    mutationFn: createPerson,
+    ...personMutation.register(),
     onSuccess: async (person) => {
-      await queryClient.invalidateQueries({ queryKey: ['persons'] })
-      await queryClient.invalidateQueries({ queryKey: ['home'] })
+      await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
+      await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
       // 등록 화면을 새 인물 프로필로 갈아끼워, 뒤로가기 시 폼이 다시 나오지 않게 한다
       replace('Person', { personId: String(person.id) })
     },
@@ -88,7 +84,7 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
   const handleSave = () => {
     const request = formValuesToRequest(values)
     // 처음 만난 날은 선택이지만(PRD 02 §4) 월·일만 있고 연도가 없으면 날짜를 만들 수 없다
-    if (request.firstMetDate === undefined) {
+    if (!values.firstMetYear && (values.firstMetMonth || values.firstMetDay)) {
       setFormError('처음 만난 날의 연도를 입력해 주세요.')
       return
     }

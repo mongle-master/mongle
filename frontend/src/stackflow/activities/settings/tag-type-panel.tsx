@@ -5,12 +5,12 @@ import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { Input } from '@/components/ui/input'
 import { ListGroupInset } from '@/components/ui/list-group'
+import type { ChipResponse, ChipResponseType } from '@/apis/generated/models'
+import { chipMutation } from '@/apis/mutations'
 import {
   RELATION_TAG_COLOR_PALETTE,
   normalizeChipColor,
 } from '@/components/ui/tag-chip'
-import { createChip, deleteChip, renameChip } from '@/lib/api/chips'
-import type { ChipResponse, ChipType } from '@/lib/api/types'
 import { isImeComposing } from '@/lib/keyboard'
 import { RelationTagColorPicker } from '@/stackflow/activities/settings/relation-tag-color-picker'
 import { TagSettingRow } from '@/stackflow/activities/settings/tag-setting-row'
@@ -22,7 +22,7 @@ export function TagTypePanel({
   chips,
   onChanged,
 }: {
-  type: ChipType
+  type: ChipResponseType
   label: string
   description: string
   chips: ChipResponse[]
@@ -44,13 +44,7 @@ export function TagTypePanel({
   } | null>(null)
 
   const createMutation = useMutation({
-    mutationFn: ({
-      chipLabel,
-      color,
-    }: {
-      chipLabel: string
-      color?: string | null
-    }) => createChip(type, chipLabel, color),
+    ...chipMutation.create(),
     onSuccess: () => {
       setDraft('')
       setDraftColor(
@@ -62,15 +56,7 @@ export function TagTypePanel({
     },
   })
   const renameMutation = useMutation({
-    mutationFn: ({
-      id,
-      chipLabel,
-      color,
-    }: {
-      id: number
-      chipLabel: string
-      color?: string | null
-    }) => renameChip(id, chipLabel, color),
+    ...chipMutation.update(),
     onSuccess: () => {
       setEditingId(null)
       setEditLabel('')
@@ -79,7 +65,7 @@ export function TagTypePanel({
     },
   })
   const deleteMutation = useMutation({
-    mutationFn: deleteChip,
+    ...chipMutation.remove(),
     onSuccess: () => {
       setDeleteTarget(null)
       onChanged()
@@ -101,16 +87,19 @@ export function TagTypePanel({
     if (!trimmed || renameMutation.isPending) return
     renameMutation.mutate({
       id: chipId,
-      chipLabel: trimmed,
-      color: supportsColor ? editColor : null,
+      request: {
+        label: trimmed,
+        color: supportsColor ? editColor : undefined,
+      },
     })
   }
   const createTag = () => {
     const trimmed = draft.trim()
     if (!trimmed || createMutation.isPending) return
     createMutation.mutate({
-      chipLabel: trimmed,
-      color: supportsColor ? draftColor : null,
+      type,
+      label: trimmed,
+      color: supportsColor ? draftColor : undefined,
     })
   }
 
@@ -233,6 +222,11 @@ export function TagTypePanel({
             onChange={setDraftColor}
           />
         ) : null}
+        {createMutation.isError || renameMutation.isError ? (
+          <p className="mt-3 text-xs font-bold text-destructive">
+            태그를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.
+          </p>
+        ) : null}
       </div>
 
       <ConfirmPopup
@@ -245,6 +239,11 @@ export function TagTypePanel({
           deleteTarget
             ? `'${deleteTarget.label}' 태그를 지우면 관련된 태그 정보도 함께 삭제돼요.`
             : ''
+        }
+        error={
+          deleteMutation.isError
+            ? '태그를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.'
+            : undefined
         }
         confirmLabel="삭제"
         destructive

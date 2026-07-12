@@ -32,10 +32,12 @@ class TimelineController(
     private val timelineService: TimelineService,
 ) {
     @Operation(
+        operationId = "getPersonTimeline",
         summary = "사람별 기록 피드",
         description = "특정 인물과 함께한 기록을 최신순으로 반환한다. 카테고리 칩으로 걸러낼 수 있다(여러 개면 합집합).",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "사람별 기록 목록.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "404", description = "내 인물이 아님·존재하지 않음(NOT_FOUND).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
     )
@@ -48,10 +50,12 @@ class TimelineController(
     ): List<EventResponse> = timelineService.personFeed(user.id, personId, categoryChipIds.orEmpty())
 
     @Operation(
+        operationId = "getPersonActivityFlow",
         summary = "사람별 활동 흐름",
         description = "특정 인물과의 활동을 레인(만남/연락/추억) × 월 매트릭스로 집계한다. 값은 유무만 담고 횟수·강도는 담지 않는다(관계 점수화 금지).",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "사람별 활동 흐름.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "404", description = "내 인물이 아님·존재하지 않음(NOT_FOUND).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
     )
@@ -62,10 +66,12 @@ class TimelineController(
     ): ActivityFlowResponse = timelineService.activityFlow(user.id, personId)
 
     @Operation(
+        operationId = "getTimeline",
         summary = "나의 통합 연대기(전체 타임라인)",
         description = "내 모든 기록을 월 단위로 묶어 최신→과거 순으로 반환한다. 카테고리·인물로 걸러낼 수 있다(각 축 안 합집합, 축 간 교집합). 카드마다 연결된 사람들을 아바타까지 실어 준다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "통합 연대기.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
     )
     @GetMapping("/api/v1/timeline")

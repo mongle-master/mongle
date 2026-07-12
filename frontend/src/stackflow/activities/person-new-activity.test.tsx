@@ -25,10 +25,8 @@ vi.mock('motion/react', () => ({
   },
   useReducedMotion: () => false,
 }))
-vi.mock('@/lib/api/chips', () => ({
-  fetchChips: vi.fn().mockResolvedValue([]),
-}))
-vi.mock('@/lib/api/persons', () => ({
+vi.mock('@/apis/generated/mongle-api', () => ({
+  getChips: vi.fn().mockResolvedValue([]),
   createPerson: vi.fn(),
 }))
 

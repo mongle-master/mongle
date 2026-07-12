@@ -13,17 +13,17 @@ import java.time.LocalTime
  */
 @Schema(description = "기록 등록·수정 공용 요청. 함께한 사람(personIds)만 필수이고, 카테고리·날짜는 미지정 시 만남·오늘로 채운다.")
 data class EventRequest(
-    @field:Schema(description = "기록 제목. 미입력하면 조회 시 '대표 인물 · 카테고리'로 자동 제목을 만든다.", example = "한강 산책")
+    @field:Schema(description = "기록 제목. 미입력하면 조회 시 '대표 인물 · 카테고리'로 자동 제목을 만든다.", example = "한강 산책", nullable = true)
     val title: String? = null,
-    @field:Schema(description = "메모(함께한 이야기) 자유 서술.", example = "오랜만에 얼굴 보고 한강에서 두 시간 걸었다")
+    @field:Schema(description = "메모(함께한 이야기) 자유 서술.", example = "오랜만에 얼굴 보고 한강에서 두 시간 걸었다", nullable = true)
     val memo: String? = null,
-    @field:Schema(description = "기록한 일이 일어난 날짜. 미지정 시 오늘로 채운다. 미래일 수 없다.", example = "2026-07-05")
+    @field:Schema(description = "기록한 일이 일어난 날짜. 미지정 시 오늘로 채운다. 미래일 수 없다.", example = "2026-07-05", nullable = true)
     val occurredDate: LocalDate? = null,
-    @field:Schema(description = "일어난 시각(선택).", example = "19:30:00")
+    @field:Schema(description = "일어난 시각(선택).", example = "19:30:00", nullable = true)
     val occurredTime: LocalTime? = null,
-    @field:Schema(description = "카테고리 칩 id. 미지정 시 기본 카테고리(만남)로 채운다.", example = "3")
+    @field:Schema(description = "카테고리 칩 id. 미지정 시 기본 카테고리(만남)로 채운다.", example = "3", nullable = true)
     val categoryChipId: Long? = null,
-    @field:Schema(description = "날씨 칩 id(선택).", example = "8")
+    @field:Schema(description = "날씨 칩 id(선택).", example = "8", nullable = true)
     val weatherChipId: Long? = null,
     @field:Schema(description = "감정 칩 id 목록. 선택 개수 상한이 있다.", example = "[5, 6]")
     val emotionChipIds: List<Long> = emptyList(),
@@ -40,15 +40,15 @@ data class EventResponse(
     // 표시용 최종 제목: 사용자가 입력했으면 그 값, 미입력이면 조회 시점에 계산한 자동 제목(#37).
     @field:Schema(description = "표시용 최종 제목. 사용자가 입력했으면 그 값, 아니면 '대표 인물 · 카테고리' 자동 제목.", example = "김하늘 · 만남")
     val title: String,
-    @field:Schema(description = "메모(함께한 이야기).", example = "오랜만에 얼굴 보고 한강에서 두 시간 걸었다")
+    @field:Schema(description = "메모(함께한 이야기).", example = "오랜만에 얼굴 보고 한강에서 두 시간 걸었다", nullable = true)
     val memo: String?,
     @field:Schema(description = "일어난 날짜.", example = "2026-07-05")
     val occurredDate: LocalDate,
-    @field:Schema(description = "일어난 시각(없을 수 있음).", example = "19:30:00")
+    @field:Schema(description = "일어난 시각(없을 수 있음).", example = "19:30:00", nullable = true)
     val occurredTime: LocalTime?,
-    @field:Schema(description = "카테고리 칩 요약 참조.")
+    @field:Schema(description = "카테고리 칩 요약 참조.", nullable = true)
     val category: ChipRef?,
-    @field:Schema(description = "날씨 칩 요약 참조(없을 수 있음).")
+    @field:Schema(description = "날씨 칩 요약 참조(없을 수 있음).", nullable = true)
     val weather: ChipRef?,
     @field:Schema(description = "감정 칩 요약 참조 목록.")
     val emotions: List<ChipRef>,
@@ -56,7 +56,7 @@ data class EventResponse(
     val persons: List<PersonRef>,
     @field:Schema(description = "첨부 사진 URL 목록.", example = "[\"/images/a1b2.jpg\"]")
     val photoUrls: List<String>,
-    @field:Schema(description = "기록 생성 시각.", example = "2026-07-05T20:10:00")
+    @field:Schema(description = "기록 생성 시각.", example = "2026-07-05T20:10:00", nullable = true)
     val createdAt: LocalDateTime?,
 ) {
     companion object {

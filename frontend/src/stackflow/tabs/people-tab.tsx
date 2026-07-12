@@ -2,6 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { Plus, Search, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import type { PersonResponse } from '@/apis/generated/models'
+import { personMutation } from '@/apis/mutations'
+import { homeQuery, personQuery } from '@/apis/queries'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { TabShell } from '@/stackflow/components/tab-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
@@ -16,10 +19,7 @@ import {
   ListGroupLabel,
 } from '@/components/ui/list-group'
 
-import { fetchPersons, togglePersonFavorite } from '@/lib/api/persons'
-import type { PersonResponse } from '@/lib/api/types'
 import { formatLastMetRelative, formatPersonName } from '@/lib/format'
-import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 
 type PersonSort = 'NAME' | 'RECENT'
@@ -30,16 +30,13 @@ export function PeopleTab() {
   const [sort, setSort] = useState<PersonSort>('NAME')
   const queryClient = useQueryClient()
 
-  const personsQuery = useQuery({
-    queryKey: queryKeys.persons(`${query}:${sort}`),
-    queryFn: () => fetchPersons(query, sort),
-  })
+  const personsQuery = useQuery(personQuery.list(query, sort))
 
   const favoriteMutation = useMutation({
-    mutationFn: (id: number) => togglePersonFavorite(id),
+    ...personMutation.toggleFavoriteById(),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['persons'] })
-      void queryClient.invalidateQueries({ queryKey: ['home'] })
+      void queryClient.invalidateQueries({ queryKey: personQuery.allKey })
+      void queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
     },
   })
 
@@ -109,6 +106,12 @@ export function PeopleTab() {
             </ListGroupItem>
           </ListGroup>
         </section>
+
+        {favoriteMutation.isError ? (
+          <p className="text-center text-xs font-bold text-destructive">
+            즐겨찾기를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.
+          </p>
+        ) : null}
 
         {personsQuery.isPending ? (
           <p className="py-12 text-center text-sm text-muted-foreground">

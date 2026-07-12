@@ -1,7 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetchChips } from '@/lib/api/chips'
-import type { ChipType } from '@/lib/api/types'
-import { queryKeys } from '@/lib/query-keys'
+import type { ChipResponseType } from '@/apis/generated/models'
+import {
+  chipQuery,
+  eventQuery,
+  homeQuery,
+  personQuery,
+  timelineQuery,
+} from '@/apis/queries'
 import { TagTypePanel } from '@/stackflow/activities/settings/tag-type-panel'
 
 const TAG_GROUPS = [
@@ -16,19 +21,19 @@ const TAG_GROUPS = [
     description: '사람 사이의 관계를 나타내요',
   },
 ] satisfies ReadonlyArray<{
-  type: ChipType
+  type: ChipResponseType
   label: string
   description: string
 }>
 
-const MANAGED_TAG_TYPES = new Set<ChipType>(['CATEGORY', 'RELATION_TAG'])
+const MANAGED_TAG_TYPES = new Set<ChipResponseType>([
+  'CATEGORY',
+  'RELATION_TAG',
+])
 
 export function TagSettingsPage() {
   const queryClient = useQueryClient()
-  const chipsQuery = useQuery({
-    queryKey: queryKeys.chips,
-    queryFn: () => fetchChips(),
-  })
+  const chipsQuery = useQuery(chipQuery.all())
 
   const chips = (chipsQuery.data ?? []).filter((chip) =>
     MANAGED_TAG_TYPES.has(chip.type),
@@ -43,9 +48,17 @@ export function TagSettingsPage() {
           label={group.label}
           description={group.description}
           chips={chips.filter((chip) => chip.type === group.type)}
-          onChanged={() =>
-            queryClient.invalidateQueries({ queryKey: queryKeys.chips })
-          }
+          onChanged={() => {
+            void Promise.all([
+              queryClient.invalidateQueries({ queryKey: chipQuery.allKey }),
+              queryClient.invalidateQueries({ queryKey: personQuery.allKey }),
+              queryClient.invalidateQueries({ queryKey: homeQuery.allKey }),
+              queryClient.invalidateQueries({ queryKey: eventQuery.allKey }),
+              queryClient.invalidateQueries({
+                queryKey: timelineQuery.allKey,
+              }),
+            ])
+          }}
         />
       ))}
     </div>

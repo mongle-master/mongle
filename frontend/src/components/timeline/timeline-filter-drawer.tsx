@@ -1,5 +1,5 @@
 import { SlidersHorizontal } from 'lucide-react'
-import type { ChipResponse, PersonResponse } from '@/lib/api/types'
+import type { ChipResponse, PersonResponse } from '@/apis/generated/models'
 import {
   TimelineCategoryFilters,
   TimelineFilterReset,

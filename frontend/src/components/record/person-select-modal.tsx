@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import type { PersonResponse } from '@/lib/api/types'
+import type { PersonResponse } from '@/apis/generated/models'
 import { formatPersonName } from '@/lib/format'
 import { cn } from '@/lib/utils'
 

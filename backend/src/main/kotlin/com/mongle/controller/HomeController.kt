@@ -30,10 +30,12 @@ class HomeController(
 ) {
     // relationTagChipIds 다중(?relationTagChipIds=1&relationTagChipIds=2) = 합집합(OR) 필터(#42). 없으면 전체.
     @Operation(
+        operationId = "getRelationMap",
         summary = "관계 지도 조회",
         description = "중심 '나' 노드와 인물 노드·연결선으로 관계 지도를 그린다. 관계태그 칩으로 인물을 걸러낼 수 있다(여러 개면 합집합). 멀어진 관계는 edge 의 distant 로 표시된다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "관계 지도.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
     )
     @GetMapping("/relation-map")
@@ -45,6 +47,7 @@ class HomeController(
 
     // 1년 전 오늘 기록이 없으면 204 — 프론트가 플로팅을 띄우지 않는다(#43).
     @Operation(
+        operationId = "getThrowback",
         summary = "1년 전 오늘 회고",
         description = "오늘 날짜 기준 정확히 1년 전 기록이 있으면 회고 카드 1건을 반환하고, 없으면 본문 없이 204 를 반환한다(프론트가 플로팅을 띄우지 않음).",
     )

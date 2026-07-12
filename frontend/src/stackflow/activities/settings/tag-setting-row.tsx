@@ -4,7 +4,7 @@ import {
   normalizeChipColor,
   tagChipClass,
 } from '@/components/ui/tag-chip'
-import type { ChipResponse } from '@/lib/api/types'
+import type { ChipResponse } from '@/apis/generated/models'
 
 export function TagSettingRow({
   chip,

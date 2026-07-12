@@ -15,7 +15,9 @@ data class UserProfileRequest(
 @Schema(description = "사용자 프로필 저장 결과.")
 data class UserProfileResponse(
     val username: String,
+    @field:Schema(nullable = true)
     val profileImageUrl: String?,
+    @field:Schema(nullable = true)
     val gender: UserGender?,
     val profileSetupCompleted: Boolean,
 ) {

@@ -8,9 +8,8 @@ import { PersonEditForm } from '@/components/person/person-edit-form'
 import { personToFormValues } from '@/components/person/person-form'
 import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
-import { fetchChips } from '@/lib/api/chips'
-import { deletePerson, fetchPerson, updatePerson } from '@/lib/api/persons'
-import { queryKeys } from '@/lib/query-keys'
+import { personMutation } from '@/apis/mutations'
+import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
 import { useEnterDone } from '@/stackflow/use-enter-done'
 
 const PERSON_FORM_ID = 'person-form'
@@ -25,37 +24,31 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
   const queryClient = useQueryClient()
   const [deleteOpen, setDeleteOpen] = useState(false)
 
-  const personQuery = useQuery({
-    queryKey: queryKeys.person(id),
-    queryFn: () => fetchPerson(id),
-    enabled: Number.isFinite(id),
-  })
+  const personDetailQuery = useQuery(personQuery.byId(id))
 
-  const chipsQuery = useQuery({
-    queryKey: queryKeys.chips,
-    queryFn: () => fetchChips(),
-  })
+  const chipsQuery = useQuery(chipQuery.all())
 
-  const person = personQuery.data
+  const person = personDetailQuery.data
   const relationTags =
     chipsQuery.data?.filter((c) => c.type === 'RELATION_TAG') ?? []
 
   const updateMutation = useMutation({
-    mutationFn: (body: Parameters<typeof updatePerson>[1]) =>
-      updatePerson(id, body),
+    ...personMutation.update(id),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.person(id) })
-      await queryClient.invalidateQueries({ queryKey: ['persons'] })
-      await queryClient.invalidateQueries({ queryKey: ['home'] })
+      await queryClient.invalidateQueries({
+        queryKey: personQuery.byId(id).queryKey,
+      })
+      await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
+      await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
       pop()
     },
   })
 
   const deleteMutation = useMutation({
-    mutationFn: () => deletePerson(id),
+    ...personMutation.remove(),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['persons'] })
-      await queryClient.invalidateQueries({ queryKey: ['home'] })
+      await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
+      await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
       // 아래에 깔린 프로필도 삭제된 인물이므로 두 단계를 걷어낸다
       pop(2)
     },
@@ -66,7 +59,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
   }
 
   // 폼 마운트가 무거워 enter 전환 중에는 로딩 셸만 둔다 (use-enter-done.ts)
-  if (!Number.isFinite(id) || !enterDone || personQuery.isPending) {
+  if (!Number.isFinite(id) || !enterDone || personDetailQuery.isPending) {
     return (
       <ActivityShell layout="fixed">
         <p className="py-20 text-center text-sm text-muted-foreground">
@@ -76,7 +69,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
     )
   }
 
-  if (!person || personQuery.isError) {
+  if (!person || personDetailQuery.isError) {
     return (
       <ActivityShell layout="fixed">
         <p className="py-20 text-center text-sm text-destructive">
@@ -138,10 +131,15 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
         onOpenChange={setDeleteOpen}
         title="인물을 삭제할까요?"
         description="삭제하면 되돌릴 수 없어요. 함께 새긴 기록도 모두 사라져요."
+        error={
+          deleteMutation.isError
+            ? '인물을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.'
+            : undefined
+        }
         confirmLabel="삭제"
         destructive
         pending={deleteMutation.isPending}
-        onConfirm={() => deleteMutation.mutate()}
+        onConfirm={() => deleteMutation.mutate(id)}
       />
     </ActivityShell>
   )

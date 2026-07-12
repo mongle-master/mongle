@@ -1,6 +1,6 @@
 import { Camera, Star } from 'lucide-react'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import type { PersonRequest } from '@/lib/api/types'
+import type { PersonRequest } from '@/apis/generated/models'
 import { cn } from '@/lib/utils'
 
 export function ProfileHero({
@@ -168,7 +168,7 @@ export function formValuesToRequest(values: PersonFormValues): PersonRequest {
   const day = values.birthDay ? Number(values.birthDay) : undefined
   const year = values.birthYear ? Number(values.birthYear) : undefined
   const birthday =
-    month && day ? { month, day, ...(year ? { year } : {}) } : null
+    month && day ? { month, day, ...(year ? { year } : {}) } : undefined
 
   const firstMetDate = composeFirstMetDate(
     values.firstMetYear,
@@ -178,15 +178,15 @@ export function formValuesToRequest(values: PersonFormValues): PersonRequest {
 
   return {
     name: values.name.trim(),
-    profileImageUrl: values.profileImageUrl,
-    gender: values.gender || null,
-    relationType: values.relationType.trim() || null,
+    profileImageUrl: values.profileImageUrl ?? undefined,
+    gender: values.gender || undefined,
+    relationType: values.relationType.trim() || undefined,
     relationTagChipIds: values.relationTagChipIds,
     likes: values.likes,
     cautions: values.cautions,
     favorite: values.favorite,
-    firstMetDate: firstMetDate === '' ? undefined : firstMetDate,
-    lastMetDate: values.lastMetDate || null,
+    firstMetDate: firstMetDate || undefined,
+    lastMetDate: values.lastMetDate || undefined,
     birthday,
   }
 }

@@ -1,4 +1,4 @@
-import type { PersonRequest } from '@/lib/api/types'
+import type { PersonRequest } from '@/apis/generated/models'
 
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
@@ -8,13 +8,13 @@ export function validatePersonForm(data: PersonRequest): string | null {
   if (data.relationType && data.relationType.length > 10) {
     return '최대 10자까지 쓸 수 있어요.'
   }
-  if ((data.relationTagChipIds?.length ?? 0) > 10) {
+  if (data.relationTagChipIds.length > 10) {
     return '관계 태그는 최대 10개까지 담을 수 있어요.'
   }
-  if ((data.likes?.length ?? 0) > 20 || (data.cautions?.length ?? 0) > 20) {
+  if (data.likes.length > 20 || data.cautions.length > 20) {
     return '최대 20개까지 담을 수 있어요.'
   }
-  for (const item of [...(data.likes ?? []), ...(data.cautions ?? [])]) {
+  for (const item of [...data.likes, ...data.cautions]) {
     if (item.length > 30) return '최대 30자까지 쓸 수 있어요.'
   }
 

@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { uploadImage } from '@/lib/api/images'
-import type { PersonRequest } from '@/lib/api/types'
+import type { PersonRequest } from '@/apis/generated/models'
 import { validatePersonForm } from '@/lib/person-validation'
 
 export function PersonEditForm({
@@ -71,7 +71,7 @@ export function PersonEditForm({
     event.preventDefault()
     const request = formValuesToRequest(values)
 
-    if (request.firstMetDate === undefined) {
+    if (!values.firstMetYear && (values.firstMetMonth || values.firstMetDay)) {
       setError('처음 만난 날의 연도를 입력해 주세요.')
       return
     }

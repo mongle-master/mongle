@@ -13,6 +13,7 @@ export function ConfirmPopup({
   open,
   title,
   description,
+  error,
   confirmLabel = '확인',
   cancelLabel = '취소',
   destructive = false,
@@ -23,6 +24,7 @@ export function ConfirmPopup({
   open: boolean
   title: string
   description: ReactNode
+  error?: string
   confirmLabel?: string
   cancelLabel?: string
   destructive?: boolean
@@ -107,6 +109,11 @@ export function ConfirmPopup({
           >
             {description}
           </p>
+          {error ? (
+            <p className="mt-3 text-sm font-bold text-destructive" role="alert">
+              {error}
+            </p>
+          ) : null}
         </div>
 
         <div className="mt-5 flex gap-2">

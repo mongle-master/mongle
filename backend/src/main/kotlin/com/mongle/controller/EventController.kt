@@ -33,10 +33,12 @@ class EventController(
     private val eventService: EventService,
 ) {
     @Operation(
+        operationId = "createEvent",
         summary = "기록 등록",
         description = "함께한 사람(최소 1명)으로 기록을 남긴다. 카테고리·날짜는 미지정 시 만남·오늘로 채운다. 칩·인물은 내 것이면서 보이는 것만 연결할 수 있다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "201", description = "등록한 기록.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "400", description = "인물 미선택(REQUIRED_FIELD)·글자수 초과(LENGTH_EXCEEDED)·감정 선택 개수 초과(SELECTION_LIMIT)·미래 날짜(FUTURE_DATE)·카테고리 누락(CATEGORY_REQUIRED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "404", description = "내 것이 아니거나 보이지 않는 인물·칩 연결(NOT_FOUND).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
@@ -49,10 +51,12 @@ class EventController(
     ): EventResponse = eventService.create(user.id, request)
 
     @Operation(
+        operationId = "getEvent",
         summary = "기록 상세 조회",
         description = "기록 하나를 조회한다. 제목 미입력 기록은 조회 시점에 '대표 인물 · 카테고리' 자동 제목을 계산해 준다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "기록 상세.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "404", description = "내 기록이 아님·존재하지 않음(NOT_FOUND).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
     )
@@ -63,10 +67,12 @@ class EventController(
     ): EventResponse = eventService.detail(user.id, id)
 
     @Operation(
+        operationId = "updateEvent",
         summary = "기록 수정",
         description = "기록을 통째로 교체한다(등록과 같은 검증). 연결 인물·칩·사진도 요청 값으로 재구성한다.",
     )
     @ApiResponses(
+        ApiResponse(responseCode = "200", description = "수정한 기록.", useReturnTypeSchema = true),
         ApiResponse(responseCode = "400", description = "인물 미선택(REQUIRED_FIELD)·글자수 초과(LENGTH_EXCEEDED)·감정 선택 개수 초과(SELECTION_LIMIT)·미래 날짜(FUTURE_DATE)·카테고리 누락(CATEGORY_REQUIRED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "401", description = "토큰 없음·무효(UNAUTHORIZED).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
         ApiResponse(responseCode = "404", description = "내 기록이 아님·존재하지 않음, 또는 내 것이 아닌 인물·칩 연결(NOT_FOUND).", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),

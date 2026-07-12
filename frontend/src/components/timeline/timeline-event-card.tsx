@@ -7,17 +7,17 @@ import type {
   EventResponse,
   TimelineCard,
   TimelinePerson,
-} from '@/lib/api/types'
+} from '@/apis/generated/models'
 import { formatPersonName } from '@/lib/format'
 import { optimizedImageUrl } from '@/lib/image-url'
 
 export type TimelineEventCardItem = {
   id: number
   title: string
-  memo: string | null
+  memo?: string | null
   occurredDate: string
-  occurredTime: string | null
-  category: ChipRef | null
+  occurredTime?: string | null
+  category?: ChipRef | null
   photoUrls?: string[]
   persons?: TimelinePerson[]
   emotions?: ChipRef[]
@@ -56,12 +56,7 @@ export function fromEventResponse(event: EventResponse): TimelineEventCardItem {
     persons: event.persons.map((person) => ({
       id: person.id,
       name: person.name,
-      fullName: person.fullName,
-      familyName: person.familyName,
-      givenName: person.givenName,
-      lastName: person.lastName,
-      firstName: person.firstName,
-      profileImageUrl: null,
+      profileImageUrl: undefined,
       favorite: false,
     })),
   }

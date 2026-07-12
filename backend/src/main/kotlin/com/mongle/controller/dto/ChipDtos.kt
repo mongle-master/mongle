@@ -14,7 +14,7 @@ data class ChipCreateRequest(
     val type: ChipType,
     @field:Schema(description = "칩에 표시할 라벨. 종류 안에서 중복될 수 없다.", example = "대학 친구")
     val label: String,
-    @field:Schema(description = "칩 표시 색상(hex). 관계태그 등 색상이 필요한 칩에서 사용한다.", example = "#0EA5E9")
+    @field:Schema(description = "칩 표시 색상(hex). 관계태그 등 색상이 필요한 칩에서 사용한다.", example = "#0EA5E9", nullable = true)
     val color: String? = null,
 )
 
@@ -22,7 +22,7 @@ data class ChipCreateRequest(
 data class ChipRenameRequest(
     @field:Schema(description = "새 라벨. 종류 안에서 중복될 수 없다.", example = "동네 친구")
     val label: String,
-    @field:Schema(description = "칩 표시 색상(hex). null 이면 색상을 비운다.", example = "#22A06B")
+    @field:Schema(description = "칩 표시 색상(hex). null 이면 색상을 비운다.", example = "#22A06B", nullable = true)
     val color: String? = null,
 )
 
@@ -34,7 +34,7 @@ data class ChipResponse(
     val type: ChipType,
     @field:Schema(description = "칩 라벨. 소프트삭제된 칩도 과거 기록 표시를 위해 라벨은 유지된다.", example = "대학 친구")
     val label: String,
-    @field:Schema(description = "칩 표시 색상(hex).", example = "#0EA5E9")
+    @field:Schema(description = "칩 표시 색상(hex).", example = "#0EA5E9", nullable = true)
     val color: String?,
     // 개인 칩 여부(공통=false). 클라이언트가 이름변경·삭제 가능 여부를 판단한다.
     @field:Schema(description = "개인 칩 여부. 공통 칩은 false 이며 이름변경·삭제가 불가하다.", example = "true")

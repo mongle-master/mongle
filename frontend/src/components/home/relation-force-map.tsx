@@ -5,7 +5,7 @@ import { optimizedImageUrl } from '@/lib/image-url'
 import { defaultPersonImageUrl } from '@/lib/default-person-image'
 import { formatPersonName } from '@/lib/format'
 import { layoutOrganicRelationMap } from '@/lib/relation-map-layout'
-import type { RelationMapResponse } from '@/lib/api/types'
+import type { RelationMapResponse } from '@/apis/generated/models'
 
 type RelationNode = RelationMapResponse['nodes'][number]
 type MeNode = RelationMapResponse['me']
