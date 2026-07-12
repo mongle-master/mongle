@@ -14,7 +14,6 @@ describe('resolveAnalyticsScreen', () => {
   })
 
   it.each([
-    ['Person', 'person_detail'],
     ['PersonNew', 'person_new'],
     ['PersonEdit', 'person_edit'],
     ['EventDetail', 'event_detail'],
@@ -26,6 +25,13 @@ describe('resolveAnalyticsScreen', () => {
     ['OnboardingProfile', 'onboarding_profile'],
   ])('%s activity를 %s 화면명으로 정규화한다', (activityName, screen) => {
     expect(resolveAnalyticsScreen(activityName, {})).toBe(screen)
+  })
+
+  it('사람 activity의 프로필과 타임라인 조회를 구분한다', () => {
+    expect(resolveAnalyticsScreen('Person', {})).toBe('person_detail')
+    expect(resolveAnalyticsScreen('Person', { view: 'timeline' })).toBe(
+      'person_timeline',
+    )
   })
 
   it('알 수 없는 activity는 수집하지 않는다', () => {

@@ -21,6 +21,7 @@ import {
   formatPersonName,
 } from '@/lib/format'
 import type { PersonView } from '@/stackflow/stackflow.config'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 
 export function PersonProfileView({
   personId,
@@ -43,6 +44,7 @@ export function PersonProfileView({
   const deleteMutation = useMutation({
     ...personMutation.remove(),
     onSuccess: async () => {
+      void trackFeature(featureEvents.personDeleted)
       await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
       await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
       pop()

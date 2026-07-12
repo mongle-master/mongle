@@ -21,6 +21,7 @@ import {
 
 import { formatLastMetRelative, formatPersonName } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 
 type PersonSort = 'NAME' | 'RECENT'
 
@@ -35,6 +36,7 @@ export function PeopleTab() {
   const favoriteMutation = useMutation({
     ...personMutation.toggleFavoriteById(),
     onSuccess: () => {
+      void trackFeature(featureEvents.personFavoriteToggled)
       void queryClient.invalidateQueries({ queryKey: personQuery.allKey })
       void queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
     },
@@ -51,6 +53,21 @@ export function PeopleTab() {
   const persons = personsQuery.data ?? []
   const totalCount = persons.length
   const showSections = sort === 'NAME' && !query.trim() && favorites.length > 0
+
+  const handleQueryChange = (next: string) => {
+    if (!query.trim() && next.trim()) {
+      void trackFeature(featureEvents.peopleSearchUsed)
+    }
+    setQuery(next)
+  }
+
+  const handleSortChange = (next: PersonSort) => {
+    if (next === sort) return
+    setSort(next)
+    void trackFeature(featureEvents.peopleSortChanged, {
+      sort: next.toLowerCase(),
+    })
+  }
 
   return (
     <TabShell layout="fixed">
@@ -86,7 +103,7 @@ export function PeopleTab() {
                 <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => handleQueryChange(e.target.value)}
                   placeholder="이름·관계 유형 검색"
                   className="h-10 border-0 bg-transparent pl-8 text-[15px] shadow-none focus-visible:ring-0"
                 />
@@ -96,7 +113,7 @@ export function PeopleTab() {
               <ListGroupInset className="p-1">
                 <SegmentedControl
                   value={sort}
-                  onValueChange={setSort}
+                  onValueChange={handleSortChange}
                   options={[
                     { value: 'NAME', label: '이름순' },
                     { value: 'RECENT', label: '최근 만남순' },

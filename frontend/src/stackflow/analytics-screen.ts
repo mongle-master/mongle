@@ -1,7 +1,6 @@
 import { isMainTab } from '@/stackflow/stackflow.config'
 
 const SCREEN_BY_ACTIVITY = {
-  Person: 'person_detail',
   PersonNew: 'person_new',
   PersonEdit: 'person_edit',
   EventDetail: 'event_detail',
@@ -19,6 +18,10 @@ export function resolveAnalyticsScreen(
 ): string | undefined {
   if (activityName === 'Main') {
     return isMainTab(params.tab) ? params.tab : 'home'
+  }
+
+  if (activityName === 'Person') {
+    return params.view === 'timeline' ? 'person_timeline' : 'person_detail'
   }
 
   return SCREEN_BY_ACTIVITY[activityName as keyof typeof SCREEN_BY_ACTIVITY]

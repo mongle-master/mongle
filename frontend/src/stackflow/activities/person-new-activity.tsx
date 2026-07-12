@@ -26,6 +26,7 @@ import { AppScreen } from '@/stackflow/components/app-screen'
 import { personMutation } from '@/apis/mutations'
 import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
 import { uploadImage } from '@/lib/api/images'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 import { validatePersonForm } from '@/lib/person-validation'
 
 // 새 단계는 여기 키와 STEP_ORDER에 추가하고 아래 stepBody에 섹션을 더하면 된다.
@@ -71,6 +72,10 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
   const createMutation = useMutation({
     ...personMutation.register(),
     onSuccess: async (person) => {
+      void trackFeature(featureEvents.personCreated, {
+        has_profile_image: Boolean(values.profileImageUrl),
+        relation_tag_count: values.relationTagChipIds.length,
+      })
       await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
       await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
       // 등록 화면을 새 인물 프로필로 갈아끼워, 뒤로가기 시 폼이 다시 나오지 않게 한다
@@ -112,6 +117,9 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
     try {
       const { url } = await uploadImage(file)
       patch('profileImageUrl', url)
+      void trackFeature(featureEvents.profileImageUploaded, {
+        context: 'person_create',
+      })
     } catch {
       setFormError('사진을 올리지 못했어요. 잠시 후 다시 시도해 주세요.')
     } finally {

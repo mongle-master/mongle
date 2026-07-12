@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { uploadImage } from '@/lib/api/images'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 import type { PersonRequest } from '@/apis/generated/mongle-api.schemas'
 import { validatePersonForm } from '@/lib/person-validation'
 
@@ -60,6 +61,9 @@ export function PersonEditForm({
     try {
       const { url } = await uploadImage(file)
       patch('profileImageUrl', url)
+      void trackFeature(featureEvents.profileImageUploaded, {
+        context: 'person_edit',
+      })
     } catch {
       setError('사진을 올리지 못했어요. 잠시 후 다시 시도해 주세요.')
     } finally {

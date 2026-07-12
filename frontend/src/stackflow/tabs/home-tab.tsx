@@ -15,6 +15,7 @@ import {
   subscribeDefaultHomePeriod,
 } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 
 export function HomeTab() {
   const { push } = useFlow()
@@ -53,6 +54,12 @@ export function HomeTab() {
     [mapData?.edges, visibleNodeIds],
   )
 
+  const handlePeriodChange = (next: HomePeriod) => {
+    if (next === period) return
+    setPeriod(next)
+    void trackFeature(featureEvents.homePeriodChanged, { period: next })
+  }
+
   return (
     <TabShell>
       <header className="mb-3">
@@ -63,7 +70,7 @@ export function HomeTab() {
       </header>
 
       <section className="mb-4">
-        <HomePeriodToggle value={period} onChange={setPeriod} />
+        <HomePeriodToggle value={period} onChange={handlePeriodChange} />
       </section>
 
       {mapQuery.isPending ? (
@@ -102,12 +109,13 @@ export function HomeTab() {
               </div>
               <button
                 type="button"
-                onClick={() =>
+                onClick={() => {
+                  void trackFeature(featureEvents.throwbackOpened)
                   push('Person', {
                     personId: String(throwback.personId),
                     view: 'timeline',
                   })
-                }
+                }}
                 className="min-w-0 flex-1 text-left"
               >
                 <p className="text-sm font-extrabold text-foreground">
@@ -125,7 +133,10 @@ export function HomeTab() {
               </button>
               <button
                 type="button"
-                onClick={() => setThrowbackExiting(true)}
+                onClick={() => {
+                  setThrowbackExiting(true)
+                  void trackFeature(featureEvents.throwbackDismissed)
+                }}
                 disabled={throwbackExiting}
                 className="absolute top-2.5 right-2.5 flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground disabled:pointer-events-none"
                 aria-label="닫기"

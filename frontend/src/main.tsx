@@ -10,7 +10,12 @@ import {
   seedCurrentUser,
 } from './lib/api/auth'
 import type { UserProfileInput } from './lib/api/auth'
-import { initializeAnalytics, setAnalyticsUserId } from './lib/analytics'
+import {
+  featureEvents,
+  initializeAnalytics,
+  setAnalyticsUserId,
+  trackFeature,
+} from './lib/analytics'
 import { createUserIdentity, getUserIdentity } from './lib/user-identity'
 import type { UserIdentity } from './lib/user-identity'
 import { installBrowserNavTransitionSkip } from './stackflow/browser-nav-transition'
@@ -101,6 +106,7 @@ function AppBootstrap() {
     const completeProfile = async (profile: UserProfileInput) => {
       await completeUserProfile(profile)
       await seedCurrentUser()
+      void trackFeature(featureEvents.onboardingCompleted)
       setAuthState('ready')
     }
 

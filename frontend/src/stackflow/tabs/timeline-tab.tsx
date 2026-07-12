@@ -19,6 +19,7 @@ import {
 } from '@/lib/timeline-activity-flow'
 import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
 import { TabShell } from '@/stackflow/components/tab-shell'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 
 export function TimelineTab() {
   const { push } = useFlow()
@@ -67,19 +68,27 @@ export function TimelineTab() {
   }, [filteredTimelineQuery.data, flowSelection])
 
   const toggleCategory = (chipId: number) => {
-    setCategoryFilter((prev) =>
-      prev.includes(chipId)
-        ? prev.filter((id) => id !== chipId)
-        : [...prev, chipId],
-    )
+    setCategoryFilter((prev) => {
+      const enabled = !prev.includes(chipId)
+      void trackFeature(featureEvents.timelineFilterChanged, {
+        filter_type: 'category',
+        enabled,
+      })
+      return enabled ? [...prev, chipId] : prev.filter((id) => id !== chipId)
+    })
   }
 
   const togglePerson = (personId: number) => {
-    setPersonFilter((prev) =>
-      prev.includes(personId)
-        ? prev.filter((id) => id !== personId)
-        : [...prev, personId],
-    )
+    setPersonFilter((prev) => {
+      const enabled = !prev.includes(personId)
+      void trackFeature(featureEvents.timelineFilterChanged, {
+        filter_type: 'person',
+        enabled,
+      })
+      return enabled
+        ? [...prev, personId]
+        : prev.filter((id) => id !== personId)
+    })
   }
 
   const hasFilter =
@@ -90,9 +99,18 @@ export function TimelineTab() {
     categoryFilter.length + personFilter.length + (flowSelection ? 1 : 0)
 
   const resetFilters = () => {
+    if (!hasFilter) return
     setCategoryFilter([])
     setPersonFilter([])
     setFlowSelection(null)
+    void trackFeature(featureEvents.timelineFiltersReset)
+  }
+
+  const handleFlowSelection = (next: ActivityFlowSelection | null) => {
+    setFlowSelection(next)
+    if (next) {
+      void trackFeature(featureEvents.timelineActivityFlowSelected)
+    }
   }
 
   return (
@@ -117,7 +135,7 @@ export function TimelineTab() {
               persons={persons}
               records={flowRecords}
               selectedPoint={flowSelection}
-              onSelectPoint={setFlowSelection}
+              onSelectPoint={handleFlowSelection}
             />
           </div>
         ) : null}
