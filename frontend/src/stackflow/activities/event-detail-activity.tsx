@@ -94,7 +94,6 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-8 [-webkit-overflow-scrolling:touch]">
         <div className="flex items-start gap-2">
-          {/* data-amp-mask: 제목·메모·이름·칩 라벨은 사용자 생성 텍스트 (analytics.ts 계약) */}
           <h2
             data-amp-mask
             className="min-w-0 flex-1 text-[22px] leading-snug font-extrabold tracking-tight"

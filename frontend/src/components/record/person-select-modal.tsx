@@ -112,7 +112,6 @@ export function PersonSelectModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3">
           {filtered.length === 0 ? (
-            // data-amp-mask: 검색어 에코는 사용자 입력 텍스트 (analytics.ts 계약)
             <p
               data-amp-mask={query.trim() ? true : undefined}
               className="py-8 text-center text-sm text-muted-foreground"
@@ -145,7 +144,6 @@ export function PersonSelectModal({
                         personId={person.id}
                         className="size-11 shrink-0"
                       />
-                      {/* data-amp-mask: 이름·관계 정보는 사용자 생성 텍스트 (analytics.ts 계약) */}
                       <div data-amp-mask className="min-w-0 flex-1">
                         <p className="truncate font-extrabold">{displayName}</p>
                         <p className="truncate text-xs text-muted-foreground">

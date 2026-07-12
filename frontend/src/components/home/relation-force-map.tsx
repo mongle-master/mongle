@@ -323,7 +323,6 @@ export function RelationForceMap({
           {categories.map((category) => (
             <span
               key={category.label}
-              // data-amp-mask: 범례 라벨은 관계태그(사용자 생성) 기반 (analytics.ts 계약)
               data-amp-mask
               className="inline-flex min-w-0 items-center gap-1 text-[10px] font-bold text-zinc-700 dark:text-zinc-200"
             >
@@ -440,7 +439,6 @@ function OrbitGraph({
             data-fallback={imageSrc.startsWith('/default-people/') ? '1' : '0'}
           />
         </div>
-        {/* data-amp-mask: 사용자 이름 (analytics.ts 계약) */}
         <span
           data-amp-mask
           className="mt-1.5 max-w-24 truncate rounded-full bg-background/88 px-2 py-1 text-[12px] leading-none font-black text-zinc-950 shadow-[0_4px_12px_rgba(24,24,27,0.08)] backdrop-blur-sm dark:text-zinc-50"
@@ -512,7 +510,6 @@ function CategoryClusterGraph({
         return (
           <span
             key={category.label}
-            // data-amp-mask: 클러스터 라벨은 관계태그(사용자 생성) 기반 (analytics.ts 계약)
             data-amp-mask
             className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/80 px-2 py-1 text-[11px] font-black text-zinc-700 shadow-[0_8px_18px_rgba(24,24,27,0.06)] dark:bg-zinc-950/82 dark:text-zinc-200 dark:shadow-[0_8px_18px_rgba(0,0,0,0.28)]"
             style={{
@@ -724,7 +721,6 @@ function PersonNode({
         />
       </span>
       {showText ? (
-        // data-amp-mask: 이름·관계태그 라벨은 사용자 생성 텍스트 (analytics.ts 계약)
         <span
           data-amp-mask
           className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-black text-zinc-950 shadow-[0_4px_12px_rgba(24,24,27,0.06)] backdrop-blur-sm dark:text-zinc-50"

@@ -39,7 +39,6 @@ export function TagSettingRow({
             aria-label={`지정 색상 ${color}`}
           />
         ) : null}
-        {/* 개인 칩 라벨만 사용자 생성 텍스트라 마스킹 (analytics.ts 계약) */}
         <span
           data-amp-mask={chip.personal || undefined}
           className="min-w-0 truncate"

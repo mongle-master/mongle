@@ -95,7 +95,6 @@ export function ListField({
                 chipToneClass,
               )}
             >
-              {/* data-amp-mask: likes/cautions 항목은 사용자 입력 텍스트 (analytics.ts 계약) */}
               <span data-amp-mask className="min-w-0 truncate">
                 {item}
               </span>

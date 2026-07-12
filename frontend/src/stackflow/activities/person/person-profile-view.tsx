@@ -105,7 +105,6 @@ export function PersonProfileView({
                   className="size-20"
                 />
                 <div className="min-w-0 flex-1">
-                  {/* data-amp-mask: 이름·관계유형·관계태그는 사용자 생성 텍스트 (analytics.ts 계약) */}
                   <h1
                     data-amp-mask
                     className="truncate text-2xl font-black tracking-tight"
@@ -307,7 +306,6 @@ function RecentEventRow({ event }: { event: EventResponse }) {
     >
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
-          {/* data-amp-mask: 기록 제목·칩 라벨·메모는 사용자 생성 텍스트 (analytics.ts 계약) */}
           <p data-amp-mask className="truncate text-sm font-extrabold">
             {event.title}
           </p>
@@ -359,7 +357,6 @@ function PreferenceBlock({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs font-bold text-muted-foreground">{label}</p>
-      {/* data-amp-mask: 취향(likes/cautions)은 사용자 생성 텍스트 (analytics.ts 계약) */}
       <p data-amp-mask className="mt-1 text-sm font-medium text-foreground">
         {value}
       </p>

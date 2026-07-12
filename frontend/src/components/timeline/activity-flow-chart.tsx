@@ -175,7 +175,6 @@ export function ActivityFlowChart({
                     personId={lane.personId}
                     className="size-5"
                   />
-                  {/* data-amp-mask: 레인 라벨은 사람 이름 (analytics.ts 계약) */}
                   <span
                     data-amp-mask
                     className="min-w-0 flex-1 truncate text-[11px] font-extrabold text-muted-foreground"

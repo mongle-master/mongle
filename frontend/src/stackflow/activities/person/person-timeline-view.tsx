@@ -120,7 +120,6 @@ export function PersonTimelineView({ personId }: { personId: string }) {
     <>
       <TimelineScrollShell scrollRef={scrollRef}>
         <div className="mb-4">
-          {/* data-amp-mask: 사람 이름은 사용자 생성 텍스트 (analytics.ts 계약) */}
           <h1 data-amp-mask className="text-[22px] font-black tracking-tight">
             {formatPersonName(person)}
           </h1>

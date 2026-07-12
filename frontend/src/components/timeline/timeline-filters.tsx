@@ -42,7 +42,6 @@ export function TimelineCategoryFilters({
               key={chip.id}
               type="button"
               onClick={() => onToggle(chip.id)}
-              // 개인 칩 라벨만 사용자 생성 텍스트라 마스킹, 공통 칩은 제품 어휘 (analytics.ts 계약)
               data-amp-mask={chip.personal || undefined}
               className={timelineFilterChipClass(selected)}
             >

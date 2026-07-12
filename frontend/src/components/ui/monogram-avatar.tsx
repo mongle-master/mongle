@@ -33,7 +33,6 @@ export function MonogramAvatar({
     })
 
   return (
-    // data-amp-mask: 모노그램(이름 첫 글자)이 Autocapture 이벤트에 실리지 않게 (analytics.ts 계약)
     <div data-amp-mask className="relative inline-flex shrink-0">
       <Avatar className={cn('border border-border bg-card', className)}>
         <AvatarImage src={src} alt={name} className="object-cover" />

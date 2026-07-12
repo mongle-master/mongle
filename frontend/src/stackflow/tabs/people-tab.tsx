@@ -211,7 +211,6 @@ function PersonListItem({
           className="size-11"
         />
         <div className="min-w-0 flex-1">
-          {/* data-amp-mask: 이름·관계유형·관계태그는 사용자 생성 텍스트 (analytics.ts 계약) */}
           <p
             data-amp-mask
             className="truncate text-[15px] font-extrabold text-foreground"
@@ -305,7 +304,6 @@ function PeopleEmptyState({
           <p className="text-[15px] font-extrabold text-foreground">
             {trimmed ? '검색 결과가 없어요' : '아직 기록한 사람이 없어요'}
           </p>
-          {/* data-amp-mask: 검색어 에코는 사용자 입력 텍스트 (analytics.ts 계약) */}
           <p
             data-amp-mask={trimmed ? true : undefined}
             className="mx-auto mt-2 max-w-[240px] text-sm font-medium text-muted-foreground"
