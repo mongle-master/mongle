@@ -1,14 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const initAll = vi.fn()
+const init = vi.fn()
 const add = vi.fn()
+const sessionReplayPlugin = vi.fn()
 
-vi.mock('@amplitude/unified', () => ({
-  initAll: (...args: unknown[]) => initAll(...args),
+vi.mock('@amplitude/analytics-browser', () => ({
+  init: (...args: unknown[]) => init(...args),
   add: (...args: unknown[]) => add(...args),
   setUserId: vi.fn(),
   track: vi.fn(),
   reset: vi.fn(),
+}))
+
+vi.mock('@amplitude/plugin-session-replay-browser', () => ({
+  sessionReplayPlugin: (...args: unknown[]) => sessionReplayPlugin(...args),
 }))
 
 // apiKey를 모듈 로드 시점에 읽으므로 매 테스트마다 env를 세팅하고 새로 import한다
@@ -32,18 +37,19 @@ type EnrichmentPlugin = {
 }
 
 beforeEach(() => {
-  initAll.mockReset().mockResolvedValue(undefined)
+  init.mockReset().mockReturnValue({ promise: Promise.resolve() })
   add.mockReset().mockReturnValue({ promise: Promise.resolve() })
+  sessionReplayPlugin.mockReset().mockReturnValue({ name: 'session-replay' })
   vi.unstubAllEnvs()
 })
 
 describe('initializeAnalytics autocapture 설정', () => {
-  it('API key가 없으면 initAll을 호출하지 않는다', async () => {
+  it('API key가 없으면 init을 호출하지 않는다', async () => {
     const { initializeAnalytics } = await importAnalytics(undefined)
 
     await initializeAnalytics()
 
-    expect(initAll).not.toHaveBeenCalled()
+    expect(init).not.toHaveBeenCalled()
   })
 
   it('클릭·폼·좌절 수집은 켜고 pageViews·network 등은 끈 채 한 번만 초기화한다', async () => {
@@ -52,14 +58,13 @@ describe('initializeAnalytics autocapture 설정', () => {
     await initializeAnalytics()
     await initializeAnalytics()
 
-    expect(initAll).toHaveBeenCalledTimes(1)
-    expect(initAll).toHaveBeenCalledWith('test-key', expect.anything())
+    expect(init).toHaveBeenCalledTimes(1)
+    expect(init).toHaveBeenCalledWith('test-key', expect.anything())
 
-    const options = initAll.mock.calls[0][1] as {
-      analytics: { autocapture: Record<string, unknown> }
-      sessionReplay: { sampleRate: number }
+    const options = init.mock.calls[0][1] as {
+      autocapture: Record<string, unknown>
     }
-    const autocapture = options.analytics.autocapture
+    const autocapture = options.autocapture
 
     expect(autocapture.formInteractions).toBe(true)
     expect(autocapture.frustrationInteractions).toBe(true)
@@ -71,8 +76,12 @@ describe('initializeAnalytics autocapture 설정', () => {
     expect(autocapture.networkTracking).toBe(false)
     expect(autocapture.webVitals).toBe(false)
 
-    // 기존 Session Replay 설정 유지
-    expect(options.sessionReplay).toEqual({ sampleRate: 1 })
+    expect(sessionReplayPlugin).toHaveBeenCalledOnce()
+    expect(sessionReplayPlugin).toHaveBeenCalledWith({ sampleRate: 1 })
+    expect(add.mock.calls[0][0]).toEqual({ name: 'session-replay' })
+    expect(add.mock.invocationCallOrder[0]).toBeLessThan(
+      init.mock.invocationCallOrder[0],
+    )
   })
 
   it('elementInteractions를 동적 URL ID maskTextRegex와 함께 켠다', async () => {
@@ -80,12 +89,10 @@ describe('initializeAnalytics autocapture 설정', () => {
 
     await initializeAnalytics()
 
-    const options = initAll.mock.calls[0][1] as {
-      analytics: {
-        autocapture: { elementInteractions: { maskTextRegex: RegExp[] } }
-      }
+    const options = init.mock.calls[0][1] as {
+      autocapture: { elementInteractions: { maskTextRegex: RegExp[] } }
     }
-    const { maskTextRegex } = options.analytics.autocapture.elementInteractions
+    const { maskTextRegex } = options.autocapture.elementInteractions
 
     expect(maskTextRegex).toHaveLength(1)
     expect('/people/123'.replace(maskTextRegex[0], '*****')).toBe('*****')
@@ -99,8 +106,8 @@ describe('동적 URL ID enrichment plugin', () => {
     const { initializeAnalytics } = await importAnalytics('test-key')
     await initializeAnalytics()
 
-    expect(add).toHaveBeenCalledTimes(1)
-    return add.mock.calls[0][0] as EnrichmentPlugin
+    expect(add).toHaveBeenCalledTimes(2)
+    return add.mock.calls[1][0] as EnrichmentPlugin
   }
 
   it('이벤트 속성의 person/event ID를 경로 자리표시자로 바꾼다', async () => {

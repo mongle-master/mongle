@@ -1,4 +1,5 @@
-import * as amplitude from '@amplitude/unified'
+import * as amplitude from '@amplitude/analytics-browser'
+import { sessionReplayPlugin } from '@amplitude/plugin-session-replay-browser'
 
 const apiKey = import.meta.env.VITE_AMPLITUDE_API_KEY
 
@@ -12,7 +13,7 @@ const apiKey = import.meta.env.VITE_AMPLITUDE_API_KEY
 //   personal 구분이 없는 ChipRef 라벨은 항상 마스킹한다.
 //
 // maskTextRegex는 element text·hierarchy attr·href·page title에만 적용되고
-// '[Amplitude] Page URL' 등 이벤트 속성의 URL에는 적용되지 않는다(1.1.21 소스 확인).
+// '[Amplitude] Page URL' 등 이벤트 속성의 URL에는 적용되지 않는다(SDK 소스 확인).
 // 그래서 아래 enrichment plugin이 모든 이벤트 속성에서 동적 URL의 person/event ID를
 // 한 번 더 가린다. frustration 이벤트는 maskTextRegex 옵션이 닿지 않는 별도 추출기를
 // 쓰므로 이 plugin이 URL ID 마스킹의 최종 방어선이다.
@@ -54,9 +55,12 @@ let initializationPromise: Promise<void> | null = null
 export function initializeAnalytics() {
   if (!apiKey) return Promise.resolve()
 
-  initializationPromise ??= amplitude
-    .initAll(apiKey, {
-      analytics: {
+  if (!initializationPromise) {
+    // Analytics 초기화 전에 플러그인을 등록해야 최초 세션 이벤트에도 동일한
+    // device ID와 Session Replay ID가 연결된다.
+    amplitude.add(sessionReplayPlugin({ sampleRate: 1 }))
+    initializationPromise = amplitude
+      .init(apiKey, {
         autocapture: {
           attribution: false,
           // Stackflow 화면 조회의 source of truth는 명시적 screen_viewed 이벤트
@@ -77,15 +81,12 @@ export function initializeAnalytics() {
         remoteConfig: {
           fetchRemoteConfig: false,
         },
-      },
-      sessionReplay: {
-        sampleRate: 1,
-      },
-    })
-    .then(() => amplitude.add(urlIdMaskEnrichment).promise)
-    .catch((error: unknown) => {
-      console.error('Amplitude initialization failed.', error)
-    })
+      })
+      .promise.then(() => amplitude.add(urlIdMaskEnrichment).promise)
+      .catch((error: unknown) => {
+        console.error('Amplitude initialization failed.', error)
+      })
+  }
 
   return initializationPromise
 }
