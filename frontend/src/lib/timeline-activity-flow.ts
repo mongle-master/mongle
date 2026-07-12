@@ -1,4 +1,4 @@
-import type { TimelineCard } from '@/lib/api/types'
+import type { TimelineCard } from '@/apis/generated/mongle-api.schemas'
 
 export type ActivityFlowPeriod = 'ALL' | '5Y' | '3Y' | '1Y' | 'RECENT'
 

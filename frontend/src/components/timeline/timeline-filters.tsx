@@ -1,4 +1,7 @@
-import type { ChipResponse, PersonResponse } from '@/lib/api/types'
+import type {
+  ChipResponse,
+  PersonResponse,
+} from '@/apis/generated/mongle-api.schemas'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { tagChipClass } from '@/components/ui/tag-chip'
 import { formatPersonName } from '@/lib/format'

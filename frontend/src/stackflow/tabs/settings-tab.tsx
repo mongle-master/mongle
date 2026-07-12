@@ -13,7 +13,7 @@ import {
   ListGroupLabel,
 } from '@/components/ui/list-group'
 import { Switch } from '@/components/ui/switch'
-import { deleteCurrentUser } from '@/lib/api/auth'
+import { userMutation } from '@/apis/mutations'
 import { clearToken } from '@/lib/auth-token'
 import { clearUserIdentity } from '@/lib/user-identity'
 import { TabShell } from '@/stackflow/components/tab-shell'
@@ -23,7 +23,7 @@ export function SettingsTab() {
   const { theme, setTheme } = useTheme()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const resetMutation = useMutation({
-    mutationFn: deleteCurrentUser,
+    ...userMutation.removeCurrent(),
     onSuccess: () => {
       clearToken()
       clearUserIdentity()
@@ -131,6 +131,11 @@ export function SettingsTab() {
         onOpenChange={setConfirmOpen}
         title="테스트 사용자를 초기화할까요?"
         description="현재 사용자를 삭제하고 이름 입력 화면부터 다시 시작해요."
+        error={
+          resetMutation.isError
+            ? '초기화하지 못했어요. 잠시 후 다시 시도해 주세요.'
+            : undefined
+        }
         confirmLabel="초기화"
         destructive
         pending={resetMutation.isPending}

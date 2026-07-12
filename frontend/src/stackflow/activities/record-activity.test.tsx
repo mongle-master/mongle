@@ -5,8 +5,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type {
   ChipResponse,
   EventResponse,
+  GetChipsParams,
   PersonResponse,
-} from '@/lib/api/types'
+} from '@/apis/generated/mongle-api.schemas'
 import { RecordActivity } from './record-activity'
 
 const flow = vi.hoisted(() => ({
@@ -16,8 +17,10 @@ const flow = vi.hoisted(() => ({
 }))
 const api = vi.hoisted(() => ({
   createEvent: vi.fn(),
-  fetchChips: vi.fn(),
-  fetchPersons: vi.fn(),
+  getChips: vi.fn(),
+  getEvent: vi.fn(),
+  getPersons: vi.fn(),
+  updateEvent: vi.fn(),
 }))
 
 vi.mock('@stackflow/react', () => ({
@@ -31,16 +34,12 @@ vi.mock('@/stackflow/components/app-screen', () => ({
 vi.mock('@/stackflow/use-enter-done', () => ({
   useEnterDone: () => true,
 }))
-vi.mock('@/lib/api/chips', () => ({
-  fetchChips: api.fetchChips,
-}))
-vi.mock('@/lib/api/events', () => ({
+vi.mock('@/apis/generated/mongle-api', () => ({
   createEvent: api.createEvent,
-  fetchEvent: vi.fn(),
-  updateEvent: vi.fn(),
-}))
-vi.mock('@/lib/api/persons', () => ({
-  fetchPersons: api.fetchPersons,
+  getChips: api.getChips,
+  getEvent: api.getEvent,
+  getPersons: api.getPersons,
+  updateEvent: api.updateEvent,
 }))
 
 const person: PersonResponse = {
@@ -81,9 +80,9 @@ const savedEvent: EventResponse = {
   title: '민지 · 만남',
   memo: null,
   occurredDate: '2026-07-12',
-  occurredTime: null,
-  category: null,
-  weather: null,
+  occurredTime: undefined,
+  category: undefined,
+  weather: undefined,
   emotions: [],
   persons: [{ id: 1, name: '민지' }],
   photoUrls: [],
@@ -112,16 +111,21 @@ function renderActivity() {
 describe('RecordActivity', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    api.fetchPersons.mockResolvedValue([person])
-    api.fetchChips.mockResolvedValue(chips)
+    api.getPersons.mockResolvedValue([person])
+    api.getChips.mockImplementation(({ type }: GetChipsParams) =>
+      Promise.resolve(chips.filter((chip) => chip.type === type)),
+    )
   })
 
   it('칩 응답을 받기 전에는 기록 저장 화면을 열지 않는다', async () => {
-    let resolveChips: (chips: ChipResponse[]) => void = () => undefined
-    api.fetchChips.mockReturnValue(
-      new Promise<ChipResponse[]>((resolve) => {
-        resolveChips = resolve
-      }),
+    const resolveChips: Array<() => void> = []
+    api.getChips.mockImplementation(
+      ({ type }: GetChipsParams) =>
+        new Promise<ChipResponse[]>((resolve) => {
+          resolveChips.push(() =>
+            resolve(chips.filter((chip) => chip.type === type)),
+          )
+        }),
     )
 
     renderActivity()
@@ -129,16 +133,15 @@ describe('RecordActivity', () => {
     expect(screen.getByText('불러오는 중…')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '저장' })).toBeNull()
 
-    resolveChips(chips)
+    await waitFor(() => expect(resolveChips).toHaveLength(4))
+    resolveChips.forEach((resolve) => resolve())
 
     expect(await screen.findByRole('button', { name: '저장' })).toBeEnabled()
   })
 
   it('칩 조회 실패를 오류 상태로 보여주고 다시 요청한다', async () => {
     const user = userEvent.setup()
-    api.fetchChips
-      .mockRejectedValueOnce(new Error('chip request failed'))
-      .mockResolvedValueOnce(chips)
+    api.getChips.mockRejectedValueOnce(new Error('chip request failed'))
 
     renderActivity()
 
@@ -149,7 +152,7 @@ describe('RecordActivity', () => {
     await user.click(screen.getByRole('button', { name: '다시 시도' }))
 
     expect(await screen.findByRole('button', { name: '저장' })).toBeEnabled()
-    expect(api.fetchChips).toHaveBeenCalledTimes(2)
+    expect(api.getChips).toHaveBeenCalledTimes(8)
   })
 
   it('저장 실패 시 입력 화면을 유지하고 오류를 보여준다', async () => {

@@ -2,6 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { ChevronRight } from 'lucide-react'
 import { useState } from 'react'
+import type { EventResponse } from '@/apis/generated/mongle-api.schemas'
+import { personMutation } from '@/apis/mutations'
+import { eventQuery, homeQuery, personQuery } from '@/apis/queries'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import {
@@ -10,9 +13,6 @@ import {
   ListGroupLabel,
 } from '@/components/ui/list-group'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
-import { fetchPersonTimeline } from '@/lib/api/events'
-import { deletePerson, fetchPerson } from '@/lib/api/persons'
-import type { EventResponse } from '@/lib/api/types'
 import { optimizedImageUrl } from '@/lib/image-url'
 import {
   formatAbsoluteDate,
@@ -20,7 +20,6 @@ import {
   formatDaysSinceFirstMet,
   formatPersonName,
 } from '@/lib/format'
-import { queryKeys } from '@/lib/query-keys'
 import type { PersonView } from '@/stackflow/stackflow.config'
 
 export function PersonProfileView({
@@ -35,33 +34,25 @@ export function PersonProfileView({
   const queryClient = useQueryClient()
   const [deleteOpen, setDeleteOpen] = useState(false)
 
-  const personQuery = useQuery({
-    queryKey: queryKeys.person(id),
-    queryFn: () => fetchPerson(id),
-    enabled: Number.isFinite(id),
-  })
+  const personDetailQuery = useQuery(personQuery.byId(id))
 
-  const recentQuery = useQuery({
-    queryKey: queryKeys.personTimeline(id),
-    queryFn: () => fetchPersonTimeline(id),
-    enabled: Number.isFinite(id),
-  })
+  const recentQuery = useQuery(eventQuery.byPerson(id))
 
-  const person = personQuery.data
+  const person = personDetailQuery.data
   const recentEvents = (recentQuery.data ?? []).slice(0, 3)
   const deleteMutation = useMutation({
-    mutationFn: () => deletePerson(id),
+    ...personMutation.remove(),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['persons'] })
-      await queryClient.invalidateQueries({ queryKey: ['home'] })
+      await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
+      await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
       pop()
     },
   })
 
-  if (!Number.isFinite(id) || personQuery.isPending) {
+  if (!Number.isFinite(id) || personDetailQuery.isPending) {
     return (
       <p className="py-20 text-center text-sm text-muted-foreground">
-        {personQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
+        {personDetailQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
       </p>
     )
   }
@@ -74,7 +65,7 @@ export function PersonProfileView({
     )
   }
 
-  const birthdayLabel = formatBirthday(person.birthday)
+  const birthdayLabel = formatBirthday(person.birthday ?? null)
   const displayName = formatPersonName(person)
   const infoRows = [
     birthdayLabel ? { label: '생일', value: birthdayLabel } : null,
@@ -281,10 +272,15 @@ export function PersonProfileView({
         onOpenChange={setDeleteOpen}
         title="인물을 삭제할까요?"
         description="삭제하면 되돌릴 수 없어요. 함께 새긴 기록도 모두 사라져요."
+        error={
+          deleteMutation.isError
+            ? '인물을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.'
+            : undefined
+        }
         confirmLabel="삭제"
         destructive
         pending={deleteMutation.isPending}
-        onConfirm={() => deleteMutation.mutate()}
+        onConfirm={() => deleteMutation.mutate(id)}
       />
     </>
   )

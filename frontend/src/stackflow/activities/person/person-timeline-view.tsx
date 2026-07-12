@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { useMemo, useRef, useState } from 'react'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
@@ -15,11 +15,8 @@ import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { ListGroup, ListGroupItem } from '@/components/ui/list-group'
-import { fetchChips } from '@/lib/api/chips'
-import { fetchPersonTimeline } from '@/lib/api/events'
-import { fetchPerson } from '@/lib/api/persons'
+import { chipQuery, eventQuery, personQuery } from '@/apis/queries'
 import { formatPersonName } from '@/lib/format'
-import { queryKeys } from '@/lib/query-keys'
 import { matchesActivityFlowSelection } from '@/lib/timeline-activity-flow'
 import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
 
@@ -31,34 +28,18 @@ export function PersonTimelineView({ personId }: { personId: string }) {
   const [flowSelection, setFlowSelection] =
     useState<ActivityFlowSelection | null>(null)
 
-  const personQuery = useQuery({
-    queryKey: queryKeys.person(id),
-    queryFn: () => fetchPerson(id),
-    enabled: Number.isFinite(id),
-  })
+  const personDetailQuery = useQuery(personQuery.byId(id))
 
   // 필터 토글마다 queryKey가 바뀌는데, 이전 데이터를 유지하지 않으면
   // 새 키의 isPending 동안 화면 전체가 로딩 상태로 교체되어 깜빡인다.
-  const timelineQuery = useQuery({
-    queryKey: queryKeys.personTimeline(id, categoryFilter),
-    queryFn: () => fetchPersonTimeline(id, categoryFilter),
-    enabled: Number.isFinite(id),
-    placeholderData: keepPreviousData,
-  })
+  const timelineQuery = useQuery(eventQuery.byPerson(id, categoryFilter))
 
   // 활동 흐름은 카테고리 필터와 무관한 전체 기록 날짜로 그린다.
-  const allTimelineQuery = useQuery({
-    queryKey: queryKeys.personTimeline(id, []),
-    queryFn: () => fetchPersonTimeline(id),
-    enabled: Number.isFinite(id),
-  })
+  const allTimelineQuery = useQuery(eventQuery.byPerson(id))
 
-  const chipsQuery = useQuery({
-    queryKey: queryKeys.chips,
-    queryFn: () => fetchChips(),
-  })
+  const chipsQuery = useQuery(chipQuery.all())
 
-  const person = personQuery.data
+  const person = personDetailQuery.data
   const categoryChips =
     chipsQuery.data?.filter((c) => c.type === 'CATEGORY') ?? []
 
@@ -115,7 +96,7 @@ export function PersonTimelineView({ personId }: { personId: string }) {
     )
   }
 
-  if (personQuery.isPending || timelineQuery.isPending) {
+  if (personDetailQuery.isPending || timelineQuery.isPending) {
     return (
       <TimelineScrollShell scrollRef={scrollRef}>
         <p className="py-12 text-center text-sm text-muted-foreground">

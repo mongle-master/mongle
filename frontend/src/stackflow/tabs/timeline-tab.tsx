@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { useMemo, useRef, useState } from 'react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
@@ -11,10 +11,7 @@ import {
 import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell'
 import { Button } from '@/components/ui/button'
-import { fetchChips } from '@/lib/api/chips'
-import { fetchMyTimeline } from '@/lib/api/timeline'
-import { fetchPersons } from '@/lib/api/persons'
-import { queryKeys } from '@/lib/query-keys'
+import { chipQuery, personQuery, timelineQuery } from '@/apis/queries'
 import {
   flattenTimelineCards,
   flowRecordsFromTimelineCards,
@@ -32,32 +29,17 @@ export function TimelineTab() {
     useState<ActivityFlowSelection | null>(null)
 
   // 활동 흐름은 필터 없는 전체 `/api/v1/timeline` 응답에서 파생한다.
-  const allTimelineQuery = useQuery({
-    queryKey: queryKeys.myTimeline([], []),
-    queryFn: () => fetchMyTimeline(),
-  })
+  const allTimelineQuery = useQuery(timelineQuery.list())
 
   // 필터 토글마다 queryKey가 바뀌는데, 이전 데이터를 유지하지 않으면
   // 새 키의 isPending 동안 피드 전체가 로딩 문구로 교체되어 화면이 깜빡인다.
-  const timelineQuery = useQuery({
-    queryKey: queryKeys.myTimeline(categoryFilter, personFilter),
-    queryFn: () =>
-      fetchMyTimeline({
-        categoryChipIds: categoryFilter,
-        personIds: personFilter,
-      }),
-    placeholderData: keepPreviousData,
-  })
+  const filteredTimelineQuery = useQuery(
+    timelineQuery.list(categoryFilter, personFilter),
+  )
 
-  const chipsQuery = useQuery({
-    queryKey: queryKeys.chips,
-    queryFn: () => fetchChips(),
-  })
+  const chipsQuery = useQuery(chipQuery.all())
 
-  const personsQuery = useQuery({
-    queryKey: queryKeys.persons(),
-    queryFn: () => fetchPersons(),
-  })
+  const personsQuery = useQuery(personQuery.all())
 
   const categoryChips =
     chipsQuery.data?.filter((c) => c.type === 'CATEGORY') ?? []
@@ -73,7 +55,7 @@ export function TimelineTab() {
   )
 
   const cards = useMemo(() => {
-    const list = flattenTimelineCards(timelineQuery.data?.groups ?? [])
+    const list = flattenTimelineCards(filteredTimelineQuery.data?.groups ?? [])
     if (!flowSelection) return list
     return list.filter((card) =>
       matchesActivityFlowSelection(
@@ -82,7 +64,7 @@ export function TimelineTab() {
         flowSelection,
       ),
     )
-  }, [flowSelection, timelineQuery.data])
+  }, [filteredTimelineQuery.data, flowSelection])
 
   const toggleCategory = (chipId: number) => {
     setCategoryFilter((prev) =>
@@ -157,11 +139,11 @@ export function TimelineTab() {
           </div>
         </div>
 
-        {timelineQuery.isPending ? (
+        {filteredTimelineQuery.isPending ? (
           <p className="py-12 text-center text-sm text-muted-foreground">
             타임라인을 불러오는 중…
           </p>
-        ) : timelineQuery.isError ? (
+        ) : filteredTimelineQuery.isError ? (
           <p className="py-12 text-center text-sm text-destructive">
             타임라인을 불러오지 못했어요.
           </p>

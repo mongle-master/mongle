@@ -36,6 +36,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate API
+        run: pnpm run generate-api
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+
       - name: Lint
         run: pnpm run lint
 

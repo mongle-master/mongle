@@ -2,14 +2,12 @@ import { useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { ChevronLeft } from 'lucide-react'
 import type { ActivityComponentType } from '@stackflow/react'
+import { eventQuery, personQuery } from '@/apis/queries'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
-import { fetchEvent } from '@/lib/api/events'
-import { fetchPersons } from '@/lib/api/persons'
 import { EventPhotoGallery } from '@/components/events/event-photo-gallery'
 import { formatWhen } from '@/lib/format'
-import { queryKeys } from '@/lib/query-keys'
 
 // 어디서 push되든 뒤로가기 = pop 하나로 끝난다.
 // (구 라우트의 returnTo/returnPersonId 복귀 경로 시뮬레이션을 대체)
@@ -20,16 +18,9 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
   const id = Number(eventId)
   const { push, pop } = useFlow()
 
-  const eventQuery = useQuery({
-    queryKey: queryKeys.event(id),
-    queryFn: () => fetchEvent(id),
-    enabled: Number.isFinite(id),
-  })
+  const eventDetailQuery = useQuery(eventQuery.byId(id, Number.isFinite(id)))
 
-  const personsQuery = useQuery({
-    queryKey: queryKeys.persons(),
-    queryFn: () => fetchPersons(),
-  })
+  const personsQuery = useQuery(personQuery.all())
 
   const personById = new Map(
     (personsQuery.data ?? []).map((person) => [person.id, person]),
@@ -45,7 +36,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
     )
   }
 
-  if (eventQuery.isPending) {
+  if (eventDetailQuery.isPending) {
     return (
       <ActivityShell>
         <p className="py-20 text-center text-sm text-muted-foreground">
@@ -55,7 +46,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
     )
   }
 
-  const event = eventQuery.data
+  const event = eventDetailQuery.data
   if (!event) {
     return (
       <ActivityShell>

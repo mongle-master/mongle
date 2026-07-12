@@ -2,21 +2,19 @@ import { useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { Clock3, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { homeQuery } from '@/apis/queries'
 import { cn } from '@/lib/utils'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { RelationForceMap } from '@/components/home/relation-force-map'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { TabShell } from '@/stackflow/components/tab-shell'
 import { Card } from '@/components/ui/card'
-import { fetchRelationMap, fetchThrowback } from '@/lib/api/home'
-import type { RelationMapResponse } from '@/lib/api/types'
 import {
   getDefaultHomePeriod,
   isPersonInHomePeriod,
   subscribeDefaultHomePeriod,
 } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
-import { queryKeys } from '@/lib/query-keys'
 
 export function HomeTab() {
   const { push } = useFlow()
@@ -27,15 +25,9 @@ export function HomeTab() {
   const [throwbackDismissed, setThrowbackDismissed] = useState(false)
   const [throwbackExiting, setThrowbackExiting] = useState(false)
 
-  const mapQuery = useQuery({
-    queryKey: queryKeys.relationMap([]),
-    queryFn: (): Promise<RelationMapResponse> => fetchRelationMap(),
-  })
+  const mapQuery = useQuery(homeQuery.relationMap())
 
-  const throwbackQuery = useQuery({
-    queryKey: queryKeys.throwback,
-    queryFn: fetchThrowback,
-  })
+  const throwbackQuery = useQuery(homeQuery.throwback())
 
   const throwback = throwbackQuery.data
   const mapData = mapQuery.data

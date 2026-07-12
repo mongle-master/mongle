@@ -44,7 +44,7 @@ data class TimelinePerson(
     val id: Long,
     @field:Schema(description = "인물 이름.", example = "김하늘")
     val name: String,
-    @field:Schema(description = "프로필 이미지 URL(없을 수 있음).", example = "/images/p7.jpg")
+    @field:Schema(description = "프로필 이미지 URL(없을 수 있음).", example = "/images/p7.jpg", nullable = true)
     val profileImageUrl: String?,
     @field:Schema(description = "즐겨찾기 여부.", example = "true")
     val favorite: Boolean,
@@ -60,15 +60,15 @@ data class TimelineCard(
     val id: Long,
     @field:Schema(description = "표시용 최종 제목(자동 제목 포함).", example = "김하늘 · 만남")
     val title: String,
-    @field:Schema(description = "메모(함께한 이야기).", example = "오랜만에 얼굴 보고 한강에서 두 시간 걸었다")
+    @field:Schema(description = "메모(함께한 이야기).", example = "오랜만에 얼굴 보고 한강에서 두 시간 걸었다", nullable = true)
     val memo: String?,
     @field:Schema(description = "일어난 날짜.", example = "2026-07-05")
     val occurredDate: LocalDate,
-    @field:Schema(description = "일어난 시각(없을 수 있음).", example = "19:30:00")
+    @field:Schema(description = "일어난 시각(없을 수 있음).", example = "19:30:00", nullable = true)
     val occurredTime: LocalTime?,
-    @field:Schema(description = "카테고리 칩 요약 참조.")
+    @field:Schema(description = "카테고리 칩 요약 참조.", nullable = true)
     val category: ChipRef?,
-    @field:Schema(description = "날씨 칩 요약 참조(없을 수 있음).")
+    @field:Schema(description = "날씨 칩 요약 참조(없을 수 있음).", nullable = true)
     val weather: ChipRef?,
     @field:Schema(description = "감정 칩 요약 참조 목록.")
     val emotions: List<ChipRef>,

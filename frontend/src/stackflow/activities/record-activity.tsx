@@ -4,19 +4,26 @@ import type { ActivityComponentType } from '@stackflow/react'
 import { useFunnel } from '@use-funnel/browser'
 import { Check, ChevronLeft, ImagePlus, Plus, Save, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type {
+  EventRequest,
+  PersonResponse,
+} from '@/apis/generated/mongle-api.schemas'
+import { eventMutation } from '@/apis/mutations'
+import {
+  chipQuery,
+  eventQuery,
+  homeQuery,
+  personQuery,
+  timelineQuery,
+} from '@/apis/queries'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { DateStrip, TimeWheel } from '@/components/record/date-time-wheel'
 import { AppScreen } from '@/stackflow/components/app-screen'
-import { fetchChips } from '@/lib/api/chips'
-import { createEvent, fetchEvent, updateEvent } from '@/lib/api/events'
 import { uploadImage } from '@/lib/api/images'
-import { fetchPersons } from '@/lib/api/persons'
-import type { EventRequest, PersonResponse } from '@/lib/api/types'
 import { todayLocalIso } from '@/lib/format'
 import { optimizedImageUrl } from '@/lib/image-url'
-import { queryKeys } from '@/lib/query-keys'
 import {
   formatOccurredTimeForApi,
   formatOccurredTimeForInput,
@@ -133,19 +140,11 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const [formError, setFormError] = useState<string | null>(null)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
-  const chipsQuery = useQuery({
-    queryKey: queryKeys.chips,
-    queryFn: () => fetchChips(),
-  })
-  const personsQuery = useQuery({
-    queryKey: queryKeys.persons(),
-    queryFn: (): Promise<PersonResponse[]> => fetchPersons(),
-  })
-  const eventQuery = useQuery({
-    queryKey: queryKeys.event(editingEventId ?? 0),
-    queryFn: () => fetchEvent(editingEventId!),
-    enabled: isEditing,
-  })
+  const chipsQuery = useQuery(chipQuery.all())
+  const personsQuery = useQuery(personQuery.all())
+  const editedEventQuery = useQuery(
+    eventQuery.byId(editingEventId ?? 0, isEditing),
+  )
 
   const persons = personsQuery.data ?? []
   const chips = chipsQuery.data ?? []
@@ -163,15 +162,15 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     return selectedPersonIds.map((id) => {
       const fromDirectory = persons.find((p) => p.id === id)
       if (fromDirectory) return fromDirectory
-      const fromEvent = eventQuery.data?.persons.find((p) => p.id === id)
-      if (fromEvent) return { ...fromEvent, profileImageUrl: null }
+      const fromEvent = editedEventQuery.data?.persons.find((p) => p.id === id)
+      if (fromEvent) return { ...fromEvent, profileImageUrl: undefined }
       return {
         id,
         name: `#${id}`,
-        profileImageUrl: null,
+        profileImageUrl: undefined,
       } satisfies Pick<PersonResponse, 'id' | 'name' | 'profileImageUrl'>
     })
-  }, [eventQuery.data?.persons, persons, selectedPersonIds])
+  }, [editedEventQuery.data?.persons, persons, selectedPersonIds])
 
   const primaryPerson = selectedPersons.at(0)
   let personLabel = ''
@@ -199,9 +198,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   }, [selectedPersons, categoryLabel])
 
   useEffect(() => {
-    if (!isEditing || !eventQuery.data) return
+    if (!isEditing || !editedEventQuery.data) return
     if (hydratedEventId.current === editingEventId) return
-    const event = eventQuery.data
+    const event = editedEventQuery.data
     hydratedEventId.current = editingEventId
     setSelectedPersonIds(event.persons.map((p) => p.id))
     setWhat(event.memo ?? '')
@@ -211,7 +210,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     setEmotionChipIds(event.emotions.map((e) => e.id))
     setWeatherChipId(event.weather?.id ?? null)
     setPhotoUrls(event.photoUrls)
-  }, [editingEventId, eventQuery.data, isEditing])
+  }, [editedEventQuery.data, editingEventId, isEditing])
 
   const navigateAfterSave = (personId?: number) => {
     if (isEditing) {
@@ -226,19 +225,17 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   }
 
   const saveMutation = useMutation({
-    mutationFn: (body: EventRequest) =>
-      isEditing ? updateEvent(editingEventId, body) : createEvent(body),
+    ...(isEditing
+      ? eventMutation.update(editingEventId)
+      : eventMutation.register()),
     onSuccess: async (event) => {
-      await queryClient.invalidateQueries({ queryKey: ['home'] })
-      await queryClient.invalidateQueries({ queryKey: ['persons'] })
-      // 인물 타임라인 상단 요약(함께한 기록·마지막 만남)은 ['person', id]의
-      // stats에서 나온다. 목록(person-timeline)만 무효화하면 요약이 stale.
-      await queryClient.invalidateQueries({ queryKey: ['person'] })
-      await queryClient.invalidateQueries({ queryKey: ['my-timeline'] })
-      await queryClient.invalidateQueries({ queryKey: ['person-timeline'] })
+      await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
+      await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
+      await queryClient.invalidateQueries({ queryKey: timelineQuery.allKey })
+      await queryClient.invalidateQueries({ queryKey: eventQuery.allKey })
       if (isEditing) {
         await queryClient.invalidateQueries({
-          queryKey: queryKeys.event(editingEventId),
+          queryKey: eventQuery.byId(editingEventId).queryKey,
         })
       }
       navigateAfterSave(event.persons[0]?.id)
@@ -251,12 +248,12 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   })
 
   const buildPayload = (): EventRequest => ({
-    title: derivedTitle || fallbackTitle || null,
-    memo: what.trim() || null,
+    title: derivedTitle || fallbackTitle || undefined,
+    memo: what.trim() || undefined,
     occurredDate,
-    occurredTime: formatOccurredTimeForApi(occurredTime),
-    categoryChipId: categoryChipId ?? categoryChips.at(0)?.id ?? null,
-    weatherChipId,
+    occurredTime: formatOccurredTimeForApi(occurredTime) ?? undefined,
+    categoryChipId: categoryChipId ?? categoryChips.at(0)?.id,
+    weatherChipId: weatherChipId ?? undefined,
     emotionChipIds,
     personIds: selectedPersonIds,
     photoUrls,
@@ -336,7 +333,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const isLoading =
     chipsQuery.isPending ||
     personsQuery.isPending ||
-    (isEditing && eventQuery.isPending)
+    (isEditing && editedEventQuery.isPending)
 
   // 퍼널 본문 마운트가 무거워 enter 전환 중에는 로딩 셸만 둔다 (use-enter-done.ts)
   if (isLoading || !enterDone) {
@@ -388,7 +385,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     )
   }
 
-  if (isEditing && !eventQuery.data) {
+  if (isEditing && !editedEventQuery.data) {
     return (
       <BareShell slideIn={slideIn}>
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">

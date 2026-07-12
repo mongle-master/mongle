@@ -83,7 +83,11 @@ export function formatAbsoluteDate(iso: string) {
 }
 
 export function formatBirthday(
-  birthday: { year?: number; month?: number; day?: number } | null,
+  birthday: {
+    year?: number | null
+    month?: number | null
+    day?: number | null
+  } | null,
 ) {
   if (!birthday?.month || !birthday.day) return null
   const label = birthday.year
@@ -92,7 +96,7 @@ export function formatBirthday(
   const daysUntil = daysUntilNextBirthday({
     month: birthday.month,
     day: birthday.day,
-    year: birthday.year,
+    year: birthday.year ?? undefined,
   })
   return `${label} · D-${daysUntil}`
 }

@@ -26,9 +26,9 @@ data class MeNode(
     val id: UUID,
     @field:Schema(description = "사용자 표시 이름.", example = "성빈")
     val name: String,
-    @field:Schema(description = "사용자 프로필 이미지 URL(없을 수 있음).", example = "/images/me.jpg")
+    @field:Schema(description = "사용자 프로필 이미지 URL(없을 수 있음).", example = "/images/me.jpg", nullable = true)
     val profileImageUrl: String?,
-    @field:Schema(description = "기본 아바타 성별 힌트.", example = "MALE")
+    @field:Schema(description = "기본 아바타 성별 힌트.", example = "MALE", nullable = true)
     val avatarGender: AvatarGender?,
 )
 
@@ -39,9 +39,9 @@ data class PersonNode(
     val id: Long,
     @field:Schema(description = "인물 이름.", example = "김하늘")
     val name: String,
-    @field:Schema(description = "프로필 이미지 URL(없을 수 있음).", example = "/images/p7.jpg")
+    @field:Schema(description = "프로필 이미지 URL(없을 수 있음).", example = "/images/p7.jpg", nullable = true)
     val profileImageUrl: String?,
-    @field:Schema(description = "기본 아바타 성별 힌트. 프로필 이미지가 없을 때 클라이언트가 기본 이미지 선택에 사용한다.", example = "FEMALE")
+    @field:Schema(description = "기본 아바타 성별 힌트. 프로필 이미지가 없을 때 클라이언트가 기본 이미지 선택에 사용한다.", example = "FEMALE", nullable = true)
     val avatarGender: AvatarGender?,
     @field:Schema(description = "즐겨찾기 여부.", example = "true")
     val favorite: Boolean,
@@ -51,7 +51,7 @@ data class PersonNode(
     val relationTags: List<ChipRef>,
     @field:Schema(description = "친밀도 판정 결과.")
     val intimacy: Intimacy,
-    @field:Schema(description = "처음 만난 날(없을 수 있음).", example = "2023-07-07")
+    @field:Schema(description = "처음 만난 날(없을 수 있음).", example = "2023-07-07", nullable = true)
     val firstMetDate: LocalDate?,
 )
 
@@ -83,9 +83,9 @@ enum class IntimacyStatus {
 data class Intimacy(
     @field:Schema(description = "친밀도 판정 상태.", example = "NORMAL")
     val status: IntimacyStatus,
-    @field:Schema(description = "만남 간 평균 주기(일). 근거가 부족하면 null.", example = "14")
+    @field:Schema(description = "만남 간 평균 주기(일). 근거가 부족하면 null.", example = "14", nullable = true)
     val averageIntervalDays: Int?,
-    @field:Schema(description = "마지막 만남 이후 경과일. 근거가 부족하면 null.", example = "9")
+    @field:Schema(description = "마지막 만남 이후 경과일. 근거가 부족하면 null.", example = "9", nullable = true)
     val daysSinceLastMeet: Int?,
 )
 
@@ -102,10 +102,10 @@ data class ThrowbackResponse(
     val personId: Long,
     @field:Schema(description = "대표 인물 이름.", example = "김하늘")
     val personName: String,
-    @field:Schema(description = "사용자가 입력한 제목만(자동 제목은 쓰지 않음). 없으면 null 이라 프론트가 폴백 문구를 넣는다.", example = "한강 산책")
+    @field:Schema(description = "사용자가 입력한 제목만(자동 제목은 쓰지 않음). 없으면 null 이라 프론트가 폴백 문구를 넣는다.", example = "한강 산책", nullable = true)
     val title: String?,
     @field:Schema(description = "1년 전 그날의 날짜.", example = "2025-07-06")
     val occurredDate: LocalDate,
-    @field:Schema(description = "대표 사진 URL(없을 수 있음).", example = "/images/a1b2.jpg")
+    @field:Schema(description = "대표 사진 URL(없을 수 있음).", example = "/images/a1b2.jpg", nullable = true)
     val photoUrl: String?,
 )

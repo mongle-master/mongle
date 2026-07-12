@@ -13,7 +13,7 @@ data class ChipRef(
     val id: Long,
     @field:Schema(description = "칩 라벨.", example = "만남")
     val label: String,
-    @field:Schema(description = "칩 표시 색상(hex).", example = "#0EA5E9")
+    @field:Schema(description = "칩 표시 색상(hex).", example = "#0EA5E9", nullable = true)
     val color: String? = null,
 )
 
