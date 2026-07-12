@@ -72,10 +72,13 @@ pnpm build
 
 ## API 생성
 
-백엔드 OpenAPI 문서를 기준으로 API 함수와 모델을 생성한다. 기존
-`VITE_API_URL`의 host에 `/v3/api-docs`를 붙여 사용한다. 환경변수가 없으면
-`http://localhost:8080/api`를 기준으로 하므로 로컬 backend를 `bootRun`으로 실행한
-뒤 생성한다.
+백엔드 OpenAPI 문서를 기준으로 API 함수와 모델을 생성한다. 로컬 `.env`의 기존
+`VITE_API_URL` host에 `/v3/api-docs`를 붙여 사용하므로 로컬 backend 주소를 먼저
+설정한다.
+
+```bash
+VITE_API_URL=http://localhost:8080/api
+```
 
 ```bash
 pnpm generate-api
