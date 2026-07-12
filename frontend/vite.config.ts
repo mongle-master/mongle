@@ -1,12 +1,8 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from 'vite'
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import svgr from 'vite-plugin-svgr'
 import { codeInspectorPlugin } from 'code-inspector-plugin'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
-import { playwright } from '@vitest/browser-playwright'
 
 // dev 프록시가 붙을 백엔드. 기본은 로컬 Docker 백엔드이고,
 // 다른 서버로 붙을 때만 BACKEND_URL을 지정한다.
@@ -14,12 +10,6 @@ import { playwright } from '@vitest/browser-playwright'
 const backendTarget = process.env.BACKEND_URL ?? 'http://localhost:18080'
 const devPort = Number(process.env.PORT ?? 3000)
 
-const dirname =
-  typeof __dirname !== 'undefined'
-    ? __dirname
-    : path.dirname(fileURLToPath(import.meta.url))
-
-// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 const config = defineConfig({
   resolve: {
     tsconfigPaths: true,
@@ -41,40 +31,5 @@ const config = defineConfig({
     svgr(),
     viteReact(),
   ],
-  test: {
-    projects: [
-      {
-        extends: true,
-        test: {
-          globals: true,
-          environment: 'jsdom',
-          setupFiles: ['./src/test-setup.ts'],
-        },
-      },
-      {
-        extends: true,
-        plugins: [
-          // The plugin will run tests for the stories defined in your Storybook config
-          // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
-          storybookTest({
-            configDir: path.join(dirname, '.storybook'),
-          }),
-        ],
-        test: {
-          name: 'storybook',
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: playwright({}),
-            instances: [
-              {
-                browser: 'chromium',
-              },
-            ],
-          },
-        },
-      },
-    ],
-  },
 })
 export default config
