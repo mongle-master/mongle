@@ -134,7 +134,6 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [formError, setFormError] = useState<string | null>(null)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
-  const [savedLocally, setSavedLocally] = useState(false)
 
   const chipsQuery = useQuery({
     queryKey: queryKeys.chips,
@@ -247,8 +246,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
       navigateAfterSave(event.persons[0]?.id)
     },
     onError: () => {
-      setSavedLocally(true)
-      navigateAfterSave(selectedPersonIds[0])
+      setFormError(
+        '기록을 저장하지 못했어요. 입력한 내용은 그대로 두었어요. 잠시 후 다시 시도해 주세요.',
+      )
     },
   })
 
@@ -276,7 +276,6 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
       setFormError(validationError)
       return
     }
-    setSavedLocally(false)
     setFormError(null)
     saveMutation.mutate(buildPayload())
   }
@@ -337,7 +336,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   }, [funnel, isEditing, presetPersonId, selectedPersonIds.length])
 
   const isLoading =
-    personsQuery.isPending || (isEditing && eventQuery.isPending)
+    chipsQuery.isPending ||
+    personsQuery.isPending ||
+    (isEditing && eventQuery.isPending)
 
   // 퍼널 본문 마운트가 무거워 enter 전환 중에는 로딩 셸만 둔다 (use-enter-done.ts)
   if (isLoading || !enterDone) {
@@ -346,6 +347,25 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
         <p className="px-5 py-20 text-center text-sm text-muted-foreground">
           불러오는 중…
         </p>
+      </BareShell>
+    )
+  }
+
+  if (chipsQuery.isError) {
+    return (
+      <BareShell slideIn={slideIn}>
+        <div className="flex flex-1 flex-col items-center justify-center px-5 text-center">
+          <p className="text-sm text-destructive">
+            기록 선택지를 불러오지 못했어요.
+          </p>
+          <button
+            type="button"
+            onClick={() => void chipsQuery.refetch()}
+            className="mt-5 rounded-full border border-foreground bg-card px-4 py-2.5 text-sm font-extrabold"
+          >
+            다시 시도
+          </button>
+        </div>
       </BareShell>
     )
   }
@@ -392,6 +412,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
         <StepFrame
           slideIn={slideIn}
           onBack={() => pop()}
+          errorMessage={formError}
           footer={
             <NextBar
               onNext={() => history.push('emotion', {})}
@@ -447,6 +468,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
           onBack={() => (startStep === 'person' ? history.back() : pop())}
           onDone={handleSave}
           doneSaving={saving}
+          errorMessage={formError}
           footer={<NextBar onNext={() => history.push('what', {})} />}
         >
           <div className="flex justify-center">
@@ -503,6 +525,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
           onBack={() => history.back()}
           onDone={handleSave}
           doneSaving={saving}
+          errorMessage={formError}
           footer={<NextBar onNext={() => history.push('detail', {})} />}
         >
           {/* 사진 추가를 편지지보다 위에 둔다. */}
@@ -588,6 +611,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
           onBack={() => history.back()}
           onDone={handleSave}
           doneSaving={saving}
+          errorMessage={formError}
         >
           <div className="flex flex-col gap-7">
             <Field label="종류">
@@ -615,17 +639,6 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                 <TimeWheel value={occurredTime} onChange={setOccurredTime} />
               </div>
             </Field>
-
-            {formError ? (
-              <p className="text-center text-sm text-destructive">
-                {formError}
-              </p>
-            ) : null}
-            {savedLocally ? (
-              <p className="text-center text-sm text-muted-foreground">
-                서버에 저장하지 못했지만 기록 화면은 열어둘게요.
-              </p>
-            ) : null}
           </div>
         </StepFrame>
       )}
@@ -672,6 +685,7 @@ function StepFrame({
   onBack,
   onDone,
   doneSaving,
+  errorMessage,
   footer,
   children,
 }: {
@@ -680,6 +694,7 @@ function StepFrame({
   onBack: () => void
   onDone?: () => void
   doneSaving?: boolean
+  errorMessage?: string | null
   footer?: React.ReactNode
   children: React.ReactNode
 }) {
@@ -709,7 +724,14 @@ function StepFrame({
           <span className="size-9" />
         )}
       </header>
-      <main className="flex flex-1 flex-col px-5 pt-4 pb-6">{children}</main>
+      <main className="flex flex-1 flex-col px-5 pt-4 pb-6">
+        {errorMessage ? (
+          <p className="mb-4 text-center text-sm text-destructive" role="alert">
+            {errorMessage}
+          </p>
+        ) : null}
+        {children}
+      </main>
       {footer}
     </RecordScreen>
   )
