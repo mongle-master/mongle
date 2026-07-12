@@ -14,6 +14,7 @@ import { createEvent, fetchEvent, updateEvent } from '@/lib/api/events'
 import { uploadImage } from '@/lib/api/images'
 import { fetchPersons } from '@/lib/api/persons'
 import type { EventRequest, PersonResponse } from '@/lib/api/types'
+import { todayLocalIso } from '@/lib/format'
 import { optimizedImageUrl } from '@/lib/image-url'
 import { queryKeys } from '@/lib/query-keys'
 import {
@@ -88,9 +89,6 @@ const letterPaperStyle: React.CSSProperties = {
 }
 
 const pad = (n: number) => String(n).padStart(2, '0')
-function todayStr() {
-  return new Date().toISOString().slice(0, 10)
-}
 function nowTimeStr() {
   const d = new Date()
   return `${pad(d.getHours())}:${pad(Math.floor(d.getMinutes() / 5) * 5)}`
@@ -129,7 +127,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   const [emotionChipIds, setEmotionChipIds] = useState<number[]>([])
   const [weatherChipId, setWeatherChipId] = useState<number | null>(null)
   const [what, setWhat] = useState('')
-  const [occurredDate, setOccurredDate] = useState(todayStr)
+  const [occurredDate, setOccurredDate] = useState(() => todayLocalIso())
   const [occurredTime, setOccurredTime] = useState(nowTimeStr)
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [formError, setFormError] = useState<string | null>(null)
