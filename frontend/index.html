@@ -16,7 +16,10 @@
     <meta name="theme-color" content="#ffffff" />
     <title>Mongle</title>
   </head>
-  <body>
+  <!-- data-amp-mask-attributes: Amplitude autocapture가 aria-label·alt·title 속성값을
+       수집하지 않게 전역 마스킹. #app이 아니라 body에 둬야 body로 포탈되는
+       Radix/vaul 오버레이도 커버된다. (마스킹 계약: src/lib/analytics.ts) -->
+  <body data-amp-mask-attributes="aria-label,alt,title">
     <div id="app"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

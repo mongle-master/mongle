@@ -211,17 +211,27 @@ function PersonListItem({
           className="size-11"
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-extrabold text-foreground">
+          {/* data-amp-mask: 이름·관계유형·관계태그는 사용자 생성 텍스트 (analytics.ts 계약) */}
+          <p
+            data-amp-mask
+            className="truncate text-[15px] font-extrabold text-foreground"
+          >
             {displayName}
           </p>
           <div className="mt-1 flex min-w-0 items-center gap-1.5">
             {person.relationType ? (
-              <span className="shrink-0 text-xs font-medium text-muted-foreground">
+              <span
+                data-amp-mask
+                className="shrink-0 text-xs font-medium text-muted-foreground"
+              >
                 {person.relationType}
               </span>
             ) : null}
             {person.relationTags.length > 0 ? (
-              <span className="flex min-w-0 gap-1 overflow-hidden">
+              <span
+                data-amp-mask
+                className="flex min-w-0 gap-1 overflow-hidden"
+              >
                 {person.relationTags.slice(0, 2).map((tag) => (
                   <span
                     key={tag.id}
@@ -295,7 +305,11 @@ function PeopleEmptyState({
           <p className="text-[15px] font-extrabold text-foreground">
             {trimmed ? '검색 결과가 없어요' : '아직 기록한 사람이 없어요'}
           </p>
-          <p className="mx-auto mt-2 max-w-[240px] text-sm font-medium text-muted-foreground">
+          {/* data-amp-mask: 검색어 에코는 사용자 입력 텍스트 (analytics.ts 계약) */}
+          <p
+            data-amp-mask={trimmed ? true : undefined}
+            className="mx-auto mt-2 max-w-[240px] text-sm font-medium text-muted-foreground"
+          >
             {trimmed
               ? `'${trimmed}'에 해당하는 사람을 찾지 못했어요.`
               : '첫 사람을 추가하고 관계를 남겨보세요.'}

@@ -103,8 +103,11 @@ export function ConfirmPopup({
           >
             {title}
           </h2>
+          {/* data-amp-mask: 호출부가 description에 사용자 생성 라벨을 끼워 넣는 경우가
+              있어(예: 태그 삭제 확인) 항상 마스킹한다 (analytics.ts 계약) */}
           <p
             id="confirm-popup-description"
+            data-amp-mask
             className="mt-2 whitespace-pre-line text-sm font-medium leading-relaxed text-muted-foreground"
           >
             {description}

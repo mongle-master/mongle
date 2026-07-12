@@ -214,6 +214,8 @@ export function PersonEditForm({
                       type="button"
                       aria-pressed={active}
                       onClick={() => toggleTag(tag.id)}
+                      // data-amp-mask: 관계태그 라벨은 personal 구분이 없는 축약 타입이라 항상 마스킹 (analytics.ts 계약)
+                      data-amp-mask
                       className={tagChipClass(active, {
                         activeClassName:
                           'border-foreground bg-foreground text-background',

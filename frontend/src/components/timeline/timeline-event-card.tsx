@@ -99,11 +99,16 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
       <Card className="relative overflow-hidden py-0 shadow-[0_10px_30px_rgba(0,0,0,0.045)] transition-all hover:-translate-y-0.5 hover:bg-muted/20 hover:shadow-[0_14px_36px_rgba(0,0,0,0.07)]">
         <CardContent className="p-4">
           <div className="flex items-start gap-2">
-            <h3 className="min-w-0 flex-1 text-[17px] leading-snug font-extrabold tracking-tight">
+            {/* data-amp-mask: 제목·메모·이름·칩 라벨은 사용자 생성 텍스트 (analytics.ts 계약) */}
+            <h3
+              data-amp-mask
+              className="min-w-0 flex-1 text-[17px] leading-snug font-extrabold tracking-tight"
+            >
               {item.title}
             </h3>
             {item.category ? (
               <Badge
+                data-amp-mask
                 variant="secondary"
                 className="h-7 shrink-0 rounded-full px-3 font-extrabold"
               >
@@ -122,20 +127,26 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
                     favorite={persons[0].favorite}
                     className="size-6"
                   />
-                  <span className="text-xs font-extrabold text-foreground">
+                  <span
+                    data-amp-mask
+                    className="text-xs font-extrabold text-foreground"
+                  >
                     {linkedPersonsLabel(persons)}
                   </span>
                 </div>
               ) : null}
               {memo ? (
-                <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
+                <p
+                  data-amp-mask
+                  className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground"
+                >
                   {memo}
                 </p>
               ) : null}
               {item.emotions && item.emotions.length > 0 ? (
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {item.emotions.map((emotion) => (
-                    <Badge key={emotion.id} variant="outline">
+                    <Badge key={emotion.id} data-amp-mask variant="outline">
                       {emotion.label}
                     </Badge>
                   ))}

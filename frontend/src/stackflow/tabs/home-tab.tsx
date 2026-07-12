@@ -116,7 +116,11 @@ export function HomeTab() {
                     {throwback.occurredDate}
                   </span>
                 </p>
-                <p className="mt-1 line-clamp-2 text-[13px] font-medium text-muted-foreground">
+                {/* data-amp-mask: 기록 제목·사람 이름은 사용자 생성 텍스트 (analytics.ts 계약) */}
+                <p
+                  data-amp-mask
+                  className="mt-1 line-clamp-2 text-[13px] font-medium text-muted-foreground"
+                >
                   {throwback.title ?? `작년 이맘때 ${throwback.personName}`}
                 </p>
               </button>
