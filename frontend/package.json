@@ -13,11 +13,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:storybook": "vitest run --config vitest.storybook.config.ts",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "format": "eslint --fix && prettier --write .",
     "check": "prettier --check .",
-    "ci": "pnpm run lint && pnpm run check && pnpm run typecheck && pnpm run build",
+    "ci": "pnpm run lint && pnpm run check && pnpm run typecheck && pnpm run test && pnpm run build",
     "prepare": "cd .. && husky frontend/.husky",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
