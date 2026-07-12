@@ -161,6 +161,10 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
     () => chips.filter((c) => c.type === 'EMOTION'),
     [chips],
   )
+  const weatherChips = useMemo(
+    () => chips.filter((c) => c.type === 'WEATHER'),
+    [chips],
+  )
 
   const selectedPersons = useMemo(() => {
     return selectedPersonIds.map((id) => {
@@ -598,6 +602,27 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                 className="flex flex-wrap justify-start gap-2.5"
               >
                 {categoryChips.map((chip) => (
+                  <ToggleGroupItem
+                    key={chip.id}
+                    value={String(chip.id)}
+                    className={neutralChipClass}
+                  >
+                    {chip.label}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </Field>
+
+            <Field label="날씨">
+              <ToggleGroup
+                type="single"
+                value={weatherChipId ? String(weatherChipId) : undefined}
+                onValueChange={(value) =>
+                  setWeatherChipId(value ? Number(value) : null)
+                }
+                className="flex flex-wrap justify-start gap-2.5"
+              >
+                {weatherChips.map((chip) => (
                   <ToggleGroupItem
                     key={chip.id}
                     value={String(chip.id)}
