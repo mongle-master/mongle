@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react'
 import Picker from 'react-mobile-picker'
 import type { PickerValue } from 'react-mobile-picker'
+import { todayLocalIso } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 // 네이티브 date/time 대신: 날짜는 가로 슬라이드 스트립, 시간은 휠 피커.
-// 모든 날짜 계산은 UTC 기준(occurredDate 기본값·검증과 동일 방식)으로 통일한다.
+// '오늘'은 로컬 달력일(todayLocalIso) 기준 — occurredDate 기본값·검증과 동일 방식.
+// 날짜 문자열 연산(isoBack·요일)은 타임존 영향이 없도록 UTC 고정으로 계산한다.
 
 const pad = (n: number) => String(n).padStart(2, '0')
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
@@ -24,7 +26,7 @@ export function DateStrip({
   onChange: (v: string) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayLocalIso()
   const days = Array.from({ length: 30 }, (_, k) => {
     const back = 29 - k
     const iso = isoBack(today, back)
