@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { Input } from '@/components/ui/input'
 import { ListGroupInset } from '@/components/ui/list-group'
-import type { ChipResponse, ChipResponseType } from '@/apis/generated/models'
+import type {
+  ChipResponse,
+  ChipResponseType,
+} from '@/apis/generated/mongle-api.schemas'
 import { chipMutation } from '@/apis/mutations'
 import {
   RELATION_TAG_COLOR_PALETTE,

@@ -33,8 +33,30 @@ jobs:
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Start backend
+        working-directory: backend
+        run: |
+          ./gradlew bootRun > /tmp/mongle-backend.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:8080/actuator/health > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/mongle-backend.log
+          exit 1
+
+      - name: Generate API
+        run: pnpm run generate-api
 
       - name: Lint
         run: pnpm run lint

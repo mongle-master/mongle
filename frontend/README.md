@@ -72,21 +72,15 @@ pnpm build
 
 ## API 생성
 
-백엔드 OpenAPI 문서를 기준으로 API 함수와 모델을 생성한다. 기본 입력은
-`http://localhost:8080/v3/api-docs`이므로 backend를 `bootRun`으로 실행한 뒤
-생성한다.
+백엔드 OpenAPI 문서를 기준으로 API 함수와 모델을 생성한다. 기본 입력은 현재
+macmini backend의 `https://macmini.tailc4f400.ts.net/v3/api-docs`이다.
 
 ```bash
 pnpm generate-api
 ```
 
-다른 backend를 사용할 때는 OpenAPI URL을 지정한다.
-
-```bash
-OPENAPI_URL=http://localhost:18080/v3/api-docs pnpm generate-api
-```
-
-- `src/apis/generated`: Orval 생성 코드, 직접 수정하지 않음
+- `src/apis/generated/mongle-api.ts`: Orval 생성 API 함수, 직접 수정하지 않음
+- `src/apis/generated/mongle-api.schemas.ts`: Orval 생성 모델 단일 파일, 직접 수정하지 않음
 - `src/apis/queries`: 화면에서 사용하는 `queryOptions`와 query key
 - `src/apis/mutations`: 화면에서 사용하는 mutation option
 - `src/apis/http.ts`: 생성 API와 기존 ky client 연결

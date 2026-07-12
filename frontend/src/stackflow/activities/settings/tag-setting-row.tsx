@@ -4,7 +4,7 @@ import {
   normalizeChipColor,
   tagChipClass,
 } from '@/components/ui/tag-chip'
-import type { ChipResponse } from '@/apis/generated/models'
+import type { ChipResponse } from '@/apis/generated/mongle-api.schemas'
 
 export function TagSettingRow({
   chip,

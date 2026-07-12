@@ -1,5 +1,8 @@
 import { SlidersHorizontal } from 'lucide-react'
-import type { ChipResponse, PersonResponse } from '@/apis/generated/models'
+import type {
+  ChipResponse,
+  PersonResponse,
+} from '@/apis/generated/mongle-api.schemas'
 import {
   TimelineCategoryFilters,
   TimelineFilterReset,

@@ -31,10 +31,11 @@ import type {
   TokenResponse,
   UserProfileRequest,
   UserProfileResponse,
-} from './models'
+} from './mongle-api.schemas'
 
 import { kyAxiosAdapter } from '../http'
 import type { BodyType } from '../http'
+
 /**
  * 기본 정보에 파생 스탯(만남 횟수·기록 수·알고 지낸 기간·마지막 만남)을 더해 반환한다. 마지막 만난 날은 수기 입력과 기록의 max 를 재계산한 값이다.
  * @summary 인물 상세 조회

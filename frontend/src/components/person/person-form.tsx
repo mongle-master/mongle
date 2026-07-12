@@ -1,6 +1,6 @@
 import { Camera, Star } from 'lucide-react'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import type { PersonRequest } from '@/apis/generated/models'
+import type { PersonRequest } from '@/apis/generated/mongle-api.schemas'
 import { cn } from '@/lib/utils'
 
 export function ProfileHero({

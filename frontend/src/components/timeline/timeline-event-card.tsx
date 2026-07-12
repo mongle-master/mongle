@@ -7,7 +7,7 @@ import type {
   EventResponse,
   TimelineCard,
   TimelinePerson,
-} from '@/apis/generated/models'
+} from '@/apis/generated/mongle-api.schemas'
 import { formatPersonName } from '@/lib/format'
 import { optimizedImageUrl } from '@/lib/image-url'
 

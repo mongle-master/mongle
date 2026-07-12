@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import { getChips } from '@/apis/generated/mongle-api'
-import type { ChipResponseType } from '@/apis/generated/models'
+import type { ChipResponseType } from '@/apis/generated/mongle-api.schemas'
 import { queryKeyNamespaces } from '@/apis/queries/_namespaces'
 
 const CHIP_TYPES: ChipResponseType[] = [

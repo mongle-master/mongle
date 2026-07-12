@@ -5,7 +5,7 @@ import {
   togglePersonFavorite,
   updatePerson,
 } from '@/apis/generated/mongle-api'
-import type { PersonRequest } from '@/apis/generated/models'
+import type { PersonRequest } from '@/apis/generated/mongle-api.schemas'
 
 export const register = () =>
   mutationOptions({

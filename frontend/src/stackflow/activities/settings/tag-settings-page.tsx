@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import type { ChipResponseType } from '@/apis/generated/models'
+import type { ChipResponseType } from '@/apis/generated/mongle-api.schemas'
 import {
   chipQuery,
   eventQuery,

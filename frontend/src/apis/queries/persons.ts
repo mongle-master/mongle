@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import { getPerson, getPersons } from '@/apis/generated/mongle-api'
-import type { GetPersonsSort } from '@/apis/generated/models'
+import type { GetPersonsSort } from '@/apis/generated/mongle-api.schemas'
 import { queryKeyNamespaces } from '@/apis/queries/_namespaces'
 
 const queryKeys = {

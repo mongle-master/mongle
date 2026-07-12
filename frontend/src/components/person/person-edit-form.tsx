@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { uploadImage } from '@/lib/api/images'
-import type { PersonRequest } from '@/apis/generated/models'
+import type { PersonRequest } from '@/apis/generated/mongle-api.schemas'
 import { validatePersonForm } from '@/lib/person-validation'
 
 export function PersonEditForm({

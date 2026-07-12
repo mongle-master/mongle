@@ -1,4 +1,4 @@
-import type { PersonRequest } from '@/apis/generated/models'
+import type { PersonRequest } from '@/apis/generated/mongle-api.schemas'
 
 const todayIso = () => new Date().toISOString().slice(0, 10)
 

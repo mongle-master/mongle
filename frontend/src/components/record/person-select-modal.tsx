@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import type { PersonResponse } from '@/apis/generated/models'
+import type { PersonResponse } from '@/apis/generated/mongle-api.schemas'
 import { formatPersonName } from '@/lib/format'
 import { cn } from '@/lib/utils'
 

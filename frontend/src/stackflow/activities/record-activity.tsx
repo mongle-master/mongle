@@ -4,7 +4,10 @@ import type { ActivityComponentType } from '@stackflow/react'
 import { useFunnel } from '@use-funnel/browser'
 import { Check, ChevronLeft, ImagePlus, Plus, Save, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { EventRequest, PersonResponse } from '@/apis/generated/models'
+import type {
+  EventRequest,
+  PersonResponse,
+} from '@/apis/generated/mongle-api.schemas'
 import { eventMutation } from '@/apis/mutations'
 import {
   chipQuery,

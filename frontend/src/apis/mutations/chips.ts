@@ -3,7 +3,7 @@ import { createChip, deleteChip, updateChip } from '@/apis/generated/mongle-api'
 import type {
   ChipCreateRequest,
   ChipRenameRequest,
-} from '@/apis/generated/models'
+} from '@/apis/generated/mongle-api.schemas'
 
 export const create = () =>
   mutationOptions({

@@ -3,7 +3,7 @@ import {
   issueToken,
   seed,
 } from '@/apis/generated/mongle-api'
-import type { UserProfileRequest } from '@/apis/generated/models'
+import type { UserProfileRequest } from '@/apis/generated/mongle-api.schemas'
 import { setToken } from '@/lib/auth-token'
 import type { UserIdentity } from '@/lib/user-identity'
 
