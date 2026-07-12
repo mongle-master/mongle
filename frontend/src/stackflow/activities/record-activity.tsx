@@ -504,10 +504,12 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
           footer={<NextBar onNext={() => history.push('detail', {})} />}
         >
           {/* 사진 추가를 편지지보다 위에 둔다. */}
+          {/* accept에 heic를 넣으면 iOS가 HEIC 원본을 그대로 넘겨 업로더(jpg·png·webp만 허용)에서
+              거부된다. heic를 빼면 iOS가 JPEG로 자동 변환해 넘겨줘 아이폰 기본 사진도 첨부된다. */}
           <input
             ref={photoInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic"
+            accept="image/jpeg,image/png,image/webp"
             multiple
             className="hidden"
             onChange={(e) => {
