@@ -72,11 +72,18 @@ pnpm build
 
 ## API 생성
 
-백엔드 OpenAPI 문서를 기준으로 API 함수와 모델을 생성한다. 기본 입력은 현재
-macmini backend의 `https://macmini.tailc4f400.ts.net/v3/api-docs`이다.
+백엔드 OpenAPI 문서를 기준으로 API 함수와 모델을 생성한다. 기본 입력은
+`http://localhost:8080/v3/api-docs`이므로 로컬 backend를 `bootRun`으로 실행한 뒤
+생성한다.
 
 ```bash
 pnpm generate-api
+```
+
+배포 backend를 기준으로 생성할 때만 OpenAPI URL을 지정한다.
+
+```bash
+OPENAPI_URL=https://macmini.tailc4f400.ts.net/v3/api-docs pnpm generate-api
 ```
 
 - `src/apis/generated/mongle-api.ts`: Orval 생성 API 함수, 직접 수정하지 않음
