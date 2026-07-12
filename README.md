@@ -1,82 +1,108 @@
-# mongle
+# Mongle
 
-관계도감(mongle) 모노레포 — `frontend/`(TanStack Start + Vite) · `backend/`(Spring Boot + Kotlin).
+내가 만난 사람과 함께한 순간을 사람 중심으로 기록하고, 관계의 흐름을 다시 꺼내보는 개인 관계 기록 서비스입니다.
 
-> **이 문서만 따라 하면 프론트·백엔드를 로컬에서 전부 띄울 수 있다.** 상세는 각 하위 문서로 링크한다.
+연락처처럼 사람의 고정 정보만 저장하지 않습니다. 관계 지도, 사람별 프로필과 타임라인, 감정과 사진이 담긴 기록, 1년 전 오늘의 회고를 한곳에 모읍니다.
 
-## 사전 준비물
+## 주요 화면
 
-| 도구                       | 버전       | 용도                  | 확인                               |
-| -------------------------- | ---------- | --------------------- | ---------------------------------- |
-| Node.js                    | 20+        | 프론트 실행           | `node -v`                          |
-| pnpm                       | 10+        | 프론트 패키지 매니저  | `pnpm -v` (없으면 `npm i -g pnpm`) |
-| 백엔드 실행기 (둘 중 하나) | —          | —                     | —                                  |
-| ├ Docker (권장)            | Compose v2 | MySQL+백엔드 컨테이너 | `docker compose version`           |
-| └ JDK 21 (도커 없이)       | 21         | `bootRun`(H2 파일 DB) | `java -version`                    |
+<table>
+  <tr>
+    <td align="center"><strong>시작하기</strong></td>
+    <td align="center"><strong>프로필 설정</strong></td>
+    <td align="center"><strong>관계 지도</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/readme/onboarding.png" alt="이름 온보딩" width="240" /></td>
+    <td><img src="docs/assets/readme/profile-onboarding.png" alt="프로필 온보딩" width="240" /></td>
+    <td><img src="docs/assets/readme/home.png" alt="홈 관계 지도" width="240" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>몽글라인</strong></td>
+    <td align="center"><strong>사람</strong></td>
+    <td align="center"><strong>기록 작성</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/readme/timeline.png" alt="전체 타임라인" width="240" /></td>
+    <td><img src="docs/assets/readme/people.png" alt="사람 목록" width="240" /></td>
+    <td><img src="docs/assets/readme/record.png" alt="단계형 기록 작성" width="240" /></td>
+  </tr>
+</table>
 
-## 로컬 실행 (터미널 2개)
+## 현재 제공하는 기능
 
-포트 규약: **백엔드 = 8080**, **프론트 = 3000**. 프론트는 `/api` 요청을 8080으로 프록시한다(`frontend/vite.config.ts`). 백엔드를 다른 포트로 바꾸면 이 프록시도 같이 바꿔야 한다.
+- 이름과 프로필 이미지로 시작하는 2단계 온보딩
+- 나를 중심으로 사람과 관계 태그를 보여주는 관계 지도
+- 전체 기록의 시간순 피드와 사람별 활동 흐름 시각화
+- 사람 검색·정렬·즐겨찾기, 프로필 등록·수정, 사람별 타임라인
+- 함께한 사람, 감정, 내용, 날짜·시간, 날씨, 사진을 나눠 입력하는 기록 작성
+- 기록 상세 조회·수정과 1년 전 오늘 회고
+- 홈 기본 기간, 개인 태그, 다크 모드 설정
+- 모바일 브라우저와 설치형 PWA를 고려한 스택 내비게이션
 
-### 1) 백엔드 — 8080
+## 저장소 구성
 
-**A. 도커 (권장, 상세 → [backend/docs/runbook/local.md](backend/docs/runbook/local.md))**
+| 경로                             | 구성                                      | 설명                               |
+| -------------------------------- | ----------------------------------------- | ---------------------------------- |
+| [`frontend/`](frontend/)         | React 19, Vite, Stackflow, TanStack Query | 모바일 우선 웹·PWA                 |
+| [`backend/`](backend/)           | Kotlin, Spring Boot, JPA                  | 인증, 사람, 기록, 타임라인, 칩 API |
+| [`docs/prd/`](docs/prd/)         | Markdown                                  | 화면별 제품 요구사항               |
+| [`backend/docs/`](backend/docs/) | Markdown                                  | mustpass와 로컬·배포·운영 절차     |
+
+## 로컬 실행
+
+### 준비물
+
+| 도구    | 버전               |
+| ------- | ------------------ |
+| Node.js | 20.19+ 또는 22.12+ |
+| pnpm    | 10+                |
+| Docker  | Compose v2 포함    |
+
+### 1. 백엔드
 
 ```bash
 cd backend
-docker compose up -d --build          # db(MySQL 8.4) + backend(8080). 첫 빌드는 수 분.
+docker compose up -d --build
 ```
 
-**B. 도커 없이 (JDK 21, H2 파일 DB)**
+로컬 Docker 백엔드는 `http://localhost:18080`에서 실행됩니다.
+
+```bash
+curl http://localhost:18080/actuator/health
+# {"status":"UP"}
+```
+
+Docker 없이 JDK 21과 H2를 사용할 수도 있습니다.
 
 ```bash
 cd backend
-./gradlew bootRun                     # 8080. DB는 backend/data/mongle.mv.db
+./gradlew bootRun
+# http://localhost:8080
 ```
 
-> 기동 판단: `curl http://localhost:8080/actuator/health` → `{"status":"UP"}`
-> 기동 시 공통 칩만 자동 생성. 사용자별 샘플 인물·기록은 프론트 최초 접속 후 시드 API가 멱등 생성한다.
-> A·B는 DB가 분리되고 같은 8080을 쓰므로 **동시에 띄우지 말 것**.
-
-### 2) 프론트 — 3000
+### 2. 프런트엔드
 
 ```bash
 cd frontend
 pnpm install
-pnpm dev                              # http://localhost:3000
+pnpm dev:vite
+# http://localhost:3000
 ```
 
-### 3) 열기
-
-- 앱: **http://localhost:3000**
-- Swagger(무인증): http://localhost:8080/swagger-ui/index.html
-- 최초 접속에서 이름을 입력하면 브라우저가 UUID를 생성·저장하고, 그 UUID가 사용자 id와 데이터 소유자가 된다.
-
-## 동작 확인 (선택)
+`pnpm dev:vite`는 `/api`를 기본 Docker 백엔드인 `localhost:18080`으로 프록시합니다. `bootRun`에 연결하려면 다음과 같이 실행합니다.
 
 ```bash
-# 백엔드 단독
-curl http://localhost:8080/actuator/health
-
-# 프론트 → 프록시 → 백엔드 end-to-end (토큰 발급)
-curl -s -X POST http://localhost:3000/api/v1/auth/token \
-  -H 'Content-Type: application/json' \
-  -d '{"userId":"8e0ca8f5-a713-4a90-9df1-15f0be0d843c","username":"성빈"}'
-# → {"token":"...","userId":"8e0ca8f5-...","username":"성빈"} 면 프록시·백엔드 연결 정상
+BACKEND_URL=http://localhost:8080 pnpm dev:vite
 ```
 
-## 중지
+사진 업로드까지 확인하려면 Vercel 프로젝트와 Blob 환경변수가 필요합니다. 설정 방법은 [프런트엔드 README](frontend/README.md#사진-업로드)에 있습니다.
 
-```bash
-# 백엔드(도커):  cd backend && docker compose down
-# 백엔드(bootRun)/프론트: 각 터미널에서 Ctrl+C
-```
+## 문서
 
-## 더 보기
-
-| 대상                            | 문서                                           |
-| ------------------------------- | ---------------------------------------------- |
-| 백엔드 실행·운영·배포·리셋      | [backend/docs/runbook/](backend/docs/runbook/) |
-| 백엔드 API·화면↔엔드포인트 매핑 | [backend/README.md](backend/README.md)         |
-| 프론트 스크립트·라우팅·테스트   | [frontend/README.md](frontend/README.md)       |
-| 제품 스펙(SSOT)                 | [docs/prd/](docs/prd/)                         |
+| 문서                                                 | 내용                            |
+| ---------------------------------------------------- | ------------------------------- |
+| [프런트엔드 README](frontend/README.md)              | 실행 모드, 구조, API 생성, 검증 |
+| [백엔드 README](backend/README.md)                   | API와 화면별 엔드포인트         |
+| [로컬 백엔드 Runbook](backend/docs/runbook/local.md) | Docker·H2 실행과 데이터 리셋    |
+| [제품 PRD](docs/prd/README.md)                       | 제품 범위와 화면별 기준         |
