@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/list-group'
 import { Switch } from '@/components/ui/switch'
 import { userMutation } from '@/apis/mutations'
-import { resetAnalytics } from '@/lib/analytics'
+import { featureEvents, resetAnalytics, trackFeature } from '@/lib/analytics'
 import { clearToken } from '@/lib/auth-token'
 import { clearUserIdentity } from '@/lib/user-identity'
 import { TabShell } from '@/stackflow/components/tab-shell'
@@ -25,7 +25,8 @@ export function SettingsTab() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const resetMutation = useMutation({
     ...userMutation.removeCurrent(),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await trackFeature(featureEvents.userDataReset)
       resetAnalytics()
       clearToken()
       clearUserIdentity()
@@ -34,7 +35,9 @@ export function SettingsTab() {
   })
 
   const handleDarkModeChange = (checked: boolean) => {
-    setTheme(checked ? 'dark' : 'light')
+    const nextTheme = checked ? 'dark' : 'light'
+    setTheme(nextTheme)
+    void trackFeature(featureEvents.themeChanged, { theme: nextTheme })
   }
 
   return (

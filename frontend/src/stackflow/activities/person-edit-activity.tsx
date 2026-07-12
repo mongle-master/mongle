@@ -11,6 +11,7 @@ import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { personMutation } from '@/apis/mutations'
 import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
 import { useEnterDone } from '@/stackflow/use-enter-done'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 
 const PERSON_FORM_ID = 'person-form'
 
@@ -35,6 +36,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
   const updateMutation = useMutation({
     ...personMutation.update(id),
     onSuccess: async () => {
+      void trackFeature(featureEvents.personUpdated)
       await queryClient.invalidateQueries({
         queryKey: personQuery.byId(id).queryKey,
       })
@@ -47,6 +49,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
   const deleteMutation = useMutation({
     ...personMutation.remove(),
     onSuccess: async () => {
+      void trackFeature(featureEvents.personDeleted)
       await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
       await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
       // 아래에 깔린 프로필도 삭제된 인물이므로 두 단계를 걷어낸다

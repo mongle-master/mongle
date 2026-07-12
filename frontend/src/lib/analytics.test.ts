@@ -2,13 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const init = vi.fn()
 const add = vi.fn()
+const track = vi.fn()
 const sessionReplayPlugin = vi.fn()
 
 vi.mock('@amplitude/analytics-browser', () => ({
   init: (...args: unknown[]) => init(...args),
   add: (...args: unknown[]) => add(...args),
   setUserId: vi.fn(),
-  track: vi.fn(),
+  track: (...args: unknown[]) => track(...args),
   reset: vi.fn(),
 }))
 
@@ -40,7 +41,37 @@ beforeEach(() => {
   init.mockReset().mockReturnValue({ promise: Promise.resolve() })
   add.mockReset().mockReturnValue({ promise: Promise.resolve() })
   sessionReplayPlugin.mockReset().mockReturnValue({ name: 'session-replay' })
+  track.mockReset().mockReturnValue({ promise: Promise.resolve() })
   vi.unstubAllEnvs()
+})
+
+describe('semantic 기능 이벤트', () => {
+  it('화면 조회와 기능별 조회 이벤트를 함께 수집한다', async () => {
+    const { trackScreenView } = await importAnalytics('test-key')
+
+    await trackScreenView('person_detail')
+
+    expect(track).toHaveBeenNthCalledWith(1, 'screen_viewed', {
+      screen: 'person_detail',
+    })
+    expect(track).toHaveBeenNthCalledWith(2, 'person_detail_viewed')
+  })
+
+  it('정의된 기능 이벤트와 개인정보 없는 속성을 수집한다', async () => {
+    const { featureEvents, trackFeature } = await importAnalytics('test-key')
+
+    await trackFeature(featureEvents.themeChanged, { theme: 'dark' })
+
+    expect(track).toHaveBeenCalledWith('theme_changed', { theme: 'dark' })
+  })
+
+  it('API key가 없으면 기능 이벤트를 수집하지 않는다', async () => {
+    const { featureEvents, trackFeature } = await importAnalytics(undefined)
+
+    await trackFeature(featureEvents.personCreated)
+
+    expect(track).not.toHaveBeenCalled()
+  })
 })
 
 describe('initializeAnalytics autocapture 설정', () => {

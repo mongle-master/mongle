@@ -31,6 +31,7 @@ import {
 } from '@/lib/record-validation'
 import { cn } from '@/lib/utils'
 import { useEnterDone } from '@/stackflow/use-enter-done'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 
 const MEMO_MAX = 200 // 백엔드 memo 상한과 일치
 const EMOTION_MAX = 5 // 백엔드 ValidationLimits.EMOTION_PER_EVENT_MAX와 일치
@@ -229,6 +230,15 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
       ? eventMutation.update(editingEventId)
       : eventMutation.register()),
     onSuccess: async (event) => {
+      void trackFeature(
+        isEditing ? featureEvents.eventUpdated : featureEvents.eventCreated,
+        {
+          person_count: selectedPersonIds.length,
+          photo_count: photoUrls.length,
+          emotion_count: emotionChipIds.length,
+          has_category: categoryChipId !== null,
+        },
+      )
       await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
       await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
       await queryClient.invalidateQueries({ queryKey: timelineQuery.allKey })
@@ -307,6 +317,10 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
         const { url } = await uploadImage(file)
         setPhotoUrls((prev) => [...prev, url])
       }
+      void trackFeature(featureEvents.eventPhotoUploaded, {
+        context: isEditing ? 'event_edit' : 'event_create',
+        photo_count: picked.length,
+      })
     } catch {
       setFormError('사진을 올리지 못했어요. 잠시 후 다시 시도해 주세요.')
     } finally {

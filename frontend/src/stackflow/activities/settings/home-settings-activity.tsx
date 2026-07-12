@@ -6,6 +6,7 @@ import { SettingsPageHeader } from '@/components/settings/settings-page-header'
 import { getDefaultHomePeriod, setDefaultHomePeriod } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 
 export const HomeSettingsActivity: ActivityComponentType<
   'HomeSettings'
@@ -14,8 +15,10 @@ export const HomeSettingsActivity: ActivityComponentType<
   const [period, setPeriod] = useState<HomePeriod>(() => getDefaultHomePeriod())
 
   const handleChange = (next: HomePeriod) => {
+    if (next === period) return
     setPeriod(next)
     setDefaultHomePeriod(next)
+    void trackFeature(featureEvents.homeDefaultPeriodChanged, { period: next })
   }
 
   return (

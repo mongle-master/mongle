@@ -3,6 +3,66 @@ import { sessionReplayPlugin } from '@amplitude/plugin-session-replay-browser'
 
 const apiKey = import.meta.env.VITE_AMPLITUDE_API_KEY
 
+export const featureEvents = {
+  onboardingCompleted: 'onboarding_completed',
+  personCreated: 'person_created',
+  personUpdated: 'person_updated',
+  personDeleted: 'person_deleted',
+  personFavoriteToggled: 'person_favorite_toggled',
+  peopleSearchUsed: 'people_search_used',
+  peopleSortChanged: 'people_sort_changed',
+  eventCreated: 'event_created',
+  eventUpdated: 'event_updated',
+  profileImageUploaded: 'profile_image_uploaded',
+  eventPhotoUploaded: 'event_photo_uploaded',
+  homePeriodChanged: 'home_period_changed',
+  homeDefaultPeriodChanged: 'home_default_period_changed',
+  throwbackOpened: 'throwback_opened',
+  throwbackDismissed: 'throwback_dismissed',
+  timelineFilterChanged: 'timeline_filter_changed',
+  timelineFiltersReset: 'timeline_filters_reset',
+  timelineActivityFlowSelected: 'timeline_activity_flow_selected',
+  tagCreated: 'tag_created',
+  tagUpdated: 'tag_updated',
+  tagDeleted: 'tag_deleted',
+  themeChanged: 'theme_changed',
+  userDataReset: 'user_data_reset',
+  homeViewed: 'home_viewed',
+  timelineViewed: 'timeline_viewed',
+  peopleViewed: 'people_viewed',
+  settingsViewed: 'settings_viewed',
+  personDetailViewed: 'person_detail_viewed',
+  personTimelineViewed: 'person_timeline_viewed',
+  personNewViewed: 'person_new_viewed',
+  personEditViewed: 'person_edit_viewed',
+  eventDetailViewed: 'event_detail_viewed',
+  recordViewed: 'record_viewed',
+  homeSettingsViewed: 'home_settings_viewed',
+  tagSettingsViewed: 'tag_settings_viewed',
+  onboardingNameViewed: 'onboarding_name_viewed',
+  onboardingProfileViewed: 'onboarding_profile_viewed',
+} as const
+
+type FeatureEventName = (typeof featureEvents)[keyof typeof featureEvents]
+type FeatureEventProperties = Record<string, string | number | boolean>
+
+const featureEventByScreen: Partial<Record<string, FeatureEventName>> = {
+  home: featureEvents.homeViewed,
+  timeline: featureEvents.timelineViewed,
+  people: featureEvents.peopleViewed,
+  settings: featureEvents.settingsViewed,
+  person_detail: featureEvents.personDetailViewed,
+  person_timeline: featureEvents.personTimelineViewed,
+  person_new: featureEvents.personNewViewed,
+  person_edit: featureEvents.personEditViewed,
+  event_detail: featureEvents.eventDetailViewed,
+  record: featureEvents.recordViewed,
+  home_settings: featureEvents.homeSettingsViewed,
+  tag_settings: featureEvents.tagSettingsViewed,
+  onboarding_name: featureEvents.onboardingNameViewed,
+  onboarding_profile: featureEvents.onboardingProfileViewed,
+}
+
 // Autocapture 개인정보 마스킹 계약:
 // - 사용자 생성 텍스트(사람 이름·기록 제목·메모·관계유형·관계태그·likes/cautions·개인 칩
 //   라벨·검색어 에코)를 렌더하는 요소에는 `data-amp-mask`를 단다. SDK가 해당 서브트리
@@ -103,6 +163,23 @@ export async function trackScreenView(screen: string) {
 
   await initializeAnalytics()
   amplitude.track('screen_viewed', { screen })
+
+  const featureEvent = featureEventByScreen[screen]
+  if (featureEvent) amplitude.track(featureEvent)
+}
+
+export async function trackFeature(
+  eventName: FeatureEventName,
+  properties?: FeatureEventProperties,
+) {
+  if (!apiKey) return
+
+  await initializeAnalytics()
+  try {
+    await amplitude.track(eventName, properties).promise
+  } catch (error) {
+    console.error('Amplitude event tracking failed.', error)
+  }
 }
 
 export function resetAnalytics() {

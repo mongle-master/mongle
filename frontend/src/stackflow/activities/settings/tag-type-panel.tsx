@@ -17,6 +17,7 @@ import {
 import { isImeComposing } from '@/lib/keyboard'
 import { RelationTagColorPicker } from '@/stackflow/activities/settings/relation-tag-color-picker'
 import { TagSettingRow } from '@/stackflow/activities/settings/tag-setting-row'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 
 export function TagTypePanel({
   type,
@@ -49,6 +50,10 @@ export function TagTypePanel({
   const createMutation = useMutation({
     ...chipMutation.create(),
     onSuccess: () => {
+      void trackFeature(featureEvents.tagCreated, {
+        tag_type: type.toLowerCase(),
+        has_color: supportsColor,
+      })
       setDraft('')
       setDraftColor(
         RELATION_TAG_COLOR_PALETTE[
@@ -60,7 +65,16 @@ export function TagTypePanel({
   })
   const renameMutation = useMutation({
     ...chipMutation.update(),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      const previous = chips.find((chip) => chip.id === variables.id)
+      void trackFeature(featureEvents.tagUpdated, {
+        tag_type: type.toLowerCase(),
+        label_changed: previous?.label !== variables.request.label,
+        color_changed:
+          supportsColor &&
+          normalizeChipColor(previous?.color) !==
+            normalizeChipColor(variables.request.color),
+      })
       setEditingId(null)
       setEditLabel('')
       setEditColor(RELATION_TAG_COLOR_PALETTE[0])
@@ -70,6 +84,9 @@ export function TagTypePanel({
   const deleteMutation = useMutation({
     ...chipMutation.remove(),
     onSuccess: () => {
+      void trackFeature(featureEvents.tagDeleted, {
+        tag_type: type.toLowerCase(),
+      })
       setDeleteTarget(null)
       onChanged()
     },
