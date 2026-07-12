@@ -15,3 +15,5 @@ backend/.gradle-home/
 
 # git worktrees (isolated workspaces)
 .worktrees/
+
+.vercel
