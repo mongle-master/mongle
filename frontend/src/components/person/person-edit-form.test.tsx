@@ -73,7 +73,7 @@ describe('PersonEditForm', () => {
     expect(onDelete).toHaveBeenCalledOnce()
   })
 
-  it('keeps compact memory inputs full width on mobile', () => {
+  it('keeps compact memory fields within the mobile viewport', () => {
     render(
       <PersonEditForm
         initialValues={personToFormValues({ name: '민지' })}
@@ -84,9 +84,9 @@ describe('PersonEditForm', () => {
     )
 
     for (const placeholder of ['예: 산책, 라떼', '예: 매운 음식']) {
-      expect(
-        screen.getByPlaceholderText(placeholder).parentElement,
-      ).toHaveClass('w-full')
+      const input = screen.getByPlaceholderText(placeholder)
+      expect(input.parentElement).toHaveClass('min-w-0', 'max-w-full')
+      expect(input.parentElement?.parentElement).toHaveClass('items-stretch')
     }
   })
 })
