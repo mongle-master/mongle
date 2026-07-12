@@ -10,6 +10,7 @@ import {
   seedCurrentUser,
 } from './lib/api/auth'
 import type { UserProfileInput } from './lib/api/auth'
+import { initializeAnalytics, setAnalyticsUserId } from './lib/analytics'
 import { createUserIdentity, getUserIdentity } from './lib/user-identity'
 import type { UserIdentity } from './lib/user-identity'
 import { installBrowserNavTransitionSkip } from './stackflow/browser-nav-transition'
@@ -36,6 +37,8 @@ const AppStack = lazy(async () => {
 
 installBrowserNavTransitionSkip()
 
+void initializeAnalytics()
+
 const rootElement = document.getElementById('app')!
 
 function AppBootstrap() {
@@ -51,6 +54,8 @@ function AppBootstrap() {
 
   useEffect(() => {
     if (!identity) return
+
+    void setAnalyticsUserId(identity.userId)
 
     let cancelled = false
     setAuthState('loading')

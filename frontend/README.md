@@ -56,6 +56,7 @@ pnpm exec vercel pull
 
 ```dotenv
 BLOB_READ_WRITE_TOKEN=...
+VITE_AMPLITUDE_API_KEY=...
 ```
 
 이후 Vite와 `/api/blob-upload` Vercel 함수를 함께 실행합니다.
