@@ -36,6 +36,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
+          cache: gradle
           distribution: temurin
           java-version: 21
 
@@ -46,7 +47,7 @@ jobs:
         working-directory: backend
         run: |
           ./gradlew bootRun > /tmp/mongle-backend.log 2>&1 &
-          for attempt in {1..30}; do
+          for attempt in {1..120}; do
             if curl --fail --silent http://localhost:8080/actuator/health > /dev/null; then
               exit 0
             fi
