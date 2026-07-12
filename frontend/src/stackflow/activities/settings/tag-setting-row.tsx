@@ -39,7 +39,12 @@ export function TagSettingRow({
             aria-label={`지정 색상 ${color}`}
           />
         ) : null}
-        <span className="min-w-0 truncate">{chip.label}</span>
+        <span
+          data-amp-mask={chip.personal || undefined}
+          className="min-w-0 truncate"
+        >
+          {chip.label}
+        </span>
       </div>
       <div className="flex shrink-0 items-center">
         <button

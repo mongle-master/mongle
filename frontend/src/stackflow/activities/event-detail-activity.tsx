@@ -94,11 +94,15 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-8 [-webkit-overflow-scrolling:touch]">
         <div className="flex items-start gap-2">
-          <h2 className="min-w-0 flex-1 text-[22px] leading-snug font-extrabold tracking-tight">
+          <h2
+            data-amp-mask
+            className="min-w-0 flex-1 text-[22px] leading-snug font-extrabold tracking-tight"
+          >
             {event.title}
           </h2>
           {event.category ? (
             <Badge
+              data-amp-mask
               variant="secondary"
               className="h-7 shrink-0 rounded-full px-3 font-extrabold"
             >
@@ -132,7 +136,10 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
                     favorite={profile?.favorite}
                     className="size-6"
                   />
-                  <span className="text-xs font-extrabold text-foreground">
+                  <span
+                    data-amp-mask
+                    className="text-xs font-extrabold text-foreground"
+                  >
                     {person.name}
                   </span>
                 </button>
@@ -142,7 +149,10 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         ) : null}
 
         {memo ? (
-          <p className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground">
+          <p
+            data-amp-mask
+            className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground"
+          >
             {memo}
           </p>
         ) : null}
@@ -150,7 +160,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         {event.emotions.length > 0 ? (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {event.emotions.map((emotion) => (
-              <Badge key={emotion.id} variant="outline">
+              <Badge key={emotion.id} data-amp-mask variant="outline">
                 {emotion.label}
               </Badge>
             ))}

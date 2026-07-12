@@ -175,7 +175,10 @@ export function ActivityFlowChart({
                     personId={lane.personId}
                     className="size-5"
                   />
-                  <span className="min-w-0 flex-1 truncate text-[11px] font-extrabold text-muted-foreground">
+                  <span
+                    data-amp-mask
+                    className="min-w-0 flex-1 truncate text-[11px] font-extrabold text-muted-foreground"
+                  >
                     {lane.label}
                   </span>
                 </div>

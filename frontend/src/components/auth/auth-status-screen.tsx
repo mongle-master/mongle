@@ -29,9 +29,13 @@ export function AuthStatusScreen({
           </span>
         </div>
         <h1 className="text-2xl font-black tracking-tight text-foreground">
-          {error
-            ? '공간을 열지 못했어요'
-            : `${username}님의 공간을 준비하고 있어요`}
+          {error ? (
+            '공간을 열지 못했어요'
+          ) : (
+            <>
+              <span data-amp-mask>{username}</span>님의 공간을 준비하고 있어요
+            </>
+          )}
         </h1>
         <p className="mt-3 text-sm font-medium text-muted-foreground">
           {error

@@ -42,6 +42,7 @@ export function TimelineCategoryFilters({
               key={chip.id}
               type="button"
               onClick={() => onToggle(chip.id)}
+              data-amp-mask={chip.personal || undefined}
               className={timelineFilterChipClass(selected)}
             >
               {chip.label}
@@ -86,7 +87,9 @@ export function TimelinePersonFilters({
                 personId={person.id}
                 className={cn('size-6', selected && 'ring-2 ring-background')}
               />
-              <span className="truncate">{displayName}</span>
+              <span data-amp-mask className="truncate">
+                {displayName}
+              </span>
             </button>
           )
         })}

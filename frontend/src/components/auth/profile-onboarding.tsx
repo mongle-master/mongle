@@ -115,7 +115,7 @@ export function ProfileOnboarding({
           2 / 2 · 프로필 설정
         </p>
         <h1 className="mt-3 text-[30px] font-black leading-[1.18] tracking-[-0.04em] text-foreground">
-          {username}님을 보여줄
+          <span data-amp-mask>{username}</span>님을 보여줄
           <br />
           사진을 골라 주세요
         </h1>

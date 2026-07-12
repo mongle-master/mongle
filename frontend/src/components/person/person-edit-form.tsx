@@ -214,6 +214,7 @@ export function PersonEditForm({
                       type="button"
                       aria-pressed={active}
                       onClick={() => toggleTag(tag.id)}
+                      data-amp-mask
                       className={tagChipClass(active, {
                         activeClassName:
                           'border-foreground bg-foreground text-background',

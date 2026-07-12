@@ -438,7 +438,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                         favorite={person.favorite}
                         className="size-12"
                       />
-                      <span className="flex-1 text-lg">{person.name}</span>
+                      <span data-amp-mask className="flex-1 text-lg">
+                        {person.name}
+                      </span>
                       <span
                         className={cn(
                           'flex size-6 items-center justify-center rounded-full border',
@@ -478,7 +480,10 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
 
           <div className="mt-8 text-center">
             <p className="font-hand text-2xl text-foreground/70">오늘은</p>
-            <p className="font-hand mt-2 min-h-11 text-3xl text-foreground/85">
+            <p
+              data-amp-mask
+              className="font-hand mt-2 min-h-11 text-3xl text-foreground/85"
+            >
               {selectedEmotionWords.length > 0
                 ? selectedEmotionWords.join(' · ')
                 : '\u00A0'}
@@ -497,6 +502,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                   type="button"
                   aria-pressed={on}
                   disabled={!on && emotionChipIds.length >= EMOTION_MAX}
+                  data-amp-mask={chip.personal || undefined}
                   onClick={() => toggleEmotion(chip.id)}
                   className={cn(
                     'text-3xl transition disabled:opacity-20',
@@ -622,6 +628,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                   <ToggleGroupItem
                     key={chip.id}
                     value={String(chip.id)}
+                    data-amp-mask={chip.personal || undefined}
                     className={neutralChipClass}
                   >
                     {chip.label}
@@ -706,7 +713,9 @@ function StepFrame({
         >
           <ChevronLeft className="size-6" />
         </button>
-        <span className="text-base font-bold">{centerLabel}</span>
+        <span data-amp-mask className="text-base font-bold">
+          {centerLabel}
+        </span>
         {onDone ? (
           <button
             type="button"

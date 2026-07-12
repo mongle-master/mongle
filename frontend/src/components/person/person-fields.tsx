@@ -95,7 +95,9 @@ export function ListField({
                 chipToneClass,
               )}
             >
-              <span className="min-w-0 truncate">{item}</span>
+              <span data-amp-mask className="min-w-0 truncate">
+                {item}
+              </span>
               <button
                 type="button"
                 onClick={() => onChange(items.filter((i) => i !== item))}

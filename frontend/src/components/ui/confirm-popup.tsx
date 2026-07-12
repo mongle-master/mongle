@@ -105,6 +105,7 @@ export function ConfirmPopup({
           </h2>
           <p
             id="confirm-popup-description"
+            data-amp-mask
             className="mt-2 whitespace-pre-line text-sm font-medium leading-relaxed text-muted-foreground"
           >
             {description}

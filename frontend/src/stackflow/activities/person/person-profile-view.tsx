@@ -105,16 +105,22 @@ export function PersonProfileView({
                   className="size-20"
                 />
                 <div className="min-w-0 flex-1">
-                  <h1 className="truncate text-2xl font-black tracking-tight">
+                  <h1
+                    data-amp-mask
+                    className="truncate text-2xl font-black tracking-tight"
+                  >
                     {displayName}
                   </h1>
                   {person.relationType ? (
-                    <p className="mt-2 text-sm font-extrabold text-foreground">
+                    <p
+                      data-amp-mask
+                      className="mt-2 text-sm font-extrabold text-foreground"
+                    >
                       {person.relationType}
                     </p>
                   ) : null}
                   {person.relationTags.length > 0 ? (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
+                    <div data-amp-mask className="mt-2 flex flex-wrap gap-1.5">
                       {person.relationTags.map((tag) => (
                         <span
                           key={tag.id}
@@ -300,9 +306,12 @@ function RecentEventRow({ event }: { event: EventResponse }) {
     >
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
-          <p className="truncate text-sm font-extrabold">{event.title}</p>
+          <p data-amp-mask className="truncate text-sm font-extrabold">
+            {event.title}
+          </p>
           {event.category ? (
             <span
+              data-amp-mask
               className={tagChipClass(false, {
                 inactiveClassName:
                   'h-6 shrink-0 border-border/60 bg-background px-2 text-[11px] text-foreground',
@@ -316,7 +325,10 @@ function RecentEventRow({ event }: { event: EventResponse }) {
           {formatAbsoluteDate(event.occurredDate)}
         </p>
         {summary ? (
-          <p className="mt-1 line-clamp-1 text-xs text-foreground/80">
+          <p
+            data-amp-mask
+            className="mt-1 line-clamp-1 text-xs text-foreground/80"
+          >
             {summary}
           </p>
         ) : null}
@@ -345,7 +357,9 @@ function PreferenceBlock({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs font-bold text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-medium text-foreground">{value}</p>
+      <p data-amp-mask className="mt-1 text-sm font-medium text-foreground">
+        {value}
+      </p>
     </div>
   )
 }

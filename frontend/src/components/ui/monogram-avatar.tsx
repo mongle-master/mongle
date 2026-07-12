@@ -33,7 +33,7 @@ export function MonogramAvatar({
     })
 
   return (
-    <div className="relative inline-flex shrink-0">
+    <div data-amp-mask className="relative inline-flex shrink-0">
       <Avatar className={cn('border border-border bg-card', className)}>
         <AvatarImage src={src} alt={name} className="object-cover" />
         <AvatarFallback className="bg-muted font-bold text-foreground">

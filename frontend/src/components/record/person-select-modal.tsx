@@ -112,7 +112,10 @@ export function PersonSelectModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3">
           {filtered.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
+            <p
+              data-amp-mask={query.trim() ? true : undefined}
+              className="py-8 text-center text-sm text-muted-foreground"
+            >
               {query.trim()
                 ? `'${query.trim()}'에 해당하는 사람이 없어요.`
                 : '등록된 사람이 없어요.'}
@@ -141,7 +144,7 @@ export function PersonSelectModal({
                         personId={person.id}
                         className="size-11 shrink-0"
                       />
-                      <div className="min-w-0 flex-1">
+                      <div data-amp-mask className="min-w-0 flex-1">
                         <p className="truncate font-extrabold">{displayName}</p>
                         <p className="truncate text-xs text-muted-foreground">
                           {[

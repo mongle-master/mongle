@@ -120,7 +120,7 @@ export function PersonTimelineView({ personId }: { personId: string }) {
     <>
       <TimelineScrollShell scrollRef={scrollRef}>
         <div className="mb-4">
-          <h1 className="text-[22px] font-black tracking-tight">
+          <h1 data-amp-mask className="text-[22px] font-black tracking-tight">
             {formatPersonName(person)}
           </h1>
           <p className="mt-1 text-xs font-medium text-muted-foreground">
