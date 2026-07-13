@@ -1,10 +1,11 @@
-# Gradle
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
+# Node / NestJS
+node_modules/
+dist/
+.eslintcache
 
-# Kotlin
-.kotlin/
+# Prisma local artifacts
+prisma/*.db
+prisma/*.db-journal
 
 # IntelliJ IDEA
 .idea/
@@ -13,11 +14,7 @@ build/
 *.ipr
 out/
 
-# Eclipse / VSCode
-.classpath
-.project
-.settings/
-bin/
+# VSCode
 .vscode/
 
 # macOS
@@ -27,10 +24,10 @@ bin/
 *.log
 logs/
 
-# 로컬 데모 데이터 — 파일 H2 DB + 업로드 이미지
+# 로컬 MySQL 데이터
 data/
 
 # Env / secrets
 .env
-*.local.yml
-application-local.yml
+.env.*
+!.env.example

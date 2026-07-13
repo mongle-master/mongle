@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 # 맥북 로컬 개발 사전 준비 (멱등 — 여러 번 실행해도 안전)
-# 권장 경로(도커)만 쓰면 Docker Desktop만 있으면 되고,
-# 비도커 ./gradlew bootRun 까지 쓰려면 JDK 21(툴체인 고정 버전)이 필요하다.
+# Docker Compose 실행과 호스트 NestJS 개발에 필요한 Docker·Node.js·pnpm·jq를 준비한다.
 set -euo pipefail
-
-need_jdk=false
-[[ "${1:-}" == "--with-jdk" ]] && need_jdk=true
 
 if ! command -v brew >/dev/null; then
   echo "Homebrew가 없습니다. https://brew.sh 안내대로 설치 후 다시 실행하세요."
@@ -20,15 +16,46 @@ else
   echo "ok: docker $(docker --version | cut -d' ' -f3)"
 fi
 
-if $need_jdk; then
-  # 백엔드 toolchain은 21 고정(backend/build.gradle.kts). 25 등 다른 JDK가 있어도
-  # gradle foojay 리졸버가 21을 내려받지만, gradle 구동용 JDK는 하나 필요하다.
-  if /usr/libexec/java_home -v 21 >/dev/null 2>&1; then
-    echo "ok: JDK 21 ($(/usr/libexec/java_home -v 21))"
+node_major=0
+if command -v node >/dev/null; then
+  node_major="$(node -p 'Number(process.versions.node.split(".")[0])')"
+fi
+if (( node_major < 22 )); then
+  echo "==> Node.js 22 이상 설치"
+  if brew list --versions node >/dev/null 2>&1; then
+    brew upgrade node
   else
-    echo "==> Temurin 21 설치"
-    brew install --cask temurin@21
+    brew install node
   fi
+  hash -r
+  node_major="$(node -p 'Number(process.versions.node.split(".")[0])')"
+  if (( node_major < 22 )); then
+    echo "Node.js 22 이상이 PATH에 없습니다. 현재: $(node --version)"
+    exit 1
+  fi
+else
+  echo "ok: node $(node --version)"
+fi
+
+pnpm_major=0
+if command -v pnpm >/dev/null; then
+  pnpm_major="$(pnpm --version | cut -d. -f1)"
+fi
+if (( pnpm_major < 10 )); then
+  echo "==> pnpm 10 이상 설치"
+  if brew list --versions pnpm >/dev/null 2>&1; then
+    brew upgrade pnpm
+  else
+    brew install pnpm
+  fi
+  hash -r
+  pnpm_major="$(pnpm --version | cut -d. -f1)"
+  if (( pnpm_major < 10 )); then
+    echo "pnpm 10 이상이 PATH에 없습니다. 현재: $(pnpm --version)"
+    exit 1
+  fi
+else
+  echo "ok: pnpm $(pnpm --version)"
 fi
 
 if ! command -v jq >/dev/null; then
@@ -46,3 +73,4 @@ fi
 echo
 echo "완료. 다음 단계: backend/docs/runbook/local.md"
 echo "  cd backend && docker compose up -d --build"
+echo "  # 호스트 개발은 pnpm install 후 pnpm dev"

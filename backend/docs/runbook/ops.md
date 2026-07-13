@@ -1,100 +1,107 @@
 # 운영 점검
 
-프로덕션(Render+Supabase+Vercel)은 [아래 섹션](#프로덕션-render--supabase--vercel-장애-대응), 그 위 섹션들은 로컬(도커) 기준.
+## 로컬 Docker Compose
 
-## 상태 확인
-
-```bash
-curl -s http://localhost:18080/actuator/health  # {"status":"UP"} (도커 호스트 노출 포트 18080)
-docker compose ps                               # db·backend 둘 다 healthy 인지
-docker compose logs -f backend                  # 앱 로그 (에러는 GlobalExceptionHandler가 남긴다)
-docker compose logs -f db                       # MySQL 로그
-```
-
-## 데이터 백업·복구
-
-전부 `backend/data/` 아래에 있다 (도커 기준):
-
-| 경로                | 내용                            |
-| ------------------- | ------------------------------- |
-| `data/mysql/`       | MySQL 데이터 (도커 실행)        |
-| `data/mongle.mv.db` | H2 파일 (비도커 `bootRun` 전용) |
+### 상태·로그
 
 ```bash
-docker compose stop backend && tar czf mongle-backup-$(date +%Y%m%d).tgz data/ && docker compose start backend
+curl -s http://localhost:18080/actuator/health
+docker compose ps
+docker compose logs -f backend
+docker compose logs -f db
 ```
 
-복구는 컨테이너 내린 상태에서 `data/`를 풀어 넣고 재기동.
+`backend` 컨테이너는 `prisma migrate deploy`가 성공한 후 NestJS를 시작한다. 앱 로그가 없이 종료되면 먼저 migration과 `DATABASE_URL` 오류를 확인한다.
 
-## 자주 겪는 문제
+### MySQL 백업
 
-| 증상                                | 원인 → 조치                                                                                                                                                     |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 모든 API가 401                      | 토큰 누락/만료 → `POST /api/v1/auth/token` 재발급 (local.md)                                                                                                    |
-| 18080 이미 사용 중 (도커 기동 실패) | 다른 프로세스가 호스트 18080 점유 → 점유 프로세스 종료(`lsof -i :18080`) 또는 compose 포트 변경. bootRun(8080)과 도커(18080)는 포트가 달라 서로 충돌하지 않는다 |
-| backend가 재시작 반복               | db 헬시 전 기동 실패가 아니라면 `docker compose logs backend`에서 datasource 접속 오류 확인 → `data/mysql` 손상 시 백업 복구 또는 초기화                        |
-| 스키마 불일치 에러                  | `ddl-auto: update`는 가산만 한다. 컬럼 타입 변경 릴리스 후엔 데이터 초기화(`docker compose down && rm -rf data`) 또는 수동 ALTER                                |
-| 시드가 안 보임                      | 같은 UUID로 토큰을 발급했는지 확인 → `POST /api/v1/seed`를 Bearer 토큰과 함께 다시 호출한다. `users.demo_seeded=true`면 다시 생성하지 않는다                    |
-
-## 정기 점검 (데모 수준)
-
-- 디스크: `du -sh data/` — 로컬 DB 사용량 확인
-- 로그에 `INTERNAL_ERROR` 발생 여부: `docker compose logs backend | grep "Unexpected error"`
-
-## 프로덕션 Render + Supabase + Vercel 장애 대응
-
-배포 절차·아키텍처는 [deploy.md](./deploy.md). 현재 배포 구성(2026-07-10 기준):
-
-| 구성    | 값                                                                                                                                                                                  |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 앱      | Render 웹 서비스 `mongle-backend` → https://mongle-backend.onrender.com                                                                                                             |
-| DB      | Supabase 프로젝트 `mongle` (ref `daalrvcgpqdjqemiacrx`, 서울 `ap-northeast-2`)                                                                                                      |
-| DB 접속 | **Session Pooler** `aws-1-ap-northeast-2.pooler.supabase.com:5432`, user `postgres.daalrvcgpqdjqemiacrx` — Direct 주소(`db.<ref>.supabase.co`)는 IPv6 전용이라 Render에서 접속 불가 |
-| 이미지  | Vercel Public Blob Store                                                                                                                                                            |
-| 비밀값  | Render env, Supabase 대시보드, Vercel env에만 보관                                                                                                                                  |
-
-### 상태 확인
+일관된 논리 백업을 생성한다.
 
 ```bash
-curl -s https://mongle-backend.onrender.com/actuator/health   # {"status":"UP"}
+cd backend
+BACKUP_DIR="$HOME/mongle-backups"
+mkdir -p "$BACKUP_DIR"
+docker compose exec -T db sh -c \
+  'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction --set-gtid-purged=OFF mongle' \
+  > "$BACKUP_DIR/mongle-$(date +%Y%m%d-%H%M%S).sql"
+ls -lh "$BACKUP_DIR"
 ```
 
-- Render 로그·이벤트: dashboard.render.com → mongle-backend → Logs / Events
-- Supabase 상태: supabase.com/dashboard → mongle 프로젝트 (일시정지 여부가 홈에 표시됨)
-- 플랫폼 자체 장애 여부: status.render.com / status.supabase.com / vercel-status.com
+백업은 레포지토리 밖에 둔다. 물리 데이터는 `backend/data/mysql/`에 있지만, 실행 중인 MySQL 디렉터리를 그대로 복사하지 않는다.
 
-### 증상별 진단·조치
+### MySQL 복구
 
-| 증상                                    | 원인 → 조치                                                                                                                                                                                             |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 첫 요청만 ~50초 걸림                    | Render 무료 티어 슬립(15분 무요청) → 정상. 콜드스타트 후엔 빨라진다                                                                                                                                     |
-| 502/타임아웃 지속                       | Render Events에서 crash loop 확인 → Logs에서 원인. 직전 배포가 원인이면 Rollback (deploy.md)                                                                                                            |
-| health DOWN·기동 실패 + datasource 오류 | ① **Supabase 프로젝트 일시정지** 여부 확인 — 무료 티어는 **7일 무활동 시 자동 pause** → 대시보드에서 Restore 후 Render Manual Deploy. ② DB 비번 변경했다면 Render env `SPRING_DATASOURCE_PASSWORD` 갱신 |
-| DB 접속 UnknownHost/timeout             | env가 Direct 주소를 쓰고 있는지 확인 → 위 Session Pooler 주소로 교체                                                                                                                                    |
-| 이미지 업로드만 401                     | Vercel 함수가 전달한 JWT 만료 여부와 Render의 `/api/v1/images/upload-permission` 응답 확인                                                                                                              |
-| 이미지 업로드만 400/500                 | Vercel 프로젝트의 Blob Store 연결과 `BLOB_READ_WRITE_TOKEN` 확인                                                                                                                                        |
-| 업로드된 이미지 URL 404                 | Vercel Blob Store가 Public인지, 저장 URL이 `.public.blob.vercel-storage.com/images/`인지 확인                                                                                                           |
-| 빌드 실패                               | Render 빌드 로그 확인. 로컬 재현: `docker build backend/`. main이 로컬에서 빌드되면 Render 캐시 문제 → Manual Deploy → "Clear build cache & deploy"                                                     |
-
-### 키·비밀번호 로테이트
-
-유출 의심 시(채팅·화면공유에 노출 등):
-
-1. **Blob 토큰**: Vercel Storage에서 Blob Store 재연결 후 `BLOB_READ_WRITE_TOKEN` 갱신.
-2. **DB 비밀번호**: Supabase Settings → Database → Reset database password → Render env `SPRING_DATASOURCE_PASSWORD` 갱신.
-3. 각 플랫폼 env 저장 후 재배포하고 health와 이미지 업로드 재확인.
-
-### 프로덕션 데이터 백업
-
-무료 티어는 자동 백업(PITR) 없음. 필요 시 수동:
+복구 대상 DB와 백업 파일을 다시 확인한 뒤 앱을 중지하고 복구한다.
 
 ```bash
-# DB (Session Pooler 경유, 비번은 Supabase 대시보드에서)
-pg_dump "postgresql://postgres.daalrvcgpqdjqemiacrx:<PW>@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres" > mongle-$(date +%Y%m%d).sql
+docker compose stop backend
+read -r -p 'restore backup file: ' BACKUP_FILE
+test -s "$BACKUP_FILE"
+docker compose exec -T db sh -c 'exec mysql -uroot -p"$MYSQL_ROOT_PASSWORD" mongle' \
+  < "$BACKUP_FILE"
+docker compose start backend
+curl -s http://localhost:18080/actuator/health
 ```
 
-이미지는 Vercel Storage의 Blob Browser에서 확인·다운로드한다.
+### Prisma migration 상태
 
-### 배포 검증 (배포·복구 후 항상)
+```bash
+docker compose run --rm --no-deps \
+  --entrypoint ./node_modules/.bin/prisma backend migrate status
+```
 
-deploy.md §3 스모크 테스트: health UP → 토큰 발급 → 업로드 권한 확인 → 프론트 이미지 업로드 → Blob URL과 최적화 URL 확인.
+| 증상 | 원인·조치 |
+|---|---|
+| `P1001` DB 접속 실패 | `DATABASE_URL`의 host·port·계정과 db health를 확인 |
+| 기존 테이블 `already exists` | 신규 이미지 첫 기동 전 `000_hibernate_baseline` resolve 누락 → [deploy.md](./deploy.md) 절차 수행 |
+| failed migration 기록 | 앱 재시작만 반복하지 말고 실패 SQL·DB 상태·백업을 확인한 뒤 `prisma migrate resolve` 여부를 판단 |
+| 스키마 drift | `prisma db push`/`prisma migrate reset`으로 덮지 말고 실제 `SHOW CREATE TABLE`과 migration SQL을 비교 |
+
+`_prisma_migrations`를 수동 `UPDATE`/삭제하지 않는다.
+
+### 자주 겪는 문제
+
+| 증상 | 원인·조치 |
+|---|---|
+| 모든 API가 401 | `POST /api/v1/auth/token`으로 재발급, `MONGLE_JWT_SECRET`이 이전 배포와 같은지 확인 |
+| 18080 포트 충돌 | `lsof -i :18080`로 점유 프로세스 확인 |
+| backend restart loop | `docker compose logs backend`에서 migration·DB 접속·JWT secret 오류 확인 |
+| 시드가 안 보임 | 같은 UUID로 토큰을 발급했는지 확인. `users.demo_seeded=true`면 재생성하지 않음 |
+| 날짜가 하루 밀림 | 앱·DB `TZ=Asia/Seoul`과 API의 `YYYY-MM-DD`/`HH:mm` 변환 확인 |
+
+## Mac mini blue/green
+
+운영 파일은 레포지토리가 아닌 `~/mongle-deploy/`에 있다.
+
+```bash
+cd ~/mongle-deploy
+docker compose -f docker-compose.bluegreen.yml ps
+cat active-slot
+cat active-commit
+```
+
+확인된 경로는 `Tailscale Funnel -> nginx:18080 -> blue:18081 / green:18082`다. 포트나 service 이름이 바뀌었을 수 있으므로 운영 조치 전에 실제 compose와 nginx upstream을 읽는다.
+
+### 배포 후 검증
+
+```bash
+curl -s https://macmini.tailc4f400.ts.net/actuator/health
+curl -s https://macmini.tailc4f400.ts.net/v3/api-docs | jq '.openapi'
+```
+
+- inactive slot health를 먼저 확인한다.
+- nginx 전환 후 public health를 반복 확인한다.
+- 토큰 발급·인물 조회·기록 조회·OpenAPI를 확인한다.
+- 기존 slot을 즉시 삭제하지 않고 롤백 가능 상태로 둔다.
+
+### 운영 DB 백업
+
+운영 compose의 실제 DB service 이름과 env를 확인한 뒤 위와 같은 `mysqldump --single-transaction`을 실행한다. 백업은 `~/mongle-deploy/` 밖의 접근 제한된 경로로 복사한다.
+
+## 정기 점검
+
+- `du -sh backend/data/mysql` 또는 운영 DB volume 사용량
+- `prisma migrate status`
+- `/actuator/health`
+- 로그의 `INTERNAL_ERROR`, Prisma `P1xxx`/`P3xxx`
+- 최근 MySQL 논리 백업 파일 크기와 생성 시각

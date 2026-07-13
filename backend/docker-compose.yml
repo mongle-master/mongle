@@ -1,5 +1,5 @@
-# 로컬 실행 절차·환경변수 설명은 docs/runbook/local.md 참조
-# 도커 실행 = MySQL, 도커 없는 ./gradlew bootRun = H2 파일(application.yml 기본값)
+# 로컬 실행 절차·환경변수는 docs/runbook/local.md를 참조한다.
+# 앱과 DB는 항상 MySQL 스키마를 공유한다. 호스트에서 Nest를 띄울 때도 이 db 서비스를 쓴다.
 services:
   db:
     image: mysql:8.4
@@ -28,15 +28,21 @@ services:
     ports:
       - "18080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mongle?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-      SPRING_DATASOURCE_USERNAME: mongle
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-mongle}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      # 데모 기본값을 덮어쓸 때만 지정 (application.yml이 기본)
+      # 커스텀 MYSQL_PASSWORD를 쓰면 동일한 비밀번호를 URL-encode한 DATABASE_URL도 함께 지정한다.
+      DATABASE_URL: ${DATABASE_URL:-mysql://mongle:mongle@db:3306/mongle}
       MONGLE_JWT_SECRET: ${MONGLE_JWT_SECRET:-mongle-demo-hs256-secret-key-please-change-in-prod}
+      MONGLE_JWT_EXPIRATION: ${MONGLE_JWT_EXPIRATION:-30d}
+      PORT: 8080
+      TZ: Asia/Seoul
     healthcheck:
-      # 런타임 이미지(temurin-jre)에 curl/wget이 없어 bash /dev/tcp 포트 체크를 쓴다.
-      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080'"]
+      # Node 22의 fetch로 실제 health 응답까지 검증한다.
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:8080/actuator/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 3s
       retries: 12
