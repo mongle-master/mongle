@@ -141,6 +141,12 @@
     scrollbar-color: oklch(0.78 0 0 / 0.45) transparent;
   }
 
+  @media (min-width: 64rem) {
+    body {
+      @apply bg-muted/30;
+    }
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: oklch(0.78 0 0 / 0.4) transparent;

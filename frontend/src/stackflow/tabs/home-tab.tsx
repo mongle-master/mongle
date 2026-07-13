@@ -62,36 +62,42 @@ export function HomeTab() {
 
   return (
     <TabShell>
-      <header className="mb-3">
-        <MongleLogo className="mb-5 text-foreground" />
-        <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
-          함께한 순간, <br /> 몽글몽글 쌓이는 중
-        </h1>
-      </header>
+      <div className="lg:grid lg:h-full lg:min-h-0 lg:grid-cols-[minmax(16rem,0.8fr)_minmax(22rem,1.2fr)] lg:items-center lg:gap-6 xl:grid-cols-[minmax(16rem,0.7fr)_minmax(30rem,1.3fr)] xl:gap-12">
+        <div className="lg:self-center">
+          <header className="mb-3 lg:mb-8">
+            <MongleLogo className="mb-5 text-foreground lg:hidden" />
+            <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground lg:text-[34px] lg:leading-[1.2] lg:tracking-[-0.035em]">
+              함께한 순간, <br /> 몽글몽글 쌓이는 중
+            </h1>
+          </header>
 
-      <section className="mb-4">
-        <HomePeriodToggle value={period} onChange={handlePeriodChange} />
-      </section>
+          <section className="mb-4 lg:mb-0 lg:max-w-sm">
+            <HomePeriodToggle value={period} onChange={handlePeriodChange} />
+          </section>
+        </div>
 
-      {mapQuery.isPending ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          관계 지도를 불러오는 중…
-        </p>
-      ) : mapQuery.isError || !mapData ? (
-        <p className="py-12 text-center text-sm text-destructive">
-          관계 지도를 불러오지 못했어요.
-        </p>
-      ) : (
-        <RelationForceMap
-          key={period}
-          me={mapData.me}
-          nodes={graphNodes}
-          edges={visibleEdges}
-        />
-      )}
+        <div className="min-w-0 lg:self-center">
+          {mapQuery.isPending ? (
+            <p className="py-12 text-center text-sm text-muted-foreground">
+              관계 지도를 불러오는 중…
+            </p>
+          ) : mapQuery.isError || !mapData ? (
+            <p className="py-12 text-center text-sm text-destructive">
+              관계 지도를 불러오지 못했어요.
+            </p>
+          ) : (
+            <RelationForceMap
+              key={period}
+              me={mapData.me}
+              nodes={graphNodes}
+              edges={visibleEdges}
+            />
+          )}
+        </div>
+      </div>
 
       {throwback && !throwbackDismissed ? (
-        <div className="pointer-events-none absolute right-4 bottom-[6.25rem] left-4 z-40">
+        <div className="pointer-events-none absolute right-4 bottom-[6.25rem] left-4 z-40 lg:right-12 lg:bottom-8 lg:left-auto lg:w-[26rem]">
           <div
             className={cn(
               'pointer-events-auto mx-auto w-full max-w-md',

@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 
 // Main activity의 탭 슬롯 안에서 쓰는 공용 셸. 구 AppShell의 main 영역 대응물로,
-// 하단은 StackTabBar(오버레이)를 피할 만큼 패딩을 준다.
+// 모바일 하단은 StackTabBar 오버레이를 피하고 PC에서는 콘텐츠 여백으로 전환한다.
 // 탭마다 이 셸이 각자 스크롤 컨테이너를 가지므로 탭 전환 시 스크롤 위치도 보존된다.
 export function TabShell({
   children,
@@ -16,7 +16,7 @@ export function TabShell({
   return (
     <div
       className={cn(
-        'px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[calc(4.75rem+env(safe-area-inset-bottom))]',
+        'px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[calc(4.75rem+env(safe-area-inset-bottom))] lg:px-10 lg:pt-8 lg:pb-8 xl:px-12',
         layout === 'fixed'
           ? 'flex h-full min-h-0 min-w-0 flex-col overflow-hidden'
           : 'h-full overflow-y-auto [-webkit-overflow-scrolling:touch]',

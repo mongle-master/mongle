@@ -90,7 +90,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
   })
 
   return (
-    <ActivityShell layout="fixed" className="px-0">
+    <ActivityShell layout="fixed" className="px-0 lg:px-0">
       <FormPageHeader
         onBack={() => pop()}
         title="프로필 수정"

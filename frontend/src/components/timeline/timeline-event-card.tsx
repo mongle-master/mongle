@@ -94,7 +94,7 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
     <button
       type="button"
       onClick={() => push('EventDetail', { eventId: String(item.id) })}
-      className="block min-w-0 flex-1 text-left"
+      className="block w-full min-w-0 flex-1 text-left"
     >
       <Card className="relative overflow-hidden py-0 shadow-[0_10px_30px_rgba(0,0,0,0.045)] transition-all hover:-translate-y-0.5 hover:bg-muted/20 hover:shadow-[0_14px_36px_rgba(0,0,0,0.07)]">
         <CardContent className="p-4">
