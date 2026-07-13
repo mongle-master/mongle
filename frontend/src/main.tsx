@@ -18,6 +18,11 @@ import {
 } from './lib/analytics'
 import { createUserIdentity, getUserIdentity } from './lib/user-identity'
 import type { UserIdentity } from './lib/user-identity'
+import {
+  isNativeNavigationWebView,
+  NATIVE_FOCUS_EVENT,
+} from './lib/native-navigation-bridge'
+import { refreshDefaultHomePeriod } from './lib/home-period'
 import { installBrowserNavTransitionSkip } from './stackflow/browser-nav-transition'
 import { normalizeStackUrl } from './stackflow/normalize-stack-url'
 import { StackViewport } from './stackflow/components/stack-viewport'
@@ -56,6 +61,22 @@ function AppBootstrap() {
   >(identity ? 'loading' : 'idle')
   // 이 세션에서 이름 단계를 거쳤는지 — 거쳤다면 로딩·에러도 퍼널 화면 안에서 처리한다
   const [inFunnel, setInFunnel] = useState(!identity)
+
+  useEffect(() => {
+    if (!isNativeNavigationWebView()) return
+
+    const invalidateNativeWebViewQueries = () => {
+      refreshDefaultHomePeriod()
+      void queryClient.invalidateQueries()
+    }
+    window.addEventListener(NATIVE_FOCUS_EVENT, invalidateNativeWebViewQueries)
+    return () => {
+      window.removeEventListener(
+        NATIVE_FOCUS_EVENT,
+        invalidateNativeWebViewQueries,
+      )
+    }
+  }, [])
 
   useEffect(() => {
     if (!identity) return

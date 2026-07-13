@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 import { useState } from 'react'
 import { personMutation } from '@/apis/mutations'
 import { homeQuery, personQuery } from '@/apis/queries'
@@ -13,7 +13,7 @@ export function usePersonDelete(
   personId: number,
   { popCount = 1 }: { popCount?: number } = {},
 ) {
-  const { pop } = useFlow()
+  const { pop } = useAppFlow()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
 

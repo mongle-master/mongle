@@ -2,6 +2,7 @@ import { defineConfig } from '@stackflow/config'
 // ActivityDefinition에 `route` 필드를 추가하는 module augmentation을 활성화하기 위한 type-only import.
 // (route는 @stackflow/config가 아니라 plugin-history-sync가 선언한다)
 import type {} from '@stackflow/plugin-history-sync'
+import { canPostNativeNavigation } from '@/lib/native-navigation-bridge'
 
 export const MAIN_TABS = ['home', 'timeline', 'people', 'settings'] as const
 export type MainTab = (typeof MAIN_TABS)[number]
@@ -32,6 +33,10 @@ export function isMainTab(value: string | undefined): value is MainTab {
   return MAIN_TABS.includes(value as MainTab)
 }
 
+function appDefaultHistory<TEntry>(entries: TEntry[]): TEntry[] {
+  return canPostNativeNavigation() ? [] : entries
+}
+
 // URL 생성(fill)은 해당 activity의 가장 구체적인 라우트 하나만 쓰므로
 // activity당 라우트는 1개로 유지한다. 인바운드 별칭은 Stackflow 초기화 전에
 // normalize-stack-url.ts에서 canonical URL로 교체한다.
@@ -53,67 +58,74 @@ export const stackConfig = defineConfig({
       route: {
         path: '/people/:personId',
         // 딥링크로 바로 진입해도 뒤로가기가 앱 이탈이 아니라 탭 화면으로 떨어지게 한다
-        defaultHistory: () => [
-          { activityName: 'Main', activityParams: { tab: 'people' } },
-        ],
+        defaultHistory: () =>
+          appDefaultHistory([
+            { activityName: 'Main', activityParams: { tab: 'people' } },
+          ]),
       },
     },
     {
       name: 'PersonNew',
       route: {
         path: '/people/new',
-        defaultHistory: () => [
-          { activityName: 'Main', activityParams: { tab: 'people' } },
-        ],
+        defaultHistory: () =>
+          appDefaultHistory([
+            { activityName: 'Main', activityParams: { tab: 'people' } },
+          ]),
       },
     },
     {
       name: 'PersonEdit',
       route: {
         path: '/people/:personId/edit',
-        defaultHistory: (params) => [
-          { activityName: 'Main', activityParams: { tab: 'people' } },
-          {
-            activityName: 'Person',
-            activityParams: { personId: params.personId },
-          },
-        ],
+        defaultHistory: (params) =>
+          appDefaultHistory([
+            { activityName: 'Main', activityParams: { tab: 'people' } },
+            {
+              activityName: 'Person',
+              activityParams: { personId: params.personId },
+            },
+          ]),
       },
     },
     {
       name: 'EventDetail',
       route: {
         path: '/events/:eventId',
-        defaultHistory: () => [
-          { activityName: 'Main', activityParams: { tab: 'timeline' } },
-        ],
+        defaultHistory: () =>
+          appDefaultHistory([
+            { activityName: 'Main', activityParams: { tab: 'timeline' } },
+          ]),
       },
     },
     {
       name: 'Record',
       route: {
         path: '/record',
-        defaultHistory: () => [
-          { activityName: 'Main', activityParams: { tab: 'home' } },
-        ],
+        defaultHistory: () =>
+          appDefaultHistory([
+            { activityName: 'Main', activityParams: { tab: 'home' } },
+          ]),
       },
     },
     {
       name: 'HomeSettings',
       route: {
         path: '/settings/home',
-        defaultHistory: () => [
-          { activityName: 'Main', activityParams: { tab: 'settings' } },
-        ],
+        defaultHistory: () =>
+          appDefaultHistory([
+            { activityName: 'Main', activityParams: { tab: 'settings' } },
+          ]),
       },
     },
     {
       name: 'TagSettings',
       route: {
         path: '/settings/tags',
-        defaultHistory: () => [
-          { activityName: 'Main', activityParams: { tab: 'settings' } },
-        ],
+        defaultHistory: () =>
+          appDefaultHistory([
+            { activityName: 'Main', activityParams: { tab: 'settings' } },
+          ]),
       },
     },
     {

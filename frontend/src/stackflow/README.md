@@ -1,7 +1,17 @@
 # stackflow 내비게이션
 
 [daangn/stackflow](https://github.com/daangn/stackflow) v2 기반 스택 내비게이션.
-앱의 모든 화면과 브라우저 history를 Stackflow가 단독으로 소유한다.
+모바일 웹에서는 모든 화면과 브라우저 history를 Stackflow가 단독으로 소유한다.
+
+RN WebView에서는 역할이 나뉜다:
+
+- `Main` 탭과 인물 프로필·타임라인 step은 현재 WebView의 Stackflow가 처리한다.
+- activity push·replace·pop은 `useAppFlow`가 RN 브리지 메시지로 바꾼다.
+- Expo Router가 activity마다 새 WebView를 쌓아 네이티브 스택을 단독으로 소유한다.
+- 상세 WebView의 `defaultHistory`는 빈 배열이라 숨은 Main activity를 함께 마운트하지 않는다.
+- 네이티브 화면으로 복귀하면 focus 이벤트로 해당 WebView의 활성 query를 다시 조회한다.
+
+온보딩은 인증 전 전용 Stackflow를 그대로 사용한다.
 
 ## 왜 stackflow인가 (구 구조의 페인포인트)
 
@@ -26,12 +36,13 @@
 | `Record`      | `/record` (`?personId=&eventId=`)       | personId 프리셋(인물 화면 진입) = push, 그 외(하단 ＋·기록 수정) = fullScreen 모달 present |
 | `NotFound`    | `/404`                                  | history-sync fallback                                                                      |
 
-- **URL 소유권**: `history-sync`가 URL 해석·push/pop과 history state를 전부 담당한다.
+- **URL 소유권**: 모바일 웹에서는 `history-sync`가 URL 해석·push/pop과 history state를 전부 담당한다.
+  RN WebView에서는 현재 activity URL과 step만 담당하고 activity stack은 Expo Router가 소유한다.
   `/` → `/home`, 구 `/people/:id/timeline` → `/people/:id?view=timeline` 별칭은
   `normalize-stack-url.ts`가 Stackflow 모듈 로드 전에 `replaceState`로 정규화한다.
   URL 생성(fill)이 activity의 가장 구체적인 라우트 하나만 쓰므로 **activity당 라우트는 1개**를
   유지한다.
-- **딥링크**: 상세 URL 직접 진입 시 `defaultHistory`가 아래에 Main(해당 탭)을 깔아
+- **딥링크**: 모바일 웹의 상세 URL 직접 진입 시 `defaultHistory`가 아래에 Main(해당 탭)을 깔아
   뒤로가기가 앱 이탈이 되지 않는다.
 - **데스크톱**: `main.tsx`가 스택 전체를 `mx-auto max-w-md`(448px) relative 컨테이너에
   가둔다. basic-ui 화면은 fixed가 아니라 positioned 조상 기준 absolute라 슬라이드도 그 안에서만 일어난다.

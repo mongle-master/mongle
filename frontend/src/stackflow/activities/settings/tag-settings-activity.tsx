@@ -1,11 +1,11 @@
-import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { SettingsPageHeader } from '@/components/settings/settings-page-header'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { TagSettingsPage } from '@/stackflow/activities/settings/tag-settings-page'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 export const TagSettingsActivity: ActivityComponentType<'TagSettings'> = () => {
-  const { pop } = useFlow()
+  const { pop } = useAppFlow()
 
   return (
     <ActivityShell layout="fixed">

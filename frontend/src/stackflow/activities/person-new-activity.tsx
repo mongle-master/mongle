@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { useFunnel } from '@use-funnel/browser'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
@@ -30,6 +29,7 @@ import { personMutation } from '@/apis/mutations'
 import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
 import { uploadImage } from '@/lib/api/images'
 import { featureEvents, trackFeature } from '@/lib/analytics'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 import { validatePersonForm } from '@/lib/person-validation'
 
 // 새 단계는 여기 키와 STEP_ORDER에 추가하고 아래 stepBody에 섹션을 더하면 된다.
@@ -43,7 +43,7 @@ type PersonNewSteps = {
 const STEP_ORDER = ['name', 'relation', 'dates', 'detail'] as const
 
 export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
-  const { pop, replace } = useFlow()
+  const { pop, replace } = useAppFlow()
   const queryClient = useQueryClient()
   const photoInputRef = useRef<HTMLInputElement>(null)
   const reducedMotion = useReducedMotion()

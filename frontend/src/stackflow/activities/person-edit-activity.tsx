@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
@@ -14,6 +13,7 @@ import { personMutation } from '@/apis/mutations'
 import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
 import { useEnterDone } from '@/stackflow/use-enter-done'
 import { featureEvents, trackFeature } from '@/lib/analytics'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 const PERSON_FORM_ID = 'person-form'
 
@@ -22,7 +22,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
 }) => {
   const { personId } = params
   const id = Number(personId)
-  const { pop } = useFlow()
+  const { pop } = useAppFlow()
   const enterDone = useEnterDone()
   const queryClient = useQueryClient()
   const del = usePersonDelete(id, { popCount: 2 })

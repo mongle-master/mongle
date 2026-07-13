@@ -1,5 +1,4 @@
 import { useMutation } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
 import { RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
@@ -17,10 +16,11 @@ import { userMutation } from '@/apis/mutations'
 import { featureEvents, resetAnalytics, trackFeature } from '@/lib/analytics'
 import { clearToken } from '@/lib/auth-token'
 import { clearUserIdentity } from '@/lib/user-identity'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 import { TabShell } from '@/stackflow/components/tab-shell'
 
 export function SettingsTab() {
-  const { push } = useFlow()
+  const { push } = useAppFlow()
   const { theme, setTheme } = useTheme()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const resetMutation = useMutation({
