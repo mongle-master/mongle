@@ -338,14 +338,15 @@ function PeopleEmptyState({
               검색 지우기
             </Button>
           ) : (
-            <button
+            <Button
               type="button"
+              size="cta"
               onClick={() => onAddPerson()}
-              className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-extrabold text-primary-foreground"
+              className="mt-5"
             >
               <Plus className="size-4" />
               사람 추가
-            </button>
+            </Button>
           )}
         </ListGroupItem>
       </ListGroup>

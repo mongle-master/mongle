@@ -96,10 +96,10 @@ export function SettingsTab() {
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
+                  size="pill-sm"
                   disabled={resetMutation.isPending}
                   onClick={() => setConfirmOpen(true)}
-                  className="h-9 shrink-0 rounded-full px-3 font-extrabold"
+                  className="shrink-0"
                 >
                   <RotateCcw className="size-3.5" />
                   초기화

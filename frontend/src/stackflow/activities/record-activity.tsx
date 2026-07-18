@@ -16,6 +16,7 @@ import {
   personQuery,
   timelineQuery,
 } from '@/apis/queries'
+import { Button } from '@/components/ui/button'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -367,13 +368,15 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
           <p className="text-sm text-destructive">
             기록 선택지를 불러오지 못했어요.
           </p>
-          <button
+          <Button
             type="button"
+            variant="outline-foreground"
+            size="cta"
             onClick={() => void chipsQuery.refetch()}
-            className="mt-5 rounded-full border border-foreground bg-card px-4 py-2.5 text-sm font-extrabold"
+            className="mt-5"
           >
             다시 시도
-          </button>
+          </Button>
         </div>
       </BareShell>
     )
@@ -386,14 +389,16 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
           <p className="text-sm text-muted-foreground">
             먼저 함께한 사람을 추가해 주세요.
           </p>
-          <button
+          <Button
             type="button"
+            variant="outline-foreground"
+            size="cta"
             onClick={() => push('PersonNew', {})}
-            className="mt-5 inline-flex items-center gap-1 rounded-full border border-foreground bg-card px-4 py-2.5 text-sm font-extrabold"
+            className="mt-5"
           >
             <Plus className="size-4" />
             사람 추가
-          </button>
+          </Button>
         </div>
       </BareShell>
     )

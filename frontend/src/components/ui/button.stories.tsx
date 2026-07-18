@@ -14,15 +14,17 @@ const meta = {
       options: [
         'default',
         'outline',
+        'outline-foreground',
         'secondary',
         'ghost',
         'destructive',
+        'destructive-solid',
         'link',
       ],
     },
     size: {
       control: 'select',
-      options: ['default', 'xs', 'sm', 'lg', 'icon'],
+      options: ['default', 'xs', 'sm', 'lg', 'cta', 'pill', 'pill-sm', 'icon'],
     },
   },
 } satisfies Meta<typeof Button>
@@ -47,4 +49,25 @@ export const Destructive: Story = {
 
 export const Small: Story = {
   args: { size: 'sm' },
+}
+
+// 이 앱의 pill 버튼 언어(rounded-full + font-extrabold) 스토리.
+export const Cta: Story = {
+  args: { size: 'cta', children: '저장' },
+}
+
+export const Pill: Story = {
+  args: { size: 'pill', children: '다시 시도' },
+}
+
+export const PillSmall: Story = {
+  args: { variant: 'outline', size: 'pill-sm', children: '필터 설정' },
+}
+
+export const OutlineForeground: Story = {
+  args: { variant: 'outline-foreground', size: 'cta', children: '사람 추가' },
+}
+
+export const DestructiveSolid: Story = {
+  args: { variant: 'destructive-solid', size: 'cta', children: '삭제' },
 }

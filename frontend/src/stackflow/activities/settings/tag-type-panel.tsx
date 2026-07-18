@@ -226,10 +226,10 @@ export function TagTypePanel({
           />
           <Button
             variant="outline"
-            size="sm"
+            size="pill-sm"
             disabled={!draft.trim() || createMutation.isPending}
             onClick={createTag}
-            className="h-9 shrink-0 rounded-full border-border/60 bg-background px-3 font-extrabold"
+            className="shrink-0 border-border/60"
           >
             <Plus className="size-3.5" />
             추가
