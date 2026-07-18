@@ -9,6 +9,7 @@ import { MongleLogo } from '@/components/brand/mongle-logo'
 import { TabShell } from '@/stackflow/components/tab-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
+import { PageTitle } from '@/components/ui/page-title'
 import {
   EmptyState,
   EmptyStateAction,
@@ -82,9 +83,7 @@ export function PeopleTab() {
         <MongleLogo className="mb-5 text-foreground" />
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
-              사람
-            </h1>
+            <PageTitle>사람</PageTitle>
             <p className="mt-2 text-[12px] font-medium text-muted-foreground">
               {totalCount > 0
                 ? `함께한 사람 ${totalCount}명`

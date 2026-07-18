@@ -9,6 +9,7 @@ import { RelationForceMap } from '@/components/home/relation-force-map'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { TabShell } from '@/stackflow/components/tab-shell'
 import { Card } from '@/components/ui/card'
+import { PageTitle } from '@/components/ui/page-title'
 import { StatusMessage } from '@/components/ui/status-message'
 import {
   getDefaultHomePeriod,
@@ -65,9 +66,9 @@ export function HomeTab() {
     <TabShell>
       <header className="mb-3">
         <MongleLogo className="mb-5 text-foreground" />
-        <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
+        <PageTitle>
           함께한 순간, <br /> 몽글몽글 쌓이는 중
-        </h1>
+        </PageTitle>
       </header>
 
       <section className="mb-4">

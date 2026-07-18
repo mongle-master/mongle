@@ -1,4 +1,5 @@
 import { BackButton } from '@/components/layout/back-button'
+import { PageTitle } from '@/components/ui/page-title'
 
 export function SettingsPageHeader({
   title,
@@ -10,9 +11,7 @@ export function SettingsPageHeader({
   return (
     <header className="shrink-0 pb-5">
       <BackButton onClick={onBack} className="mb-4" />
-      <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
-        {title}
-      </h1>
+      <PageTitle>{title}</PageTitle>
     </header>
   )
 }

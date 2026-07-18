@@ -7,6 +7,7 @@ import { SettingsNavigationItem } from '@/components/settings/settings-navigatio
 import { useTheme } from '@/components/theme-provider'
 import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
+import { PageTitle } from '@/components/ui/page-title'
 import {
   ListGroup,
   ListGroupItem,
@@ -44,9 +45,7 @@ export function SettingsTab() {
     <TabShell layout="fixed">
       <header className="shrink-0 pb-4">
         <MongleLogo className="mb-5 text-foreground" />
-        <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
-          설정
-        </h1>
+        <PageTitle>설정</PageTitle>
       </header>
 
       <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">

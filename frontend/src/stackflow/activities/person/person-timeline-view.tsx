@@ -14,6 +14,7 @@ import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
+import { PageTitle } from '@/components/ui/page-title'
 import {
   EmptyState,
   EmptyStateAction,
@@ -122,9 +123,7 @@ export function PersonTimelineView({ personId }: { personId: string }) {
     <>
       <TimelineScrollShell scrollRef={scrollRef}>
         <div className="mb-4">
-          <h1 data-amp-mask className="text-[22px] font-black tracking-tight">
-            {formatPersonName(person)}
-          </h1>
+          <PageTitle data-amp-mask>{formatPersonName(person)}</PageTitle>
           <p className="mt-1 text-xs font-medium text-muted-foreground">
             {firstMetYear ? `${firstMetYear}년부터 · ` : ''}
             {person.stats.meetCount}번 만남

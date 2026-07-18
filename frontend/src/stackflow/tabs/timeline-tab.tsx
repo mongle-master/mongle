@@ -11,6 +11,7 @@ import {
 import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell'
 import { Button } from '@/components/ui/button'
+import { PageTitle } from '@/components/ui/page-title'
 import {
   EmptyState,
   EmptyStateAction,
@@ -126,9 +127,7 @@ export function TimelineTab() {
         header={
           <>
             <MongleLogo className="mb-5 text-foreground" />
-            <h1 className="text-[22px] font-extrabold tracking-tight">
-              나의 몽글라인
-            </h1>
+            <PageTitle>나의 몽글라인</PageTitle>
             <p className="mt-1 text-xs text-muted-foreground">
               모든 사람과의 기록을 시간순으로
             </p>
