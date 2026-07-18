@@ -12,6 +12,7 @@ import {
   ListGroupItem,
   ListGroupLabel,
 } from '@/components/ui/list-group'
+import { StatusMessage } from '@/components/ui/status-message'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import { optimizedImageUrl } from '@/lib/image-url'
 import {
@@ -53,17 +54,17 @@ export function PersonProfileView({
 
   if (!Number.isFinite(id) || personDetailQuery.isPending) {
     return (
-      <p className="py-20 text-center text-sm text-muted-foreground">
+      <StatusMessage inset="screen">
         {personDetailQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
-      </p>
+      </StatusMessage>
     )
   }
 
   if (!person) {
     return (
-      <p className="py-20 text-center text-sm text-muted-foreground">
+      <StatusMessage inset="screen">
         사람 정보를 불러오지 못했어요.
-      </p>
+      </StatusMessage>
     )
   }
 

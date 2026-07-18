@@ -9,6 +9,7 @@ import { RelationForceMap } from '@/components/home/relation-force-map'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { TabShell } from '@/stackflow/components/tab-shell'
 import { Card } from '@/components/ui/card'
+import { StatusMessage } from '@/components/ui/status-message'
 import {
   getDefaultHomePeriod,
   isPersonInHomePeriod,
@@ -74,13 +75,11 @@ export function HomeTab() {
       </section>
 
       {mapQuery.isPending ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          관계 지도를 불러오는 중…
-        </p>
+        <StatusMessage inset="list">관계 지도를 불러오는 중…</StatusMessage>
       ) : mapQuery.isError || !mapData ? (
-        <p className="py-12 text-center text-sm text-destructive">
+        <StatusMessage tone="error" inset="list">
           관계 지도를 불러오지 못했어요.
-        </p>
+        </StatusMessage>
       ) : (
         <RelationForceMap
           key={period}

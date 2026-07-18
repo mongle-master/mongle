@@ -9,8 +9,15 @@ import { MongleLogo } from '@/components/brand/mongle-logo'
 import { TabShell } from '@/stackflow/components/tab-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
+import {
+  EmptyState,
+  EmptyStateAction,
+  EmptyStateDescription,
+  EmptyStateTitle,
+} from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
 import { SegmentedControl } from '@/components/ui/segmented-control'
+import { StatusMessage } from '@/components/ui/status-message'
 import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
 import {
   ListGroup,
@@ -131,13 +138,11 @@ export function PeopleTab() {
         ) : null}
 
         {personsQuery.isPending ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">
-            사람 목록을 불러오는 중…
-          </p>
+          <StatusMessage inset="list">사람 목록을 불러오는 중…</StatusMessage>
         ) : personsQuery.isError ? (
-          <p className="py-12 text-center text-sm text-destructive">
+          <StatusMessage tone="error" inset="list">
             사람 목록을 불러오지 못했어요.
-          </p>
+          </StatusMessage>
         ) : totalCount === 0 ? (
           <PeopleEmptyState
             query={query}
@@ -314,40 +319,39 @@ function PeopleEmptyState({
   return (
     <section>
       <ListGroup>
-        <ListGroupItem withDivider={false} className="py-12 text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-background/80 text-2xl dark:bg-background/40">
-            👤
-          </div>
-          <p className="text-[15px] font-extrabold text-foreground">
-            {trimmed ? '검색 결과가 없어요' : '아직 기록한 사람이 없어요'}
-          </p>
-          <p
-            data-amp-mask={trimmed ? true : undefined}
-            className="mx-auto mt-2 max-w-[240px] text-sm font-medium text-muted-foreground"
-          >
-            {trimmed
-              ? `'${trimmed}'에 해당하는 사람을 찾지 못했어요.`
-              : '첫 사람을 추가하고 관계를 남겨보세요.'}
-          </p>
-          {trimmed ? (
-            <Button
-              variant="outline"
-              className="mt-5 rounded-full border-border/60 bg-background"
-              onClick={onClear}
+        <ListGroupItem withDivider={false} className="py-12">
+          <EmptyState>
+            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-background/80 text-2xl dark:bg-background/40">
+              👤
+            </div>
+            <EmptyStateTitle>
+              {trimmed ? '검색 결과가 없어요' : '아직 기록한 사람이 없어요'}
+            </EmptyStateTitle>
+            <EmptyStateDescription
+              data-amp-mask={trimmed ? true : undefined}
+              className="mt-2 max-w-[240px]"
             >
-              검색 지우기
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              size="cta"
-              onClick={() => onAddPerson()}
-              className="mt-5"
-            >
-              <Plus className="size-4" />
-              사람 추가
-            </Button>
-          )}
+              {trimmed
+                ? `'${trimmed}'에 해당하는 사람을 찾지 못했어요.`
+                : '첫 사람을 추가하고 관계를 남겨보세요.'}
+            </EmptyStateDescription>
+            <EmptyStateAction>
+              {trimmed ? (
+                <Button
+                  variant="outline"
+                  className="rounded-full border-border/60 bg-background"
+                  onClick={onClear}
+                >
+                  검색 지우기
+                </Button>
+              ) : (
+                <Button type="button" size="cta" onClick={() => onAddPerson()}>
+                  <Plus className="size-4" />
+                  사람 추가
+                </Button>
+              )}
+            </EmptyStateAction>
+          </EmptyState>
         </ListGroupItem>
       </ListGroup>
     </section>

@@ -6,6 +6,7 @@ import { eventQuery, personQuery } from '@/apis/queries'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
+import { StatusMessage } from '@/components/ui/status-message'
 import { EventPhotoGallery } from '@/components/events/event-photo-gallery'
 import { formatWhen } from '@/lib/format'
 
@@ -29,9 +30,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
   if (!Number.isFinite(id)) {
     return (
       <ActivityShell>
-        <p className="py-20 text-center text-sm text-muted-foreground">
-          잘못된 경로예요.
-        </p>
+        <StatusMessage inset="screen">잘못된 경로예요.</StatusMessage>
       </ActivityShell>
     )
   }
@@ -39,9 +38,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
   if (eventDetailQuery.isPending) {
     return (
       <ActivityShell>
-        <p className="py-20 text-center text-sm text-muted-foreground">
-          불러오는 중…
-        </p>
+        <StatusMessage inset="screen">불러오는 중…</StatusMessage>
       </ActivityShell>
     )
   }
@@ -62,9 +59,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
           <h1 className="text-center text-base font-extrabold">몽글 상세</h1>
           <span aria-hidden className="text-right" />
         </header>
-        <p className="py-20 text-center text-sm text-muted-foreground">
-          기록을 찾을 수 없어요.
-        </p>
+        <StatusMessage inset="screen">기록을 찾을 수 없어요.</StatusMessage>
       </ActivityShell>
     )
   }

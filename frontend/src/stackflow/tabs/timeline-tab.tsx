@@ -11,6 +11,12 @@ import {
 import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell'
 import { Button } from '@/components/ui/button'
+import {
+  EmptyState,
+  EmptyStateAction,
+  EmptyStateDescription,
+} from '@/components/ui/empty-state'
+import { StatusMessage } from '@/components/ui/status-message'
 import { chipQuery, personQuery, timelineQuery } from '@/apis/queries'
 import {
   flattenTimelineCards,
@@ -158,34 +164,33 @@ export function TimelineTab() {
         </div>
 
         {filteredTimelineQuery.isPending ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">
-            타임라인을 불러오는 중…
-          </p>
+          <StatusMessage inset="list">타임라인을 불러오는 중…</StatusMessage>
         ) : filteredTimelineQuery.isError ? (
-          <p className="py-12 text-center text-sm text-destructive">
+          <StatusMessage tone="error" inset="list">
             타임라인을 불러오지 못했어요.
-          </p>
+          </StatusMessage>
         ) : cards.length === 0 ? (
-          <div className="py-12 text-center">
-            <p className="text-sm text-muted-foreground">
+          <EmptyState className="py-12">
+            <EmptyStateDescription>
               {hasFilter
                 ? '이 조건에 맞는 기록이 없어요.'
                 : persons.length === 0
                   ? '먼저 함께한 사람을 추가해 주세요.'
                   : '아직 함께한 기록이 없어요. 첫 순간을 새겨보세요.'}
-            </p>
-            <Button
-              className="mt-4"
-              variant="outline"
-              onClick={() =>
-                persons.length === 0
-                  ? push('PersonNew', {})
-                  : push('Record', {})
-              }
-            >
-              {persons.length === 0 ? '＋ 사람 추가' : '기록 작성'}
-            </Button>
-          </div>
+            </EmptyStateDescription>
+            <EmptyStateAction>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  persons.length === 0
+                    ? push('PersonNew', {})
+                    : push('Record', {})
+                }
+              >
+                {persons.length === 0 ? '＋ 사람 추가' : '기록 작성'}
+              </Button>
+            </EmptyStateAction>
+          </EmptyState>
         ) : (
           <TimelineFeed
             scrollRootRef={scrollRef}

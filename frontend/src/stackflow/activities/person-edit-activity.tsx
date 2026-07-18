@@ -8,6 +8,7 @@ import { PersonEditForm } from '@/components/person/person-edit-form'
 import { personToFormValues } from '@/components/person/person-form'
 import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
+import { StatusMessage } from '@/components/ui/status-message'
 import { personMutation } from '@/apis/mutations'
 import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
 import { useEnterDone } from '@/stackflow/use-enter-done'
@@ -65,9 +66,9 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
   if (!Number.isFinite(id) || !enterDone || personDetailQuery.isPending) {
     return (
       <ActivityShell layout="fixed">
-        <p className="py-20 text-center text-sm text-muted-foreground">
+        <StatusMessage inset="screen">
           {Number.isFinite(id) ? '불러오는 중…' : '잘못된 경로예요.'}
-        </p>
+        </StatusMessage>
       </ActivityShell>
     )
   }
@@ -75,9 +76,9 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
   if (!person || personDetailQuery.isError) {
     return (
       <ActivityShell layout="fixed">
-        <p className="py-20 text-center text-sm text-destructive">
+        <StatusMessage tone="error" inset="screen">
           사람 정보를 불러오지 못했어요.
-        </p>
+        </StatusMessage>
       </ActivityShell>
     )
   }

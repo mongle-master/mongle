@@ -14,7 +14,13 @@ import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
+import {
+  EmptyState,
+  EmptyStateAction,
+  EmptyStateDescription,
+} from '@/components/ui/empty-state'
 import { ListGroup, ListGroupItem } from '@/components/ui/list-group'
+import { StatusMessage } from '@/components/ui/status-message'
 import { chipQuery, eventQuery, personQuery } from '@/apis/queries'
 import { formatPersonName } from '@/lib/format'
 import { matchesActivityFlowSelection } from '@/lib/timeline-activity-flow'
@@ -89,9 +95,7 @@ export function PersonTimelineView({ personId }: { personId: string }) {
   if (!Number.isFinite(id)) {
     return (
       <TimelineScrollShell scrollRef={scrollRef}>
-        <p className="py-20 text-center text-sm text-muted-foreground">
-          잘못된 경로예요.
-        </p>
+        <StatusMessage inset="screen">잘못된 경로예요.</StatusMessage>
       </TimelineScrollShell>
     )
   }
@@ -99,9 +103,7 @@ export function PersonTimelineView({ personId }: { personId: string }) {
   if (personDetailQuery.isPending || timelineQuery.isPending) {
     return (
       <TimelineScrollShell scrollRef={scrollRef}>
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          불러오는 중…
-        </p>
+        <StatusMessage inset="screen">불러오는 중…</StatusMessage>
       </TimelineScrollShell>
     )
   }
@@ -109,9 +111,9 @@ export function PersonTimelineView({ personId }: { personId: string }) {
   if (!person) {
     return (
       <TimelineScrollShell scrollRef={scrollRef}>
-        <p className="py-20 text-center text-sm text-muted-foreground">
+        <StatusMessage inset="screen">
           사람 정보를 불러오지 못했어요.
-        </p>
+        </StatusMessage>
       </TimelineScrollShell>
     )
   }
@@ -188,24 +190,25 @@ export function PersonTimelineView({ personId }: { personId: string }) {
         />
 
         {timelineQuery.isError ? (
-          <p className="py-12 text-center text-sm text-destructive">
+          <StatusMessage tone="error" inset="list">
             타임라인을 불러오지 못했어요.
-          </p>
+          </StatusMessage>
         ) : events.length === 0 ? (
-          <div className="py-10 text-center">
-            <p className="text-sm text-muted-foreground">
+          <EmptyState className="py-12">
+            <EmptyStateDescription>
               {hasFilter
                 ? '이 조건에 맞는 기록이 없어요.'
                 : '아직 함께한 기록이 없어요. 첫 순간을 새겨보세요.'}
-            </p>
-            <Button
-              className="mt-4"
-              variant="outline"
-              onClick={() => push('Record', { personId })}
-            >
-              기록 작성
-            </Button>
-          </div>
+            </EmptyStateDescription>
+            <EmptyStateAction>
+              <Button
+                variant="outline"
+                onClick={() => push('Record', { personId })}
+              >
+                기록 작성
+              </Button>
+            </EmptyStateAction>
+          </EmptyState>
         ) : (
           <TimelineFeed
             scrollRootRef={scrollRef}

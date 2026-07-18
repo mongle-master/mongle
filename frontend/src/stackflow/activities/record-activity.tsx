@@ -17,7 +17,13 @@ import {
   timelineQuery,
 } from '@/apis/queries'
 import { Button } from '@/components/ui/button'
+import {
+  EmptyState,
+  EmptyStateAction,
+  EmptyStateDescription,
+} from '@/components/ui/empty-state'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { StatusMessage } from '@/components/ui/status-message'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { DateStrip, TimeWheel } from '@/components/record/date-time-wheel'
@@ -354,9 +360,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   if (isLoading || !enterDone) {
     return (
       <BareShell slideIn={slideIn}>
-        <p className="px-5 py-20 text-center text-sm text-muted-foreground">
+        <StatusMessage inset="screen" className="px-5">
           불러오는 중…
-        </p>
+        </StatusMessage>
       </BareShell>
     )
   }
@@ -385,21 +391,22 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   if (!isEditing && persons.length === 0) {
     return (
       <BareShell slideIn={slideIn}>
-        <div className="flex flex-1 flex-col items-center justify-center px-5 text-center">
-          <p className="text-sm text-muted-foreground">
+        <EmptyState className="flex-1 justify-center px-5">
+          <EmptyStateDescription>
             먼저 함께한 사람을 추가해 주세요.
-          </p>
-          <Button
-            type="button"
-            variant="outline-foreground"
-            size="cta"
-            onClick={() => push('PersonNew', {})}
-            className="mt-5"
-          >
-            <Plus className="size-4" />
-            사람 추가
-          </Button>
-        </div>
+          </EmptyStateDescription>
+          <EmptyStateAction>
+            <Button
+              type="button"
+              variant="outline-foreground"
+              size="cta"
+              onClick={() => push('PersonNew', {})}
+            >
+              <Plus className="size-4" />
+              사람 추가
+            </Button>
+          </EmptyStateAction>
+        </EmptyState>
       </BareShell>
     )
   }
@@ -407,9 +414,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   if (isEditing && !editedEventQuery.data) {
     return (
       <BareShell slideIn={slideIn}>
-        <p className="px-5 py-20 text-center text-sm text-muted-foreground">
+        <StatusMessage inset="screen" className="px-5">
           기록을 찾을 수 없어요.
-        </p>
+        </StatusMessage>
       </BareShell>
     )
   }
