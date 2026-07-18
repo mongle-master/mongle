@@ -1,9 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react'
-import {
-  coloredTagStyle,
-  normalizeChipColor,
-  tagChipClass,
-} from '@/components/ui/tag-chip'
+import { TagChip } from '@/components/ui/tag-chip'
+import { normalizeChipColor } from '@/lib/relation-tag-colors'
 import type { ChipResponse } from '@/apis/generated/mongle-api.schemas'
 
 export function TagSettingRow({
@@ -23,13 +20,12 @@ export function TagSettingRow({
 
   return (
     <div className="flex min-h-9 items-center gap-2">
-      <div
-        className={tagChipClass(false, {
-          inactiveClassName:
-            'h-8 max-w-full border-border/60 bg-background px-2.5 text-foreground',
-          className: 'inline-flex min-w-0 items-center gap-1.5',
-        })}
-        style={color ? coloredTagStyle(color) : undefined}
+      <TagChip
+        interactive={false}
+        size="lg"
+        surface="soft"
+        color={color}
+        className="min-w-0 max-w-full"
       >
         {color ? (
           <span
@@ -45,7 +41,7 @@ export function TagSettingRow({
         >
           {chip.label}
         </span>
-      </div>
+      </TagChip>
       <div className="flex shrink-0 items-center">
         <button
           type="button"

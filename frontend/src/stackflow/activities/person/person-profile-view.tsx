@@ -13,7 +13,7 @@ import {
   ListGroupLabel,
 } from '@/components/ui/list-group'
 import { StatusMessage } from '@/components/ui/status-message'
-import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
+import { TagChip } from '@/components/ui/tag-chip'
 import { optimizedImageUrl } from '@/lib/image-url'
 import {
   formatAbsoluteDate,
@@ -125,18 +125,15 @@ export function PersonProfileView({
                   {person.relationTags.length > 0 ? (
                     <div data-amp-mask className="mt-2 flex flex-wrap gap-1.5">
                       {person.relationTags.map((tag) => (
-                        <span
+                        <TagChip
                           key={tag.id}
-                          className={tagChipClass(false, {
-                            inactiveClassName:
-                              'h-7 border-border/60 bg-background px-3 text-xs text-foreground',
-                          })}
-                          style={
-                            tag.color ? coloredTagStyle(tag.color) : undefined
-                          }
+                          interactive={false}
+                          surface="soft"
+                          color={tag.color}
+                          className="px-3 text-xs"
                         >
                           {tag.label}
-                        </span>
+                        </TagChip>
                       ))}
                     </div>
                   ) : null}
@@ -313,15 +310,9 @@ function RecentEventRow({ event }: { event: EventResponse }) {
             {event.title}
           </p>
           {event.category ? (
-            <span
-              data-amp-mask
-              className={tagChipClass(false, {
-                inactiveClassName:
-                  'h-6 shrink-0 border-border/60 bg-background px-2 text-[11px] text-foreground',
-              })}
-            >
+            <TagChip data-amp-mask interactive={false} size="sm" surface="soft">
               {event.category.label}
-            </span>
+            </TagChip>
           ) : null}
         </div>
         <p className="mt-0.5 text-xs font-medium text-muted-foreground">

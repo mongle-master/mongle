@@ -18,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { StatusMessage } from '@/components/ui/status-message'
-import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
+import { TagChip } from '@/components/ui/tag-chip'
 import {
   ListGroup,
   ListGroupInset,
@@ -254,16 +254,16 @@ function PersonListItem({
                 className="flex min-w-0 gap-1 overflow-hidden"
               >
                 {person.relationTags.slice(0, 2).map((tag) => (
-                  <span
+                  <TagChip
                     key={tag.id}
-                    className={tagChipClass(false, {
-                      inactiveClassName:
-                        'h-5 max-w-20 border-transparent px-2 text-[10px]',
-                    })}
-                    style={tag.color ? coloredTagStyle(tag.color) : undefined}
+                    interactive={false}
+                    size="xs"
+                    surface="plain"
+                    color={tag.color}
+                    className="max-w-20"
                   >
                     <span className="truncate">{tag.label}</span>
-                  </span>
+                  </TagChip>
                 ))}
               </span>
             ) : !person.relationType ? (

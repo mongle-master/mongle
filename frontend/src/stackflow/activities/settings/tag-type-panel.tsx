@@ -13,7 +13,7 @@ import { chipMutation } from '@/apis/mutations'
 import {
   RELATION_TAG_COLOR_PALETTE,
   normalizeChipColor,
-} from '@/components/ui/tag-chip'
+} from '@/lib/relation-tag-colors'
 import { isImeComposing } from '@/lib/keyboard'
 import { RelationTagColorPicker } from '@/stackflow/activities/settings/relation-tag-color-picker'
 import { TagSettingRow } from '@/stackflow/activities/settings/tag-setting-row'
