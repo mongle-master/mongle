@@ -370,7 +370,7 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
 function PersonNewScreen({ children }: { children: React.ReactNode }) {
   return (
     <AppScreen>
-      <div className="mx-auto flex h-full max-w-md flex-col bg-background">
+      <div className="mx-auto flex h-full max-w-md flex-col bg-background lg:my-6 lg:h-[calc(100%-3rem)] lg:max-w-xl lg:overflow-hidden lg:rounded-[2rem] lg:border lg:border-border/70 lg:shadow-2xl">
         {children}
       </div>
     </AppScreen>

@@ -62,7 +62,7 @@ export function TimelineFilterDrawer({
 
       <DrawerContent
         aria-describedby={undefined}
-        className="mx-auto w-full max-w-md overflow-hidden border-x border-border bg-background shadow-2xl data-[vaul-drawer-direction=bottom]:rounded-t-[5rem]"
+        className="mx-auto w-full max-w-md overflow-hidden border-x border-border bg-background shadow-2xl data-[vaul-drawer-direction=bottom]:rounded-t-[5rem] lg:max-w-xl lg:data-[vaul-drawer-direction=bottom]:rounded-t-[2rem]"
       >
         <DrawerHeader className="px-5 pt-5 text-left">
           <DrawerTitle className="text-lg font-extrabold tracking-tight">

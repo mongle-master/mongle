@@ -86,7 +86,7 @@ function AppBootstrap() {
     return (
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
-          <StackViewport>
+          <StackViewport desktop>
             <Suspense fallback={null}>
               <AppStack />
             </Suspense>

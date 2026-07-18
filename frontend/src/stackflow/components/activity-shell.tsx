@@ -24,7 +24,7 @@ export function ActivityShell({
     >
       <div
         className={cn(
-          'relative bg-background px-5 pt-[max(1.5rem,env(safe-area-inset-top))]',
+          'relative bg-background px-5 pt-[max(1.5rem,env(safe-area-inset-top))] lg:mx-auto lg:w-full lg:max-w-3xl lg:border-x lg:border-border/70 lg:px-10 lg:pt-8',
           layout === 'fixed'
             ? 'flex h-full min-h-0 min-w-0 flex-col overflow-hidden pb-[max(0.5rem,env(safe-area-inset-bottom))]'
             : 'h-full overflow-y-auto pb-8 [-webkit-overflow-scrolling:touch]',

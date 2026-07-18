@@ -41,15 +41,15 @@ export function SettingsTab() {
   }
 
   return (
-    <TabShell layout="fixed">
+    <TabShell layout="fixed" className="lg:mx-auto lg:w-full lg:max-w-4xl">
       <header className="shrink-0 pb-4">
-        <MongleLogo className="mb-5 text-foreground" />
-        <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
+        <MongleLogo className="mb-5 text-foreground lg:hidden" />
+        <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground lg:text-[30px]">
           설정
         </h1>
       </header>
 
-      <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
+      <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch] lg:grid lg:grid-cols-2 lg:content-start lg:items-start lg:gap-6 lg:space-y-0 lg:pb-0">
         <ListGroup>
           <SettingsNavigationItem
             label="홈 설정"

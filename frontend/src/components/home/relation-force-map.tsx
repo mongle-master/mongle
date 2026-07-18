@@ -152,7 +152,7 @@ export function RelationForceMap({
 
   return (
     <div
-      className="relative mt-0 h-[480px] touch-pan-y overflow-hidden bg-background select-none"
+      className="relative mt-0 h-[480px] touch-pan-y overflow-hidden bg-background select-none lg:h-[min(72vh,660px)] lg:min-h-[520px] lg:rounded-[2rem] lg:border lg:border-border/70 lg:bg-card lg:shadow-[0_28px_70px_-42px_rgba(0,0,0,0.35)]"
       onPointerDown={(event) => {
         if (event.button !== 0) return
         if (isPersonNodeTarget(event.target)) return

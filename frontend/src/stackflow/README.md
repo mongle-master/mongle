@@ -33,13 +33,16 @@
   유지한다.
 - **딥링크**: 상세 URL 직접 진입 시 `defaultHistory`가 아래에 Main(해당 탭)을 깔아
   뒤로가기가 앱 이탈이 되지 않는다.
-- **데스크톱**: `main.tsx`가 스택 전체를 `mx-auto max-w-md`(448px) relative 컨테이너에
-  가둔다. basic-ui 화면은 fixed가 아니라 positioned 조상 기준 absolute라 슬라이드도 그 안에서만 일어난다.
+- **반응형 앱 캔버스**: 모바일·태블릿은 기존 `max-w-md`(448px) 캔버스와 하단 탭을
+  유지한다. 인증 완료 앱은 `lg`부터 최대 1440px 캔버스로 확장하고 좌측 내비게이션을 쓴다.
+  온보딩은 집중형 입력 흐름이라 448px 캔버스를 유지한다. basic-ui 화면은 fixed가 아니라
+  positioned 조상 기준 absolute라 슬라이드는 각 캔버스 안에서만 일어난다.
 - history-sync가 **생성하는 URL에는 항상 trailing slash가 붙는다**(`/home/`, 라이브러리
   하드코딩). 인바운드 매칭은 슬래시 유무 모두 허용하므로 동작엔 영향 없다.
 - 셸 컴포넌트: 탭 화면은 `components/tab-shell.tsx`, push 화면은
   `components/activity-shell.tsx` (구 AppShell의 대응물, dvh 대신 h-full 기준).
-  데스크톱 컨테이너는 `components/stack-viewport.tsx` (앱·온보딩 스택 공용).
+  반응형 컨테이너는 `components/stack-viewport.tsx` (앱·온보딩 스택 공용), 탭 위치 전환은
+  `components/stack-tab-bar.tsx`가 담당한다.
 
 ## 온보딩 퍼널 (`onboarding/`)
 

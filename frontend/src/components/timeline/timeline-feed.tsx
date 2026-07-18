@@ -33,7 +33,12 @@ export function TimelineFeed<T extends TimelineFeedItem>({
   if (items.length === 0) return null
 
   return (
-    <div className={cn('relative min-w-0 pb-20', scrollRootRef && 'pr-0.5')}>
+    <div
+      className={cn(
+        'relative min-w-0 pb-20 lg:pb-8',
+        scrollRootRef && 'pr-0.5',
+      )}
+    >
       {yearGroups.map((group) => (
         <section key={group.year} className="relative">
           <div

@@ -16,8 +16,8 @@ const TAB_COMPONENTS: Record<MainTab, React.ComponentType> = {
   settings: SettingsTab,
 }
 
-// 하단 탭 4개를 품는 단일 activity. 탭 전환은 step(replaceStep)이라
-// 히스토리가 쌓이지 않고, 이 컴포넌트가 언마운트되지 않아 탭 상태가 보존된다.
+// 탭 4개와 반응형 내비게이션을 품는 단일 activity. 탭 전환은
+// step(replaceStep)이라 히스토리가 쌓이지 않고 탭 상태가 보존된다.
 export const MainActivity: ActivityComponentType<'Main'> = ({ params }) => {
   const tab: MainTab = isMainTab(params.tab) ? params.tab : 'home'
   // 방문한 탭만 마운트하고, 한 번 방문한 탭은 hidden으로 유지한다.
@@ -27,17 +27,21 @@ export const MainActivity: ActivityComponentType<'Main'> = ({ params }) => {
 
   return (
     <AppScreen>
-      <div className="relative flex h-full flex-col bg-background">
+      <div className="relative flex h-full flex-col bg-background lg:flex-row lg:bg-muted/35">
+        <StackTabBar activeTab={tab} />
         {MAIN_TABS.map((t) => {
           if (!visitedTabs.current.has(t)) return null
           const Tab = TAB_COMPONENTS[t]
           return (
-            <div key={t} hidden={t !== tab} className="relative min-h-0 flex-1">
+            <div
+              key={t}
+              hidden={t !== tab}
+              className="relative min-h-0 flex-1 bg-background"
+            >
               <Tab />
             </div>
           )
         })}
-        <StackTabBar activeTab={tab} />
       </div>
     </AppScreen>
   )

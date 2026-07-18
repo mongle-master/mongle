@@ -70,15 +70,15 @@ export function PeopleTab() {
   }
 
   return (
-    <TabShell layout="fixed">
+    <TabShell layout="fixed" className="lg:mx-auto lg:w-full lg:max-w-4xl">
       <header className="shrink-0 pb-4">
-        <MongleLogo className="mb-5 text-foreground" />
+        <MongleLogo className="mb-5 text-foreground lg:hidden" />
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground">
+            <h1 className="text-[22px] font-black leading-tight tracking-tight text-foreground lg:text-[30px]">
               사람
             </h1>
-            <p className="mt-2 text-[12px] font-medium text-muted-foreground">
+            <p className="mt-2 text-[12px] font-medium text-muted-foreground lg:text-sm">
               {totalCount > 0
                 ? `함께한 사람 ${totalCount}명`
                 : '함께한 사람을 찾고 관리해요'}
@@ -95,10 +95,10 @@ export function PeopleTab() {
         </div>
       </header>
 
-      <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
+      <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch] lg:pb-0">
         <section>
-          <ListGroup>
-            <ListGroupItem>
+          <ListGroup className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:divide-x lg:divide-border/50">
+            <ListGroupItem className="lg:border-b-0">
               <ListGroupInset className="relative px-2 py-1">
                 <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input

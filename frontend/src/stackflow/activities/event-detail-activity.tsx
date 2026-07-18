@@ -72,7 +72,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
   const memo = event.memo?.trim() ?? ''
 
   return (
-    <ActivityShell className="px-0">
+    <ActivityShell className="px-0 lg:px-0">
       <header className="grid shrink-0 grid-cols-3 items-center px-5 py-1">
         <button
           type="button"
