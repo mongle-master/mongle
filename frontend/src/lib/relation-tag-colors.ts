@@ -1,8 +1,9 @@
 import type { CSSProperties } from 'react'
-import { cn } from '@/lib/utils'
 
-export const tagChipBaseClass =
-  'inline-flex h-7 w-fit shrink-0 items-center justify-center gap-1.5 rounded-full border border-transparent px-3.5 text-[13px] leading-none font-bold whitespace-nowrap transition-colors'
+// 관계 태그 도메인 팔레트·색상 유틸. UI 부품 레이어(components/ui)가 아니라
+// lib에 두어 도메인 지식과 표현 레이어를 분리한다. 전부 export하는 이유:
+// relation-force-map이 HEX_COLOR_PATTERN·hexToRgba·기본색 정책을 재발명하고
+// 있어(색 불일치의 원인) 추후 이 파일을 단일 출처로 흡수시키기 위함이다.
 
 export const RELATION_TAG_COLOR_OPTIONS = [
   { label: '로즈', value: '#E85D75' },
@@ -27,10 +28,13 @@ export const RELATION_TAG_COLOR_PALETTE = [
   ...RELATION_TAG_COLOR_OPTIONS.map((option) => option.value),
 ] as const
 
-const DEFAULT_TAG_COLOR = RELATION_TAG_COLOR_PALETTE[0]
-const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i
+// 색이 지정되지 않은 태그의 기본색(팔레트 첫 색 '로즈'). relation-force-map은
+// 별도의 4색 해시를 쓰고 있어 같은 태그가 화면에 따라 다른 색으로 보일 수 있다.
+export const DEFAULT_TAG_COLOR = RELATION_TAG_COLOR_PALETTE[0]
 
-function hexToRgba(hex: string, alpha: number) {
+export const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i
+
+export function hexToRgba(hex: string, alpha: number) {
   const normalized = HEX_COLOR_PATTERN.test(hex) ? hex : DEFAULT_TAG_COLOR
   const value = normalized.slice(1)
   const r = Number.parseInt(value.slice(0, 2), 16)
@@ -44,6 +48,7 @@ export function normalizeChipColor(color?: string | null) {
   return HEX_COLOR_PATTERN.test(color) ? color.toUpperCase() : DEFAULT_TAG_COLOR
 }
 
+// 태그 색으로 칩을 칠하는 인라인 스타일. active면 채움, 아니면 옅은 배경.
 export function coloredTagStyle(
   color?: string | null,
   active = false,
@@ -54,23 +59,4 @@ export function coloredTagStyle(
     borderColor: active ? normalized : hexToRgba(normalized, 0.38),
     color: active ? '#FFFFFF' : normalized,
   }
-}
-
-export function tagChipClass(
-  active: boolean,
-  {
-    activeClassName = 'border-primary bg-primary text-primary-foreground',
-    inactiveClassName = 'border-border bg-card text-foreground',
-    className,
-  }: {
-    activeClassName?: string
-    inactiveClassName?: string
-    className?: string
-  } = {},
-) {
-  return cn(
-    tagChipBaseClass,
-    active ? activeClassName : inactiveClassName,
-    className,
-  )
 }

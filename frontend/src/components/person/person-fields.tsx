@@ -4,7 +4,7 @@ import { X } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { ListGroupInset } from '@/components/ui/list-group'
-import { tagChipClass } from '@/components/ui/tag-chip'
+import { TagChip } from '@/components/ui/tag-chip'
 import { isImeComposing } from '@/lib/keyboard'
 import { cn } from '@/lib/utils'
 
@@ -165,21 +165,18 @@ export function RelationTypeField({
   const chips = (
     <div className={cn('flex flex-wrap gap-2', !hideLabel && !inset && 'mt-2')}>
       {RELATION_TYPE_SUGGESTIONS.map((suggestion) => (
-        <button
+        <TagChip
           key={suggestion}
-          type="button"
-          aria-pressed={value === suggestion}
+          tone="foreground"
+          surface="card"
+          hover
+          selected={value === suggestion}
           onClick={() => {
             onChange(value === suggestion ? '' : suggestion)
           }}
-          className={tagChipClass(value === suggestion, {
-            activeClassName: 'border-foreground bg-foreground text-background',
-            inactiveClassName:
-              'border-border bg-card text-foreground hover:bg-muted/40',
-          })}
         >
           {suggestion}
-        </button>
+        </TagChip>
       ))}
     </div>
   )

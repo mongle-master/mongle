@@ -43,10 +43,7 @@ export function AuthStatusScreen({
             : '관계와 순간을 안전하게 불러오는 중이에요.'}
         </p>
         {error ? (
-          <Button
-            className="mt-7 rounded-full px-7 font-extrabold"
-            onClick={onRetry}
-          >
+          <Button size="pill" className="mt-7" onClick={onRetry}>
             다시 시도
           </Button>
         ) : null}

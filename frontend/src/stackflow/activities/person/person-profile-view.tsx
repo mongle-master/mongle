@@ -12,7 +12,8 @@ import {
   ListGroupItem,
   ListGroupLabel,
 } from '@/components/ui/list-group'
-import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
+import { StatusMessage } from '@/components/ui/status-message'
+import { TagChip } from '@/components/ui/tag-chip'
 import { optimizedImageUrl } from '@/lib/image-url'
 import {
   formatAbsoluteDate,
@@ -53,17 +54,17 @@ export function PersonProfileView({
 
   if (!Number.isFinite(id) || personDetailQuery.isPending) {
     return (
-      <p className="py-20 text-center text-sm text-muted-foreground">
+      <StatusMessage inset="screen">
         {personDetailQuery.isPending ? '불러오는 중…' : '잘못된 경로예요.'}
-      </p>
+      </StatusMessage>
     )
   }
 
   if (!person) {
     return (
-      <p className="py-20 text-center text-sm text-muted-foreground">
+      <StatusMessage inset="screen">
         사람 정보를 불러오지 못했어요.
-      </p>
+      </StatusMessage>
     )
   }
 
@@ -124,18 +125,15 @@ export function PersonProfileView({
                   {person.relationTags.length > 0 ? (
                     <div data-amp-mask className="mt-2 flex flex-wrap gap-1.5">
                       {person.relationTags.map((tag) => (
-                        <span
+                        <TagChip
                           key={tag.id}
-                          className={tagChipClass(false, {
-                            inactiveClassName:
-                              'h-7 border-border/60 bg-background px-3 text-xs text-foreground',
-                          })}
-                          style={
-                            tag.color ? coloredTagStyle(tag.color) : undefined
-                          }
+                          interactive={false}
+                          surface="soft"
+                          color={tag.color}
+                          className="px-3 text-xs"
                         >
                           {tag.label}
-                        </span>
+                        </TagChip>
                       ))}
                     </div>
                   ) : null}
@@ -312,15 +310,9 @@ function RecentEventRow({ event }: { event: EventResponse }) {
             {event.title}
           </p>
           {event.category ? (
-            <span
-              data-amp-mask
-              className={tagChipClass(false, {
-                inactiveClassName:
-                  'h-6 shrink-0 border-border/60 bg-background px-2 text-[11px] text-foreground',
-              })}
-            >
+            <TagChip data-amp-mask interactive={false} size="sm" surface="soft">
               {event.category.label}
-            </span>
+            </TagChip>
           ) : null}
         </div>
         <p className="mt-0.5 text-xs font-medium text-muted-foreground">

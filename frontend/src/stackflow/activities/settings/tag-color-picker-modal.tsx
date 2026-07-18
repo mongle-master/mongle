@@ -2,7 +2,7 @@ import { Check, X } from 'lucide-react'
 import {
   RELATION_TAG_COLOR_OPTIONS,
   normalizeChipColor,
-} from '@/components/ui/tag-chip'
+} from '@/lib/relation-tag-colors'
 import { cn } from '@/lib/utils'
 import { isLightTagColor } from '@/stackflow/activities/settings/tag-color.utils'
 

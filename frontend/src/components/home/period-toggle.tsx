@@ -1,6 +1,6 @@
 import { HOME_PERIOD_OPTIONS } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
-import { tagChipClass } from '@/components/ui/tag-chip'
+import { TagChip } from '@/components/ui/tag-chip'
 
 export function HomePeriodToggle({
   value,
@@ -14,18 +14,15 @@ export function HomePeriodToggle({
       {HOME_PERIOD_OPTIONS.map((option) => {
         const active = value === option.value
         return (
-          <button
+          <TagChip
             key={option.value}
-            type="button"
+            tone="foreground"
+            surface="card-muted"
+            selected={active}
             onClick={() => onChange(option.value)}
-            className={tagChipClass(active, {
-              activeClassName:
-                'border-foreground bg-foreground text-background',
-              inactiveClassName: 'border-border bg-card text-muted-foreground',
-            })}
           >
             {option.label}
-          </button>
+          </TagChip>
         )
       })}
     </div>

@@ -1,4 +1,4 @@
-import { normalizeChipColor } from '@/components/ui/tag-chip'
+import { normalizeChipColor } from '@/lib/relation-tag-colors'
 
 export function isLightTagColor(color: string) {
   const hex = normalizeChipColor(color).slice(1)

@@ -121,22 +121,20 @@ export function ConfirmPopup({
           <Button
             type="button"
             variant="outline"
+            size="cta"
             onClick={handleClose}
             disabled={pending}
-            className="h-11 flex-1 rounded-full font-extrabold"
+            className="flex-1"
           >
             {cancelLabel}
           </Button>
           <Button
             type="button"
-            variant={destructive ? 'destructive' : 'default'}
+            variant={destructive ? 'destructive-solid' : 'default'}
+            size="cta"
             onClick={onConfirm}
             disabled={pending}
-            className={cn(
-              'h-11 flex-1 rounded-full font-extrabold',
-              destructive &&
-                'bg-destructive text-white hover:bg-destructive/90',
-            )}
+            className="flex-1"
           >
             {pending ? '처리 중...' : confirmLabel}
           </Button>

@@ -21,7 +21,7 @@ import {
   stepTransition,
   useStepSlideDirection,
 } from '@/components/ui/step-slide'
-import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
+import { TagChip } from '@/components/ui/tag-chip'
 import { AppScreen } from '@/stackflow/components/app-screen'
 import { personMutation } from '@/apis/mutations'
 import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
@@ -165,26 +165,18 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
                 {relationTags.map((tag) => {
                   const active = values.relationTagChipIds.includes(tag.id)
                   return (
-                    <button
+                    <TagChip
                       key={tag.id}
-                      type="button"
-                      aria-pressed={active}
+                      tone="foreground"
+                      surface="card"
+                      hover
+                      selected={active}
+                      color={tag.color}
                       onClick={() => toggleTag(tag.id)}
                       data-amp-mask
-                      className={tagChipClass(active, {
-                        activeClassName:
-                          'border-foreground bg-foreground text-background',
-                        inactiveClassName:
-                          'border-border bg-card text-foreground hover:bg-muted/40',
-                      })}
-                      style={
-                        tag.color
-                          ? coloredTagStyle(tag.color, active)
-                          : undefined
-                      }
                     >
                       {tag.label}
-                    </button>
+                    </TagChip>
                   )
                 })}
               </div>
@@ -258,20 +250,16 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
               {GENDER_OPTIONS.map((option) => {
                 const active = values.gender === option.value
                 return (
-                  <button
+                  <TagChip
                     key={option.value || 'none'}
-                    type="button"
-                    aria-pressed={active}
+                    tone="foreground"
+                    surface="card"
+                    hover
+                    selected={active}
                     onClick={() => patch('gender', option.value)}
-                    className={tagChipClass(active, {
-                      activeClassName:
-                        'border-foreground bg-foreground text-background',
-                      inactiveClassName:
-                        'border-border bg-card text-foreground hover:bg-muted/40',
-                    })}
                   >
                     {option.label}
-                  </button>
+                  </TagChip>
                 )
               })}
             </div>

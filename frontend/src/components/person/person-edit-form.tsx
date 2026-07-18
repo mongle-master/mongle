@@ -10,7 +10,7 @@ import {
 import type { PersonFormValues } from '@/components/person/person-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { coloredTagStyle, tagChipClass } from '@/components/ui/tag-chip'
+import { TagChip } from '@/components/ui/tag-chip'
 import { uploadImage } from '@/lib/api/images'
 import { featureEvents, trackFeature } from '@/lib/analytics'
 import type { PersonRequest } from '@/apis/generated/mongle-api.schemas'
@@ -149,20 +149,16 @@ export function PersonEditForm({
               {GENDER_OPTIONS.map((option) => {
                 const active = values.gender === option.value
                 return (
-                  <button
+                  <TagChip
                     key={option.value || 'none'}
-                    type="button"
-                    aria-pressed={active}
+                    tone="foreground"
+                    surface="background"
+                    hover
+                    selected={active}
                     onClick={() => patch('gender', option.value)}
-                    className={tagChipClass(active, {
-                      activeClassName:
-                        'border-foreground bg-foreground text-background',
-                      inactiveClassName:
-                        'border-border bg-background text-foreground hover:bg-muted/40',
-                    })}
                   >
                     {option.label}
-                  </button>
+                  </TagChip>
                 )
               })}
             </div>
@@ -213,26 +209,18 @@ export function PersonEditForm({
                 {relationTags.map((tag) => {
                   const active = values.relationTagChipIds.includes(tag.id)
                   return (
-                    <button
+                    <TagChip
                       key={tag.id}
-                      type="button"
-                      aria-pressed={active}
+                      tone="foreground"
+                      surface="background"
+                      hover
+                      selected={active}
+                      color={tag.color}
                       onClick={() => toggleTag(tag.id)}
                       data-amp-mask
-                      className={tagChipClass(active, {
-                        activeClassName:
-                          'border-foreground bg-foreground text-background',
-                        inactiveClassName:
-                          'border-border bg-background text-foreground hover:bg-muted/40',
-                      })}
-                      style={
-                        tag.color
-                          ? coloredTagStyle(tag.color, active)
-                          : undefined
-                      }
                     >
                       {tag.label}
-                    </button>
+                    </TagChip>
                   )
                 })}
               </div>

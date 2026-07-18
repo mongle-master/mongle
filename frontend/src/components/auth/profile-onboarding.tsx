@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { Camera, ChevronLeft, RefreshCw } from 'lucide-react'
+import { Camera, RefreshCw } from 'lucide-react'
+import { BackButton } from '@/components/layout/back-button'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { Button } from '@/components/ui/button'
 import { uploadImage } from '@/lib/api/images'
@@ -98,14 +99,11 @@ export function ProfileOnboarding({
 
       <div className="relative flex items-center gap-2">
         {onBack ? (
-          <button
-            type="button"
+          <BackButton
             onClick={onBack}
-            className="-ml-2 inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="이름 다시 정하기"
-          >
-            <ChevronLeft className="size-6" />
-          </button>
+            className="-ml-2"
+          />
         ) : null}
         <MongleLogo className="text-foreground" />
       </div>

@@ -3,20 +3,9 @@ import type {
   PersonResponse,
 } from '@/apis/generated/mongle-api.schemas'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import { tagChipClass } from '@/components/ui/tag-chip'
+import { TagChip } from '@/components/ui/tag-chip'
 import { formatPersonName } from '@/lib/format'
 import { cn } from '@/lib/utils'
-
-export const timelineFilterChipClass = (selected: boolean) =>
-  tagChipClass(selected)
-
-const personFilterChipClass = (selected: boolean) =>
-  cn(
-    'inline-flex h-9 max-w-full items-center gap-1.5 rounded-full border px-1.5 pr-3 text-[13px] leading-none font-extrabold whitespace-nowrap transition-all',
-    selected
-      ? 'border-foreground bg-foreground text-background'
-      : 'border-border/80 bg-background text-foreground hover:border-foreground/30 hover:bg-muted/60',
-  )
 
 export function TimelineCategoryFilters({
   chips,
@@ -38,15 +27,16 @@ export function TimelineCategoryFilters({
         {chips.map((chip) => {
           const selected = selectedIds.includes(chip.id)
           return (
-            <button
+            <TagChip
               key={chip.id}
-              type="button"
+              tone="primary"
+              surface="card"
+              selected={selected}
               onClick={() => onToggle(chip.id)}
               data-amp-mask={chip.personal || undefined}
-              className={timelineFilterChipClass(selected)}
             >
               {chip.label}
-            </button>
+            </TagChip>
           )
         })}
       </div>
@@ -73,12 +63,13 @@ export function TimelinePersonFilters({
           const selected = selectedIds.includes(person.id)
           const displayName = formatPersonName(person)
           return (
-            <button
+            <TagChip
               key={person.id}
-              type="button"
+              tone="foreground"
+              size="xl"
+              surface="outline"
+              selected={selected}
               onClick={() => onToggle(person.id)}
-              aria-pressed={selected}
-              className={personFilterChipClass(selected)}
             >
               <MonogramAvatar
                 name={person.name}
@@ -90,7 +81,7 @@ export function TimelinePersonFilters({
               <span data-amp-mask className="truncate">
                 {displayName}
               </span>
-            </button>
+            </TagChip>
           )
         })}
       </div>
