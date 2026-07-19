@@ -5,6 +5,7 @@ import type { ActivityComponentType } from '@stackflow/react'
 import { eventQuery, personQuery } from '@/apis/queries'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { ScrollBody } from '@/components/ui/scroll-body'
 import { Badge } from '@/components/ui/badge'
 import { StatusMessage } from '@/components/ui/status-message'
 import { EventPhotoGallery } from '@/components/events/event-photo-gallery'
@@ -77,7 +78,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         </button>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-8 [-webkit-overflow-scrolling:touch]">
+      <ScrollBody pad="screen" className="px-5">
         <div className="flex items-start gap-2">
           <h2
             data-amp-mask
@@ -159,7 +160,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         ) : null}
 
         <EventPhotoGallery photoUrls={event.photoUrls} />
-      </div>
+      </ScrollBody>
     </ActivityShell>
   )
 }

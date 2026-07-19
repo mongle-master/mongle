@@ -8,6 +8,7 @@ import { PersonEditForm } from '@/components/person/person-edit-form'
 import { personToFormValues } from '@/components/person/person-form'
 import { usePersonDelete } from '@/components/person/use-person-delete'
 import { Button } from '@/components/ui/button'
+import { ScrollBody } from '@/components/ui/scroll-body'
 import { StatusMessage } from '@/components/ui/status-message'
 import { personMutation } from '@/apis/mutations'
 import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
@@ -87,7 +88,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
         className="px-5"
       />
 
-      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
+      <ScrollBody pad="none">
         <div className="px-5 pt-4">
           <PersonEditForm
             key={person.id}
@@ -105,7 +106,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
             </p>
           ) : null}
         </div>
-      </div>
+      </ScrollBody>
 
       <div className="shrink-0 border-t border-border/70 bg-background px-5 pt-3 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
         <Button

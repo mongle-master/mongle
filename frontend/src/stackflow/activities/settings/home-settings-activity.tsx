@@ -3,6 +3,7 @@ import type { ActivityComponentType } from '@stackflow/react'
 import { useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { SettingsPageHeader } from '@/components/settings/settings-page-header'
+import { ScrollBody } from '@/components/ui/scroll-body'
 import { getDefaultHomePeriod, setDefaultHomePeriod } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
@@ -24,7 +25,7 @@ export const HomeSettingsActivity: ActivityComponentType<
   return (
     <ActivityShell layout="fixed">
       <SettingsPageHeader title="홈 설정" onBack={() => pop()} />
-      <div className="min-h-0 flex-1 overflow-y-auto pb-8">
+      <ScrollBody pad="screen">
         <p className="mb-1 text-body font-extrabold text-foreground">
           기본으로 보여줄 기간
         </p>
@@ -32,7 +33,7 @@ export const HomeSettingsActivity: ActivityComponentType<
           관계도에 처음 보이는 사람 범위를 정해요
         </p>
         <HomePeriodToggle value={period} onChange={handleChange} />
-      </div>
+      </ScrollBody>
     </ActivityShell>
   )
 }

@@ -6,6 +6,7 @@ import { eventQuery, personQuery } from '@/apis/queries'
 import { DeletePersonConfirm } from '@/components/person/delete-person-confirm'
 import { usePersonDelete } from '@/components/person/use-person-delete'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { ScrollBody } from '@/components/ui/scroll-body'
 import { ListGroup } from '@/components/ui/list-group'
 import { ListGroupItem } from '@/components/ui/list-group-item'
 import { ListGroupLabel } from '@/components/ui/list-group-label'
@@ -79,7 +80,7 @@ export function PersonProfileView({
 
   return (
     <>
-      <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
+      <ScrollBody pad="tabbar" className="space-y-6">
         <section>
           <ListGroup>
             <ListGroupItem withDivider={false} className="py-4">
@@ -257,7 +258,7 @@ export function PersonProfileView({
             </ListGroupItem>
           </ListGroup>
         </section>
-      </div>
+      </ScrollBody>
 
       <DeletePersonConfirm
         open={del.open}

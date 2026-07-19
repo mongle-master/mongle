@@ -7,6 +7,7 @@ import {
   personQuery,
   timelineQuery,
 } from '@/apis/queries'
+import { ScrollBody } from '@/components/ui/scroll-body'
 import { TagTypePanel } from '@/stackflow/activities/settings/tag-type-panel'
 
 const TAG_GROUPS = [
@@ -40,7 +41,7 @@ export function TagSettingsPage() {
   )
 
   return (
-    <div className="min-h-0 flex-1 space-y-7 overflow-y-auto pb-8">
+    <ScrollBody pad="screen" className="space-y-7">
       {TAG_GROUPS.map((group) => (
         <TagTypePanel
           key={group.type}
@@ -61,6 +62,6 @@ export function TagSettingsPage() {
           }}
         />
       ))}
-    </div>
+    </ScrollBody>
   )
 }

@@ -8,6 +8,7 @@ import { useTheme } from '@/components/theme-provider'
 import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { PageTitle } from '@/components/ui/page-title'
+import { ScrollBody } from '@/components/ui/scroll-body'
 import { ListGroup } from '@/components/ui/list-group'
 import { ListGroupItem } from '@/components/ui/list-group-item'
 import { ListGroupLabel } from '@/components/ui/list-group-label'
@@ -46,7 +47,7 @@ export function SettingsTab() {
         <PageTitle>설정</PageTitle>
       </header>
 
-      <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
+      <ScrollBody pad="tabbar" className="space-y-6">
         <ListGroup>
           <SettingsNavigationItem
             label="홈 설정"
@@ -126,7 +127,7 @@ export function SettingsTab() {
             </ListGroupItem>
           </ListGroup>
         </section>
-      </div>
+      </ScrollBody>
 
       <ConfirmPopup
         open={confirmOpen}
