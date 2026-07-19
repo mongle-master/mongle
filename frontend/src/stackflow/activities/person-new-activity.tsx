@@ -6,7 +6,8 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { ChevronLeft, Save } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { DateWheel } from '@/components/person/date-wheel'
-import { ListField, RelationTypeField } from '@/components/person/person-fields'
+import { ListField } from '@/components/person/list-field'
+import { RelationTypeField } from '@/components/person/relation-type-field'
 import {
   GENDER_OPTIONS,
   ProfileHero,

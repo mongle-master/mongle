@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { Input } from '@/components/ui/input'
-import { ListGroupInset } from '@/components/ui/list-group'
+import { ListGroupInset } from '@/components/ui/list-group-inset'
 import type {
   ChipResponse,
   ChipResponseType,

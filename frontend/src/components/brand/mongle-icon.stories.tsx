@@ -1,4 +1,4 @@
-import { MongleIcon } from '@/components/brand/mongle-logo'
+import { MongleIcon } from '@/components/brand/mongle-icon'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta = {

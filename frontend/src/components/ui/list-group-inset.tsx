@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-export function ListGroup({
+export function ListGroupInset({
   children,
   className,
 }: {
@@ -10,7 +10,7 @@ export function ListGroup({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-2xl bg-muted/50 dark:bg-muted/30',
+        'rounded-xl bg-background/80 p-2 dark:bg-background/40',
         className,
       )}
     >

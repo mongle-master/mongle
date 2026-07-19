@@ -1,24 +1,9 @@
-import type { ComponentProps } from 'react'
 import { useState } from 'react'
 import { X } from 'lucide-react'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { ListGroupInset } from '@/components/ui/list-group'
-import { TagChip } from '@/components/ui/tag-chip'
+import { FieldLabel } from '@/components/person/field-label'
 import { isImeComposing } from '@/lib/keyboard'
 import { cn } from '@/lib/utils'
-
-function FieldLabel({
-  className,
-  children,
-  ...props
-}: ComponentProps<typeof Label>) {
-  return (
-    <Label className={cn('font-extrabold', className)} {...props}>
-      {children}
-    </Label>
-  )
-}
 
 export function ListField({
   label,
@@ -137,58 +122,6 @@ export function ListField({
         </Button>
       </div>
       {error ? <p className="mt-1 text-xs text-destructive">{error}</p> : null}
-    </div>
-  )
-}
-
-export const RELATION_TYPE_SUGGESTIONS = [
-  '친구',
-  '회사 동료',
-  '가족',
-  '연인',
-  '스터디원',
-  '이웃',
-  '지인',
-] as const
-
-export function RelationTypeField({
-  value,
-  onChange,
-  inset = false,
-  hideLabel = false,
-}: {
-  value: string
-  onChange: (value: string) => void
-  inset?: boolean
-  hideLabel?: boolean
-}) {
-  const chips = (
-    <div className={cn('flex flex-wrap gap-2', !hideLabel && !inset && 'mt-2')}>
-      {RELATION_TYPE_SUGGESTIONS.map((suggestion) => (
-        <TagChip
-          key={suggestion}
-          tone="foreground"
-          surface="card"
-          hover
-          selected={value === suggestion}
-          onClick={() => {
-            onChange(value === suggestion ? '' : suggestion)
-          }}
-        >
-          {suggestion}
-        </TagChip>
-      ))}
-    </div>
-  )
-
-  return (
-    <div>
-      {hideLabel ? null : <FieldLabel>만남 태그</FieldLabel>}
-      {inset ? (
-        <ListGroupInset className="mt-2 p-2">{chips}</ListGroupInset>
-      ) : (
-        chips
-      )}
     </div>
   )
 }

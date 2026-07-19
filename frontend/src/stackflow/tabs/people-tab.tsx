@@ -20,12 +20,10 @@ import { Input } from '@/components/ui/input'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { StatusMessage } from '@/components/ui/status-message'
 import { TagChip } from '@/components/ui/tag-chip'
-import {
-  ListGroup,
-  ListGroupInset,
-  ListGroupItem,
-  ListGroupLabel,
-} from '@/components/ui/list-group'
+import { ListGroup } from '@/components/ui/list-group'
+import { ListGroupInset } from '@/components/ui/list-group-inset'
+import { ListGroupItem } from '@/components/ui/list-group-item'
+import { ListGroupLabel } from '@/components/ui/list-group-label'
 
 import { formatLastMetRelative, formatPersonName } from '@/lib/format'
 import { cn } from '@/lib/utils'

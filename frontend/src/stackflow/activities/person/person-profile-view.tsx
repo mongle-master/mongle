@@ -6,11 +6,9 @@ import { eventQuery, personQuery } from '@/apis/queries'
 import { DeletePersonConfirm } from '@/components/person/delete-person-confirm'
 import { usePersonDelete } from '@/components/person/use-person-delete'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import {
-  ListGroup,
-  ListGroupItem,
-  ListGroupLabel,
-} from '@/components/ui/list-group'
+import { ListGroup } from '@/components/ui/list-group'
+import { ListGroupItem } from '@/components/ui/list-group-item'
+import { ListGroupLabel } from '@/components/ui/list-group-label'
 import { StatusMessage } from '@/components/ui/status-message'
 import { TagChip } from '@/components/ui/tag-chip'
 import { optimizedImageUrl } from '@/lib/image-url'

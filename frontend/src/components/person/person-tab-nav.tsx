@@ -1,4 +1,4 @@
-import { ListGroupInset } from '@/components/ui/list-group'
+import { ListGroupInset } from '@/components/ui/list-group-inset'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import type { PersonView } from '@/stackflow/stackflow.config'
 
