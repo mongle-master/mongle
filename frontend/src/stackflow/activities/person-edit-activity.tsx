@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
-import { useState } from 'react'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { FormPageHeader } from '@/components/layout/form-page-header'
+import { DeletePersonConfirm } from '@/components/person/delete-person-confirm'
 import { PersonEditForm } from '@/components/person/person-edit-form'
 import { personToFormValues } from '@/components/person/person-form'
+import { usePersonDelete } from '@/components/person/use-person-delete'
 import { Button } from '@/components/ui/button'
-import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { StatusMessage } from '@/components/ui/status-message'
 import { personMutation } from '@/apis/mutations'
 import { chipQuery, homeQuery, personQuery } from '@/apis/queries'
@@ -24,7 +24,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
   const { pop } = useFlow()
   const enterDone = useEnterDone()
   const queryClient = useQueryClient()
-  const [deleteOpen, setDeleteOpen] = useState(false)
+  const del = usePersonDelete(id, { popCount: 2 })
 
   const personDetailQuery = useQuery(personQuery.byId(id))
 
@@ -47,19 +47,8 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
     },
   })
 
-  const deleteMutation = useMutation({
-    ...personMutation.remove(),
-    onSuccess: async () => {
-      void trackFeature(featureEvents.personDeleted)
-      await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
-      await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
-      // 아래에 깔린 프로필도 삭제된 인물이므로 두 단계를 걷어낸다
-      pop(2)
-    },
-  })
-
   const handleDelete = () => {
-    setDeleteOpen(true)
+    del.setOpen(true)
   }
 
   // 폼 마운트가 무거워 enter 전환 중에는 로딩 셸만 둔다 (use-enter-done.ts)
@@ -105,7 +94,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
             formId={PERSON_FORM_ID}
             initialValues={initialValues}
             relationTags={relationTags}
-            pending={updateMutation.isPending || deleteMutation.isPending}
+            pending={updateMutation.isPending || del.pending}
             onSubmit={(request) => updateMutation.mutate(request)}
             onDelete={handleDelete}
           />
@@ -124,26 +113,18 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
           form={PERSON_FORM_ID}
           size="lg"
           className="h-12 w-full text-base font-extrabold"
-          disabled={updateMutation.isPending || deleteMutation.isPending}
+          disabled={updateMutation.isPending || del.pending}
         >
           {updateMutation.isPending ? '저장 중…' : '변경사항 저장'}
         </Button>
       </div>
 
-      <ConfirmPopup
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        title="인물을 삭제할까요?"
-        description="삭제하면 되돌릴 수 없어요. 함께 새긴 기록도 모두 사라져요."
-        error={
-          deleteMutation.isError
-            ? '인물을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.'
-            : undefined
-        }
-        confirmLabel="삭제"
-        destructive
-        pending={deleteMutation.isPending}
-        onConfirm={() => deleteMutation.mutate(id)}
+      <DeletePersonConfirm
+        open={del.open}
+        onOpenChange={del.setOpen}
+        error={del.error}
+        pending={del.pending}
+        onConfirm={del.confirm}
       />
     </ActivityShell>
   )
