@@ -66,7 +66,7 @@ export function SettingsTab() {
           <ListGroup>
             <ListGroupItem withDivider={false}>
               <div className="flex min-h-9 items-center justify-between gap-4">
-                <span className="text-[15px] font-extrabold text-foreground">
+                <span className="text-body font-extrabold text-foreground">
                   다크 모드
                 </span>
                 <Switch
@@ -85,7 +85,7 @@ export function SettingsTab() {
             <ListGroupItem withDivider={false}>
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[15px] font-extrabold text-foreground">
+                  <p className="text-body font-extrabold text-foreground">
                     테스트 사용자 초기화
                   </p>
                   <p className="mt-1 text-xs font-medium text-muted-foreground">
@@ -118,7 +118,7 @@ export function SettingsTab() {
           <ListGroup>
             <ListGroupItem withDivider={false}>
               <div className="flex items-center justify-between">
-                <span className="text-[15px] font-extrabold text-foreground">
+                <span className="text-body font-extrabold text-foreground">
                   Mongle
                 </span>
                 <span className="text-xs font-bold text-muted-foreground">

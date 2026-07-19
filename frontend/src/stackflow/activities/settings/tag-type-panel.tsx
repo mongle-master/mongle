@@ -134,7 +134,7 @@ export function TagTypePanel({
             {description}
           </p>
         </div>
-        <span className="shrink-0 text-[11px] font-bold text-muted-foreground">
+        <span className="shrink-0 text-caption font-bold text-muted-foreground">
           {chips.length}개
         </span>
       </div>

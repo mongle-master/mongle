@@ -120,13 +120,13 @@ export function HomeTab() {
               >
                 <p className="text-sm font-extrabold text-foreground">
                   1년 전 오늘
-                  <span className="ml-2 text-[11px] font-bold text-muted-foreground">
+                  <span className="ml-2 text-caption font-bold text-muted-foreground">
                     {throwback.occurredDate}
                   </span>
                 </p>
                 <p
                   data-amp-mask
-                  className="mt-1 line-clamp-2 text-[13px] font-medium text-muted-foreground"
+                  className="mt-1 line-clamp-2 text-label font-medium text-muted-foreground"
                 >
                   {throwback.title ?? `작년 이맘때 ${throwback.personName}`}
                 </p>

@@ -87,7 +87,7 @@ const EMOTION_TEXT = [
 ]
 
 const bigChipBase =
-  'inline-flex h-11 items-center justify-center rounded-full border px-5 text-[15px] whitespace-nowrap transition-colors'
+  'inline-flex h-11 items-center justify-center rounded-full border px-5 text-body whitespace-nowrap transition-colors'
 // 선택 채움은 순검정 대신 살짝 연한 잉크(눈부심 완화).
 const neutralChipClass = cn(
   bigChipBase,
@@ -628,7 +628,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
               style={letterPaperStyle}
               className="font-hand min-h-[148px] resize-none border-0 bg-transparent p-0 text-lg leading-7 tracking-tight shadow-none focus-visible:ring-0 md:text-lg"
             />
-            <span className="pointer-events-none absolute right-3 bottom-2 text-[11px] tabular-nums text-muted-foreground/70">
+            <span className="pointer-events-none absolute right-3 bottom-2 text-caption tabular-nums text-muted-foreground/70">
               {what.length}/{MEMO_MAX}
             </span>
           </div>

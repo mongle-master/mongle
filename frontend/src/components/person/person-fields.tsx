@@ -93,7 +93,7 @@ export function ListField({
             <span
               key={item}
               className={cn(
-                'inline-flex h-7 max-w-full items-center gap-1 rounded-md px-2.5 text-[13px] font-bold',
+                'inline-flex h-7 max-w-full items-center gap-1 rounded-md px-2.5 text-label font-bold',
                 chipToneClass,
               )}
             >

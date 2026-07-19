@@ -41,7 +41,7 @@ export function NameOnboarding({
           <br />
           부르면 좋을까요?
         </h1>
-        <p className="mt-4 max-w-xs text-[15px] font-medium leading-6 text-muted-foreground">
+        <p className="mt-4 max-w-xs text-body font-medium leading-6 text-muted-foreground">
           이름과 관계 기록은 이 브라우저의 나만의 공간에 연결돼요.
         </p>
 

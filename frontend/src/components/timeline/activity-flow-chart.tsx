@@ -108,7 +108,7 @@ export function ActivityFlowChart({
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
-              className="inline-flex h-8 items-center gap-1 rounded-full border border-border bg-background px-3 text-[11px] font-extrabold text-foreground"
+              className="inline-flex h-8 items-center gap-1 rounded-full border border-border bg-background px-3 text-caption font-extrabold text-foreground"
               aria-expanded={menuOpen}
               aria-haspopup="listbox"
             >
@@ -137,7 +137,7 @@ export function ActivityFlowChart({
                         onSelectPoint?.(null)
                       }}
                       className={cn(
-                        'flex w-full px-3 py-1.5 text-left text-[11px] font-bold',
+                        'flex w-full px-3 py-1.5 text-left text-caption font-bold',
                         period === option.value
                           ? 'bg-primary text-primary-foreground'
                           : 'text-foreground hover:bg-muted',
@@ -177,7 +177,7 @@ export function ActivityFlowChart({
                   />
                   <span
                     data-amp-mask
-                    className="min-w-0 flex-1 truncate text-[11px] font-extrabold text-muted-foreground"
+                    className="min-w-0 flex-1 truncate text-caption font-extrabold text-muted-foreground"
                   >
                     {lane.label}
                   </span>
