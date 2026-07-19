@@ -54,7 +54,7 @@ export function TimelineFeed<T extends TimelineFeedItem>({
             return (
               <div key={item.id} className="mb-4 flex min-w-0 gap-3">
                 <div className="flex w-[4.375rem] shrink-0 flex-col items-center">
-                  <div className="flex size-10 flex-col items-center justify-center rounded-full border border-foreground bg-card text-[10px] leading-none font-extrabold shadow-[0_5px_16px_rgba(0,0,0,0.08)]">
+                  <div className="flex size-10 flex-col items-center justify-center rounded-full border border-foreground bg-card text-[10px] leading-none font-extrabold shadow-e1">
                     <span>{month}</span>
                     <span>{day}</span>
                   </div>
