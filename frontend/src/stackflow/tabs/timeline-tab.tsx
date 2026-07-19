@@ -195,7 +195,12 @@ export function TimelineTab() {
             scrollRootRef={scrollRef}
             items={cards}
             renderCard={(card) => (
-              <TimelineEventCard item={fromTimelineCard(card)} />
+              <TimelineEventCard
+                item={fromTimelineCard(card)}
+                onSelect={(eventId) =>
+                  push('EventDetail', { eventId: String(eventId) })
+                }
+              />
             )}
           />
         )}

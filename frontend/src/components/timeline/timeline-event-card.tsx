@@ -1,4 +1,3 @@
-import { useFlow } from '@stackflow/react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
@@ -84,8 +83,13 @@ function TimelinePhotoPreview({ photoUrls }: { photoUrls: string[] }) {
   )
 }
 
-export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
-  const { push } = useFlow()
+export function TimelineEventCard({
+  item,
+  onSelect,
+}: {
+  item: TimelineEventCardItem
+  onSelect: (eventId: number) => void
+}) {
   const persons = item.persons ?? []
   const photoUrls = item.photoUrls ?? []
   const memo = item.memo?.trim() ?? ''
@@ -93,7 +97,7 @@ export function TimelineEventCard({ item }: { item: TimelineEventCardItem }) {
   return (
     <button
       type="button"
-      onClick={() => push('EventDetail', { eventId: String(item.id) })}
+      onClick={() => onSelect(item.id)}
       className="block min-w-0 flex-1 text-left"
     >
       <Card className="relative overflow-hidden py-0 shadow-[0_10px_30px_rgba(0,0,0,0.045)] transition-all hover:-translate-y-0.5 hover:bg-muted/20 hover:shadow-[0_14px_36px_rgba(0,0,0,0.07)]">
