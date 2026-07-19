@@ -1,12 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { ChevronRight } from 'lucide-react'
-import { useState } from 'react'
 import type { EventResponse } from '@/apis/generated/mongle-api.schemas'
-import { personMutation } from '@/apis/mutations'
-import { eventQuery, homeQuery, personQuery } from '@/apis/queries'
+import { eventQuery, personQuery } from '@/apis/queries'
+import { DeletePersonConfirm } from '@/components/person/delete-person-confirm'
+import { usePersonDelete } from '@/components/person/use-person-delete'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
-import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import {
   ListGroup,
   ListGroupItem,
@@ -22,7 +21,6 @@ import {
   formatPersonName,
 } from '@/lib/format'
 import type { PersonView } from '@/stackflow/stackflow.config'
-import { featureEvents, trackFeature } from '@/lib/analytics'
 
 export function PersonProfileView({
   personId,
@@ -32,9 +30,8 @@ export function PersonProfileView({
   onSelectView: (view: PersonView) => void
 }) {
   const id = Number(personId)
-  const { push, pop } = useFlow()
-  const queryClient = useQueryClient()
-  const [deleteOpen, setDeleteOpen] = useState(false)
+  const { push } = useFlow()
+  const del = usePersonDelete(id)
 
   const personDetailQuery = useQuery(personQuery.byId(id))
 
@@ -42,15 +39,6 @@ export function PersonProfileView({
 
   const person = personDetailQuery.data
   const recentEvents = (recentQuery.data ?? []).slice(0, 3)
-  const deleteMutation = useMutation({
-    ...personMutation.remove(),
-    onSuccess: async () => {
-      void trackFeature(featureEvents.personDeleted)
-      await queryClient.invalidateQueries({ queryKey: personQuery.allKey })
-      await queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
-      pop()
-    },
-  })
 
   if (!Number.isFinite(id) || personDetailQuery.isPending) {
     return (
@@ -261,8 +249,8 @@ export function PersonProfileView({
             <ListGroupItem withDivider={false} className="py-0">
               <button
                 type="button"
-                onClick={() => setDeleteOpen(true)}
-                disabled={deleteMutation.isPending}
+                onClick={() => del.setOpen(true)}
+                disabled={del.pending}
                 className="flex w-full items-center justify-between py-3.5 text-left text-[15px] font-extrabold text-destructive transition-colors active:opacity-70 disabled:opacity-60"
               >
                 인물 삭제
@@ -273,20 +261,12 @@ export function PersonProfileView({
         </section>
       </div>
 
-      <ConfirmPopup
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        title="인물을 삭제할까요?"
-        description="삭제하면 되돌릴 수 없어요. 함께 새긴 기록도 모두 사라져요."
-        error={
-          deleteMutation.isError
-            ? '인물을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.'
-            : undefined
-        }
-        confirmLabel="삭제"
-        destructive
-        pending={deleteMutation.isPending}
-        onConfirm={() => deleteMutation.mutate(id)}
+      <DeletePersonConfirm
+        open={del.open}
+        onOpenChange={del.setOpen}
+        error={del.error}
+        pending={del.pending}
+        onConfirm={del.confirm}
       />
     </>
   )
