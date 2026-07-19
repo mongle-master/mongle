@@ -1,14 +1,7 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import type {
-  ChipResponse,
-  PersonResponse,
-} from '@/apis/generated/mongle-api.schemas'
-import {
-  TimelineCategoryFilters,
-  TimelineFilterReset,
-  TimelinePersonFilters,
-} from '@/components/timeline/timeline-filters'
+import type { ChipResponse } from '@/apis/generated/mongle-api.schemas'
+import { TimelineCategoryFilters } from '@/components/timeline/timeline-category-filters'
 
 const CATEGORY_CHIPS: ChipResponse[] = [
   {
@@ -45,42 +38,11 @@ const CATEGORY_CHIPS: ChipResponse[] = [
   },
 ]
 
-const PERSONS: PersonResponse[] = [
-  {
-    id: 1,
-    name: '엄마',
-    gender: 'FEMALE',
-    favorite: true,
-    relationTags: [],
-    likes: [],
-    cautions: [],
-  },
-  {
-    id: 2,
-    name: '김민수',
-    gender: 'MALE',
-    profileImageUrl: 'https://picsum.photos/seed/minsu/200',
-    favorite: false,
-    relationTags: [],
-    likes: [],
-    cautions: [],
-  },
-  {
-    id: 3,
-    name: '이지은',
-    gender: 'FEMALE',
-    favorite: false,
-    relationTags: [],
-    likes: [],
-    cautions: [],
-  },
-]
-
 const toggle = (ids: number[], id: number) =>
   ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]
 
 const meta = {
-  title: 'Timeline/Filters',
+  title: 'Timeline/CategoryFilters',
   component: TimelineCategoryFilters,
   tags: ['autodocs'],
   // 각 스토리는 render로 상태를 직접 관리한다. 여기 args는 필수 prop 타입만 채운다.
@@ -134,25 +96,4 @@ export const AllSelected: Story = {
       />
     )
   },
-}
-
-export const Persons: Story = {
-  render: () => {
-    const [selected, setSelected] = useState<number[]>([1])
-    return (
-      <TimelinePersonFilters
-        persons={PERSONS}
-        selectedIds={selected}
-        onToggle={(id) => setSelected((prev) => toggle(prev, id))}
-      />
-    )
-  },
-}
-
-export const ResetVisible: Story = {
-  render: () => <TimelineFilterReset visible onReset={() => {}} />,
-}
-
-export const ResetHidden: Story = {
-  render: () => <TimelineFilterReset visible={false} onReset={() => {}} />,
 }

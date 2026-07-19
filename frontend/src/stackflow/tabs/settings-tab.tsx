@@ -8,11 +8,9 @@ import { useTheme } from '@/components/theme-provider'
 import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
 import { PageTitle } from '@/components/ui/page-title'
-import {
-  ListGroup,
-  ListGroupItem,
-  ListGroupLabel,
-} from '@/components/ui/list-group'
+import { ListGroup } from '@/components/ui/list-group'
+import { ListGroupItem } from '@/components/ui/list-group-item'
+import { ListGroupLabel } from '@/components/ui/list-group-label'
 import { Switch } from '@/components/ui/switch'
 import { userMutation } from '@/apis/mutations'
 import { featureEvents, resetAnalytics, trackFeature } from '@/lib/analytics'

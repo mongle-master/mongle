@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { ComponentProps } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { ListField, RelationTypeField } from '@/components/person/person-fields'
+import { ListField } from '@/components/person/list-field'
 
 function ListFieldDemo(args: ComponentProps<typeof ListField>) {
   const [items, setItems] = useState(args.items)
@@ -12,19 +12,8 @@ function ListFieldDemo(args: ComponentProps<typeof ListField>) {
   )
 }
 
-function RelationTypeDemo({ initial = '' }: { initial?: string }) {
-  const [value, setValue] = useState(initial)
-  return (
-    <div className="max-w-md">
-      <RelationTypeField value={value} onChange={setValue} />
-    </div>
-  )
-}
-
-// 한 파일에 ListField/RelationTypeField 두 컴포넌트를 담는다(원본이 person-fields.tsx 한 파일).
-// meta.component은 ListField 기준이고, RelationType 스토리는 render로 직접 그린다.
 const meta = {
-  title: 'Person/PersonFields',
+  title: 'Person/ListField',
   component: ListField,
   tags: ['autodocs'],
   args: {
@@ -61,12 +50,4 @@ export const ListFieldCompact: Story = {
 // maxItems를 낮춰 이미 가득 찬 상태 — 항목을 더 추가하려 하면 초과 에러가 뜬다.
 export const ListFieldMaxItems: Story = {
   args: { maxItems: 3, items: ['하나', '둘', '셋'] },
-}
-
-export const RelationTypeDefault: Story = {
-  render: () => <RelationTypeDemo />,
-}
-
-export const RelationTypeSelected: Story = {
-  render: () => <RelationTypeDemo initial="친구" />,
 }

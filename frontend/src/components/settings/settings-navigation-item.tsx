@@ -1,5 +1,5 @@
 import { ChevronRight } from 'lucide-react'
-import { ListGroupItem } from '@/components/ui/list-group'
+import { ListGroupItem } from '@/components/ui/list-group-item'
 
 export function SettingsNavigationItem({
   label,

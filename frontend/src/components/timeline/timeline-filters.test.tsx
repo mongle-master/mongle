@@ -1,9 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import {
-  TimelineCategoryFilters,
-  TimelinePersonFilters,
-} from './timeline-filters'
+import { TimelineCategoryFilters } from './timeline-category-filters'
+import { TimelinePersonFilters } from './timeline-person-filters'
 import type {
   ChipResponse,
   PersonResponse,

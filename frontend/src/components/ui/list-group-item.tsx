@@ -1,16 +1,19 @@
 import { cn } from '@/lib/utils'
 
-export function ListGroup({
+export function ListGroupItem({
   children,
   className,
+  withDivider = true,
 }: {
   children: React.ReactNode
   className?: string
+  withDivider?: boolean
 }) {
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-2xl bg-muted/50 dark:bg-muted/30',
+        'px-4 py-3.5',
+        withDivider && 'border-b border-border/50 last:border-b-0',
         className,
       )}
     >

@@ -2,10 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import { useMemo, useRef, useState } from 'react'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
-import {
-  TimelineCategoryFilters,
-  TimelineFilterReset,
-} from '@/components/timeline/timeline-filters'
+import { TimelineCategoryFilters } from '@/components/timeline/timeline-category-filters'
+import { TimelineFilterReset } from '@/components/timeline/timeline-filter-reset'
 import {
   fromEventResponse,
   TimelineEventCard,
@@ -20,7 +18,8 @@ import {
   EmptyStateAction,
   EmptyStateDescription,
 } from '@/components/ui/empty-state'
-import { ListGroup, ListGroupItem } from '@/components/ui/list-group'
+import { ListGroup } from '@/components/ui/list-group'
+import { ListGroupItem } from '@/components/ui/list-group-item'
 import { StatusMessage } from '@/components/ui/status-message'
 import { chipQuery, eventQuery, personQuery } from '@/apis/queries'
 import { formatPersonName } from '@/lib/format'

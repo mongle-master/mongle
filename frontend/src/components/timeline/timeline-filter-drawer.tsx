@@ -3,11 +3,9 @@ import type {
   ChipResponse,
   PersonResponse,
 } from '@/apis/generated/mongle-api.schemas'
-import {
-  TimelineCategoryFilters,
-  TimelineFilterReset,
-  TimelinePersonFilters,
-} from '@/components/timeline/timeline-filters'
+import { TimelineCategoryFilters } from '@/components/timeline/timeline-category-filters'
+import { TimelineFilterReset } from '@/components/timeline/timeline-filter-reset'
+import { TimelinePersonFilters } from '@/components/timeline/timeline-person-filters'
 import { Button } from '@/components/ui/button'
 import {
   Drawer,
