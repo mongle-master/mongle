@@ -1,5 +1,6 @@
 import { Star } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { FAVORITE_STAR_TEXT } from '@/lib/favorite-colors'
 import { defaultPersonImageUrl } from '@/lib/default-person-image'
 import type { PersonImageGender } from '@/lib/default-person-image'
 import { monogram } from '@/lib/format'
@@ -42,11 +43,21 @@ export function MonogramAvatar({
       </Avatar>
       {favorite ? (
         favoriteBadge === 'prominent' ? (
-          <span className="absolute -top-1 -right-1 z-10 flex size-9 items-center justify-center rounded-full border border-border bg-background text-amber-500 shadow-sm">
+          <span
+            className={cn(
+              'absolute -top-1 -right-1 z-10 flex size-9 items-center justify-center rounded-full border border-border bg-background shadow-sm',
+              FAVORITE_STAR_TEXT,
+            )}
+          >
             <Star className="size-5 fill-current" />
           </span>
         ) : (
-          <span className="absolute -top-1 -right-1 text-xs text-amber-500">
+          <span
+            className={cn(
+              'absolute -top-1 -right-1 text-xs',
+              FAVORITE_STAR_TEXT,
+            )}
+          >
             ★
           </span>
         )

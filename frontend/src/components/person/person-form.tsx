@@ -1,6 +1,10 @@
 import { Camera, Star } from 'lucide-react'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import type { PersonRequest } from '@/apis/generated/mongle-api.schemas'
+import {
+  FAVORITE_STAR_TEXT,
+  FAVORITE_TOGGLE_ACTIVE,
+} from '@/lib/favorite-colors'
 import { cn } from '@/lib/utils'
 
 export function ProfileHero({
@@ -74,12 +78,16 @@ export function ProfileHero({
           className={cn(
             'flex shrink-0 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 transition-colors',
             favorite
-              ? 'bg-amber-500/12 text-amber-600 dark:text-amber-400'
+              ? FAVORITE_TOGGLE_ACTIVE
               : 'bg-muted/60 text-muted-foreground hover:bg-muted',
           )}
         >
           <Star
-            className={cn('size-5', favorite && 'fill-current text-amber-500')}
+            className={cn(
+              'size-5',
+              favorite && 'fill-current',
+              favorite && FAVORITE_STAR_TEXT,
+            )}
           />
           <span className="text-[10px] font-extrabold">즐겨찾기</span>
         </button>
