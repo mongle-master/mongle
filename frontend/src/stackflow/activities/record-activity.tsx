@@ -94,11 +94,11 @@ const neutralChipClass = cn(
   'border-border bg-card text-foreground/80 data-[state=on]:border-transparent data-[state=on]:bg-foreground/85 data-[state=on]:text-background',
 )
 
-// 편지지: 흑백 톤 + 손그림 느낌 옅은 괘선(SVG). 줄 높이 28px에 맞춘다.
-const letterLineSvg =
-  "<svg xmlns='http://www.w3.org/2000/svg' width='90' height='28'><path d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(0,0,0,0.07)' stroke-width='1'/></svg>"
+// 편지지: 흑백 톤 + 손그림 느낌 옅은 괘선. 줄 높이 28px에 맞춘다.
+// 괘선 SVG는 배경 이미지라 currentColor를 못 받으므로 styles.css의
+// --letter-paper(라이트/다크 각각)에서 가져온다.
 const letterPaperStyle: React.CSSProperties = {
-  backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(letterLineSvg)}")`,
+  backgroundImage: 'var(--letter-paper)',
   backgroundRepeat: 'repeat',
   backgroundSize: '90px 28px',
   backgroundPositionY: '3px',
