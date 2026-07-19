@@ -3,10 +3,10 @@ import { useFlow } from '@stackflow/react'
 import { RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
-import { SettingsNavigationItem } from '@/components/settings/settings-navigation-item'
 import { useTheme } from '@/components/theme-provider'
 import { Button } from '@/components/ui/button'
 import { ConfirmPopup } from '@/components/ui/confirm-popup'
+import { NavigationRow } from '@/components/ui/navigation-row'
 import { PageTitle } from '@/components/ui/page-title'
 import { ScrollBody } from '@/components/ui/scroll-body'
 import { ListGroup } from '@/components/ui/list-group'
@@ -49,11 +49,11 @@ export function SettingsTab() {
 
       <ScrollBody pad="tabbar" className="space-y-6">
         <ListGroup>
-          <SettingsNavigationItem
+          <NavigationRow
             label="홈 설정"
             onClick={() => push('HomeSettings', {})}
           />
-          <SettingsNavigationItem
+          <NavigationRow
             label="태그 설정"
             withDivider={false}
             onClick={() => push('TagSettings', {})}
