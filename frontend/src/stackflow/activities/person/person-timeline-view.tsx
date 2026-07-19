@@ -147,7 +147,7 @@ export function PersonTimelineView({ personId }: { personId: string }) {
                 <p className="text-base font-extrabold">
                   {person.stats.recordCount}개
                 </p>
-                <p className="text-[11px] font-medium text-muted-foreground">
+                <p className="text-caption font-medium text-muted-foreground">
                   함께한 기록
                 </p>
               </div>
@@ -155,7 +155,7 @@ export function PersonTimelineView({ personId }: { personId: string }) {
                 <p className="text-base font-extrabold">
                   {person.stats.lastMetRelative ?? '기록 없음'}
                 </p>
-                <p className="text-[11px] font-medium text-muted-foreground">
+                <p className="text-caption font-medium text-muted-foreground">
                   마지막 만남
                 </p>
               </div>

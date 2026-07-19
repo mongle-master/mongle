@@ -93,7 +93,7 @@ export function PeopleTab() {
           <button
             type="button"
             onClick={() => push('PersonNew', {})}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-[13px] font-extrabold text-primary-foreground"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-label font-extrabold text-primary-foreground"
           >
             <Plus className="size-4" />
             추가
@@ -111,7 +111,7 @@ export function PeopleTab() {
                   value={query}
                   onChange={(e) => handleQueryChange(e.target.value)}
                   placeholder="이름·관계 유형 검색"
-                  className="h-10 border-0 bg-transparent pl-8 text-[15px] shadow-none focus-visible:ring-0"
+                  className="h-10 border-0 bg-transparent pl-8 text-body shadow-none focus-visible:ring-0"
                 />
               </ListGroupInset>
             </ListGroupItem>
@@ -234,7 +234,7 @@ function PersonListItem({
         <div className="min-w-0 flex-1">
           <p
             data-amp-mask
-            className="truncate text-[15px] font-extrabold text-foreground"
+            className="truncate text-body font-extrabold text-foreground"
           >
             {displayName}
           </p>
@@ -273,7 +273,7 @@ function PersonListItem({
           </div>
           <p
             className={cn(
-              'mt-1 text-[11px] font-bold',
+              'mt-1 text-caption font-bold',
               lastMetLabel === '기록 없음'
                 ? 'text-muted-foreground/70'
                 : 'text-muted-foreground',

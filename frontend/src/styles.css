@@ -92,6 +92,11 @@
   --color-ring: var(--ring);
   --font-sans: var(--font-sans);
   --font-hand: 'Onglip Eunbyeol', var(--font-sans);
+  /* 앱 고유 타이포 스케일. font-size만 지정해 기존 text-[Npx] 임의값과 렌더가 동일하다
+     (line-height는 각 사용처의 leading 클래스가 계속 결정한다). */
+  --text-caption: 11px;
+  --text-label: 13px;
+  --text-body: 15px;
 }
 
 @layer base {

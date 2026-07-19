@@ -71,7 +71,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         <button
           type="button"
           onClick={() => push('Record', { eventId: String(id) })}
-          className="text-right text-[15px] font-extrabold"
+          className="text-right text-body font-extrabold"
         >
           수정
         </button>
@@ -136,7 +136,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         {memo ? (
           <p
             data-amp-mask
-            className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground"
+            className="mt-4 whitespace-pre-wrap text-body leading-relaxed text-foreground"
           >
             {memo}
           </p>

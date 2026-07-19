@@ -19,7 +19,7 @@ function EmptyStateTitle({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <p
       data-slot="empty-state-title"
-      className={cn('text-[15px] font-extrabold text-foreground', className)}
+      className={cn('text-body font-extrabold text-foreground', className)}
       {...props}
     />
   )

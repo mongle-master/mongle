@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 
 export function ListGroupLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-2 px-3 text-[11px] font-extrabold tracking-wide text-muted-foreground uppercase">
+    <p className="mb-2 px-3 text-caption font-extrabold tracking-wide text-muted-foreground uppercase">
       {children}
     </p>
   )
@@ -51,7 +51,7 @@ export function ListGroupItem({
 
 export function ListGroupFooter({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mt-2 px-3 text-[11px] font-medium leading-relaxed text-muted-foreground">
+    <p className="mt-2 px-3 text-caption font-medium leading-relaxed text-muted-foreground">
       {children}
     </p>
   )

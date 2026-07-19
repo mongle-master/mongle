@@ -173,7 +173,7 @@ export function PersonProfileView({
         {recentEvents.length > 0 ? (
           <section>
             <div className="mb-2 flex items-center justify-between px-3">
-              <p className="text-[11px] font-extrabold tracking-wide text-muted-foreground uppercase">
+              <p className="text-caption font-extrabold tracking-wide text-muted-foreground uppercase">
                 최근 함께한 일
               </p>
               <button
@@ -230,7 +230,7 @@ export function PersonProfileView({
               <button
                 type="button"
                 onClick={() => push('Record', { personId })}
-                className="flex w-full items-center justify-between py-3.5 text-[15px] font-extrabold text-foreground transition-colors active:opacity-70"
+                className="flex w-full items-center justify-between py-3.5 text-body font-extrabold text-foreground transition-colors active:opacity-70"
               >
                 상황 기록 작성
                 <ChevronRight className="size-5 text-muted-foreground" />
@@ -240,7 +240,7 @@ export function PersonProfileView({
               <button
                 type="button"
                 onClick={() => push('PersonEdit', { personId })}
-                className="flex w-full items-center justify-between py-3.5 text-[15px] font-extrabold text-foreground transition-colors active:opacity-70"
+                className="flex w-full items-center justify-between py-3.5 text-body font-extrabold text-foreground transition-colors active:opacity-70"
               >
                 프로필 수정
                 <ChevronRight className="size-5 text-muted-foreground" />
@@ -251,7 +251,7 @@ export function PersonProfileView({
                 type="button"
                 onClick={() => del.setOpen(true)}
                 disabled={del.pending}
-                className="flex w-full items-center justify-between py-3.5 text-left text-[15px] font-extrabold text-destructive transition-colors active:opacity-70 disabled:opacity-60"
+                className="flex w-full items-center justify-between py-3.5 text-left text-body font-extrabold text-destructive transition-colors active:opacity-70 disabled:opacity-60"
               >
                 인물 삭제
                 <ChevronRight className="size-5 text-destructive/70" />
@@ -361,9 +361,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-xs font-bold text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-[15px] font-extrabold text-foreground">
-        {value}
-      </dd>
+      <dd className="mt-1 text-body font-extrabold text-foreground">{value}</dd>
     </div>
   )
 }

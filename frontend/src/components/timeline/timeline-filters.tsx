@@ -20,7 +20,7 @@ export function TimelineCategoryFilters({
 
   return (
     <section className="mb-4">
-      <p className="mb-2 text-[11px] font-extrabold text-muted-foreground">
+      <p className="mb-2 text-caption font-extrabold text-muted-foreground">
         카테고리
       </p>
       <div className="flex flex-wrap gap-2">
@@ -55,7 +55,7 @@ export function TimelinePersonFilters({
 }) {
   return (
     <section className="mb-3">
-      <p className="mb-2 text-[11px] font-extrabold text-muted-foreground">
+      <p className="mb-2 text-caption font-extrabold text-muted-foreground">
         사람
       </p>
       <div className="flex flex-wrap gap-2">
