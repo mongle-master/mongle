@@ -16,6 +16,11 @@
 
 :root {
   --radius: 0.475rem;
+  /* 오버레이 레이어: 앱 콘텐츠 위에 뜨는 것들의 쌓임 순서를 한 곳에서 정한다.
+     확인팝업·다이얼로그는 #stack-overlay-root 포탈(--z-overlay)에 모여 같은
+     쌓임 맥락에서 DOM 순서로 겹친다. 바텀시트(vaul)·팝오버(radix)·탭바는 그
+     아래 레이어(z-50)로 라이브러리·레이아웃이 관할한다. */
+  --z-overlay: 70;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
