@@ -7,7 +7,7 @@ export function StackViewport({ children }: { children: React.ReactNode }) {
       {children}
       <div
         id="stack-overlay-root"
-        className="pointer-events-none absolute inset-0 z-[70]"
+        className="pointer-events-none absolute inset-0 z-[var(--z-overlay)]"
       />
     </div>
   )
