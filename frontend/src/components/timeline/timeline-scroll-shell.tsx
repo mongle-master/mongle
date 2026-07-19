@@ -1,4 +1,5 @@
 import type { ReactNode, RefObject } from 'react'
+import { ScrollBody } from '@/components/ui/scroll-body'
 
 // 고정 헤더 + 내부 스크롤 본문. 바깥 셸(TabShell/ActivityShell의 fixed 레이아웃)이
 // 세로 flex 컨테이너라는 전제로 동작한다.
@@ -17,12 +18,9 @@ export function TimelineScrollShell({
       {header !== undefined ? (
         <header className="shrink-0">{header}</header>
       ) : null}
-      <div
-        ref={scrollRef}
-        className="min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]"
-      >
+      <ScrollBody ref={scrollRef} pad="tabbar">
         {children}
-      </div>
+      </ScrollBody>
     </>
   )
 }

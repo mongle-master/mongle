@@ -10,6 +10,7 @@ import { TabShell } from '@/stackflow/components/tab-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Button } from '@/components/ui/button'
 import { PageTitle } from '@/components/ui/page-title'
+import { ScrollBody } from '@/components/ui/scroll-body'
 import {
   EmptyState,
   EmptyStateAction,
@@ -99,7 +100,7 @@ export function PeopleTab() {
         </div>
       </header>
 
-      <div className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto pb-24 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]">
+      <ScrollBody pad="tabbar" className="space-y-6">
         <section>
           <ListGroup>
             <ListGroupItem>
@@ -168,7 +169,7 @@ export function PeopleTab() {
             onToggleFavorite={(id) => favoriteMutation.mutate(id)}
           />
         )}
-      </div>
+      </ScrollBody>
     </TabShell>
   )
 }
