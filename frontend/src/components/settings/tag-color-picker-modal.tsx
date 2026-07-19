@@ -5,7 +5,7 @@ import {
   normalizeChipColor,
 } from '@/lib/relation-tag-colors'
 import { cn } from '@/lib/utils'
-import { isLightTagColor } from '@/stackflow/activities/settings/tag-color.utils'
+import { isLightTagColor } from '@/components/settings/tag-color.utils'
 
 export function TagColorPickerModal({
   open,
