@@ -5,7 +5,7 @@ import {
   normalizeChipColor,
 } from '@/lib/relation-tag-colors'
 import { cn } from '@/lib/utils'
-import { TagColorPickerModal } from '@/stackflow/activities/settings/tag-color-picker-modal'
+import { TagColorPickerModal } from '@/components/settings/tag-color-picker-modal'
 
 export function RelationTagColorPicker({
   value,

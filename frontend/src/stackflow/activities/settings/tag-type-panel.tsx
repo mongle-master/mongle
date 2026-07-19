@@ -15,8 +15,8 @@ import {
   normalizeChipColor,
 } from '@/lib/relation-tag-colors'
 import { isImeComposing } from '@/lib/keyboard'
-import { RelationTagColorPicker } from '@/stackflow/activities/settings/relation-tag-color-picker'
-import { TagSettingRow } from '@/stackflow/activities/settings/tag-setting-row'
+import { RelationTagColorPicker } from '@/components/settings/relation-tag-color-picker'
+import { TagSettingRow } from '@/components/settings/tag-setting-row'
 import { featureEvents, trackFeature } from '@/lib/analytics'
 
 export function TagTypePanel({
