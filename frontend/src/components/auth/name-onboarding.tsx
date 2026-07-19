@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DECOR_AMBER_GLOW } from '@/lib/decorative-colors'
 
 export function NameOnboarding({
   onSubmit,
@@ -21,7 +22,7 @@ export function NameOnboarding({
       />
       <div
         aria-hidden
-        className="absolute bottom-16 -left-24 size-56 rounded-full bg-amber-200/20 blur-3xl"
+        className={`absolute bottom-16 -left-24 size-56 rounded-full ${DECOR_AMBER_GLOW}`}
       />
 
       <MongleLogo className="relative text-foreground" />

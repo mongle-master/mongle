@@ -4,6 +4,7 @@ import { BackButton } from '@/components/layout/back-button'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { Button } from '@/components/ui/button'
 import { uploadImage } from '@/lib/api/images'
+import { DECOR_AMBER_GLOW } from '@/lib/decorative-colors'
 import {
   DEFAULT_FEMALE_PERSON_IMAGES,
   DEFAULT_MALE_PERSON_IMAGES,
@@ -94,7 +95,7 @@ export function ProfileOnboarding({
       />
       <div
         aria-hidden
-        className="absolute bottom-8 -left-28 size-64 rounded-full bg-amber-200/20 blur-3xl"
+        className={`absolute bottom-8 -left-28 size-64 rounded-full ${DECOR_AMBER_GLOW}`}
       />
 
       <div className="relative flex items-center gap-2">

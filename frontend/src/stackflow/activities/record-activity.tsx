@@ -43,6 +43,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useEnterDone } from '@/stackflow/use-enter-done'
 import { featureEvents, trackFeature } from '@/lib/analytics'
+import { EMOTION_TEXT_COLORS as EMOTION_TEXT } from '@/lib/emotion-colors'
 
 const MEMO_MAX = 200 // 백엔드 memo 상한과 일치
 const EMOTION_MAX = 5 // 백엔드 ValidationLimits.EMOTION_PER_EVENT_MAX와 일치
@@ -78,16 +79,6 @@ const emotionWord = (label: string) => {
   const past = EMOTION_PAST[label]
   return past ? `${past}다` : label
 }
-
-// 감정은 칩(테두리) 대신 색상 있는 글자만. 리터럴이라 Tailwind JIT가 스캔한다.
-const EMOTION_TEXT = [
-  'text-rose-500',
-  'text-amber-500',
-  'text-sky-500',
-  'text-violet-500',
-  'text-emerald-500',
-  'text-orange-500',
-]
 
 const bigChipBase =
   'inline-flex h-11 items-center justify-center rounded-full border px-5 text-body whitespace-nowrap transition-colors'
