@@ -23,6 +23,5 @@
 
 ## 범위 제외 (이번 회차 대상 아님)
 
-- [ ] `useFlow`(stackflow) 의존 컴포넌트는 provider 데코레이터가 필요해 제외: `home/relation-force-map`, `timeline/timeline-event-card`, `person/person-page-header`.
 - [ ] 시각 변화가 없거나 부모 레이아웃 없이는 무의미: `ui/label`, `ui/step-slide.ts`, `ui/tag-chip.ts`, `timeline/timeline-scroll-shell`.
 - [ ] `ui/button`은 이미 스토리 보유.

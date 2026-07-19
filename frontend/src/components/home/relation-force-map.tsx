@@ -1,4 +1,3 @@
-import { useFlow } from '@stackflow/react'
 import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { optimizedImageUrl } from '@/lib/image-url'
@@ -59,12 +58,13 @@ export function RelationForceMap({
   me,
   nodes,
   edges: _edges,
+  onSelectPerson,
 }: {
   me: RelationMapResponse['me']
   nodes: RelationMapResponse['nodes']
   edges: RelationMapResponse['edges']
+  onSelectPerson: (personId: number) => void
 }) {
-  const { push } = useFlow()
   const pointerPositionsRef = useRef(
     new Map<number, { x: number; y: number }>(),
   )
@@ -118,7 +118,7 @@ export function RelationForceMap({
       return
     }
 
-    push('Person', { personId: String(personId), view: 'timeline' })
+    onSelectPerson(personId)
   }
 
   useEffect(() => {

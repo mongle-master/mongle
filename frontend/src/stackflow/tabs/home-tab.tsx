@@ -87,6 +87,9 @@ export function HomeTab() {
           me={mapData.me}
           nodes={graphNodes}
           edges={visibleEdges}
+          onSelectPerson={(id) =>
+            push('Person', { personId: String(id), view: 'timeline' })
+          }
         />
       )}
 

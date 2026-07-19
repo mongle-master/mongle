@@ -213,7 +213,12 @@ export function PersonTimelineView({ personId }: { personId: string }) {
             scrollRootRef={scrollRef}
             items={events}
             renderCard={(event) => (
-              <TimelineEventCard item={fromEventResponse(event)} />
+              <TimelineEventCard
+                item={fromEventResponse(event)}
+                onSelect={(eventId) =>
+                  push('EventDetail', { eventId: String(eventId) })
+                }
+              />
             )}
           />
         )}
