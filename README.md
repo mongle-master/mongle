@@ -45,7 +45,7 @@
 | 경로                             | 구성                                      | 설명                               |
 | -------------------------------- | ----------------------------------------- | ---------------------------------- |
 | [`frontend/`](frontend/)         | React 19, Vite, Stackflow, TanStack Query | 모바일 우선 웹·PWA                 |
-| [`backend/`](backend/)           | Kotlin, Spring Boot, JPA                  | 인증, 사람, 기록, 타임라인, 칩 API |
+| [`backend/`](backend/)           | TypeScript, NestJS, Prisma, MySQL         | 인증, 사람, 기록, 타임라인, 칩 API |
 | [`docs/prd/`](docs/prd/)         | Markdown                                  | 화면별 제품 요구사항               |
 | [`backend/docs/`](backend/docs/) | Markdown                                  | mustpass와 로컬·배포·운영 절차     |
 
@@ -55,7 +55,7 @@
 
 | 도구    | 버전               |
 | ------- | ------------------ |
-| Node.js | 20.19+ 또는 22.12+ |
+| Node.js | 22+                |
 | pnpm    | 10+                |
 | Docker  | Compose v2 포함    |
 
@@ -73,13 +73,20 @@ curl http://localhost:18080/actuator/health
 # {"status":"UP"}
 ```
 
-Docker 없이 JDK 21과 H2를 사용할 수도 있습니다.
+Docker에서 DB만 띄우고 NestJS를 호스트에서 개발할 수도 있습니다.
 
 ```bash
 cd backend
-./gradlew bootRun
+docker compose up -d db
+pnpm install --frozen-lockfile
+export DATABASE_URL='mysql://mongle:mongle@127.0.0.1:13306/mongle'
+pnpm prisma:generate
+pnpm prisma:migrate:deploy
+pnpm dev
 # http://localhost:8080
 ```
+
+호스트 개발도 Compose의 같은 MySQL을 사용합니다. 기존 DB를 처음 연결할 때는 [baseline 절차](backend/docs/runbook/local.md#기존-hibernate-mysql-db를-처음-연결할-때)를 먼저 수행합니다.
 
 ### 2. 프런트엔드
 
@@ -90,7 +97,7 @@ pnpm dev:vite
 # http://localhost:3000
 ```
 
-`pnpm dev:vite`는 `/api`를 기본 Docker 백엔드인 `localhost:18080`으로 프록시합니다. `bootRun`에 연결하려면 다음과 같이 실행합니다.
+`pnpm dev:vite`는 `/api`를 기본 Docker 백엔드인 `localhost:18080`으로 프록시합니다. 호스트 NestJS에 연결하려면 다음과 같이 실행합니다.
 
 ```bash
 BACKEND_URL=http://localhost:8080 pnpm dev:vite
@@ -104,5 +111,5 @@ BACKEND_URL=http://localhost:8080 pnpm dev:vite
 | ---------------------------------------------------- | ------------------------------- |
 | [프런트엔드 README](frontend/README.md)              | 실행 모드, 구조, API 생성, 검증 |
 | [백엔드 README](backend/README.md)                   | API와 화면별 엔드포인트         |
-| [로컬 백엔드 Runbook](backend/docs/runbook/local.md) | Docker·H2 실행과 데이터 리셋    |
+| [로컬 백엔드 Runbook](backend/docs/runbook/local.md) | Docker·MySQL·NestJS 실행        |
 | [제품 PRD](docs/prd/README.md)                       | 제품 범위와 화면별 기준         |

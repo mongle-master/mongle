@@ -15,14 +15,14 @@
 - 사용자 식별은 **JWT Bearer 토큰**에서만 온다(고정 데모 사용자 하드코딩 없음). 아래 인증 절 참조.
 - 글자수·개수 한도를 넘기면 저장하지 않고 §12.5 문구로 거절한다.
 - 업로드 이미지는 각 10MB 이하, JPEG·PNG·WebP만 허용한다. Vercel Blob 클라이언트 토큰과 프론트 사전 검증에 같은 제한을 둔다.
-- 배포(`prod` 프로필)는 `MONGLE_JWT_SECRET`·DB 접속(`SPRING_DATASOURCE_*`)을 환경변수로 필수 요구한다.
-- CORS 는 전 오리진 허용이다 — 프론트는 어느 오리진(로컬 dev·배포 도메인)에서든 API 를 직접 호출할 수 있다. 인증이 쿠키가 아닌 Authorization 헤더 기반이라 크리덴셜 없는 와일드카드가 안전하다(`WebConfig`).
+- 프로덕션 배포는 `MONGLE_JWT_SECRET`·`DATABASE_URL`을 환경변수로 필수 요구한다.
+- CORS 는 전 오리진 허용이다 — 프론트는 어느 오리진(로컬 dev·배포 도메인)에서든 API 를 직접 호출할 수 있다. 인증이 쿠키가 아닌 Authorization 헤더 기반이므로 credentials는 허용하지 않는다.
 
 ## 에러 코드 ↔ 상태 ↔ 문구 (§12.5 매핑)
 
 | ErrorCode           | HTTP | 기본 message                                                                                                                                                                                                                                                          | 트리거                                                                                                                                    |
 | ------------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `INVALID_INPUT`     | 400  | 잘못된 입력입니다.                                                                                                                                                                                                                                                    | @Valid 실패·본문 파싱 실패·타입 불일치(쿼리/경로/필드)·필수 쿼리 파라미터·파트 누락 등 일반 — 클라이언트 입력 오류는 500 으로 새지 않는다 |
+| `INVALID_INPUT`     | 400  | 잘못된 입력입니다.                                                                                                                                                                                                                                                    | 본문 파싱 실패·타입 불일치(쿼리/경로/필드)·필수 쿼리 파라미터 누락 등 일반 — 클라이언트 입력 오류는 500 으로 새지 않는다                 |
 | `REQUIRED_FIELD`    | 400  | (필드별 override) "이름을 입력해 주세요." / "칩 이름을 입력해 주세요."                                                                                                                                                                                                | 필수 누락(본문 필수 필드 `name`·`label`·`username` 파싱 누락 포함 — 필드별 문구 매핑)                                                     |
 | `LENGTH_EXCEEDED`   | 400  | 최대 {N}자까지 쓸 수 있어요.                                                                                                                                                                                                                                          | 글자수 초과                                                                                                                               |
 | `DUPLICATE`         | 409  | 이미 있는 항목이에요.                                                                                                                                                                                                                                                 | 같은 종류 내 중복                                                                                                                         |
@@ -41,9 +41,8 @@
   비밀번호가 없는 데모 인증이다. 없는 `userId`면 요청의 UUID와 이름으로 사용자를 만들고, 이후에는 같은 UUID로 토큰을 재발급한다.
   사용자 식별자는 UUID이며 username은 중복 가능한 표시 이름이다.
 - 사용: 이후 모든 보호 API 는 `Authorization: Bearer {token}` 를 보낸다. HS256, claim `sub` = userId 문자열, claim `username` = 로그인 이름.
-- 주입: 컨트롤러가 `@AuthUser user: UserPrincipal` 을 받으면 리졸버가 헤더의 토큰을 파싱·검증해 채운다.
+- 주입: 보호 컨트롤러의 `JwtAuthGuard`가 헤더 토큰을 파싱·검증하고, `@CurrentUser() user: UserPrincipal`에 현재 사용자를 채운다.
   `UserPrincipal(id, username)` 은 토큰 클레임만으로 구성 — 요청당 DB 조회 없음. 컨트롤러는 id·username 중 필요한 것만 골라 쓴다.
-  이 파라미터를 쓰는 엔드포인트만 토큰을 요구한다(별도 보안 필터 없음).
 - 무인증 경로(토큰 불요): `/api/v1/auth/**`, `/actuator/**`, 스웨거(`/swagger-ui/**`, `/v3/api-docs/**`).
   `POST /api/v1/images/upload-permission`은 Vercel Blob 함수가 업로드 토큰 발급 전에 호출하는 보호 API다.
 - 실패: 토큰 없음·Bearer 형식 아님·서명/만료/형식 무효·username 클레임 없는 옛 토큰은 모두 401 `UNAUTHORIZED` "로그인이 필요해요." (옛 토큰은 재로그인 한 번으로 새 토큰을 받아 해소).
@@ -63,7 +62,7 @@
 | 사용자 시드          | POST /api/v1/seed + Bearer                                                                                        | 204, 사용자별 최초 1회만 데모 데이터 생성                       |
 | 발급 토큰으로 조회   | GET /api/v1/persons + Bearer                                                                                      | 200, 현재 사용자 소유 인물 목록                                 |
 
-## 검증 한도 (ValidationLimits) — §12.3 / §12.2 / §12.6
+## 검증 한도 (`shared/validation.ts`의 `LIMITS`) — §12.3 / §12.2 / §12.6
 
 | 상수                             | 값  | 대상                             |
 | -------------------------------- | --- | -------------------------------- |
@@ -93,10 +92,10 @@
 | 발급 토큰으로 업로드 권한 확인 | POST /api/v1/images/upload-permission | 200                                                         |
 | 소프트삭제된 칩 참조 기록 조회 | GET 기록                              | 라벨 값이 그대로 보인다                                     |
 
-## 후속 에이전트 사용법 (재사용 진입점)
+## 구현 재사용 진입점
 
-- 서비스 계층 검증: `com.mongle.common.Validators` (length/required/notFuture/dateOrder/selectionCount/chipKindCount).
-- 글자수: 서비스에서 `Validators.maxLength(value, ValidationLimits.X)` — **DTO `@field:Size` 금지**(@Valid 실패가 INVALID_INPUT 으로 뭉개져 LENGTH_EXCEEDED 를 잃음).
-- 현재 사용자: 컨트롤러 파라미터 `@AuthUser user: UserPrincipal` (id·username 자유 선택, JWT Bearer 토큰에서 해석 — 위 인증 절). 서비스에는 `user.id` 를 넘긴다.
+- 서비스 계층 검증: `src/shared/validation.ts`의 required·length·date·selection helper를 사용한다.
+- 글자수·도메인 검증은 서비스에서 수행해 `LENGTH_EXCEEDED` 같은 기존 에러 코드를 유지한다.
+- 현재 사용자: 보호 컨트롤러에서 `@CurrentUser() user: UserPrincipal`을 받고 서비스에는 UUID bytes를 넘긴다.
 - 이미지: 브라우저가 Vercel Blob으로 직접 업로드하고 반환된 절대 URL을 프로필·기록 API에 전달한다. 백엔드는 URL과 용도별 개수만 관리한다.
-- 소프트삭제 엔티티: `com.mongle.domain.SoftDeletableEntity` 상속 → `softDelete()` / `deleted`.
+- 소프트삭제: Prisma 모델의 `deletedAt`을 서비스에서 갱신하고 모든 선택 목록·활성 조회에서 `deletedAt: null`을 적용한다.

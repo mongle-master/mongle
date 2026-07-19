@@ -1,7 +1,9 @@
-build/
-.gradle/
-.kotlin/
+node_modules/
+dist/
 data/
 docs/
 .claude/
+.git/
+.env
+.env.*
 *.md

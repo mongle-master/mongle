@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ChipType {
+  CATEGORY
+  EMOTION
+  RELATION_TAG
+  WEATHER
+}
+
+enum Gender {
+  FEMALE
+  MALE
+}
+
+model User {
+  id                    Bytes     @id @db.Binary(16)
+  createdAt             DateTime? @map("created_at") @db.DateTime(6)
+  updatedAt             DateTime? @map("updated_at") @db.DateTime(6)
+  username              String    @db.VarChar(255)
+  demoSeeded            Boolean   @map("demo_seeded") @db.Bit(1)
+  gender                Gender?
+  profileImageUrl       String?   @map("profile_image_url") @db.VarChar(255)
+  profileSetupCompleted Boolean?  @map("profile_setup_completed") @db.Bit(1)
+
+  @@map("users")
+}
+
+model Chip {
+  id           BigInt    @id @default(autoincrement()) @db.BigInt
+  createdAt    DateTime? @map("created_at") @db.DateTime(6)
+  updatedAt    DateTime? @map("updated_at") @db.DateTime(6)
+  deletedAt    DateTime? @map("deleted_at") @db.DateTime(6)
+  displayOrder Int       @map("display_order") @db.Int
+  label        String    @db.VarChar(255)
+  ownerId      Bytes?    @map("owner_id") @db.Binary(16)
+  type         ChipType
+  color        String?   @db.VarChar(7)
+
+  @@index([type, ownerId], map: "idx_chip_type_owner")
+  @@map("chip")
+}
+
+model ChipHide {
+  id        BigInt    @id @default(autoincrement()) @db.BigInt
+  createdAt DateTime? @map("created_at") @db.DateTime(6)
+  updatedAt DateTime? @map("updated_at") @db.DateTime(6)
+  chipId    BigInt    @map("chip_id") @db.BigInt
+  ownerId   Bytes     @map("owner_id") @db.Binary(16)
+
+  @@unique([ownerId, chipId], map: "uq_chip_hide")
+  @@map("chip_hide")
+}
+
+model Person {
+  id              BigInt          @id @default(autoincrement()) @db.BigInt
+  createdAt       DateTime?       @map("created_at") @db.DateTime(6)
+  updatedAt       DateTime?       @map("updated_at") @db.DateTime(6)
+  deletedAt       DateTime?       @map("deleted_at") @db.DateTime(6)
+  birthDay        Int?            @map("birth_day") @db.Int
+  birthMonth      Int?            @map("birth_month") @db.Int
+  birthYear       Int?            @map("birth_year") @db.Int
+  favorite        Boolean         @db.Bit(1)
+  firstMetDate    DateTime?       @map("first_met_date") @db.Date
+  lastMetDate     DateTime?       @map("last_met_date") @db.Date
+  name            String          @db.VarChar(255)
+  ownerId         Bytes           @map("owner_id") @db.Binary(16)
+  profileImageUrl String?         @map("profile_image_url") @db.VarChar(255)
+  relationType    String?         @map("relation_type") @db.VarChar(255)
+  gender          Gender?
+  likes           PersonLike[]
+  cautions        PersonCaution[]
+
+  @@index([ownerId], map: "idx_person_owner")
+  @@map("person")
+}
+
+model PersonLike {
+  personId  BigInt  @map("person_id") @db.BigInt
+  item      String? @db.VarChar(255)
+  itemOrder Int     @map("item_order") @db.Int
+  person    Person  @relation(fields: [personId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKkjubga7d3cssf6957wdgeees4")
+
+  @@id([personId, itemOrder])
+  @@map("person_like")
+}
+
+model PersonCaution {
+  personId  BigInt  @map("person_id") @db.BigInt
+  item      String? @db.VarChar(255)
+  itemOrder Int     @map("item_order") @db.Int
+  person    Person  @relation(fields: [personId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKgnwi6pspi313pdy9itw330b6f")
+
+  @@id([personId, itemOrder])
+  @@map("person_caution")
+}
+
+model PersonRelationTag {
+  id           BigInt    @id @default(autoincrement()) @db.BigInt
+  createdAt    DateTime? @map("created_at") @db.DateTime(6)
+  updatedAt    DateTime? @map("updated_at") @db.DateTime(6)
+  chipId       BigInt    @map("chip_id") @db.BigInt
+  displayOrder Int       @map("display_order") @db.Int
+  personId     BigInt    @map("person_id") @db.BigInt
+
+  @@index([personId], map: "idx_person_relation_tag_person")
+  @@map("person_relation_tag")
+}
+
+model Event {
+  id             BigInt       @id @default(autoincrement()) @db.BigInt
+  createdAt      DateTime?    @map("created_at") @db.DateTime(6)
+  updatedAt      DateTime?    @map("updated_at") @db.DateTime(6)
+  deletedAt      DateTime?    @map("deleted_at") @db.DateTime(6)
+  categoryChipId BigInt       @map("category_chip_id") @db.BigInt
+  occurredDate   DateTime     @map("occurred_date") @db.Date
+  occurredTime   DateTime?    @map("occurred_time") @db.Time(6)
+  ownerId        Bytes        @map("owner_id") @db.Binary(16)
+  title          String?      @db.VarChar(255)
+  weatherChipId  BigInt?      @map("weather_chip_id") @db.BigInt
+  memo           String?      @db.VarChar(255)
+  photos         EventPhoto[]
+
+  @@index([ownerId, occurredDate], map: "idx_event_owner_date")
+  @@map("event")
+}
+
+model EventPhoto {
+  eventId    BigInt  @map("event_id") @db.BigInt
+  url        String? @db.VarChar(255)
+  photoOrder Int     @map("photo_order") @db.Int
+  event      Event   @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKfum3n6hr2a0frkk66k895pwuh")
+
+  @@id([eventId, photoOrder])
+  @@map("event_photo")
+}
+
+model EventPerson {
+  id           BigInt    @id @default(autoincrement()) @db.BigInt
+  createdAt    DateTime? @map("created_at") @db.DateTime(6)
+  updatedAt    DateTime? @map("updated_at") @db.DateTime(6)
+  displayOrder Int       @map("display_order") @db.Int
+  eventId      BigInt    @map("event_id") @db.BigInt
+  personId     BigInt    @map("person_id") @db.BigInt
+
+  @@index([eventId], map: "idx_event_person_event")
+  @@index([personId], map: "idx_event_person_person")
+  @@map("event_person")
+}
+
+model EventEmotion {
+  id           BigInt    @id @default(autoincrement()) @db.BigInt
+  createdAt    DateTime? @map("created_at") @db.DateTime(6)
+  updatedAt    DateTime? @map("updated_at") @db.DateTime(6)
+  chipId       BigInt    @map("chip_id") @db.BigInt
+  displayOrder Int       @map("display_order") @db.Int
+  eventId      BigInt    @map("event_id") @db.BigInt
+
+  @@index([eventId], map: "idx_event_emotion_event")
+  @@map("event_emotion")
+}
