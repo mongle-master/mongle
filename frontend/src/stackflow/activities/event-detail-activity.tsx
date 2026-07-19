@@ -8,6 +8,7 @@ import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { Badge } from '@/components/ui/badge'
 import { StatusMessage } from '@/components/ui/status-message'
 import { EventPhotoGallery } from '@/components/events/event-photo-gallery'
+import { FormPageHeader } from '@/components/layout/form-page-header'
 import { formatWhen } from '@/lib/format'
 
 // 어디서 push되든 뒤로가기 = pop 하나로 끝난다.
@@ -47,18 +48,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
   if (!event) {
     return (
       <ActivityShell>
-        <header className="grid shrink-0 grid-cols-3 items-center py-1">
-          <button
-            type="button"
-            onClick={() => pop()}
-            className="inline-flex items-center justify-self-start text-muted-foreground"
-            aria-label="뒤로 가기"
-          >
-            <ChevronLeft className="size-6" />
-          </button>
-          <h1 className="text-center text-base font-extrabold">몽글 상세</h1>
-          <span aria-hidden className="text-right" />
-        </header>
+        <FormPageHeader onBack={() => pop()} title="몽글 상세" />
         <StatusMessage inset="screen">기록을 찾을 수 없어요.</StatusMessage>
       </ActivityShell>
     )
