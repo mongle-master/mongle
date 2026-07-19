@@ -309,7 +309,7 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
         >
           <ChevronLeft className="size-6" />
         </button>
-        <span className="text-base font-bold">
+        <span data-amp-mask className="text-base font-bold">
           {step === 'name' ? '' : name}
         </span>
         {step !== 'name' ? (
