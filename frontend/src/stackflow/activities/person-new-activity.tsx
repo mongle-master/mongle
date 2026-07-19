@@ -3,8 +3,8 @@ import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { useFunnel } from '@use-funnel/browser'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { ChevronLeft, Save } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { FunnelHeader } from '@/components/layout/funnel-header'
 import { DateWheel } from '@/components/person/date-wheel'
 import { ListField, RelationTypeField } from '@/components/person/person-fields'
 import {
@@ -14,7 +14,9 @@ import {
   personToFormValues,
 } from '@/components/person/person-form'
 import type { PersonFormValues } from '@/components/person/person-form'
+import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { NextBar } from '@/components/ui/next-bar'
 import {
   fadeVariants,
   slideVariants,
@@ -291,41 +293,22 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
       <NextBar
         onNext={() => funnel.history.push('relation', {})}
         disabled={name.length === 0}
+        label="다음"
       />
     ) : step === 'relation' ? (
-      <NextBar onNext={() => funnel.history.push('dates', {})} />
+      <NextBar onNext={() => funnel.history.push('dates', {})} label="다음" />
     ) : step === 'dates' ? (
-      <NextBar onNext={() => funnel.history.push('detail', {})} />
+      <NextBar onNext={() => funnel.history.push('detail', {})} label="다음" />
     ) : null
 
   return (
     <PersonNewScreen>
-      <header className="flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
-        <button
-          type="button"
-          onClick={() => (step === 'name' ? pop() : funnel.history.back())}
-          aria-label="뒤로"
-          className="flex size-9 items-center justify-center rounded-full text-muted-foreground"
-        >
-          <ChevronLeft className="size-6" />
-        </button>
-        <span data-amp-mask className="text-base font-bold">
-          {step === 'name' ? '' : name}
-        </span>
-        {step !== 'name' ? (
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            aria-label="저장"
-            className="flex size-9 items-center justify-center rounded-full text-foreground/70 disabled:opacity-50"
-          >
-            <Save className="size-6" />
-          </button>
-        ) : (
-          <span className="size-9" />
-        )}
-      </header>
+      <FunnelHeader
+        onBack={() => (step === 'name' ? pop() : funnel.history.back())}
+        centerLabel={step === 'name' ? '' : name}
+        onSave={step !== 'name' ? handleSave : undefined}
+        saving={saving}
+      />
       <div className="relative min-h-0 min-w-0 flex-1 overflow-x-clip">
         <AnimatePresence initial={false} custom={direction}>
           <motion.div
@@ -354,7 +337,9 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
 
 // 몰입형 껍데기. AppScreen 래핑은 필수 — 없으면 push 되어도 아래 activity를
 // 덮지 못한다(stackflow/README 계약). 컨테이너(absolute inset)에 갇히므로 h-full 기준.
-// record 퍼널(record-activity.tsx)의 StepFrame과 같은 패턴 — 안정화되면 공통화한다.
+// 공통 조각(FunnelHeader, NextBar, Field)은 추출해 record와 공유하지만, 이 껍데기는
+// record의 RecordScreen과 스크롤 모델이 반대라(record는 전체 스크롤, 여기는 껍데기 고정)
+// 일부러 합치지 않는다.
 function PersonNewScreen({ children }: { children: React.ReactNode }) {
   return (
     <AppScreen>
@@ -362,41 +347,5 @@ function PersonNewScreen({ children }: { children: React.ReactNode }) {
         {children}
       </div>
     </AppScreen>
-  )
-}
-
-// 다음 단계로. 하단을 여백 없이 채운다.
-function NextBar({
-  onNext,
-  disabled = false,
-}: {
-  onNext: () => void
-  disabled?: boolean
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onNext}
-      disabled={disabled}
-      className="w-full bg-foreground/85 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-lg font-bold text-background disabled:opacity-30"
-    >
-      다음
-    </button>
-  )
-}
-
-// label을 키우고 볼드는 뺀다.
-function Field({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <section>
-      <p className="mb-2.5 text-lg text-muted-foreground">{label}</p>
-      {children}
-    </section>
   )
 }

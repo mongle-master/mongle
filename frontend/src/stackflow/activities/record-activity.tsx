@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { useFunnel } from '@use-funnel/browser'
-import { Check, ChevronLeft, ImagePlus, Plus, Save, X } from 'lucide-react'
+import { Check, ImagePlus, Plus, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type {
   EventRequest,
@@ -16,13 +16,16 @@ import {
   personQuery,
   timelineQuery,
 } from '@/apis/queries'
+import { FunnelHeader } from '@/components/layout/funnel-header'
 import { Button } from '@/components/ui/button'
 import {
   EmptyState,
   EmptyStateAction,
   EmptyStateDescription,
 } from '@/components/ui/empty-state'
+import { Field } from '@/components/ui/field'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { NextBar } from '@/components/ui/next-bar'
 import { StatusMessage } from '@/components/ui/status-message'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -439,6 +442,8 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             <NextBar
               onNext={() => history.push('emotion', {})}
               disabled={selectedPersonIds.length === 0}
+              sticky
+              label="이어서"
             />
           }
         >
@@ -493,7 +498,13 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
           onDone={handleSave}
           doneSaving={saving}
           errorMessage={formError}
-          footer={<NextBar onNext={() => history.push('what', {})} />}
+          footer={
+            <NextBar
+              onNext={() => history.push('what', {})}
+              sticky
+              label="이어서"
+            />
+          }
         >
           <div className="flex justify-center">
             <MonogramAvatar
@@ -554,7 +565,13 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
           onDone={handleSave}
           doneSaving={saving}
           errorMessage={formError}
-          footer={<NextBar onNext={() => history.push('detail', {})} />}
+          footer={
+            <NextBar
+              onNext={() => history.push('detail', {})}
+              sticky
+              label="이어서"
+            />
+          }
         >
           {/* 사진 추가를 편지지보다 위에 둔다. */}
           {/* accept에 heic를 넣으면 iOS가 HEIC 원본을 그대로 넘겨 업로더(jpg·png·webp만 허용)에서
@@ -731,32 +748,12 @@ function StepFrame({
 }) {
   return (
     <RecordScreen slideIn={slideIn}>
-      <header className="flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label="뒤로"
-          className="flex size-9 items-center justify-center rounded-full text-muted-foreground"
-        >
-          <ChevronLeft className="size-6" />
-        </button>
-        <span data-amp-mask className="text-base font-bold">
-          {centerLabel}
-        </span>
-        {onDone ? (
-          <button
-            type="button"
-            onClick={onDone}
-            disabled={doneSaving}
-            aria-label="저장"
-            className="flex size-9 items-center justify-center rounded-full text-foreground/70 disabled:opacity-50"
-          >
-            <Save className="size-6" />
-          </button>
-        ) : (
-          <span className="size-9" />
-        )}
-      </header>
+      <FunnelHeader
+        onBack={onBack}
+        centerLabel={centerLabel}
+        onSave={onDone}
+        saving={doneSaving}
+      />
       <main className="flex flex-1 flex-col px-5 pt-4 pb-6">
         {errorMessage ? (
           <p className="mb-4 text-center text-sm text-destructive" role="alert">
@@ -767,41 +764,5 @@ function StepFrame({
       </main>
       {footer}
     </RecordScreen>
-  )
-}
-
-// 다음 단계로. 하단을 여백 없이 채운다.
-function NextBar({
-  onNext,
-  disabled = false,
-}: {
-  onNext: () => void
-  disabled?: boolean
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onNext}
-      disabled={disabled}
-      className="sticky bottom-0 w-full bg-foreground/85 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-lg font-bold text-background disabled:opacity-30"
-    >
-      이어서
-    </button>
-  )
-}
-
-// label을 키우고 볼드는 뺀다.
-function Field({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <section>
-      <p className="mb-2.5 text-lg text-muted-foreground">{label}</p>
-      {children}
-    </section>
   )
 }
