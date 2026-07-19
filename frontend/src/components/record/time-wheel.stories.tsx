@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { TimeWheel } from '@/components/record/date-time-wheel'
+import { TimeWheel } from '@/components/record/time-wheel'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta = {
