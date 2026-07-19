@@ -106,7 +106,7 @@ export function HomeTab() {
               if (throwbackExiting) setThrowbackDismissed(true)
             }}
           >
-            <Card className="relative flex min-h-[82px] flex-row items-center gap-3 rounded-lg border border-border bg-card p-3.5 pr-10 text-card-foreground shadow-[0_18px_42px_rgba(24,24,27,0.14)] dark:shadow-[0_18px_42px_rgba(0,0,0,0.38)]">
+            <Card className="relative flex min-h-[82px] flex-row items-center gap-3 rounded-lg border border-border bg-card p-3.5 pr-10 text-card-foreground shadow-e4">
               <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <Clock3 className="size-5" />
               </div>

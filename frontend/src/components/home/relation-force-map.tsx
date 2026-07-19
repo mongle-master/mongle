@@ -289,12 +289,12 @@ export function RelationForceMap({
       }}
     >
       <div
-        className="absolute top-2 right-3 z-30 flex items-center gap-1 rounded-full bg-white/82 p-1 shadow-[0_10px_24px_rgba(24,24,27,0.08)] backdrop-blur-sm dark:bg-zinc-950/82 dark:shadow-[0_10px_24px_rgba(0,0,0,0.34)]"
+        className="absolute top-2 right-3 z-30 flex items-center gap-1 rounded-full bg-background/82 p-1 shadow-e3 backdrop-blur-sm"
         onPointerDown={(event) => event.stopPropagation()}
       >
         <button
           type="button"
-          className="grid size-8 place-items-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+          className="grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           onClick={() => zoomBy(-ZOOM_STEP)}
           aria-label="축소"
         >
@@ -302,7 +302,7 @@ export function RelationForceMap({
         </button>
         <button
           type="button"
-          className="grid size-8 place-items-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+          className="grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           onClick={resetViewport}
           aria-label="원래 크기"
         >
@@ -310,7 +310,7 @@ export function RelationForceMap({
         </button>
         <button
           type="button"
-          className="grid size-8 place-items-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+          className="grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           onClick={() => zoomBy(ZOOM_STEP)}
           aria-label="확대"
         >
@@ -319,11 +319,12 @@ export function RelationForceMap({
       </div>
 
       <div className="absolute inset-x-0 bottom-12 z-20 flex justify-center px-4">
-        <div className="flex max-w-[80%] items-center justify-center gap-2 overflow-hidden rounded-full bg-zinc-100/78 px-2.5 py-1.5 shadow-[0_8px_18px_rgba(24,24,27,0.05)] backdrop-blur-sm dark:bg-zinc-900/78 dark:shadow-[0_8px_18px_rgba(0,0,0,0.24)]">
+        <div className="flex max-w-[80%] items-center justify-center gap-2 overflow-hidden rounded-full bg-muted/78 px-2.5 py-1.5 shadow-e2 backdrop-blur-sm">
           {categories.map((category) => (
             <span
               key={category.label}
               data-amp-mask
+              // text-zinc-700/200은 foreground와 muted-foreground 사이 값이라 전용 토큰 나오기 전까지 손튜닝 값으로 둔다
               className="inline-flex min-w-0 items-center gap-1 text-[10px] font-bold text-zinc-700 dark:text-zinc-200"
             >
               <span
@@ -387,10 +388,11 @@ export function RelationForceMap({
               onClick={() => setActiveGraphIndex(index)}
               aria-label={`그래프 ${index + 1}`}
             >
+              {/* 비활성 도트 bg-zinc-300/700은 전용 토큰 나오기 전까지 손튜닝 값으로 둔다 */}
               <span
                 className={`block size-2.5 rounded-full transition-colors ${
                   activeGraphIndex === index
-                    ? 'bg-zinc-950 dark:bg-zinc-50'
+                    ? 'bg-foreground'
                     : 'bg-zinc-300 dark:bg-zinc-700'
                 }`}
               />
@@ -421,11 +423,11 @@ function OrbitGraph({
     <>
       <OrbitBackground />
       <div className="absolute top-1/2 left-1/2 z-20 flex -translate-x-1/2 -translate-y-[38px] flex-col items-center">
-        <div className="grid size-[76px] place-items-center rounded-full bg-white shadow-[0_0_0_1px_rgba(24,24,27,0.04),0_0_44px_rgba(255,198,109,0.58),0_0_82px_rgba(255,220,156,0.32)] dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_46px_rgba(255,198,109,0.34),0_0_84px_rgba(255,220,156,0.18)]">
+        <div className="grid size-[76px] place-items-center rounded-full bg-background shadow-[0_0_0_1px_rgba(24,24,27,0.04),0_0_44px_rgba(255,198,109,0.58),0_0_82px_rgba(255,220,156,0.32)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_46px_rgba(255,198,109,0.34),0_0_84px_rgba(255,220,156,0.18)]">
           <img
             src={imageSrc}
             alt={`${me.name} 프로필`}
-            className="size-[62px] rounded-full object-cover shadow-[0_10px_20px_rgba(24,24,27,0.14)] dark:shadow-[0_10px_20px_rgba(0,0,0,0.28)]"
+            className="size-[62px] rounded-full object-cover shadow-e3"
             onError={(event) => {
               const target = event.currentTarget
               if (target.dataset.fallback === '1') return
@@ -441,7 +443,7 @@ function OrbitGraph({
         </div>
         <span
           data-amp-mask
-          className="mt-1.5 max-w-24 truncate rounded-full bg-background/88 px-2 py-1 text-[12px] leading-none font-black text-zinc-950 shadow-[0_4px_12px_rgba(24,24,27,0.08)] backdrop-blur-sm dark:text-zinc-50"
+          className="mt-1.5 max-w-24 truncate rounded-full bg-background/88 px-2 py-1 text-[12px] leading-none font-black text-foreground shadow-e1 backdrop-blur-sm"
         >
           {me.name}
         </span>
@@ -511,7 +513,8 @@ function CategoryClusterGraph({
           <span
             key={category.label}
             data-amp-mask
-            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/80 px-2 py-1 text-caption font-black text-zinc-700 shadow-[0_8px_18px_rgba(24,24,27,0.06)] dark:bg-zinc-950/82 dark:text-zinc-200 dark:shadow-[0_8px_18px_rgba(0,0,0,0.28)]"
+            // text-zinc-700/200은 foreground와 muted-foreground 사이 값이라 전용 토큰 나오기 전까지 손튜닝 값으로 둔다
+            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/80 px-2 py-1 text-caption font-black text-zinc-700 shadow-e2 dark:text-zinc-200"
             style={{
               left: `${position.x}%`,
               top: `${position.y + radius.labelOffset}%`,
@@ -554,6 +557,7 @@ function RecentFlowGraph({
         preserveAspectRatio="none"
         aria-hidden
       >
+        {/* flow-path stroke는 모드별 알파를 손으로 맞춘 값이라 전용 토큰 나오기 전까지 유지한다 */}
         <path
           d={path}
           fill="none"
@@ -604,6 +608,7 @@ function OrbitBackground() {
         </radialGradient>
       </defs>
       <ellipse cx="50" cy="50" rx="34" ry="23" fill="url(#relationCoreGlow)" />
+      {/* 궤도선 stroke-stone은 따뜻한 색감으로 손튜닝한 값이라 무채색 토큰으로 치환하지 않는다 */}
       <ellipse
         cx="50"
         cy="50"
@@ -694,7 +699,7 @@ function PersonNode({
       aria-label={`${displayName} 상세`}
     >
       <span
-        className="relative grid place-items-center rounded-full border-[3px] bg-white shadow-[0_8px_20px_rgba(24,24,27,0.1)] ring-1 ring-zinc-200/70 dark:bg-zinc-950 dark:shadow-[0_8px_20px_rgba(0,0,0,0.32)] dark:ring-white/10"
+        className="relative grid place-items-center rounded-full border-[3px] bg-background shadow-e2 ring-1 ring-border"
         style={{
           width: `${nodeSize}px`,
           height: `${nodeSize}px`,
@@ -723,7 +728,7 @@ function PersonNode({
       {showText ? (
         <span
           data-amp-mask
-          className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-black text-zinc-950 shadow-[0_4px_12px_rgba(24,24,27,0.06)] backdrop-blur-sm dark:text-zinc-50"
+          className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-black text-foreground shadow-e1 backdrop-blur-sm"
         >
           <span className="min-w-0 truncate">{displayName}</span>
           <span
@@ -735,7 +740,7 @@ function PersonNode({
         </span>
       ) : null}
       {showLastMeet && person.intimacy.daysSinceLastMeet != null ? (
-        <span className="mt-1 text-caption leading-none font-medium text-zinc-500 dark:text-zinc-400">
+        <span className="mt-1 text-caption leading-none font-medium text-muted-foreground">
           {formatDaysSinceLastMeet(person.intimacy.daysSinceLastMeet)}
         </span>
       ) : null}
