@@ -9,6 +9,7 @@ import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { ListGroup } from '@/components/ui/list-group'
 import { ListGroupItem } from '@/components/ui/list-group-item'
 import { ListGroupLabel } from '@/components/ui/list-group-label'
+import { NavigationRow } from '@/components/ui/navigation-row'
 import { StatusMessage } from '@/components/ui/status-message'
 import { TagChip } from '@/components/ui/tag-chip'
 import { optimizedImageUrl } from '@/lib/image-url'
@@ -224,37 +225,21 @@ export function PersonProfileView({
         <section>
           <ListGroupLabel>작업</ListGroupLabel>
           <ListGroup>
-            <ListGroupItem className="py-0">
-              <button
-                type="button"
-                onClick={() => push('Record', { personId })}
-                className="flex w-full items-center justify-between py-3.5 text-body font-extrabold text-foreground transition-colors active:opacity-70"
-              >
-                상황 기록 작성
-                <ChevronRight className="size-5 text-muted-foreground" />
-              </button>
-            </ListGroupItem>
-            <ListGroupItem className="py-0">
-              <button
-                type="button"
-                onClick={() => push('PersonEdit', { personId })}
-                className="flex w-full items-center justify-between py-3.5 text-body font-extrabold text-foreground transition-colors active:opacity-70"
-              >
-                프로필 수정
-                <ChevronRight className="size-5 text-muted-foreground" />
-              </button>
-            </ListGroupItem>
-            <ListGroupItem withDivider={false} className="py-0">
-              <button
-                type="button"
-                onClick={() => del.setOpen(true)}
-                disabled={del.pending}
-                className="flex w-full items-center justify-between py-3.5 text-left text-body font-extrabold text-destructive transition-colors active:opacity-70 disabled:opacity-60"
-              >
-                인물 삭제
-                <ChevronRight className="size-5 text-destructive/70" />
-              </button>
-            </ListGroupItem>
+            <NavigationRow
+              label="상황 기록 작성"
+              onClick={() => push('Record', { personId })}
+            />
+            <NavigationRow
+              label="프로필 수정"
+              onClick={() => push('PersonEdit', { personId })}
+            />
+            <NavigationRow
+              label="인물 삭제"
+              tone="destructive"
+              withDivider={false}
+              disabled={del.pending}
+              onClick={() => del.setOpen(true)}
+            />
           </ListGroup>
         </section>
       </div>
