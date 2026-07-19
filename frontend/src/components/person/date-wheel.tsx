@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 
 // 연/월/일 휠 피커. PersonFormValues의 날짜 파트 문자열(YYYY / M / D)과 그대로 연동한다.
 // DatePartPicker(드롭다운 3회 탐색)의 모바일 마찰 대응.
-// record 퍼널 TimeWheel(date-time-wheel.tsx)과 같은 룩앤필.
+// record 퍼널 TimeWheel(time-wheel.tsx)과 같은 룩앤필.
 
 const ITEM_H = 40
 const HEIGHT = 5 * ITEM_H

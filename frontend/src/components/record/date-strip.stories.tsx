@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DateStrip } from '@/components/record/date-time-wheel'
+import { DateStrip } from '@/components/record/date-strip'
 import { todayLocalIso } from '@/lib/format'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 

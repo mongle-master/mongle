@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { TimeWheel } from './date-time-wheel'
+import { TimeWheel } from './time-wheel'
 
 describe('TimeWheel', () => {
   afterEach(cleanup)

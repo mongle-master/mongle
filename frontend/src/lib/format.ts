@@ -55,6 +55,9 @@ export function formatAutoEventTitle(
   return `${who} · ${category}`
 }
 
+/** 숫자를 2자리 zero-pad ('9' → '09'). 날짜·시간 문자열 포맷에 공통으로 쓴다. */
+export const pad = (n: number) => String(n).padStart(2, '0')
+
 /** 로컬 자정 기준 오늘 날짜('YYYY-MM-DD'). toISOString()은 UTC라 KST 00~09시엔 하루 전으로 밀린다 */
 export function todayLocalIso(date = new Date()) {
   const y = date.getFullYear()
