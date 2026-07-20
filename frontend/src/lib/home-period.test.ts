@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   HOME_PERIOD_STORAGE_KEY,
   getDefaultHomePeriod,
+  refreshDefaultHomePeriod,
   setDefaultHomePeriod,
   subscribeDefaultHomePeriod,
 } from './home-period'
@@ -35,5 +36,16 @@ describe('home default period', () => {
     unsubscribe()
     setDefaultHomePeriod('1M')
     expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  it('다른 WebView가 저장한 기본 기간을 현재 구독자에게 다시 전달한다', () => {
+    const listener = vi.fn()
+    const unsubscribe = subscribeDefaultHomePeriod(listener)
+    localStorage.setItem(HOME_PERIOD_STORAGE_KEY, '5Y')
+
+    refreshDefaultHomePeriod()
+
+    expect(listener).toHaveBeenCalledWith('5Y')
+    unsubscribe()
   })
 })

@@ -38,13 +38,14 @@
 - 함께한 사람, 감정, 내용, 날짜·시간, 날씨, 사진을 나눠 입력하는 기록 작성
 - 기록 상세 조회·수정과 1년 전 오늘 회고
 - 홈 기본 기간, 개인 태그, 다크 모드 설정
-- 모바일 브라우저와 설치형 PWA를 고려한 스택 내비게이션
+- 모바일 브라우저·PWA의 Stackflow 내비게이션과 모바일 앱의 RN 멀티 WebView 스택
 
 ## 저장소 구성
 
 | 경로                             | 구성                                      | 설명                               |
 | -------------------------------- | ----------------------------------------- | ---------------------------------- |
 | [`frontend/`](frontend/)         | React 19, Vite, Stackflow, TanStack Query | 모바일 우선 웹·PWA                 |
+| [`app/`](app/)                   | Expo Router, React Native WebView         | RN 스택 기반 모바일 앱             |
 | [`backend/`](backend/)           | Kotlin, Spring Boot, JPA                  | 인증, 사람, 기록, 타임라인, 칩 API |
 | [`docs/prd/`](docs/prd/)         | Markdown                                  | 화면별 제품 요구사항               |
 | [`backend/docs/`](backend/docs/) | Markdown                                  | mustpass와 로컬·배포·운영 절차     |
@@ -53,11 +54,11 @@
 
 ### 준비물
 
-| 도구    | 버전               |
-| ------- | ------------------ |
-| Node.js | 20.19+ 또는 22.12+ |
-| pnpm    | 10+                |
-| Docker  | Compose v2 포함    |
+| 도구    | 버전                                    |
+| ------- | --------------------------------------- |
+| Node.js | frontend 20.19+ 또는 22.12+, app 22.13+ |
+| pnpm    | 10+                                     |
+| Docker  | Compose v2 포함                         |
 
 ### 1. 백엔드
 
@@ -98,11 +99,26 @@ BACKEND_URL=http://localhost:8080 pnpm dev:vite
 
 사진 업로드까지 확인하려면 Vercel 프로젝트와 Blob 환경변수가 필요합니다. 설정 방법은 [프런트엔드 README](frontend/README.md#사진-업로드)에 있습니다.
 
+### 3. 모바일 앱
+
+프런트엔드를 실행한 상태에서 별도 터미널을 사용합니다.
+
+```bash
+cd app
+cp .env.example .env.local
+pnpm install
+pnpm ios
+# 또는 pnpm android
+```
+
+Android 에뮬레이터와 실기기의 WebView 주소 설정은 [앱 README](app/README.md)를 참고합니다.
+
 ## 문서
 
-| 문서                                                 | 내용                            |
-| ---------------------------------------------------- | ------------------------------- |
-| [프런트엔드 README](frontend/README.md)              | 실행 모드, 구조, API 생성, 검증 |
-| [백엔드 README](backend/README.md)                   | API와 화면별 엔드포인트         |
-| [로컬 백엔드 Runbook](backend/docs/runbook/local.md) | Docker·H2 실행과 데이터 리셋    |
-| [제품 PRD](docs/prd/README.md)                       | 제품 범위와 화면별 기준         |
+| 문서                                                 | 내용                             |
+| ---------------------------------------------------- | -------------------------------- |
+| [프런트엔드 README](frontend/README.md)              | 실행 모드, 구조, API 생성, 검증  |
+| [앱 README](app/README.md)                           | Expo 앱 실행과 WebView 주소 설정 |
+| [백엔드 README](backend/README.md)                   | API와 화면별 엔드포인트          |
+| [로컬 백엔드 Runbook](backend/docs/runbook/local.md) | Docker·H2 실행과 데이터 리셋     |
+| [제품 PRD](docs/prd/README.md)                       | 제품 범위와 화면별 기준          |

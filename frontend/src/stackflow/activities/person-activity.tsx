@@ -1,4 +1,5 @@
-import { useFlow, useStepFlow } from '@stackflow/react'
+import { useStepFlow } from '@stackflow/react'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 import type { ActivityComponentType } from '@stackflow/react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { PersonPageHeader } from '@/components/person/person-page-header'
@@ -20,7 +21,7 @@ const VIEW_ORDER: readonly PersonView[] = ['profile', 'timeline']
 // 헤더(뒤로가기+탭)는 activity에 고정하고 그 아래 콘텐츠만 탭 순서 방향으로 밀어낸다.
 export const PersonActivity: ActivityComponentType<'Person'> = ({ params }) => {
   const view: PersonView = params.view === 'timeline' ? 'timeline' : 'profile'
-  const { pop } = useFlow()
+  const { pop } = useAppFlow()
   const { replaceStep } = useStepFlow('Person')
   const reducedMotion = useReducedMotion()
   const direction = useStepSlideDirection(view, VIEW_ORDER)

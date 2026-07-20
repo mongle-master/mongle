@@ -1,4 +1,3 @@
-import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { useState } from 'react'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
@@ -8,11 +7,12 @@ import { getDefaultHomePeriod, setDefaultHomePeriod } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { featureEvents, trackFeature } from '@/lib/analytics'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 export const HomeSettingsActivity: ActivityComponentType<
   'HomeSettings'
 > = () => {
-  const { pop } = useFlow()
+  const { pop } = useAppFlow()
   const [period, setPeriod] = useState<HomePeriod>(() => getDefaultHomePeriod())
 
   const handleChange = (next: HomePeriod) => {

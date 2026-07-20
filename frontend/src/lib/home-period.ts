@@ -37,6 +37,10 @@ type HomePeriodListener = (period: HomePeriod) => void
 
 const listeners = new Set<HomePeriodListener>()
 
+function notifyDefaultHomePeriod(period: HomePeriod) {
+  listeners.forEach((listener) => listener(period))
+}
+
 /**
  * Main activity가 방문한 탭을 hidden으로만 유지해 홈 탭이 리마운트되지 않으므로,
  * 설정 탭에서 기본 기간을 바꾸면 구독으로 즉시 전달해야 한다.
@@ -54,7 +58,12 @@ export function setDefaultHomePeriod(period: HomePeriod) {
   } catch {
     // ignore
   }
-  listeners.forEach((listener) => listener(period))
+  notifyDefaultHomePeriod(period)
+}
+
+/** 다른 WebView에서 저장한 기본 기간을 현재 WebView의 구독자에게 다시 전달한다. */
+export function refreshDefaultHomePeriod() {
+  notifyDefaultHomePeriod(getDefaultHomePeriod())
 }
 
 function daysSinceLocalDate(isoDate: string, today = new Date()) {

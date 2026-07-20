@@ -1,7 +1,8 @@
-import { useFlow, useStepFlow } from '@stackflow/react'
+import { useStepFlow } from '@stackflow/react'
 import { Clock, Home, Plus, Settings, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { MainTab } from '@/stackflow/stackflow.config'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 const tabs: Array<{ tab: MainTab; label: string; icon: typeof Home }> = [
   { tab: 'home', label: '홈', icon: Home },
@@ -15,7 +16,7 @@ const tabs: Array<{ tab: MainTab; label: string; icon: typeof Home }> = [
 // Main activity가 언마운트되지 않으므로 탭 상태가 보존된다.
 export function StackTabBar({ activeTab }: { activeTab: MainTab }) {
   const { replaceStep } = useStepFlow('Main')
-  const { push } = useFlow()
+  const { push } = useAppFlow()
 
   const items = [
     ...tabs.slice(0, 2).map((t) => ({ kind: 'tab' as const, ...t })),

@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { useFunnel } from '@use-funnel/browser'
 import { Check, ImagePlus, Plus, X } from 'lucide-react'
@@ -43,6 +42,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useEnterDone } from '@/stackflow/use-enter-done'
 import { featureEvents, trackFeature } from '@/lib/analytics'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 const MEMO_MAX = 200 // 백엔드 memo 상한과 일치
 const EMOTION_MAX = 5 // 백엔드 ValidationLimits.EMOTION_PER_EVENT_MAX와 일치
@@ -134,7 +134,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
   // 흐름의 연장이라 일반 push 슬라이드로, 하단 ＋·이벤트 수정은 모달 present로 뜬다.
   const slideIn = presetPersonId !== undefined
   const enterDone = useEnterDone()
-  const { push, pop, replace } = useFlow()
+  const { push, pop, replace } = useAppFlow()
   const queryClient = useQueryClient()
   const photoInputRef = useRef<HTMLInputElement>(null)
   const hydratedEventId = useRef<number | null>(null)

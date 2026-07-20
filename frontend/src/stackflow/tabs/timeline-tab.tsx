@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
 import { useMemo, useRef, useState } from 'react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
@@ -27,9 +26,10 @@ import {
 import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
 import { TabShell } from '@/stackflow/components/tab-shell'
 import { featureEvents, trackFeature } from '@/lib/analytics'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 export function TimelineTab() {
-  const { push } = useFlow()
+  const { push } = useAppFlow()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [categoryFilter, setCategoryFilter] = useState<number[]>([])
   const [personFilter, setPersonFilter] = useState<number[]>([])

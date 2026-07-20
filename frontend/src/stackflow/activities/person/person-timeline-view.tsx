@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
 import { useMemo, useRef, useState } from 'react'
 import { ActivityFlowChart } from '@/components/timeline/activity-flow-chart'
 import { TimelineCategoryFilters } from '@/components/timeline/timeline-category-filters'
@@ -25,10 +24,11 @@ import { chipQuery, eventQuery, personQuery } from '@/apis/queries'
 import { formatPersonName } from '@/lib/format'
 import { matchesActivityFlowSelection } from '@/lib/timeline-activity-flow'
 import type { ActivityFlowSelection } from '@/lib/timeline-activity-flow'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 export function PersonTimelineView({ personId }: { personId: string }) {
   const id = Number(personId)
-  const { push } = useFlow()
+  const { push } = useAppFlow()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [categoryFilter, setCategoryFilter] = useState<number[]>([])
   const [flowSelection, setFlowSelection] =

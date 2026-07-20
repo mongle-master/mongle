@@ -2,6 +2,17 @@
 
 > 기준: PRD README §12.1(하단 내비), 각 화면 PRD의 진입/복귀 흐름. 이 목록이 깨지면 회귀다.
 
+## 모바일 웹 / RN WebView 분기
+
+- [ ] 모바일 웹에서는 기존 Stackflow push·replace·pop과 상세 딥링크 `defaultHistory`가 그대로 동작한다.
+- [ ] RN WebView에서 activity push마다 Expo Router 스택에 새 WebView가 추가된다.
+      replace는 현재 WebView를 교체하고 pop count는 해당 수만큼 네이티브 스택을 제거한다.
+- [ ] RN 상세 WebView는 target activity 하나만 마운트하고, `defaultHistory`의 Main·상세 activity를
+      내부에 중복 생성하지 않는다.
+- [ ] 하단 탭과 인물 프로필·타임라인 step은 새 WebView를 만들지 않고 현재 WebView에서 전환된다.
+- [ ] RN 화면 pop 후 아래 WebView가 다시 focus되면 활성 query를 무효화해 변경된 데이터를 조회한다.
+- [ ] WebView는 설정된 frontend와 같은 origin만 로드하고, 허용한 외부 URL만 시스템 앱으로 넘긴다.
+
 ## 온보딩 퍼널 (인증 전 전용 스택)
 
 - [ ] 신규 방문 시 이름 단계가 뜨고, 이름 제출 → 프로필 단계가 **push(슬라이드)** 된다.

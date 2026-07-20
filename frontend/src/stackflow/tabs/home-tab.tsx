@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
 import { Clock3, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { homeQuery } from '@/apis/queries'
@@ -18,9 +17,10 @@ import {
 } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
 import { featureEvents, trackFeature } from '@/lib/analytics'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 export function HomeTab() {
-  const { push } = useFlow()
+  const { push } = useAppFlow()
   // 탭 마운트(첫 방문) 시 설정에 저장된 기본 기간으로 초기화. 탭에서 바꾼 값은 세션 동안 유지되고,
   // 설정 탭에서 기본 기간을 바꾸면 그 값으로 덮어쓴다(홈 탭은 hidden 유지라 리마운트되지 않음).
   const [period, setPeriod] = useState<HomePeriod>(() => getDefaultHomePeriod())

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
 import { ChevronLeft } from 'lucide-react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { eventQuery, personQuery } from '@/apis/queries'
@@ -11,6 +10,7 @@ import { StatusMessage } from '@/components/ui/status-message'
 import { EventPhotoGallery } from '@/components/events/event-photo-gallery'
 import { FormPageHeader } from '@/components/layout/form-page-header'
 import { formatWhen } from '@/lib/format'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 // 어디서 push되든 뒤로가기 = pop 하나로 끝난다.
 // (구 라우트의 returnTo/returnPersonId 복귀 경로 시뮬레이션을 대체)
@@ -19,7 +19,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
 }) => {
   const { eventId } = params
   const id = Number(eventId)
-  const { push, pop } = useFlow()
+  const { push, pop } = useAppFlow()
 
   const eventDetailQuery = useQuery(eventQuery.byId(id, Number.isFinite(id)))
 

@@ -1,9 +1,9 @@
 import { AppScreen } from '@/stackflow/components/app-screen'
-import { useFlow } from '@stackflow/react'
 import type { ActivityComponentType } from '@stackflow/react'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 export const NotFoundActivity: ActivityComponentType<'NotFound'> = () => {
-  const { replace } = useFlow()
+  const { replace } = useAppFlow()
 
   return (
     <AppScreen appBar={{ title: '없는 페이지' }}>

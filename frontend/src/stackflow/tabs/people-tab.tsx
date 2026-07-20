@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
 import { Plus, Search, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { PersonResponse } from '@/apis/generated/mongle-api.schemas'
@@ -29,11 +28,12 @@ import { ListGroupLabel } from '@/components/ui/list-group-label'
 import { formatLastMetRelative, formatPersonName } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { featureEvents, trackFeature } from '@/lib/analytics'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 
 type PersonSort = 'NAME' | 'RECENT'
 
 export function PeopleTab() {
-  const { push } = useFlow()
+  const { push } = useAppFlow()
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<PersonSort>('NAME')
   const queryClient = useQueryClient()
@@ -214,7 +214,7 @@ function PersonListItem({
   const lastMetLabel = formatLastMetRelative(person.lastMetDate)
   const displayName = formatPersonName(person)
 
-  const { push } = useFlow()
+  const { push } = useAppFlow()
 
   return (
     <ListGroupItem withDivider={withDivider} className="relative py-3">

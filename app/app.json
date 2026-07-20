@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Mongle",
+    "slug": "mongle",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "mongle",
+    "userInterfaceStyle": "automatic",
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

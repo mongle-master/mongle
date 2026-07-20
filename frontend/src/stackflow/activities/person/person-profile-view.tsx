@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useFlow } from '@stackflow/react'
+import { useAppFlow } from '@/stackflow/use-app-flow'
 import { ChevronRight } from 'lucide-react'
 import type { EventResponse } from '@/apis/generated/mongle-api.schemas'
 import { eventQuery, personQuery } from '@/apis/queries'
@@ -30,7 +30,7 @@ export function PersonProfileView({
   onSelectView: (view: PersonView) => void
 }) {
   const id = Number(personId)
-  const { push } = useFlow()
+  const { push } = useAppFlow()
   const del = usePersonDelete(id)
 
   const personDetailQuery = useQuery(personQuery.byId(id))
@@ -260,7 +260,7 @@ function RecentEventRow({ event }: { event: EventResponse }) {
   const photoSrc = optimizedImageUrl(event.photoUrls[0], 128)
   const summary = event.memo
 
-  const { push } = useFlow()
+  const { push } = useAppFlow()
 
   return (
     <button
