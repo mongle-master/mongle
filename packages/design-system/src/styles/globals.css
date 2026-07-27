@@ -4,34 +4,30 @@
 @import '@fontsource/pretendard/700.css';
 @import '@fontsource/pretendard/800.css';
 
-/* 손글씨 폰트(온글잎 은별): 기록 작성 등 유저 입력·감성 화면 기본 서체 */
-@font-face {
-  font-family: 'Onglip Eunbyeol';
-  src: url('./assets/fonts/onglip-eunbyeol.ttf') format('truetype');
-  font-weight: 400 800;
-  font-display: swap;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Mongle 디자인 토큰 — 3계층 아키텍처.
- * 정본: packages/design-system/src/styles/globals.css, 시각 레퍼런스: docs/design-system.html
+ * Mongle design tokens — 3-tier architecture.
  *
- *   TIER 1 · PRIMITIVES (:root): 테마 불변 원시 팔레트 — cream ramp, terra ramp,
- *     감정 팔레트, 상태색. 한 번 정의하고 테마가 바뀌어도 값이 변하지 않는다.
- *   TIER 2 · SEMANTIC (:root = light, .dark = dark): 역할 토큰(--background,
- *     --primary, --muted, --emotion-* …)이 var()로 Tier 1을 참조한다.
- *     다크/라이트 재매핑은 이 계층에서만 일어난다.
- *   TIER 3 · COMPONENT: CVA variants + @layer components. Tier 2를 직접 소비.
+ *   TIER 1 · PRIMITIVES (`:root` block): theme-invariant raw palette —
+ *     warm neutral (cream) ramp, terracotta ramp, emotion palette, status.
+ *     Defined once, never themed.
+ *   TIER 2 · SEMANTIC (`:root, .light` / `.dark`): role tokens
+ *     (--background, --primary, --muted, …) referencing primitives via var().
+ *     This is the ONLY place dark/light remapping happens.
+ *   TIER 3 · COMPONENT: CVA variants + @layer components classes,
+ *     consuming Tier 2 directly. No separate component token file.
  *
- * 시각 언어: Lovable의 따뜻하고 절제된 크림 캔버스를 일기 도메인으로 번역.
- * 색은 감정에 살고, 크롬은 종이처럼 조용하다(테라코타는 주요 액션·선택·포커스에만).
+ * Theme strategy: class-based (`.dark` / `.light` on <html>).
+ * next-themes toggles the class; index.html inline script prevents FOUC.
+ *
+ * Visual language: Lovable의 따뜻하고 절제된 크림 캔버스를 일기 도메인으로 번역.
+ * 색은 감정에 살고, 크롬은 종이처럼 조용하다.
  */
 
+/* ---------- TIER 1 · PRIMITIVES (theme-invariant) ---------- */
 :root {
-  /* ---------- TIER 1 · PRIMITIVES (테마 불변) ---------- */
-  /* warm neutral ramp (회색이 아닌 크림 기반) */
+  /* warm neutral ramp (cream-based, not gray) */
   --cream-0: #ffffff;
   --cream-25: #fdfcfa;
   --cream-50: #f7f4ed;
@@ -50,7 +46,7 @@
   --cream-950: #1c1a14;
   --cream-1000: #12110d;
 
-  /* terracotta ramp (프라이머리) */
+  /* terracotta ramp (primary) */
   --terra-100: #f5e6de;
   --terra-200: #eacdbf;
   --terra-300: #ddb09c;
@@ -60,7 +56,7 @@
   --terra-700: #9a4a2c;
   --terra-800: #7c3b23;
 
-  /* 감정 팔레트 — 부드럽고 탁하게, 일기장에 어울리게 */
+  /* emotion palette — soft, muted, diary-friendly */
   --joy-400: #e8b84a;
   --joy-500: #d4a030;
   --calm-400: #7fb5b0;
@@ -74,27 +70,19 @@
   --gratitude-400: #c48fb0;
   --gratitude-500: #b07098;
 
-  /* 상태색 */
+  /* status */
   --red-400: #d4726a;
   --red-600: #b84040;
   --amber-500: #d4a030;
   --amber-700: #a67514;
   --green-500: #5f9e68;
   --green-700: #478050;
+}
 
-  /* ---------- 앱 고유 토큰 ---------- */
-  --radius: 0.475rem;
-  /* 오버레이 레이어: 앱 콘텐츠 위에 뜨는 것들의 쌓임 순서를 한 곳에서 정한다.
-     확인팝업·다이얼로그는 #stack-overlay-root 포탈(--z-overlay)에 모여 같은
-     쌓임 맥락에서 DOM 순서로 겹친다. 바텀시트(vaul)·팝오버(radix)·탭바는 그
-     아래 레이어(z-50)로 라이브러리·레이아웃이 관할한다. */
-  --z-overlay: 70;
-  --font-sans: 'Pretendard', ui-sans-serif, system-ui, sans-serif;
-
-  /* ---------- TIER 2 · SEMANTIC (light) ---------- */
-  /* 기록 편지지 괘선. 배경 이미지라 currentColor를 못 받으므로 라이트/다크 각각 정의한다.
-     다크에선 검정 괘선이 어두운 카드에 묻혀 안 보여서 흰색 저투명으로 뒤집는다. */
-  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(28%2C26%2C20%2C0.07)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
+/* ---------- TIER 2 · SEMANTIC (light) ---------- */
+:root,
+.light {
+  color-scheme: light;
   --background: var(--cream-50);
   --foreground: var(--cream-950);
   --card: var(--cream-25);
@@ -117,14 +105,15 @@
   --warning-foreground: var(--cream-0);
   --success: var(--green-700);
   --success-foreground: var(--cream-0);
-  --brand: var(--primary);
-  --brand-foreground: var(--primary-foreground);
   --border: var(--cream-100);
   --input: var(--cream-0);
   --input-border: var(--cream-300);
   --ring: var(--terra-500);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+  --radius: 0.5rem;
 
-  /* 감정 시맨틱 (light): 배지·차트 점에 쓰는 fg와 14% 혼합 배경의 쌍 */
+  /* emotion semantic (light) */
   --emotion-joy: var(--joy-500);
   --emotion-joy-bg: color-mix(in oklch, var(--joy-400) 14%, var(--cream-50));
   --emotion-calm: var(--calm-500);
@@ -138,16 +127,19 @@
   --emotion-gratitude: var(--gratitude-500);
   --emotion-gratitude-bg: color-mix(in oklch, var(--gratitude-400) 14%, var(--cream-50));
 
-  /* elevation 단계 토큰, 라이트/다크 각각 정의해 dark:shadow 중복을 없앤다.
-     따뜻한 저깊이 — Lovable의 규율(그림자보다 테두리). */
+  /* elevation — warm, shallow (Lovable: borders > shadows) */
   --elevation-1: 0 1px 3px rgb(28 26 20 / 6%);
   --elevation-2: 0 4px 12px rgb(28 26 20 / 8%);
   --elevation-3: 0 8px 24px rgb(28 26 20 / 10%);
   --elevation-4: 0 16px 48px rgb(28 26 20 / 14%);
+
+  /* letter paper texture */
+  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(28%2C26%2C20%2C0.07)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
 }
 
+/* ---------- TIER 2 · SEMANTIC (dark) ---------- */
 .dark {
-  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(247%2C244%2C237%2C0.08)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
+  color-scheme: dark;
   --background: var(--cream-950);
   --foreground: var(--cream-50);
   --card: var(--cream-900);
@@ -170,14 +162,15 @@
   --warning-foreground: var(--cream-950);
   --success: var(--green-500);
   --success-foreground: var(--cream-950);
-  --brand: var(--primary);
-  --brand-foreground: var(--primary-foreground);
   --border: rgb(247 244 237 / 10%);
   --input: var(--cream-900);
   --input-border: var(--cream-600);
   --ring: var(--terra-400);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+  --radius: 0.5rem;
 
-  /* 감정 시맨틱 (dark): 어두운 캔버스엔 400(밝은 쪽)을 fg로, 16% 혼합 배경 */
+  /* emotion semantic (dark) */
   --emotion-joy: var(--joy-400);
   --emotion-joy-bg: color-mix(in oklch, var(--joy-400) 16%, var(--cream-950));
   --emotion-calm: var(--calm-400);
@@ -191,18 +184,19 @@
   --emotion-gratitude: var(--gratitude-400);
   --emotion-gratitude-bg: color-mix(in oklch, var(--gratitude-400) 16%, var(--cream-950));
 
+  /* elevation — deeper on dark */
   --elevation-1: 0 1px 3px rgb(0 0 0 / 20%);
   --elevation-2: 0 4px 12px rgb(0 0 0 / 28%);
   --elevation-3: 0 8px 24px rgb(0 0 0 / 36%);
   --elevation-4: 0 16px 48px rgb(0 0 0 / 44%);
+
+  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(247%2C244%2C237%2C0.08)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-pill: 9999px;
+  --font-sans: 'Pretendard', ui-sans-serif, system-ui, sans-serif;
+  --font-hand: 'Onglip Eunbyeol', var(--font-sans);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -225,12 +219,13 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-input-border: var(--input-border);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+
   --color-emotion-joy: var(--emotion-joy);
   --color-emotion-joy-bg: var(--emotion-joy-bg);
   --color-emotion-calm: var(--emotion-calm);
@@ -243,14 +238,18 @@
   --color-emotion-anxiety-bg: var(--emotion-anxiety-bg);
   --color-emotion-gratitude: var(--emotion-gratitude);
   --color-emotion-gratitude-bg: var(--emotion-gratitude-bg);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-pill: 9999px;
+
   --shadow-e1: var(--elevation-1);
   --shadow-e2: var(--elevation-2);
   --shadow-e3: var(--elevation-3);
   --shadow-e4: var(--elevation-4);
-  --font-sans: var(--font-sans);
-  --font-hand: 'Onglip Eunbyeol', var(--font-sans);
-  /* 앱 고유 타이포 스케일. font-size만 지정해 기존 text-[Npx] 임의값과 렌더가 동일하다
-     (line-height는 각 사용처의 leading 클래스가 계속 결정한다). */
+
   --text-caption: 11px;
   --text-label: 13px;
   --text-body: 15px;
@@ -260,60 +259,53 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html,
-  body,
-  #app {
-    min-height: 100%;
-  }
-  body {
-    @apply bg-background text-foreground;
-    margin: 0;
+
+  html {
     font-family: var(--font-sans);
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--foreground) 30%, transparent) transparent;
+    text-rendering: optimizeLegibility;
   }
 
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--foreground) 28%, transparent) transparent;
+  body {
+    @apply bg-background text-foreground antialiased;
+    min-width: 320px;
+    font-size: 15px;
   }
 
-  *::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  *::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  *::-webkit-scrollbar-thumb {
-    background: color-mix(in oklch, var(--foreground) 26%, transparent);
-    border-radius: 9999px;
-  }
-
-  *::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in oklch, var(--foreground) 40%, transparent);
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
   }
 
   ::selection {
     background: color-mix(in oklch, var(--primary) 20%, transparent);
   }
+}
 
-  /* stackflow AppScreen의 paper 스크롤 레이어(overflow-y: scroll 고정)는
-     ::-webkit-scrollbar { display: none }으로 스크롤바를 숨기는 설계인데,
-     위의 전역 scrollbar-width: thin이 표준 속성이라 webkit 숨김을 무효화함
-     (Chrome 121+는 scrollbar-width가 있으면 ::-webkit-scrollbar를 무시).
-     paper에 상시 스크롤바 gutter가 생기지 않도록 숨김 의도를 복원한다.
-     실제 콘텐츠 스크롤바는 activity 내부 컨테이너가 표시한다. */
-  [data-part='paper'] > div {
-    scrollbar-width: none;
+@layer components {
+  /* 편지지 괘선 배경 — 일기 작성 영역 */
+  .letter-paper {
+    background-image: var(--letter-paper);
+    background-size: 100% 28px;
+    line-height: 28px;
+  }
+
+  /* 섹션 라벨: 작은 대문자, 넓은 자간 */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted-foreground);
   }
 }
 
-/* iOS Safari 네이티브 뒤로가기 제스처와 stackflow 전환의 이중 재생 방지.
-   popstate 직후 stackflow/browser-nav-transition.ts가 이 속성을 잠깐 붙인다. */
-html[data-browser-nav-transition-skip] * {
-  --stackflow-plugin-basic-ui-transition-duration: 0ms !important;
-  --stackflow-plugin-basic-ui-computed-transition-duration: 0ms !important;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ko" class="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mongle Design System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap">
+<style>
+/* ===== TIER 1 · PRIMITIVES ===== */
+:root {
+  --cream-0:#ffffff;--cream-25:#fdfcfa;--cream-50:#f7f4ed;--cream-75:#f2efe6;
+  --cream-100:#eceae4;--cream-150:#e5e2da;--cream-200:#ddd9cf;--cream-300:#c9c4b8;
+  --cream-400:#a8a294;--cream-500:#8a8474;--cream-600:#6b6558;--cream-700:#514c42;
+  --cream-800:#3a362e;--cream-850:#2e2b24;--cream-900:#252219;--cream-950:#1c1a14;--cream-1000:#12110d;
+  --terra-100:#f5e6de;--terra-200:#eacdbf;--terra-300:#ddb09c;--terra-400:#d0937a;
+  --terra-500:#c4704f;--terra-600:#b85c38;--terra-700:#9a4a2c;--terra-800:#7c3b23;
+  --joy-400:#e8b84a;--joy-500:#d4a030;
+  --calm-400:#7fb5b0;--calm-500:#5f9e98;
+  --sadness-400:#8ba4c4;--sadness-500:#6d8ab0;
+  --anger-400:#d4726a;--anger-500:#c05550;
+  --anxiety-400:#c49a6c;--anxiety-500:#b08450;
+  --gratitude-400:#c48fb0;--gratitude-500:#b07098;
+  --red-400:#d4726a;--red-600:#b84040;
+  --amber-500:#d4a030;--amber-700:#a67514;
+  --green-500:#5f9e68;--green-700:#478050;
+}
+/* ===== TIER 2 · SEMANTIC (light) ===== */
+:root,.light{
+  color-scheme:light;
+  --background:var(--cream-50);--foreground:var(--cream-950);
+  --card:var(--cream-25);--card-foreground:var(--cream-950);
+  --popover:var(--cream-0);--popover-foreground:var(--cream-950);
+  --primary:var(--terra-600);--primary-foreground:var(--cream-0);--primary-hover:var(--terra-700);
+  --secondary:var(--cream-100);--secondary-foreground:var(--cream-950);
+  --muted:var(--cream-75);--muted-foreground:var(--cream-500);
+  --accent:var(--cream-100);--accent-foreground:var(--cream-950);
+  --destructive:var(--red-600);--destructive-foreground:var(--cream-0);
+  --warning:var(--amber-700);--warning-foreground:var(--cream-0);
+  --success:var(--green-700);--success-foreground:var(--cream-0);
+  --border:var(--cream-100);--input:var(--cream-0);--input-border:var(--cream-300);
+  --ring:var(--terra-500);
+  --emotion-joy:var(--joy-500);--emotion-joy-bg:color-mix(in oklch,var(--joy-400) 14%,var(--cream-50));
+  --emotion-calm:var(--calm-500);--emotion-calm-bg:color-mix(in oklch,var(--calm-400) 14%,var(--cream-50));
+  --emotion-sadness:var(--sadness-500);--emotion-sadness-bg:color-mix(in oklch,var(--sadness-400) 14%,var(--cream-50));
+  --emotion-anger:var(--anger-500);--emotion-anger-bg:color-mix(in oklch,var(--anger-400) 14%,var(--cream-50));
+  --emotion-anxiety:var(--anxiety-500);--emotion-anxiety-bg:color-mix(in oklch,var(--anxiety-400) 14%,var(--cream-50));
+  --emotion-gratitude:var(--gratitude-500);--emotion-gratitude-bg:color-mix(in oklch,var(--gratitude-400) 14%,var(--cream-50));
+  --elevation-1:0 1px 3px rgb(28 26 20/6%);--elevation-2:0 4px 12px rgb(28 26 20/8%);
+  --elevation-3:0 8px 24px rgb(28 26 20/10%);--elevation-4:0 16px 48px rgb(28 26 20/14%);
+  --letter-paper:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(28%2C26%2C20%2C0.07)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
+}
+/* ===== TIER 2 · SEMANTIC (dark) ===== */
+.dark{
+  color-scheme:dark;
+  --background:var(--cream-950);--foreground:var(--cream-50);
+  --card:var(--cream-900);--card-foreground:var(--cream-50);
+  --popover:var(--cream-850);--popover-foreground:var(--cream-50);
+  --primary:var(--terra-400);--primary-foreground:var(--cream-1000);--primary-hover:var(--terra-300);
+  --secondary:var(--cream-850);--secondary-foreground:var(--cream-50);
+  --muted:var(--cream-900);--muted-foreground:var(--cream-400);
+  --accent:var(--cream-850);--accent-foreground:var(--cream-50);
+  --destructive:var(--red-400);--destructive-foreground:var(--cream-950);
+  --warning:var(--amber-500);--warning-foreground:var(--cream-950);
+  --success:var(--green-500);--success-foreground:var(--cream-950);
+  --border:rgb(247 244 237/10%);--input:var(--cream-900);--input-border:var(--cream-600);
+  --ring:var(--terra-400);
+  --emotion-joy:var(--joy-400);--emotion-joy-bg:color-mix(in oklch,var(--joy-400) 16%,var(--cream-950));
+  --emotion-calm:var(--calm-400);--emotion-calm-bg:color-mix(in oklch,var(--calm-400) 16%,var(--cream-950));
+  --emotion-sadness:var(--sadness-400);--emotion-sadness-bg:color-mix(in oklch,var(--sadness-400) 16%,var(--cream-950));
+  --emotion-anger:var(--anger-400);--emotion-anger-bg:color-mix(in oklch,var(--anger-400) 16%,var(--cream-950));
+  --emotion-anxiety:var(--anxiety-400);--emotion-anxiety-bg:color-mix(in oklch,var(--anxiety-400) 16%,var(--cream-950));
+  --emotion-gratitude:var(--gratitude-400);--emotion-gratitude-bg:color-mix(in oklch,var(--gratitude-400) 16%,var(--cream-950));
+  --elevation-1:0 1px 3px rgb(0 0 0/20%);--elevation-2:0 4px 12px rgb(0 0 0/28%);
+  --elevation-3:0 8px 24px rgb(0 0 0/36%);--elevation-4:0 16px 48px rgb(0 0 0/44%);
+  --letter-paper:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(247%2C244%2C237%2C0.08)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
+}
+
+/* ===== BASE ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-family:'Pretendard Variable',Pretendard,ui-sans-serif,system-ui,sans-serif;scroll-behavior:smooth}
+body{background:var(--background);color:var(--foreground);line-height:1.6;transition:background .3s,color .3s}
+::selection{background:color-mix(in oklch,var(--primary) 20%,transparent)}
+
+/* ===== LAYOUT ===== */
+.container{max-width:960px;margin:0 auto;padding:0 24px}
+section{padding:64px 0;border-bottom:1px solid var(--border)}
+section:last-child{border-bottom:none}
+h1{font-size:2rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px}
+h2{font-size:1.5rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:24px}
+h3{font-size:1.1rem;font-weight:600;margin-bottom:12px}
+p.desc{color:var(--muted-foreground);font-size:.95rem;margin-bottom:24px;max-width:640px}
+.grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.flex{display:flex;gap:12px;align-items:center}
+.flex-wrap{flex-wrap:wrap}
+.mt-8{margin-top:8px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}
+.mb-8{margin-bottom:8px}.mb-16{margin-bottom:16px}
+
+/* ===== THEME TOGGLE ===== */
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:9999px;padding:4px;box-shadow:var(--elevation-2)}
+.theme-toggle button{border:none;background:transparent;cursor:pointer;padding:6px 12px;border-radius:9999px;font-size:.8rem;font-weight:600;color:var(--muted-foreground);transition:all .15s}
+.theme-toggle button.active{background:var(--primary);color:var(--primary-foreground)}
+
+/* ===== TOC ===== */
+.toc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-top:24px}
+.toc ol{padding-left:20px;columns:2;column-gap:32px}
+.toc li{margin-bottom:6px;font-size:.9rem}
+.toc a{color:var(--primary);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+
+/* ===== SWATCH ===== */
+.swatch-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.swatch{width:64px;text-align:center}
+.swatch-color{width:64px;height:40px;border-radius:8px;border:1px solid var(--border);margin-bottom:4px}
+.swatch-label{font-size:.65rem;color:var(--muted-foreground);word-break:break-all}
+
+/* ===== COMPONENT DEMOS ===== */
+.demo-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.demo-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-foreground);margin-bottom:12px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:8px;font-size:.875rem;font-weight:500;padding:8px 16px;height:36px;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
+.btn-default{background:var(--primary);color:var(--primary-foreground);box-shadow:inset 0 .5px 0 rgba(255,255,255,.15),inset 0 0 0 .5px rgba(0,0,0,.1)}
+.btn-default:hover{background:var(--primary-hover)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--foreground)}
+.btn-outline:hover{background:var(--muted)}
+.btn-secondary{background:var(--secondary);color:var(--secondary-foreground)}
+.btn-secondary:hover{background:var(--cream-150)}
+.dark .btn-secondary:hover{background:var(--cream-800)}
+.btn-ghost{background:transparent;color:var(--foreground)}
+.btn-ghost:hover{background:var(--muted)}
+.btn-destructive{background:color-mix(in oklch,var(--destructive) 10%,transparent);color:var(--destructive)}
+.btn-destructive:hover{background:color-mix(in oklch,var(--destructive) 20%,transparent)}
+.btn-destructive-solid{background:var(--destructive);color:var(--destructive-foreground)}
+.btn-cta{height:44px;border-radius:9999px;padding:0 24px;font-weight:800}
+.btn-pill{height:36px;border-radius:9999px;padding:0 28px;font-weight:800}
+.btn:disabled{opacity:.5;pointer-events:none}
+
+/* card */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-header{padding:16px 16px 0}
+.card-title{font-size:1rem;font-weight:600}
+.card-desc{font-size:.85rem;color:var(--muted-foreground);margin-top:2px}
+.card-content{padding:12px 16px}
+.card-footer{padding:12px 16px;border-top:1px solid var(--border);background:color-mix(in oklch,var(--muted) 50%,transparent)}
+
+/* input */
+.input{width:100%;height:36px;border:1px solid var(--input-border);border-radius:8px;background:var(--input);color:var(--foreground);padding:0 12px;font-size:.875rem;font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.input::placeholder{color:var(--muted-foreground)}
+.input:focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 25%,transparent)}
+.textarea{width:100%;min-height:80px;border:1px solid var(--input-border);border-radius:8px;background:var(--input);color:var(--foreground);padding:8px 12px;font-size:.875rem;font-family:inherit;outline:none;resize:vertical;transition:border-color .15s,box-shadow .15s}
+.textarea:focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 25%,transparent)}
+.textarea-hand{font-family:'Nanum Pen Script',cursive;font-size:1.05rem;line-height:28px;background-image:var(--letter-paper);background-size:100% 28px}
+
+/* badge */
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:9999px;padding:2px 10px;font-size:.75rem;font-weight:500;border:1px solid transparent}
+.badge-default{background:var(--primary);color:var(--primary-foreground)}
+.badge-secondary{background:var(--secondary);color:var(--secondary-foreground)}
+.badge-outline{border-color:var(--border);color:var(--foreground)}
+.badge-destructive{background:color-mix(in oklch,var(--destructive) 10%,transparent);color:var(--destructive)}
+
+/* emotion badge */
+.emotion-badge{display:inline-flex;align-items:center;gap:6px;border-radius:9999px;padding:4px 12px;font-size:.75rem;font-weight:500}
+.emotion-dot{width:6px;height:6px;border-radius:50%}
+.e-joy{background:var(--emotion-joy-bg);color:var(--emotion-joy)}.e-joy .emotion-dot{background:var(--emotion-joy)}
+.e-calm{background:var(--emotion-calm-bg);color:var(--emotion-calm)}.e-calm .emotion-dot{background:var(--emotion-calm)}
+.e-sadness{background:var(--emotion-sadness-bg);color:var(--emotion-sadness)}.e-sadness .emotion-dot{background:var(--emotion-sadness)}
+.e-anger{background:var(--emotion-anger-bg);color:var(--emotion-anger)}.e-anger .emotion-dot{background:var(--emotion-anger)}
+.e-anxiety{background:var(--emotion-anxiety-bg);color:var(--emotion-anxiety)}.e-anxiety .emotion-dot{background:var(--emotion-anxiety)}
+.e-gratitude{background:var(--emotion-gratitude-bg);color:var(--emotion-gratitude)}.e-gratitude .emotion-dot{background:var(--emotion-gratitude)}
+
+/* tabs */
+.tabs-list{display:inline-flex;gap:4px;background:var(--muted);border-radius:8px;padding:4px}
+.tab-trigger{padding:6px 16px;border-radius:6px;font-size:.85rem;font-weight:500;color:var(--muted-foreground);border:none;background:transparent;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab-trigger.active{background:var(--card);color:var(--foreground);box-shadow:var(--elevation-1)}
+
+/* separator */
+.separator{height:1px;background:var(--border);width:100%}
+
+/* skeleton */
+.skeleton{background:var(--muted);border-radius:6px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* avatar */
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--secondary);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:600;color:var(--secondary-foreground);overflow:hidden;flex-shrink:0}
+
+/* checkbox / switch */
+.checkbox{width:20px;height:20px;border-radius:6px;border:1px solid var(--input-border);background:var(--input);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.checkbox.checked{background:var(--primary);border-color:var(--primary);color:var(--primary-foreground)}
+.switch{width:40px;height:24px;border-radius:9999px;background:var(--secondary);position:relative;flex-shrink:0;transition:background .15s}
+.switch.on{background:var(--primary)}
+.switch-thumb{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--card);box-shadow:var(--elevation-1);transition:transform .15s}
+.switch.on .switch-thumb{transform:translateX(16px)}
+
+/* dialog static */
+.dialog-demo{position:relative;background:color-mix(in oklch,var(--foreground) 40%,transparent);border-radius:12px;padding:32px;display:flex;align-items:center;justify-content:center;min-height:200px}
+.dialog-content{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:360px;width:100%;box-shadow:var(--elevation-3)}
+
+/* empty */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:48px 0;text-align:center}
+.empty-icon{width:48px;height:48px;border-radius:50%;background:var(--muted);display:flex;align-items:center;justify-content:center;color:var(--muted-foreground);font-size:1.2rem}
+
+/* diary entry */
+.diary-entry{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.diary-header{display:flex;justify-content:space-between;align-items:center}
+.diary-date{font-size:.75rem;color:var(--muted-foreground)}
+.diary-body{font-family:'Nanum Pen Script',cursive;font-size:1.05rem;line-height:28px;background-image:var(--letter-paper);background-size:100% 28px;color:var(--card-foreground)}
+.diary-footer{display:flex;gap:8px}
+
+/* person card */
+.person-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
+.person-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.person-name{font-size:.875rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.person-relation{font-size:.75rem;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* phone mockup */
+.phone{width:375px;min-height:667px;border:2px solid var(--border);border-radius:32px;overflow:hidden;background:var(--background);box-shadow:var(--elevation-3);flex-shrink:0}
+.phone-status{height:44px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;color:var(--muted-foreground);border-bottom:1px solid var(--border)}
+.phone-body{padding:16px;display:flex;flex-direction:column;gap:12px}
+.phone-nav{height:56px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;font-size:.65rem;color:var(--muted-foreground)}
+.phone-nav span{display:flex;flex-direction:column;align-items:center;gap:2px}
+.phone-nav .nav-dot{width:4px;height:4px;border-radius:50%;background:var(--primary)}
+
+/* elevation demo */
+.elev-box{width:100%;height:64px;border-radius:12px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted-foreground)}
+
+/* type sample */
+.type-sample{margin-bottom:16px}
+.type-label{font-size:.7rem;color:var(--muted-foreground);margin-bottom:4px}
+
+/* arch diagram */
+.arch{display:flex;flex-direction:column;gap:0;align-items:center}
+.arch-tier{width:100%;max-width:480px;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;position:relative}
+.arch-tier+.arch-tier{margin-top:-1px}
+.arch-arrow{font-size:1.2rem;color:var(--muted-foreground);padding:4px 0}
+.arch-tier h4{font-size:.85rem;font-weight:700;margin-bottom:4px}
+.arch-tier p{font-size:.75rem;color:var(--muted-foreground)}
+
+/* governance table */
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
+th{font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted-foreground)}
+
+/* radius demo */
+.radius-box{width:64px;height:64px;background:var(--secondary);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--secondary-foreground)}
+
+@media(max-width:640px){
+  .toc ol{columns:1}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .phone{width:100%;min-height:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<div class="theme-toggle">
+  <button class="active" onclick="setTheme('light')">라이트</button>
+  <button onclick="setTheme('dark')">다크</button>
+</div>
+
+<div class="container">
+
+<!-- ==================== 1. OVERVIEW ==================== -->
+<section id="overview" style="padding-top:80px">
+  <h1>Mongle Design System</h1>
+  <p class="desc">
+    종이처럼 따뜻한 크림 캔버스, 테두리로 구획하는 절제된 깊이, 감정에만 색을 주는 규율.<br>
+    Lovable의 따뜻하고 절제된 시각 언어를 일기·다이어리·감정 기록 도구에 맞게 번역한 디자인 언어.
+  </p>
+  <div class="flex flex-wrap">
+    <span class="badge badge-default">테라코타 #b85c38</span>
+    <span class="badge badge-secondary">크림 #f7f4ed</span>
+    <span class="badge badge-outline">Pretendard</span>
+    <span class="badge badge-outline">Onglip Eunbyeol</span>
+  </div>
+
+  <nav class="toc">
+    <h3>목차</h3>
+    <ol>
+      <li><a href="#overview">개요</a></li>
+      <li><a href="#architecture">3계층 아키텍처</a></li>
+      <li><a href="#naming">네이밍 규칙</a></li>
+      <li><a href="#colors">색상</a></li>
+      <li><a href="#typography">타이포그래피</a></li>
+      <li><a href="#spacing">간격 · 반경 · 깊이</a></li>
+      <li><a href="#components">컴포넌트 라이브러리</a></li>
+      <li><a href="#domain">도메인 패턴</a></li>
+      <li><a href="#screens">적용 화면</a></li>
+      <li><a href="#theme">테마</a></li>
+      <li><a href="#governance">거버넌스</a></li>
+    </ol>
+  </nav>
+</section>
+
+<!-- ==================== 2. ARCHITECTURE ==================== -->
+<section id="architecture">
+  <h2>3계층 토큰 아키텍처</h2>
+  <p class="desc">값은 한 방향으로만 흐른다. 상위 계층이 바뀌면 하위 전체가 따라간다.</p>
+  <div class="arch">
+    <div class="arch-tier" style="background:color-mix(in oklch,var(--terra-400) 8%,var(--card))">
+      <h4>Tier 1 · Primitives</h4>
+      <p>테마 불변 원시 팔레트 — cream ramp(17), terra ramp(8), emotion(6종), status<br>
+      <code>:root</code>에 리터럴로 정의. 테마가 바뀌어도 값 불변.</p>
+    </div>
+    <div class="arch-arrow">↓ var() 참조</div>
+    <div class="arch-tier" style="background:color-mix(in oklch,var(--primary) 6%,var(--card))">
+      <h4>Tier 2 · Semantic</h4>
+      <p>역할 토큰 — --background, --primary, --muted, --emotion-* …<br>
+      <code>:root/.light</code>와 <code>.dark</code>에서 var()로 Tier 1 참조.<br>
+      <strong>다크/라이트 재매핑의 유일한 소유지.</strong></p>
+    </div>
+    <div class="arch-arrow">↓ 직접 소비</div>
+    <div class="arch-tier">
+      <h4>Tier 3 · Component</h4>
+      <p>CVA variants + @layer components 클래스.<br>
+      Tier 2를 직접 소비. 별도 파일 없음. 테마 코드 0줄.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 3. NAMING ==================== -->
+<section id="naming">
+  <h2>네이밍 규칙</h2>
+  <p class="desc">계층마다 하나의 패턴. 전부 kebab-case.</p>
+  <table>
+    <thead><tr><th>계층</th><th>패턴</th><th>예시</th></tr></thead>
+    <tbody>
+      <tr><td>Tier 1</td><td><code>{hue}-{step}</code></td><td><code>--cream-50</code>, <code>--terra-600</code>, <code>--joy-400</code></td></tr>
+      <tr><td>Tier 2</td><td><code>{role}</code> / <code>{role}-foreground</code></td><td><code>--background</code>, <code>--primary-foreground</code>, <code>--emotion-joy-bg</code></td></tr>
+      <tr><td>Tier 3</td><td>CVA variant 이름</td><td><code>variant="destructive"</code>, <code>emotion="calm"</code></td></tr>
+    </tbody>
+  </table>
+  <div class="mt-16">
+    <h3>규칙</h3>
+    <ul style="font-size:.9rem;padding-left:20px;color:var(--muted-foreground)">
+      <li>fg/bg 쌍을 반드시 함께 정의 (--emotion-joy ↔ --emotion-joy-bg)</li>
+      <li>이름 변경은 breaking change</li>
+      <li>표시형 도메인 컴포넌트는 Tier 2를 직접 소비 가능</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==================== 4. COLORS ==================== -->
+<section id="colors">
+  <h2>색상</h2>
+
+  <h3>Cream Ramp (웜 뉴트럴)</h3>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-color" style="background:#ffffff"></div><div class="swatch-label">0<br>#fff</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#fdfcfa"></div><div class="swatch-label">25<br>#fdfcfa</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#f7f4ed"></div><div class="swatch-label">50<br>#f7f4ed</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#f2efe6"></div><div class="swatch-label">75<br>#f2efe6</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#eceae4"></div><div class="swatch-label">100<br>#eceae4</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#e5e2da"></div><div class="swatch-label">150<br>#e5e2da</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#ddd9cf"></div><div class="swatch-label">200<br>#ddd9cf</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#c9c4b8"></div><div class="swatch-label">300<br>#c9c4b8</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#a8a294"></div><div class="swatch-label">400<br>#a8a294</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#8a8474"></div><div class="swatch-label">500<br>#8a8474</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#6b6558"></div><div class="swatch-label">600<br>#6b6558</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#514c42"></div><div class="swatch-label">700<br>#514c42</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#3a362e"></div><div class="swatch-label">800<br>#3a362e</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#2e2b24"></div><div class="swatch-label">850<br>#2e2b24</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#252219"></div><div class="swatch-label">900<br>#252219</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#1c1a14"></div><div class="swatch-label">950<br>#1c1a14</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#12110d"></div><div class="swatch-label">1000<br>#12110d</div></div>
+  </div>
+
+  <h3 class="mt-24">Terracotta Ramp (프라이머리)</h3>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-color" style="background:#f5e6de"></div><div class="swatch-label">100<br>#f5e6de</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#eacdbf"></div><div class="swatch-label">200<br>#eacdbf</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#ddb09c"></div><div class="swatch-label">300<br>#ddb09c</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#d0937a"></div><div class="swatch-label">400<br>#d0937a</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#c4704f"></div><div class="swatch-label">500<br>#c4704f</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#b85c38"></div><div class="swatch-label">600<br>#b85c38</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#9a4a2c"></div><div class="swatch-label">700<br>#9a4a2c</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#7c3b23"></div><div class="swatch-label">800<br>#7c3b23</div></div>
+  </div>
+
+  <h3 class="mt-24">감정 팔레트</h3>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-color" style="background:#e8b84a"></div><div class="swatch-label">기쁨 400<br>#e8b84a</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#d4a030"></div><div class="swatch-label">기쁨 500<br>#d4a030</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#7fb5b0"></div><div class="swatch-label">평온 400<br>#7fb5b0</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#5f9e98"></div><div class="swatch-label">평온 500<br>#5f9e98</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#8ba4c4"></div><div class="swatch-label">슬픔 400<br>#8ba4c4</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#6d8ab0"></div><div class="swatch-label">슬픔 500<br>#6d8ab0</div></div>
+  </div>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-color" style="background:#d4726a"></div><div class="swatch-label">분노 400<br>#d4726a</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#c05550"></div><div class="swatch-label">분노 500<br>#c05550</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#c49a6c"></div><div class="swatch-label">불안 400<br>#c49a6c</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#b08450"></div><div class="swatch-label">불안 500<br>#b08450</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#c48fb0"></div><div class="swatch-label">감사 400<br>#c48fb0</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#b07098"></div><div class="swatch-label">감사 500<br>#b07098</div></div>
+  </div>
+
+  <h3 class="mt-24">상태색</h3>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-color" style="background:#d4726a"></div><div class="swatch-label">red 400</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#b84040"></div><div class="swatch-label">red 600</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#d4a030"></div><div class="swatch-label">amber 500</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#a67514"></div><div class="swatch-label">amber 700</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#5f9e68"></div><div class="swatch-label">green 500</div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#478050"></div><div class="swatch-label">green 700</div></div>
+  </div>
+</section>
+
+<!-- ==================== 5. TYPOGRAPHY ==================== -->
+<section id="typography">
+  <h2>타이포그래피</h2>
+  <p class="desc">Pretendard(본문·UI) + Onglip Eunbyeol(손글씨·일기 본문). 두 서체, 명확한 역할.</p>
+
+  <div class="demo-box">
+    <div class="demo-label">Pretendard — 본문·UI</div>
+    <div class="type-sample"><div class="type-label">Display · 24px / 800</div><div style="font-size:24px;font-weight:800;letter-spacing:-0.03em">오늘의 기록</div></div>
+    <div class="type-sample"><div class="type-label">Title · 18px / 700</div><div style="font-size:18px;font-weight:700;letter-spacing:-0.02em">김할머니와의 산책</div></div>
+    <div class="type-sample"><div class="type-label">Body · 15px / 400</div><div style="font-size:15px">오늘은 공원에서 산책을 했다. 날씨가 좋아서 기분이 좋았다.</div></div>
+    <div class="type-sample"><div class="type-label">Label · 13px / 400</div><div style="font-size:13px;color:var(--muted-foreground)">2026년 7월 27일 월요일</div></div>
+    <div class="type-sample"><div class="type-label">Caption · 11px / 400</div><div style="font-size:11px;color:var(--muted-foreground)">3분 전 작성</div></div>
+  </div>
+
+  <div class="demo-box mt-16">
+    <div class="demo-label">Onglip Eunbyeol — 손글씨·일기 본문 (여기서는 Nanum Pen Script로 대용)</div>
+    <div style="font-family:'Nanum Pen Script',cursive;font-size:1.15rem;line-height:28px;background-image:var(--letter-paper);background-size:100% 28px;padding:4px 0">
+      오늘은 공원에서 산책을 했다. 날씨가 좋아서 기분이 좋았다. 벤치에 앉아 책을 읽다가 옆에 앉은 할머니와 대화를 나눴다. 그 웃음이 오래 기억에 남을 것 같다.
+    </div>
+  </div>
+
+  <div class="mt-16">
+    <h3>원칙</h3>
+    <ul style="font-size:.9rem;padding-left:20px;color:var(--muted-foreground)">
+      <li>손글씨 폰트는 일기 본문·기록 입력에만 — UI 크롬(버튼, 내비, 라벨)에 사용 금지</li>
+      <li>굵기는 400(본문)과 700·800(제목)만. 중간 굵기 남용 금지</li>
+      <li>제목은 음의 자간(-0.02em ~ -0.03em), 본문은 기본 자간</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==================== 6. SPACING · RADIUS · ELEVATION ==================== -->
+<section id="spacing">
+  <h2>간격 · 반경 · 깊이</h2>
+
+  <h3>간격 (4px 기반)</h3>
+  <div class="flex flex-wrap" style="gap:4px">
+    <div style="width:4px;height:24px;background:var(--primary);border-radius:2px" title="4px"></div>
+    <div style="width:8px;height:24px;background:var(--primary);border-radius:2px" title="8px"></div>
+    <div style="width:12px;height:24px;background:var(--primary);border-radius:2px" title="12px"></div>
+    <div style="width:16px;height:24px;background:var(--primary);border-radius:2px" title="16px"></div>
+    <div style="width:24px;height:24px;background:var(--primary);border-radius:2px" title="24px"></div>
+    <div style="width:32px;height:24px;background:var(--primary);border-radius:2px" title="32px"></div>
+    <div style="width:48px;height:24px;background:var(--primary);border-radius:2px" title="48px"></div>
+    <div style="width:64px;height:24px;background:var(--primary);border-radius:2px" title="64px"></div>
+  </div>
+  <p class="mt-8" style="font-size:.75rem;color:var(--muted-foreground)">4 · 8 · 12 · 16 · 24 · 32 · 48 · 64</p>
+
+  <h3 class="mt-24">반경</h3>
+  <div class="flex flex-wrap">
+    <div><div class="radius-box" style="border-radius:4px">sm 4</div></div>
+    <div><div class="radius-box" style="border-radius:6px">md 6</div></div>
+    <div><div class="radius-box" style="border-radius:8px">lg 8</div></div>
+    <div><div class="radius-box" style="border-radius:12px">xl 12</div></div>
+    <div><div class="radius-box" style="border-radius:9999px">pill</div></div>
+  </div>
+
+  <h3 class="mt-24">깊이 (Elevation)</h3>
+  <p class="desc">그림자보다 테두리가 먼저. 그림자는 오버레이·팝오버에만.</p>
+  <div class="grid grid-2">
+    <div class="elev-box" style="box-shadow:var(--elevation-1)">elevation-1</div>
+    <div class="elev-box" style="box-shadow:var(--elevation-2)">elevation-2</div>
+    <div class="elev-box" style="box-shadow:var(--elevation-3)">elevation-3</div>
+    <div class="elev-box" style="box-shadow:var(--elevation-4)">elevation-4</div>
+  </div>
+</section>
+
+<!-- ==================== 7. COMPONENTS ==================== -->
+<section id="components">
+  <h2>컴포넌트 라이브러리</h2>
+
+  <!-- Buttons -->
+  <div class="demo-box">
+    <div class="demo-label">Button</div>
+    <div class="flex flex-wrap">
+      <button class="btn btn-default">기본</button>
+      <button class="btn btn-outline">테두리</button>
+      <button class="btn btn-secondary">보조</button>
+      <button class="btn btn-ghost">고스트</button>
+      <button class="btn btn-destructive">파괴</button>
+      <button class="btn btn-destructive-solid">삭제</button>
+      <button class="btn btn-default btn-cta">기록 저장</button>
+      <button class="btn btn-outline btn-pill">다시 시도</button>
+      <button class="btn btn-default" disabled>비활성</button>
+    </div>
+  </div>
+
+  <!-- Card -->
+  <div class="demo-box">
+    <div class="demo-label">Card</div>
+    <div class="card" style="max-width:320px">
+      <div class="card-header">
+        <div class="card-title">오늘의 기록</div>
+        <div class="card-desc">2026년 7월 27일 월요일</div>
+      </div>
+      <div class="card-content">
+        <p style="font-size:.85rem;color:var(--muted-foreground)">오늘은 공원에서 산책을 했다. 날씨가 좋아서 기분이 좋았다.</p>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-ghost" style="height:28px;font-size:.8rem">편집</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input / Textarea -->
+  <div class="demo-box">
+    <div class="demo-label">Input · Textarea</div>
+    <div style="max-width:320px;display:flex;flex-direction:column;gap:12px">
+      <input class="input" placeholder="이름을 입력하세요">
+      <textarea class="textarea" placeholder="오늘 하루는 어땠나요?"></textarea>
+      <textarea class="textarea textarea-hand" style="min-height:120px" placeholder="손글씨 일기 입력..."></textarea>
+    </div>
+  </div>
+
+  <!-- Badge -->
+  <div class="demo-box">
+    <div class="demo-label">Badge</div>
+    <div class="flex flex-wrap">
+      <span class="badge badge-default">기본</span>
+      <span class="badge badge-secondary">보조</span>
+      <span class="badge badge-outline">테두리</span>
+      <span class="badge badge-destructive">삭제됨</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="demo-box">
+    <div class="demo-label">Tabs</div>
+    <div class="tabs-list">
+      <button class="tab-trigger active">일기</button>
+      <button class="tab-trigger">감정</button>
+      <button class="tab-trigger">감사</button>
+    </div>
+  </div>
+
+  <!-- Dialog (static) -->
+  <div class="demo-box">
+    <div class="demo-label">Dialog (정적 표현)</div>
+    <div class="dialog-demo">
+      <div class="dialog-content">
+        <div class="card-title mb-8">기록을 삭제할까요?</div>
+        <p style="font-size:.85rem;color:var(--muted-foreground);margin-bottom:16px">삭제한 기록은 되돌릴 수 없습니다.</p>
+        <div class="flex" style="justify-content:flex-end">
+          <button class="btn btn-ghost" style="height:32px;font-size:.8rem">취소</button>
+          <button class="btn btn-destructive-solid" style="height:32px;font-size:.8rem">삭제</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Separator / Skeleton / Avatar -->
+  <div class="demo-box">
+    <div class="demo-label">Separator · Skeleton · Avatar</div>
+    <div style="max-width:320px;display:flex;flex-direction:column;gap:12px">
+      <div class="separator"></div>
+      <div class="flex">
+        <div class="skeleton" style="width:40px;height:40px;border-radius:50%"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div class="skeleton" style="width:60%;height:14px"></div>
+          <div class="skeleton" style="width:40%;height:12px"></div>
+        </div>
+      </div>
+      <div class="flex">
+        <div class="avatar">김</div>
+        <div class="avatar" style="width:32px;height:32px;font-size:.75rem">박</div>
+        <div class="avatar" style="width:48px;height:48px;font-size:1rem">이</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkbox / Switch -->
+  <div class="demo-box">
+    <div class="demo-label">Checkbox · Switch</div>
+    <div class="flex" style="gap:24px">
+      <div class="flex" style="gap:8px"><div class="checkbox checked"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><span style="font-size:.85rem">선택됨</span></div>
+      <div class="flex" style="gap:8px"><div class="checkbox"></div><span style="font-size:.85rem">미선택</span></div>
+      <div class="flex" style="gap:8px"><div class="switch on"><div class="switch-thumb"></div></div><span style="font-size:.85rem">켜짐</span></div>
+      <div class="flex" style="gap:8px"><div class="switch"><div class="switch-thumb"></div></div><span style="font-size:.85rem">꺼짐</span></div>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div class="demo-box">
+    <div class="demo-label">Empty</div>
+    <div class="empty">
+      <div class="empty-icon">📖</div>
+      <div style="font-size:.9rem;font-weight:500">아직 기록이 없어요</div>
+      <div style="font-size:.85rem;color:var(--muted-foreground)">첫 일기를 작성하고 오늘의 감정을 남겨보세요.</div>
+      <button class="btn btn-default btn-cta mt-8">첫 기록 작성</button>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 8. DOMAIN PATTERNS ==================== -->
+<section id="domain">
+  <h2>도메인 패턴</h2>
+  <p class="desc">일기·감정 기록·주변인 기록 도메인에 특화된 컴포넌트.</p>
+
+  <!-- Emotion Badges -->
+  <div class="demo-box">
+    <div class="demo-label">EmotionBadge — 6가지 감정</div>
+    <div class="flex flex-wrap">
+      <span class="emotion-badge e-joy"><span class="emotion-dot"></span>기쁨</span>
+      <span class="emotion-badge e-calm"><span class="emotion-dot"></span>평온</span>
+      <span class="emotion-badge e-sadness"><span class="emotion-dot"></span>슬픔</span>
+      <span class="emotion-badge e-anger"><span class="emotion-dot"></span>분노</span>
+      <span class="emotion-badge e-anxiety"><span class="emotion-dot"></span>불안</span>
+      <span class="emotion-badge e-gratitude"><span class="emotion-dot"></span>감사</span>
+    </div>
+    <table class="mt-16">
+      <thead><tr><th>감정</th><th>라이트</th><th>다크</th><th>배경 혼합</th></tr></thead>
+      <tbody>
+        <tr><td>기쁨</td><td>#d4a030</td><td>#e8b84a</td><td>14% on cream-50</td></tr>
+        <tr><td>평온</td><td>#5f9e98</td><td>#7fb5b0</td><td>14% on cream-50</td></tr>
+        <tr><td>슬픔</td><td>#6d8ab0</td><td>#8ba4c4</td><td>14% on cream-50</td></tr>
+        <tr><td>분노</td><td>#c05550</td><td>#d4726a</td><td>14% on cream-50</td></tr>
+        <tr><td>불안</td><td>#b08450</td><td>#c49a6c</td><td>14% on cream-50</td></tr>
+        <tr><td>감사</td><td>#b07098</td><td>#c48fb0</td><td>14% on cream-50</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Diary Entry -->
+  <div class="demo-box">
+    <div class="demo-label">DiaryEntry — 일기 항목</div>
+    <div class="diary-entry" style="max-width:420px">
+      <div class="diary-header">
+        <span class="diary-date">2026년 7월 27일 월요일</span>
+        <span class="emotion-badge e-joy"><span class="emotion-dot"></span>기쁨</span>
+      </div>
+      <div class="diary-body">
+        오늘은 공원에서 산책을 했다. 날씨가 좋아서 기분이 좋았다. 벤치에 앉아 책을 읽다가 옆에 앉은 할머니와 대화를 나눴다. 할머니는 손주 이야기를 하며 환하게 웃으셨다. 그 웃음이 오래 기억에 남을 것 같다.
+      </div>
+      <div class="diary-footer">
+        <span class="emotion-badge e-gratitude"><span class="emotion-dot"></span>감사</span>
+        <span class="emotion-badge e-calm"><span class="emotion-dot"></span>평온</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Person Card -->
+  <div class="demo-box">
+    <div class="demo-label">PersonCard — 주변인 기록</div>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:320px">
+      <div class="person-card">
+        <div class="avatar" style="width:44px;height:44px">김</div>
+        <div class="person-info">
+          <span class="person-name">김할머니</span>
+          <span class="person-relation">공원 벤치 · 주 2회 만남</span>
+        </div>
+      </div>
+      <div class="person-card">
+        <div class="avatar" style="width:44px;height:44px">지</div>
+        <div class="person-info">
+          <span class="person-name">지수</span>
+          <span class="person-relation">친구 · 주 1회</span>
+        </div>
+      </div>
+      <div class="person-card">
+        <div class="avatar" style="width:44px;height:44px">박</div>
+        <div class="person-info">
+          <span class="person-name">박선생님</span>
+          <span class="person-relation">멘토 · 월 1회</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 9. APPLIED SCREENS ==================== -->
+<section id="screens">
+  <h2>적용 화면</h2>
+  <p class="desc">이 시스템으로 구성한 3개 화면. 375px 모바일 기준.</p>
+
+  <div class="flex flex-wrap" style="gap:24px;justify-content:center">
+
+    <!-- Screen 1: Home / Timeline -->
+    <div class="phone">
+      <div class="phone-status">9:41</div>
+      <div class="phone-body">
+        <div style="font-size:1.25rem;font-weight:800;letter-spacing:-0.03em">오늘의 기록</div>
+        <div style="font-size:.8rem;color:var(--muted-foreground)">2026년 7월 27일 월요일</div>
+
+        <div class="diary-entry" style="padding:12px">
+          <div class="diary-header">
+            <span class="diary-date">7월 27일</span>
+            <span class="emotion-badge e-joy" style="padding:2px 8px;font-size:.7rem"><span class="emotion-dot"></span>기쁨</span>
+          </div>
+          <div style="font-size:.85rem;color:var(--card-foreground)">공원에서 산책을 했다. 할머니와 대화를 나눴다.</div>
+        </div>
+
+        <div class="diary-entry" style="padding:12px">
+          <div class="diary-header">
+            <span class="diary-date">7월 26일</span>
+            <span class="emotion-badge e-calm" style="padding:2px 8px;font-size:.7rem"><span class="emotion-dot"></span>평온</span>
+          </div>
+          <div style="font-size:.85rem;color:var(--card-foreground)">조용한 하루. 비가 왔다.</div>
+        </div>
+
+        <div class="diary-entry" style="padding:12px">
+          <div class="diary-header">
+            <span class="diary-date">7월 25일</span>
+            <span class="emotion-badge e-gratitude" style="padding:2px 8px;font-size:.7rem"><span class="emotion-dot"></span>감사</span>
+          </div>
+          <div style="font-size:.85rem;color:var(--card-foreground)">지수가 응원 메시지를 보내줬다. 고마웠다.</div>
+        </div>
+
+        <button class="btn btn-default btn-cta" style="width:100%;margin-top:8px">기록 작성</button>
+      </div>
+      <div class="phone-nav">
+        <span><span class="nav-dot"></span>홈</span>
+        <span>사람</span>
+        <span>타임라인</span>
+        <span>설정</span>
+      </div>
+    </div>
+
+    <!-- Screen 2: Diary Writing -->
+    <div class="phone">
+      <div class="phone-status">9:41</div>
+      <div class="phone-body">
+        <div class="flex" style="justify-content:space-between">
+          <span style="font-size:.85rem;color:var(--muted-foreground)">← 뒤로</span>
+          <button class="btn btn-default" style="height:32px;font-size:.8rem;padding:0 16px">저장</button>
+        </div>
+        <div style="font-size:.8rem;color:var(--muted-foreground)">2026년 7월 27일 월요일</div>
+
+        <div style="font-size:.8rem;font-weight:600;margin-top:8px">오늘의 감정</div>
+        <div class="flex flex-wrap" style="gap:6px">
+          <span class="emotion-badge e-joy" style="padding:4px 10px;font-size:.7rem;border:2px solid var(--emotion-joy)"><span class="emotion-dot"></span>기쁨</span>
+          <span class="emotion-badge e-calm" style="padding:4px 10px;font-size:.7rem"><span class="emotion-dot"></span>평온</span>
+          <span class="emotion-badge e-sadness" style="padding:4px 10px;font-size:.7rem"><span class="emotion-dot"></span>슬픔</span>
+          <span class="emotion-badge e-anger" style="padding:4px 10px;font-size:.7rem"><span class="emotion-dot"></span>분노</span>
+          <span class="emotion-badge e-anxiety" style="padding:4px 10px;font-size:.7rem"><span class="emotion-dot"></span>불안</span>
+          <span class="emotion-badge e-gratitude" style="padding:4px 10px;font-size:.7rem"><span class="emotion-dot"></span>감사</span>
+        </div>
+
+        <div style="font-size:.8rem;font-weight:600;margin-top:12px">기록</div>
+        <textarea class="textarea textarea-hand" style="min-height:200px;border:none;padding:8px 0" placeholder="오늘 하루는 어땠나요?">오늘은 공원에서 산책을 했다. 날씨가 좋아서 기분이 좋았다. 벤치에 앉아 책을 읽다가 옆에 앉은 할머니와 대화를 나눴다.</textarea>
+      </div>
+      <div class="phone-nav">
+        <span>홈</span>
+        <span>사람</span>
+        <span>타임라인</span>
+        <span>설정</span>
+      </div>
+    </div>
+
+    <!-- Screen 3: Person List -->
+    <div class="phone">
+      <div class="phone-status">9:41</div>
+      <div class="phone-body">
+        <div style="font-size:1.25rem;font-weight:800;letter-spacing:-0.03em">주변 사람</div>
+        <div style="font-size:.8rem;color:var(--muted-foreground)">3명의 사람을 기록 중</div>
+
+        <div class="person-card">
+          <div class="avatar" style="width:44px;height:44px">김</div>
+          <div class="person-info">
+            <span class="person-name">김할머니</span>
+            <span class="person-relation">공원 벤치 · 주 2회 만남</span>
+          </div>
+        </div>
+        <div class="person-card">
+          <div class="avatar" style="width:44px;height:44px">지</div>
+          <div class="person-info">
+            <span class="person-name">지수</span>
+            <span class="person-relation">친구 · 주 1회</span>
+          </div>
+        </div>
+        <div class="person-card">
+          <div class="avatar" style="width:44px;height:44px">박</div>
+          <div class="person-info">
+            <span class="person-name">박선생님</span>
+            <span class="person-relation">멘토 · 월 1회</span>
+          </div>
+        </div>
+
+        <button class="btn btn-outline btn-pill" style="width:100%;margin-top:8px">사람 추가</button>
+      </div>
+      <div class="phone-nav">
+        <span>홈</span>
+        <span><span class="nav-dot"></span>사람</span>
+        <span>타임라인</span>
+        <span>설정</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 10. THEME ==================== -->
+<section id="theme">
+  <h2>테마 — 라이트 / 다크</h2>
+  <p class="desc">class 기반 전환 (.light / .dark). Tier 2 semantic에서만 값 재매핑.</p>
+
+  <div class="grid grid-2">
+    <div>
+      <h3>라이트</h3>
+      <div style="background:#f7f4ed;border:1px solid #eceae4;border-radius:12px;padding:20px;color:#1c1a14">
+        <div style="font-weight:700;margin-bottom:8px">오늘의 기록</div>
+        <div style="font-size:.85rem;color:#8a8474;margin-bottom:12px">2026년 7월 27일</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px">
+          <span style="background:color-mix(in oklch,#e8b84a 14%,#f7f4ed);color:#d4a030;padding:2px 10px;border-radius:9999px;font-size:.75rem">기쁨</span>
+          <span style="background:color-mix(in oklch,#7fb5b0 14%,#f7f4ed);color:#5f9e98;padding:2px 10px;border-radius:9999px;font-size:.75rem">평온</span>
+        </div>
+        <button style="background:#b85c38;color:#fff;border:none;border-radius:9999px;padding:8px 24px;font-weight:800;font-size:.85rem;cursor:pointer">기록 저장</button>
+      </div>
+    </div>
+    <div>
+      <h3>다크</h3>
+      <div style="background:#1c1a14;border:1px solid rgb(247 244 237/10%);border-radius:12px;padding:20px;color:#f7f4ed">
+        <div style="font-weight:700;margin-bottom:8px">오늘의 기록</div>
+        <div style="font-size:.85rem;color:#a8a294;margin-bottom:12px">2026년 7월 27일</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px">
+          <span style="background:color-mix(in oklch,#e8b84a 16%,#1c1a14);color:#e8b84a;padding:2px 10px;border-radius:9999px;font-size:.75rem">기쁨</span>
+          <span style="background:color-mix(in oklch,#7fb5b0 16%,#1c1a14);color:#7fb5b0;padding:2px 10px;border-radius:9999px;font-size:.75rem">평온</span>
+        </div>
+        <button style="background:#d0937a;color:#12110d;border:none;border-radius:9999px;padding:8px 24px;font-weight:800;font-size:.85rem;cursor:pointer">기록 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <table class="mt-24">
+    <thead><tr><th>토큰</th><th>라이트</th><th>다크</th></tr></thead>
+    <tbody>
+      <tr><td>--background</td><td>cream-50 (#f7f4ed)</td><td>cream-950 (#1c1a14)</td></tr>
+      <tr><td>--foreground</td><td>cream-950 (#1c1a14)</td><td>cream-50 (#f7f4ed)</td></tr>
+      <tr><td>--card</td><td>cream-25 (#fdfcfa)</td><td>cream-900 (#252219)</td></tr>
+      <tr><td>--primary</td><td>terra-600 (#b85c38)</td><td>terra-400 (#d0937a)</td></tr>
+      <tr><td>--muted-foreground</td><td>cream-500 (#8a8474)</td><td>cream-400 (#a8a294)</td></tr>
+      <tr><td>--border</td><td>cream-100 (#eceae4)</td><td>rgb(247 244 237 / 10%)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ==================== 11. GOVERNANCE ==================== -->
+<section id="governance">
+  <h2>거버넌스</h2>
+  <p class="desc">벤치마크에서 가져온 것과 다음에 할 것.</p>
+
+  <h3>벤치마크 교훈 → 적용</h3>
+  <table>
+    <thead><tr><th>교훈</th><th>출처</th><th>적용</th></tr></thead>
+    <tbody>
+      <tr><td>primitive → semantic → component 3계층</td><td>Spectrum · Material · Carbon</td><td>globals.css 3계층 분리</td></tr>
+      <tr><td>fg/bg 쌍 정의</td><td>Polaris · shadcn</td><td>--emotion-X ↔ --emotion-X-bg</td></tr>
+      <tr><td>테마 = 앨리어스 계층에서만</td><td>전 시스템</td><td>Tier 2에서만 dark/light 매핑</td></tr>
+      <tr><td>"토큰 수 ≠ 품질"</td><td>Material (1,700개)</td><td>~80개로 절제</td></tr>
+      <tr><td>code-first, 소유형 컴포넌트</td><td>shadcn</td><td>소스 배포, CVA variants</td></tr>
+      <tr><td>완전 자동 동기화는 미해결</td><td>전 시스템</td><td>계약+검증 문서로 대체</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt-24">법적 경계</h3>
+  <p style="font-size:.9rem;color:var(--muted-foreground)">
+    Lovable의 로고, 상표, 전용 서체(Camera Plain Variable)와 웹사이트 구조(IA)는 복제하지 않는다.
+    가져가는 것은 색 관계, 밀도, 위계, 모션의 <strong>원리</strong>다.
+  </p>
+
+  <h3 class="mt-24">다음 단계</h3>
+  <ul style="font-size:.9rem;padding-left:20px;color:var(--muted-foreground)">
+    <li>앱 styles.css를 이 토큰으로 교체 (토큰 값만 갈아끼우기)</li>
+    <li>기존 66개 UI 컴포넌트를 디자인 시스템 패키지로 이관</li>
+    <li>픽셀 QA 로그 작성 (레퍼런스 대비 실측 검증)</li>
+    <li>전량 캡처 갤러리 (Playwright)</li>
+    <li>primitive 계층 분리 검증 (변수 전수 대조)</li>
+  </ul>
+</section>
+
+</div><!-- /container -->
+
+<script>
+function setTheme(t){
+  document.documentElement.className=t;
+  document.querySelectorAll('.theme-toggle button').forEach(b=>{
+    b.classList.toggle('active',b.textContent===(t==='light'?'라이트':'다크'));
+  });
+}
+</script>
+</body>
+</html>
