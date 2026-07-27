@@ -121,7 +121,7 @@ export function HomeTab() {
                 }}
                 className="min-w-0 flex-1 text-left"
               >
-                <p className="text-sm font-extrabold text-foreground">
+                <p className="text-sm font-semibold text-foreground">
                   1년 전 오늘
                   <span className="ml-2 text-caption font-bold text-muted-foreground">
                     {throwback.occurredDate}

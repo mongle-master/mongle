@@ -131,7 +131,7 @@ export function PersonEditForm({
         </h2>
         <div className="flex flex-col gap-6">
           <div>
-            <label htmlFor="name" className="text-xs font-extrabold">
+            <label htmlFor="name" className="text-xs font-semibold">
               이름
             </label>
             <Input
@@ -145,7 +145,7 @@ export function PersonEditForm({
             />
           </div>
           <div>
-            <p className="mb-3 text-xs font-extrabold">성별</p>
+            <p className="mb-3 text-xs font-semibold">성별</p>
             <div className="flex flex-wrap gap-2">
               {GENDER_OPTIONS.map((option) => {
                 const active = values.gender === option.value
@@ -165,7 +165,7 @@ export function PersonEditForm({
             </div>
           </div>
           <div>
-            <p className="text-xs font-extrabold">생일</p>
+            <p className="text-xs font-semibold">생일</p>
             <div className="mt-3">
               <DateWheel
                 yearOptional
@@ -196,7 +196,7 @@ export function PersonEditForm({
         </h2>
         <div className="flex flex-col gap-6">
           <div>
-            <p className="mb-3 text-xs font-extrabold">한마디로</p>
+            <p className="mb-3 text-xs font-semibold">한마디로</p>
             <RelationTypeField
               value={values.relationType}
               onChange={(value) => patch('relationType', value)}
@@ -205,7 +205,7 @@ export function PersonEditForm({
           </div>
           {relationTags.length > 0 ? (
             <div>
-              <p className="mb-3 text-xs font-extrabold">관계 태그</p>
+              <p className="mb-3 text-xs font-semibold">관계 태그</p>
               <div className="flex flex-wrap gap-2">
                 {relationTags.map((tag) => {
                   const active = values.relationTagChipIds.includes(tag.id)
@@ -239,7 +239,7 @@ export function PersonEditForm({
         </h2>
         <div className="flex flex-col gap-6">
           <div>
-            <p className="text-xs font-extrabold">처음 만난 날</p>
+            <p className="text-xs font-semibold">처음 만난 날</p>
             <div className="mt-3">
               <DateWheel
                 year={values.firstMetYear}
@@ -258,7 +258,7 @@ export function PersonEditForm({
             </div>
           </div>
           <div>
-            <label htmlFor="lastMetDate" className="text-xs font-extrabold">
+            <label htmlFor="lastMetDate" className="text-xs font-semibold">
               마지막으로 만난 날
             </label>
             <Input

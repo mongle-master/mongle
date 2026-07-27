@@ -39,7 +39,7 @@ export function SegmentedControl<T extends string>({
         <ToggleGroupPrimitive.Item
           key={option.value}
           value={option.value}
-          className="flex flex-1 items-center justify-center rounded-lg py-2.5 text-label font-extrabold text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+          className="flex flex-1 items-center justify-center rounded-lg py-2.5 text-label font-semibold text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
         >
           {option.label}
         </ToggleGroupPrimitive.Item>
@@ -52,7 +52,7 @@ export function SegmentedControl<T extends string>({
         {options.map((option) => (
           <span
             key={option.value}
-            className="flex flex-1 items-center justify-center py-2.5 text-label font-extrabold"
+            className="flex flex-1 items-center justify-center py-2.5 text-label font-semibold"
           >
             {option.label}
           </span>

@@ -113,7 +113,7 @@ export const PersonEditActivity: ActivityComponentType<'PersonEdit'> = ({
           type="submit"
           form={PERSON_FORM_ID}
           size="lg"
-          className="h-12 w-full text-base font-extrabold"
+          className="h-12 w-full text-base font-semibold"
           disabled={updateMutation.isPending || del.pending}
         >
           {updateMutation.isPending ? '저장 중…' : '변경사항 저장'}

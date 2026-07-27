@@ -39,11 +39,11 @@ export function RelationTagColorPicker({
             style={{ backgroundColor: normalized }}
             aria-hidden
           />
-          <span className="min-w-0 truncate text-xs font-extrabold text-foreground">
+          <span className="min-w-0 truncate text-xs font-semibold text-foreground">
             {selectedOption?.label ?? normalized}
           </span>
         </div>
-        <span className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-2.5 text-caption font-extrabold text-muted-foreground">
+        <span className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-2.5 text-caption font-semibold text-muted-foreground">
           <Palette className="size-3.5" />
           변경
         </span>

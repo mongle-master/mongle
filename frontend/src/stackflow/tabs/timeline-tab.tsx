@@ -147,7 +147,7 @@ export function TimelineTab() {
 
         <div className="px-1 py-2">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-extrabold">필터</p>
+            <p className="text-sm font-semibold">필터</p>
             <TimelineFilterDrawer
               categoryChips={categoryChips}
               persons={persons}

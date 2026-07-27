@@ -158,7 +158,7 @@ export function TagTypePanel({
                         maxLength={10}
                         autoFocus
                         disabled={renameMutation.isPending}
-                        className="h-7 min-w-0 border-0 bg-transparent px-0 text-[14px] font-extrabold shadow-none focus-visible:ring-0 md:text-[14px]"
+                        className="h-7 min-w-0 border-0 bg-transparent px-0 text-[14px] font-semibold shadow-none focus-visible:ring-0 md:text-[14px]"
                       />
                       <button
                         type="button"

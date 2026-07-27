@@ -109,7 +109,7 @@ export function ProfileOnboarding({
       </div>
 
       <section className="relative my-auto py-8 text-center">
-        <p className="text-sm font-extrabold text-primary">
+        <p className="text-sm font-semibold text-primary">
           2 / 2 · 프로필 설정
         </p>
         <h1 className="mt-3 text-[30px] font-semibold leading-[1.18] tracking-[-0.04em] text-foreground">
@@ -150,7 +150,7 @@ export function ProfileOnboarding({
               disabled={pending}
               onClick={() => selectGender(option.value)}
               className={cn(
-                'h-10 rounded-xl text-sm font-extrabold transition-all',
+                'h-10 rounded-full text-sm font-semibold transition-all',
                 gender === option.value
                   ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground',
@@ -168,7 +168,7 @@ export function ProfileOnboarding({
             size="lg"
             disabled={pending}
             onClick={showNextAvatar}
-            className="h-12 rounded-2xl font-extrabold"
+            className="h-12 rounded-full font-semibold"
           >
             <RefreshCw />
             다른 사진
@@ -179,7 +179,7 @@ export function ProfileOnboarding({
             size="lg"
             disabled={pending}
             onClick={() => fileRef.current?.click()}
-            className="h-12 rounded-2xl font-extrabold"
+            className="h-12 rounded-full font-semibold"
           >
             <Camera />
             직접 올리기
@@ -207,7 +207,7 @@ export function ProfileOnboarding({
           onClick={() =>
             void finish({ profileImageUrl: selectedImageUrl, gender })
           }
-          className="mt-7 h-14 w-full rounded-2xl text-base font-extrabold"
+          className="mt-7 h-14 w-full rounded-full text-base font-semibold"
         >
           {saving ? '저장하는 중...' : '이 사진으로 시작하기'}
         </Button>

@@ -23,7 +23,7 @@ const tagChipVariants = cva(
         sm: 'h-6 px-2 text-caption font-bold',
         default: 'h-7 px-3.5 text-label font-bold',
         lg: 'h-8 px-2.5 text-label font-bold',
-        xl: 'h-9 w-auto max-w-full shrink justify-start px-1.5 pr-3 text-label font-extrabold',
+        xl: 'h-9 w-auto max-w-full shrink justify-start px-1.5 pr-3 text-label font-semibold',
       },
       // 쉬는 상태(비선택)의 표면색. selected면 tone이 이 색을 덮는다.
       surface: {
