@@ -148,10 +148,30 @@
   기록 상세 제목.
 - eyebrow: ListGroupLabel, 인물 프로필 섹션 라벨, 기록 상세 메타.
 - orb 분위기: 기록 감정 단계(아바타 뒤 warm), 홈 헤더(calm), 온보딩(warm).
-- 예외: 몽글 로고 워드마크는 브랜드 마크라 extrabold 유지.
+- 예외: 몽글 로고 워드마크는 브랜드 마크라 extrabold 유지 (0.4.0에서 세리프로 변경).
+
+## 0.4.0 — 옛 룩앤필 잔재 제거 (같은 PR)
+
+"기존 룩앤필이 남아 있다"는 2차 리뷰를 받고, 이월했던 항목까지 전부 교체했다.
+
+- relation-force-map 그래프 내부 완전 토큰화:
+  - zinc/stone stroke 11줄 → `stroke-foreground/N` (dark: 수동 반전 11쌍 제거)
+  - 중심 앰버 glow → `--glow-center` 토큰 신설 (globals.css 양 테마, warm 가족 color-mix)
+  - 카테고리 폴백 4색 → 감정 가족 strong 변형 (clear/calm/warm/muse)
+  - 행성·코어 그라디언트 hex → 테마 변수 (card/secondary/border-strong, emotion-warm)
+- NextBar를 잉크 pill CTA로 재작성 (48px, rounded-pill, primary-hover) —
+  풀블리드 바는 언어에 없다.
+- Drawer 오버레이 bg-black/10 → bg-foreground/40.
+- 앱 코드에서 font-bold(700) 전량 제거 (잔여 0): 에러 medium, 라벨 semibold,
+  퍼널 단계 제목과 이름 입력은 디스플레이 세리프.
+- MongleLogo 워드마크 → font-display. FunnelHeader 가운데 라벨 세리프.
+- 잔여 임의 타이포 토큰화: 12px→label, 14px→body, 17px→title-sm.
+  남은 임의값은 9px 사진 카운트 배지 2곳과 22px 페이지 제목 고정값 2곳뿐.
+- Card 기본 텍스트 text-body, toggle/calendar text-label, 임의 반경·그림자 토큰화.
+- 도메인 코드에서 dark: 수동 반전 0건.
 
 ## 다음 단계
 
-1. relation-force-map 그래프 내부 토큰화 (시각 확인 동반).
-2. Playwright 픽셀 QA로 design-qa를 렌더 실측으로 승격.
-3. 사용처 카운트가 쌓이면 variant 승격 + 모바일 프리미티브 (playbook H).
+1. Playwright 픽셀 QA로 design-qa를 렌더 실측으로 승격.
+2. 사용처 카운트가 쌓이면 variant 승격 + 모바일 프리미티브 (playbook H).
+3. 9px 사진 배지·22px 페이지 제목의 토큰 승격 여부 (사용처 고정값).

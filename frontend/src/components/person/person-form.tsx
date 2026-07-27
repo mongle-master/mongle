@@ -43,7 +43,7 @@ export function ProfileHero({
           )}
           <span className="absolute -right-0.5 -bottom-0.5 flex size-6 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-sm">
             {uploading ? (
-              <span className="text-micro font-bold">…</span>
+              <span className="text-micro font-semibold">…</span>
             ) : (
               <Camera className="size-3" />
             )}

@@ -13,9 +13,7 @@ export function MongleLogo({
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <MongleIcon className={iconClassName} />
-      <span
-        className={cn('text-sm font-extrabold tracking-tight', textClassName)}
-      >
+      <span className={cn('font-display text-sm tracking-wide', textClassName)}>
         Mongle
       </span>
     </div>

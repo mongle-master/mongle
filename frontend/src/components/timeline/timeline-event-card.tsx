@@ -105,7 +105,7 @@ export function TimelineEventCard({
           <div className="flex items-start gap-2">
             <h3
               data-amp-mask
-              className="min-w-0 flex-1 text-[17px] leading-snug font-medium tracking-tight"
+              className="min-w-0 flex-1 text-title-sm leading-snug font-medium tracking-tight"
             >
               {item.title}
             </h3>
@@ -133,7 +133,7 @@ export function TimelineEventCard({
               {memo ? (
                 <p
                   data-amp-mask
-                  className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground"
+                  className="mt-2 line-clamp-2 text-label leading-relaxed text-muted-foreground"
                 >
                   {memo}
                 </p>

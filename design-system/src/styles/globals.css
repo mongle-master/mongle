@@ -134,6 +134,12 @@
      라이트는 600(글자 AA에 근접), 다크는 400으로 반전 (ui-audit 8-4 역할 분리) */
   --favorite: var(--amber-600);
 
+  /* 관계 지도 중심 노드의 따뜻한 후광 — 감정 warm 가족의 대기 표현 */
+  --glow-center:
+    0 0 0 1px rgb(24 24 27 / 0.04),
+    0 0 44px color-mix(in oklab, var(--emotion-warm) 58%, transparent),
+    0 0 82px color-mix(in oklab, var(--emotion-warm) 32%, transparent);
+
   /* 헤어라인 3단계 */
   --hairline-soft: var(--neutral-75);
   --hairline: var(--neutral-100);
@@ -212,6 +218,12 @@
   --emotion-dear-text: var(--orb-rose);
 
   --favorite: var(--amber-400);
+
+  /* 다크 후광은 파스텔 글로우 — 어두운 캔버스에서 달빛처럼 */
+  --glow-center:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 0 46px color-mix(in oklab, var(--emotion-warm) 34%, transparent),
+    0 0 84px color-mix(in oklab, var(--emotion-warm) 18%, transparent);
 
   --hairline-soft: rgb(255 255 255 / 6%);
   --hairline: rgb(255 255 255 / 10%);

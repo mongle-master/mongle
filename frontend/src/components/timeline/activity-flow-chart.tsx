@@ -87,7 +87,7 @@ export function ActivityFlowChart({
     '최근'
   const axisLabelClass = (position: number) =>
     cn(
-      'absolute text-micro leading-none font-bold text-muted-foreground whitespace-nowrap',
+      'absolute text-micro leading-none font-semibold text-muted-foreground whitespace-nowrap',
       position <= 0.02
         ? 'translate-x-0 text-left'
         : position >= 0.98
@@ -96,8 +96,8 @@ export function ActivityFlowChart({
     )
 
   return (
-    <div className="relative rounded-[0.4rem] bg-muted/55">
-      <div className="pointer-events-none h-1 rounded-t-[0.4rem] bg-gradient-to-r from-foreground/80 via-muted-foreground/25 to-transparent" />
+    <div className="relative rounded-sm bg-muted/55">
+      <div className="pointer-events-none h-1 rounded-t-sm bg-gradient-to-r from-foreground/80 via-muted-foreground/25 to-transparent" />
       <div className="p-4">
         <div className="relative mb-1 flex items-start justify-between gap-2">
           <div>
@@ -137,7 +137,7 @@ export function ActivityFlowChart({
                         onSelectPoint?.(null)
                       }}
                       className={cn(
-                        'flex w-full px-3 py-1.5 text-left text-caption font-bold',
+                        'flex w-full px-3 py-1.5 text-left text-caption font-semibold',
                         period === option.value
                           ? 'bg-primary text-primary-foreground'
                           : 'text-foreground hover:bg-muted',
@@ -232,7 +232,7 @@ export function ActivityFlowChart({
                         }}
                         title={point.date}
                         className={cn(
-                          'absolute top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full shadow-[0_0_0_4px_rgba(0,0,0,0.04)] transition-transform hover:scale-125',
+                          'absolute top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full ring-4 ring-foreground/5 transition-transform hover:scale-125',
                           photoSrc ? 'bg-muted' : 'bg-foreground',
                           'motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-50 motion-safe:fill-mode-backwards motion-safe:duration-300 motion-safe:ease-out',
                           isSelected

@@ -12,7 +12,7 @@ export function PersonTabNav({
   onSelect: (view: PersonView) => void
 }) {
   return (
-    <ListGroupInset className="bg-muted/40 p-1 dark:bg-muted/25">
+    <ListGroupInset className="bg-muted/40 p-1">
       <SegmentedControl
         value={active}
         onValueChange={onSelect}

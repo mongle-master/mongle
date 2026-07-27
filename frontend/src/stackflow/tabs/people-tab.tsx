@@ -83,7 +83,7 @@ export function PeopleTab() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <PageTitle>사람</PageTitle>
-            <p className="mt-2 text-[12px] font-medium text-muted-foreground">
+            <p className="mt-2 text-label font-medium text-muted-foreground">
               {totalCount > 0
                 ? `함께한 사람 ${totalCount}명`
                 : '함께한 사람을 찾고 관리해요'}
@@ -130,7 +130,7 @@ export function PeopleTab() {
         </section>
 
         {favoriteMutation.isError ? (
-          <p className="text-center text-xs font-bold text-destructive">
+          <p className="text-center text-xs font-medium text-destructive">
             즐겨찾기를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.
           </p>
         ) : null}
@@ -272,7 +272,7 @@ function PersonListItem({
           </div>
           <p
             className={cn(
-              'mt-1 text-caption font-bold',
+              'mt-1 text-caption font-semibold',
               lastMetLabel === '기록 없음'
                 ? 'text-muted-foreground/70'
                 : 'text-muted-foreground',
@@ -319,7 +319,7 @@ function PeopleEmptyState({
       <ListGroup>
         <ListGroupItem withDivider={false} className="py-12">
           <EmptyState>
-            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-background/80 text-2xl dark:bg-background/40">
+            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-background/80 text-2xl">
               👤
             </div>
             <EmptyStateTitle>

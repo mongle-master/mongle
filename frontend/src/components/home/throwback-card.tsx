@@ -45,7 +45,7 @@ export function ThrowbackCard({
         >
           <p className="text-sm font-medium text-foreground">
             1년 전 오늘
-            <span className="ml-2 text-caption font-bold text-muted-foreground">
+            <span className="ml-2 text-caption font-semibold text-muted-foreground">
               {occurredDate}
             </span>
           </p>

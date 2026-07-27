@@ -312,7 +312,7 @@ function RecentEventRow({ event }: { event: EventResponse }) {
 function PreferenceBlock({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-bold text-muted-foreground">{label}</p>
+      <p className="text-xs font-semibold text-muted-foreground">{label}</p>
       <p data-amp-mask className="mt-1 text-sm font-medium text-foreground">
         {value}
       </p>
@@ -332,7 +332,7 @@ function InfoRow({
   return (
     <ListGroupItem withDivider={withDivider}>
       <div>
-        <p className="text-xs font-bold text-muted-foreground">{label}</p>
+        <p className="text-xs font-semibold text-muted-foreground">{label}</p>
         <p className="mt-1 text-sm font-medium text-foreground">{value}</p>
       </div>
     </ListGroupItem>
@@ -342,7 +342,7 @@ function InfoRow({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-bold text-muted-foreground">{label}</dt>
+      <dt className="text-xs font-semibold text-muted-foreground">{label}</dt>
       <dd className="mt-1 text-body font-medium text-foreground">{value}</dd>
     </div>
   )

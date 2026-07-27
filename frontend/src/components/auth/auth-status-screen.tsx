@@ -15,7 +15,7 @@ export function AuthStatusScreen({
       <MongleLogo className="text-foreground" />
       <div className="my-auto text-center">
         <div
-          className="mx-auto mb-7 flex size-20 items-center justify-center rounded-[2rem] bg-primary/10"
+          className="mx-auto mb-7 flex size-20 items-center justify-center rounded-2xl bg-primary/10"
           aria-hidden
         >
           <span
