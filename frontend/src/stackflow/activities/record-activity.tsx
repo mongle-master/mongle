@@ -449,7 +449,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             />
           }
         >
-          <h2 className="text-2xl font-medium">누구와의 기록이에요?</h2>
+          <h2 className="font-display text-2xl font-semibold">
+            누구와의 기록이에요?
+          </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             함께한 사람을 모두 골라주세요. {selectedPersonIds.length}명 선택
           </p>

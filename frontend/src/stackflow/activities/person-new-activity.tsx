@@ -137,7 +137,9 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
   const stepBody =
     step === 'name' ? (
       <>
-        <h2 className="text-2xl font-medium">누구를 남길까요?</h2>
+        <h2 className="font-display text-2xl font-semibold">
+          누구를 남길까요?
+        </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           이름만 있으면 나머지는 나중에 채워도 돼요.
         </p>
@@ -153,7 +155,7 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
       </>
     ) : step === 'relation' ? (
       <>
-        <h2 className="text-2xl font-medium">어떤 사이예요?</h2>
+        <h2 className="font-display text-2xl font-semibold">어떤 사이예요?</h2>
         <div className="mt-8 flex flex-col gap-8">
           <Field label="한마디로">
             <RelationTypeField
@@ -189,7 +191,9 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
       </>
     ) : step === 'dates' ? (
       <>
-        <h2 className="text-2xl font-medium">언제부터의 인연이에요?</h2>
+        <h2 className="font-display text-2xl font-semibold">
+          언제부터의 인연이에요?
+        </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           기억나지 않으면 비워 두어도 돼요.
         </p>
@@ -238,7 +242,9 @@ export const PersonNewActivity: ActivityComponentType<'PersonNew'> = () => {
           className="hidden"
           onChange={(e) => void handlePhoto(e.target.files?.[0] ?? null)}
         />
-        <h2 className="text-2xl font-medium">조금 더 남겨볼까요?</h2>
+        <h2 className="font-display text-2xl font-semibold">
+          조금 더 남겨볼까요?
+        </h2>
         <div className="mt-8 flex flex-col gap-8">
           <ProfileHero
             name={values.name}

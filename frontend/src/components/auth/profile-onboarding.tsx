@@ -110,7 +110,7 @@ export function ProfileOnboarding({
 
       <section className="relative my-auto py-8 text-center">
         <p className="text-sm font-medium text-primary">2 / 2 · 프로필 설정</p>
-        <h1 className="mt-3 text-[30px] font-semibold leading-[1.18] tracking-[-0.04em] text-foreground">
+        <h1 className="font-display mt-3 text-[30px] font-semibold leading-[1.18] tracking-[-0.04em] text-foreground">
           <span data-amp-mask>{username}</span>님을 보여줄
           <br />
           사진을 골라 주세요

@@ -1,8 +1,13 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import '@fontsource/pretendard/400.css';
+@import '@fontsource/pretendard/500.css';
+@import '@fontsource/pretendard/600.css';
 @import '@fontsource/pretendard/700.css';
 @import '@fontsource/pretendard/800.css';
+/* 고요 디스플레이 음성: 편집 타이틀(페이지 제목, 온보딩, 프로필명) 전용 세리프 */
+@import '@fontsource/noto-serif-kr/500.css';
+@import '@fontsource/noto-serif-kr/600.css';
 
 /* 손글씨 폰트(온글잎 은별): 기록 작성 등 유저 입력·감성 화면 기본 서체 */
 @font-face {
@@ -71,6 +76,9 @@
   --elevation-3: 0 10px 24px rgba(24, 24, 27, 0.08);
   --elevation-4: 0 18px 42px rgba(24, 24, 27, 0.12);
   --font-sans: 'Pretendard', ui-sans-serif, system-ui, sans-serif;
+  /* 고요 디스플레이 음성: 페이지 제목, 온보딩, 프로필명 등 편집 순간 전용 세리프.
+     본문/UI는 계속 Pretendard(--font-sans), 기록 본문은 손글씨(--font-hand). */
+  --font-display: 'Noto Serif KR', 'Pretendard', ui-serif, serif;
 }
 
 .dark {
@@ -158,6 +166,7 @@
   --shadow-e3: var(--elevation-3);
   --shadow-e4: var(--elevation-4);
   --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
   --font-hand: 'Onglip Eunbyeol', var(--font-sans);
   /* 앱 고유 타이포 스케일. font-size만 지정해 기존 text-[Npx] 임의값과 렌더가 동일하다
      (line-height는 각 사용처의 leading 클래스가 계속 결정한다). */

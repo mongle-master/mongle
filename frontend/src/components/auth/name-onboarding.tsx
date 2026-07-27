@@ -36,7 +36,7 @@ export function NameOnboarding({
         <p className="mb-3 text-sm font-medium text-primary">
           1 / 2 · 처음 만났네요
         </p>
-        <h1 className="text-[32px] font-semibold leading-[1.15] tracking-[-0.04em] text-foreground">
+        <h1 className="font-display text-[32px] font-semibold leading-[1.15] tracking-[-0.04em] text-foreground">
           당신을 어떻게
           <br />
           부르면 좋을까요?
