@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import '@fontsource-variable/gabarito';
 @import '@fontsource/pretendard/400.css';
 @import '@fontsource/pretendard/700.css';
 @import '@fontsource/pretendard/800.css';
@@ -18,47 +19,42 @@
  * Mongle 디자인 토큰 — 3계층 아키텍처.
  * 정본: packages/design-system/src/styles/globals.css, 시각 레퍼런스: docs/design-system.html
  *
- *   TIER 1 · PRIMITIVES (:root): 테마 불변 원시 팔레트 — cream ramp, terra ramp,
- *     감정 팔레트, 상태색. 한 번 정의하고 테마가 바뀌어도 값이 변하지 않는다.
- *   TIER 2 · SEMANTIC (:root = light, .dark = dark): 역할 토큰(--background,
- *     --primary, --muted, --emotion-* …)이 var()로 Tier 1을 참조한다.
- *     다크/라이트 재매핑은 이 계층에서만 일어난다.
+ *   TIER 1 · PRIMITIVES (:root): 테마 불변 원시 팔레트 — neutral ramp(hue 107),
+ *     blue accent ramp(hue 264), 감정 팔레트, 상태색.
+ *   TIER 2 · SEMANTIC (:root = light, .dark = dark): 역할 토큰이 var()로 Tier 1을 참조.
+ *     다크/라이트 재매핑은 이 계층에서만.
  *   TIER 3 · COMPONENT: CVA variants + @layer components. Tier 2를 직접 소비.
  *
- * 시각 언어: Lovable의 따뜻하고 절제된 크림 캔버스를 일기 도메인으로 번역.
- * 색은 감정에 살고, 크롬은 종이처럼 조용하다(테라코타는 주요 액션·선택·포커스에만).
+ * 시각 언어: lovable.dev 실측 벤치마크. 거의 흰 캔버스, 검정 프라이머리 버튼,
+ * 파랑(#2483FF) 액센트, hairline 테두리, inset 스포트라이트 그림자,
+ * semibold + tracking-tight 디스플레이 타이포. 뉴트럴은 hue 107의 미세한 웜 그레이.
  */
 
 :root {
   /* ---------- TIER 1 · PRIMITIVES (테마 불변) ---------- */
-  /* warm neutral ramp (회색이 아닌 크림 기반) */
-  --cream-0: #ffffff;
-  --cream-25: #fdfcfa;
-  --cream-50: #f7f4ed;
-  --cream-75: #f2efe6;
-  --cream-100: #eceae4;
-  --cream-150: #e5e2da;
-  --cream-200: #ddd9cf;
-  --cream-300: #c9c4b8;
-  --cream-400: #a8a294;
-  --cream-500: #8a8474;
-  --cream-600: #6b6558;
-  --cream-700: #514c42;
-  --cream-800: #3a362e;
-  --cream-850: #2e2b24;
-  --cream-900: #252219;
-  --cream-950: #1c1a14;
-  --cream-1000: #12110d;
+  /* neutral ramp (hue 107, 미세 웜 그레이) — lovable.dev의 뉴트럴 체계 */
+  --gray-0: oklch(99.99% 0 107);
+  --gray-25: oklch(98.51% 0 107);
+  --gray-50: oklch(96.5% 0.003 107);
+  --gray-75: oklch(94% 0.003 107);
+  --gray-100: oklch(92% 0.003 107);
+  --gray-150: oklch(88% 0.003 107);
+  --gray-200: oklch(83.6% 0 107);
+  --gray-300: oklch(72% 0.002 107);
+  --gray-400: oklch(56.74% 0.002 107);
+  --gray-500: oklch(50% 0.001 107);
+  --gray-600: oklch(30% 0.001 107);
+  --gray-700: oklch(27.2% 0.002 107);
+  --gray-800: oklch(24.74% 0.002 107);
+  --gray-900: oklch(10% 0 0);
+  --gray-950: oklch(1.2% 0 0);
 
-  /* terracotta ramp (프라이머리) */
-  --terra-100: #f5e6de;
-  --terra-200: #eacdbf;
-  --terra-300: #ddb09c;
-  --terra-400: #d0937a;
-  --terra-500: #c4704f;
-  --terra-600: #b85c38;
-  --terra-700: #9a4a2c;
-  --terra-800: #7c3b23;
+  /* blue accent ramp (hue 264) — lovable.dev의 #2483FF */
+  --blue-100: oklch(95% 0.03 264);
+  --blue-300: oklch(70.62% 0.1391 264.41);
+  --blue-500: oklch(52.43% 0.2396 264.41);
+  --blue-600: oklch(43.93% 0.2138 264.41);
+  --blue-700: oklch(38% 0.18 264);
 
   /* 감정 팔레트 — 부드럽고 탁하게, 일기장에 어울리게 */
   --joy-400: #e8b84a;
@@ -74,156 +70,160 @@
   --gratitude-400: #c48fb0;
   --gratitude-500: #b07098;
 
-  /* 상태색 */
-  --red-400: #d4726a;
-  --red-600: #b84040;
+  /* 상태색 (lovable.dev의 destructive/attention 계열) */
+  --red-400: oklch(67.3% 0.2102 26.56);
+  --red-600: oklch(58.53% 0.2203 26.56);
   --amber-500: #d4a030;
   --amber-700: #a67514;
-  --green-500: #5f9e68;
-  --green-700: #478050;
+  --green-500: oklch(45.82% 0.1382 138.23);
+  --green-700: oklch(40% 0.12 138);
 
   /* ---------- 앱 고유 토큰 ---------- */
-  --radius: 0.475rem;
+  --radius: 0.5rem;
   /* 오버레이 레이어: 앱 콘텐츠 위에 뜨는 것들의 쌓임 순서를 한 곳에서 정한다.
      확인팝업·다이얼로그는 #stack-overlay-root 포탈(--z-overlay)에 모여 같은
      쌓임 맥락에서 DOM 순서로 겹친다. 바텀시트(vaul)·팝오버(radix)·탭바는 그
      아래 레이어(z-50)로 라이브러리·레이아웃이 관할한다. */
   --z-overlay: 70;
-  --font-sans: 'Pretendard', ui-sans-serif, system-ui, sans-serif;
+  /* Gabarito Variable은 라틴/숫자 전용이라 한글은 Pretendard로 폴백한다.
+     Lovable의 Camera Plain Variable(따뜻한 휴머니스트 그로테스크) 대용. */
+  --font-sans:
+    'Gabarito Variable', 'Pretendard', ui-sans-serif, system-ui, sans-serif;
 
   /* ---------- TIER 2 · SEMANTIC (light) ---------- */
-  /* 기록 편지지 괘선. 배경 이미지라 currentColor를 못 받으므로 라이트/다크 각각 정의한다.
-     다크에선 검정 괘선이 어두운 카드에 묻혀 안 보여서 흰색 저투명으로 뒤집는다. */
-  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(28%2C26%2C20%2C0.07)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
-  --background: var(--cream-50);
-  --foreground: var(--cream-950);
-  --card: var(--cream-25);
-  --card-foreground: var(--cream-950);
-  --popover: var(--cream-0);
-  --popover-foreground: var(--cream-950);
-  --primary: var(--terra-600);
-  --primary-foreground: var(--cream-0);
-  --primary-hover: var(--terra-700);
-  --secondary: var(--cream-100);
-  --secondary-foreground: var(--cream-950);
-  --secondary-hover: var(--cream-150);
-  --muted: var(--cream-75);
-  --muted-foreground: var(--cream-500);
-  --accent: var(--cream-100);
-  --accent-foreground: var(--cream-950);
+  /* 기록 편지지 괘선. 배경 이미지라 currentColor를 못 받으므로 라이트/다크 각각 정의한다. */
+  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(3%2C3%2C3%2C0.07)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
+  --background: var(--gray-25);
+  --foreground: var(--gray-950);
+  --card: var(--gray-0);
+  --card-foreground: var(--gray-950);
+  --popover: var(--gray-0);
+  --popover-foreground: var(--gray-950);
+  /* Lovable의 프라이머리 버튼은 검정(라이트) / 흰색(다크). */
+  --primary: var(--gray-950);
+  --primary-foreground: var(--gray-25);
+  --primary-hover: var(--gray-900);
+  --secondary: var(--gray-50);
+  --secondary-foreground: var(--gray-950);
+  --secondary-hover: var(--gray-100);
+  --muted: var(--gray-50);
+  --muted-foreground: var(--gray-400);
+  --accent: var(--gray-75);
+  --accent-foreground: var(--gray-950);
+  /* 파랑 액센트 — 링크·강조·포커스. 프라이머리 버튼이 아닌 강조 요소에 쓴다. */
+  --accent-blue: var(--blue-500);
+  --accent-blue-foreground: var(--gray-0);
   --destructive: var(--red-600);
-  --destructive-foreground: var(--cream-0);
+  --destructive-foreground: var(--gray-0);
   --warning: var(--amber-700);
-  --warning-foreground: var(--cream-0);
+  --warning-foreground: var(--gray-0);
   --success: var(--green-700);
-  --success-foreground: var(--cream-0);
-  --brand: var(--primary);
-  --brand-foreground: var(--primary-foreground);
-  --border: var(--cream-100);
-  --input: var(--cream-0);
-  --input-border: var(--cream-300);
-  --ring: var(--terra-500);
+  --success-foreground: var(--gray-0);
+  --brand: var(--accent-blue);
+  --brand-foreground: var(--accent-blue-foreground);
+  --border: var(--gray-200);
+  --input: var(--gray-0);
+  --input-border: var(--gray-200);
+  --ring: var(--blue-500);
 
   /* 감정 시맨틱 (light): 배지·차트 점에 쓰는 fg와 14% 혼합 배경의 쌍 */
   --emotion-joy: var(--joy-500);
-  --emotion-joy-bg: color-mix(in oklch, var(--joy-400) 14%, var(--cream-50));
+  --emotion-joy-bg: color-mix(in oklch, var(--joy-400) 14%, var(--gray-25));
   --emotion-calm: var(--calm-500);
-  --emotion-calm-bg: color-mix(in oklch, var(--calm-400) 14%, var(--cream-50));
+  --emotion-calm-bg: color-mix(in oklch, var(--calm-400) 14%, var(--gray-25));
   --emotion-sadness: var(--sadness-500);
   --emotion-sadness-bg: color-mix(
     in oklch,
     var(--sadness-400) 14%,
-    var(--cream-50)
+    var(--gray-25)
   );
   --emotion-anger: var(--anger-500);
-  --emotion-anger-bg: color-mix(
-    in oklch,
-    var(--anger-400) 14%,
-    var(--cream-50)
-  );
+  --emotion-anger-bg: color-mix(in oklch, var(--anger-400) 14%, var(--gray-25));
   --emotion-anxiety: var(--anxiety-500);
   --emotion-anxiety-bg: color-mix(
     in oklch,
     var(--anxiety-400) 14%,
-    var(--cream-50)
+    var(--gray-25)
   );
   --emotion-gratitude: var(--gratitude-500);
   --emotion-gratitude-bg: color-mix(
     in oklch,
     var(--gratitude-400) 14%,
-    var(--cream-50)
+    var(--gray-25)
   );
 
-  /* elevation 단계 토큰, 라이트/다크 각각 정의해 dark:shadow 중복을 없앤다.
-     따뜻한 저깊이 — Lovable의 규율(그림자보다 테두리). */
-  --elevation-1: 0 1px 3px rgb(28 26 20 / 6%);
-  --elevation-2: 0 4px 12px rgb(28 26 20 / 8%);
-  --elevation-3: 0 8px 24px rgb(28 26 20 / 10%);
-  --elevation-4: 0 16px 48px rgb(28 26 20 / 14%);
+  /* elevation — Lovable은 무거운 그림자 대신 hairline 테두리 + inset을 쓴다.
+     그래도 떠야 하는 요소(팝오버·다이얼로그)용으로 저깊이만 둔다. */
+  --elevation-1: 0 1px 2px rgb(3 3 3 / 5%);
+  --elevation-2: 0 4px 12px rgb(3 3 3 / 7%);
+  --elevation-3: 0 8px 24px rgb(3 3 3 / 9%);
+  --elevation-4: 0 16px 48px rgb(3 3 3 / 12%);
 }
 
 .dark {
-  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(247%2C244%2C237%2C0.08)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
-  --background: var(--cream-950);
-  --foreground: var(--cream-50);
-  --card: var(--cream-900);
-  --card-foreground: var(--cream-50);
-  --popover: var(--cream-850);
-  --popover-foreground: var(--cream-50);
-  --primary: var(--terra-400);
-  --primary-foreground: var(--cream-1000);
-  --primary-hover: var(--terra-300);
-  --secondary: var(--cream-850);
-  --secondary-foreground: var(--cream-50);
-  --secondary-hover: var(--cream-800);
-  --muted: var(--cream-900);
-  --muted-foreground: var(--cream-400);
-  --accent: var(--cream-850);
-  --accent-foreground: var(--cream-50);
+  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(250%2C250%2C250%2C0.08)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
+  --background: var(--gray-800);
+  --foreground: var(--gray-25);
+  --card: var(--gray-700);
+  --card-foreground: var(--gray-25);
+  --popover: var(--gray-700);
+  --popover-foreground: var(--gray-25);
+  /* Lovable 다크의 프라이머리 버튼은 흰색. */
+  --primary: var(--gray-0);
+  --primary-foreground: var(--gray-900);
+  --primary-hover: var(--gray-25);
+  --secondary: var(--gray-700);
+  --secondary-foreground: var(--gray-25);
+  --secondary-hover: var(--gray-600);
+  --muted: var(--gray-700);
+  --muted-foreground: var(--gray-300);
+  --accent: var(--gray-700);
+  --accent-foreground: var(--gray-25);
+  --accent-blue: var(--blue-300);
+  --accent-blue-foreground: var(--gray-950);
   --destructive: var(--red-400);
-  --destructive-foreground: var(--cream-950);
+  --destructive-foreground: var(--gray-950);
   --warning: var(--amber-500);
-  --warning-foreground: var(--cream-950);
+  --warning-foreground: var(--gray-950);
   --success: var(--green-500);
-  --success-foreground: var(--cream-950);
-  --brand: var(--primary);
-  --brand-foreground: var(--primary-foreground);
-  --border: rgb(247 244 237 / 10%);
-  --input: var(--cream-900);
-  --input-border: var(--cream-600);
-  --ring: var(--terra-400);
+  --success-foreground: var(--gray-950);
+  --brand: var(--accent-blue);
+  --brand-foreground: var(--accent-blue-foreground);
+  --border: oklch(100% 0 0 / 12%);
+  --input: var(--gray-700);
+  --input-border: var(--gray-500);
+  --ring: var(--blue-300);
 
-  /* 감정 시맨틱 (dark): 어두운 캔버스엔 400(밝은 쪽)을 fg로, 16% 혼합 배경 */
   --emotion-joy: var(--joy-400);
-  --emotion-joy-bg: color-mix(in oklch, var(--joy-400) 16%, var(--cream-950));
+  --emotion-joy-bg: color-mix(in oklch, var(--joy-400) 16%, var(--gray-800));
   --emotion-calm: var(--calm-400);
-  --emotion-calm-bg: color-mix(in oklch, var(--calm-400) 16%, var(--cream-950));
+  --emotion-calm-bg: color-mix(in oklch, var(--calm-400) 16%, var(--gray-800));
   --emotion-sadness: var(--sadness-400);
   --emotion-sadness-bg: color-mix(
     in oklch,
     var(--sadness-400) 16%,
-    var(--cream-950)
+    var(--gray-800)
   );
   --emotion-anger: var(--anger-400);
   --emotion-anger-bg: color-mix(
     in oklch,
     var(--anger-400) 16%,
-    var(--cream-950)
+    var(--gray-800)
   );
   --emotion-anxiety: var(--anxiety-400);
   --emotion-anxiety-bg: color-mix(
     in oklch,
     var(--anxiety-400) 16%,
-    var(--cream-950)
+    var(--gray-800)
   );
   --emotion-gratitude: var(--gratitude-400);
   --emotion-gratitude-bg: color-mix(
     in oklch,
     var(--gratitude-400) 16%,
-    var(--cream-950)
+    var(--gray-800)
   );
 
-  --elevation-1: 0 1px 3px rgb(0 0 0 / 20%);
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 20%);
   --elevation-2: 0 4px 12px rgb(0 0 0 / 28%);
   --elevation-3: 0 8px 24px rgb(0 0 0 / 36%);
   --elevation-4: 0 16px 48px rgb(0 0 0 / 44%);
@@ -251,6 +251,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-foreground: var(--accent-blue-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-warning: var(--warning);
@@ -339,7 +341,7 @@
   }
 
   ::selection {
-    background: color-mix(in oklch, var(--primary) 20%, transparent);
+    background: color-mix(in oklch, var(--accent-blue) 22%, transparent);
   }
 
   /* stackflow AppScreen의 paper 스크롤 레이어(overflow-y: scroll 고정)는
