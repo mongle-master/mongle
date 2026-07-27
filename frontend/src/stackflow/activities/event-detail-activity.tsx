@@ -6,6 +6,7 @@ import { ActivityShell } from '@/stackflow/components/activity-shell'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
 import { ScrollBody } from '@/components/ui/scroll-body'
 import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import { StatusMessage } from '@/components/ui/status-message'
 import { EventPhotoGallery } from '@/components/events/event-photo-gallery'
 import { FormPageHeader } from '@/components/layout/form-page-header'
@@ -133,6 +134,8 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
             })}
           </div>
         ) : null}
+
+        <Separator className="mt-4" />
 
         {memo ? (
           <p

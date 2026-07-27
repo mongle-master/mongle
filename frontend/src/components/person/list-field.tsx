@@ -26,9 +26,10 @@ export function ListField({
   const [error, setError] = useState<string | null>(null)
   const chipToneClass = {
     neutral: 'bg-muted text-foreground',
-    green:
-      'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200',
-    red: 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200',
+    // 좋아하는 것(초록)/조심할 것(빨강)은 디자인 시스템 감정 토큰을 재사용.
+    // 토큰이 라이트/다크를 스스로 타서 dark: 분기가 필요 없다.
+    green: 'bg-emotion-5/15 text-emotion-5',
+    red: 'bg-emotion-1/15 text-emotion-1',
   }[tone]
 
   const addItem = () => {
