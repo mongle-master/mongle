@@ -449,7 +449,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             />
           }
         >
-          <h2 className="text-2xl font-bold">누구와의 기록이에요?</h2>
+          <h2 className="text-2xl font-medium">누구와의 기록이에요?</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             함께한 사람을 모두 골라주세요. {selectedPersonIds.length}명 선택
           </p>
@@ -602,7 +602,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                         className="size-20 rounded-xl object-cover"
                       />
                     ) : (
-                      <div className="flex size-20 items-center justify-center rounded-xl bg-muted text-[10px] font-bold text-muted-foreground">
+                      <div className="flex size-20 items-center justify-center rounded-xl bg-muted text-[10px] font-medium text-muted-foreground">
                         PHOTO
                       </div>
                     )}
@@ -626,7 +626,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
               type="button"
               disabled={uploadingPhoto}
               onClick={() => photoInputRef.current?.click()}
-              className="mb-3 flex h-28 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card text-muted-foreground disabled:opacity-50"
+              className="mb-3 flex h-28 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-card text-muted-foreground disabled:opacity-50"
             >
               <ImagePlus className="size-9" strokeWidth={1.6} />
               <span className="text-sm">
@@ -635,7 +635,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             </button>
           ) : null}
 
-          <div className="relative rounded-2xl border border-border bg-card p-4">
+          <div className="relative rounded-xl border border-border bg-card p-4">
             <Textarea
               value={what}
               onChange={(e) => setWhat(e.target.value)}

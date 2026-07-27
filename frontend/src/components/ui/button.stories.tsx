@@ -51,7 +51,7 @@ export const Small: Story = {
   args: { size: 'sm' },
 }
 
-// 이 앱의 pill 버튼 언어(rounded-full + font-extrabold) 스토리.
+// Linear 기준 대형 액션 사이즈(8px radius, weight 500). 옛 pill(rounded-full) 언어를 대체.
 export const Cta: Story = {
   args: { size: 'cta', children: '저장' },
 }

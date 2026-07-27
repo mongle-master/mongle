@@ -32,7 +32,7 @@ function Item({ label }: { label: string }) {
           className={cn(
             'tabular-nums transition-all',
             selected
-              ? 'text-2xl font-bold text-foreground/75'
+              ? 'text-2xl font-medium text-foreground/75'
               : 'text-base text-muted-foreground/40',
           )}
         >
@@ -102,12 +102,12 @@ export function TimeWheel({
             wheelMode="natural"
             className="gap-3"
           >
-            <Picker.Column name="hour" className="rounded-2xl bg-muted/40">
+            <Picker.Column name="hour" className="rounded-xl bg-muted/40">
               {HOURS24.map((v) => (
                 <Item key={v} label={v} />
               ))}
             </Picker.Column>
-            <Picker.Column name="minute" className="rounded-2xl bg-muted/40">
+            <Picker.Column name="minute" className="rounded-xl bg-muted/40">
               {MINUTES.map((v) => (
                 <Item key={v} label={v} />
               ))}

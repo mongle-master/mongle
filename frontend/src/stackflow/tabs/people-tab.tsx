@@ -92,7 +92,7 @@ export function PeopleTab() {
           <button
             type="button"
             onClick={() => push('PersonNew', {})}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-label font-extrabold text-primary-foreground"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-label font-medium text-primary-foreground"
           >
             <Plus className="size-4" />
             추가
@@ -130,7 +130,7 @@ export function PeopleTab() {
         </section>
 
         {favoriteMutation.isError ? (
-          <p className="text-center text-xs font-bold text-destructive">
+          <p className="text-center text-xs font-medium text-destructive">
             즐겨찾기를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.
           </p>
         ) : null}
@@ -233,7 +233,7 @@ function PersonListItem({
         <div className="min-w-0 flex-1">
           <p
             data-amp-mask
-            className="truncate text-body font-extrabold text-foreground"
+            className="truncate text-body font-medium text-foreground"
           >
             {displayName}
           </p>
@@ -272,7 +272,7 @@ function PersonListItem({
           </div>
           <p
             className={cn(
-              'mt-1 text-caption font-bold',
+              'mt-1 text-caption font-medium',
               lastMetLabel === '기록 없음'
                 ? 'text-muted-foreground/70'
                 : 'text-muted-foreground',

@@ -88,7 +88,7 @@ export function EventPhotoGallery({ photoUrls }: { photoUrls: string[] }) {
               key={`${url}-${index}`}
               type="button"
               onClick={() => openViewer(index)}
-              className="relative aspect-square overflow-hidden rounded-2xl bg-muted"
+              className="relative aspect-square overflow-hidden rounded-xl bg-muted"
             >
               <img
                 src={src}
@@ -97,7 +97,7 @@ export function EventPhotoGallery({ photoUrls }: { photoUrls: string[] }) {
                 loading="lazy"
               />
               {isOverflowTile ? (
-                <span className="absolute inset-0 flex items-center justify-center bg-foreground/45 text-lg font-extrabold text-background">
+                <span className="absolute inset-0 flex items-center justify-center bg-foreground/45 text-lg font-medium text-background">
                   +{hiddenCount}
                 </span>
               ) : null}
@@ -121,7 +121,7 @@ export function EventPhotoGallery({ photoUrls }: { photoUrls: string[] }) {
               {photoUrls.length > 1 ? (
                 <span
                   onClick={(event) => event.stopPropagation()}
-                  className="rounded-full bg-background/90 px-3 py-1 text-xs font-extrabold text-foreground"
+                  className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground"
                 >
                   {activeIndex + 1} / {photoUrls.length}
                 </span>
@@ -168,7 +168,7 @@ export function EventPhotoGallery({ photoUrls }: { photoUrls: string[] }) {
                   <img
                     src={src}
                     alt={`기록 사진 ${activeIndex + 1}`}
-                    className="max-h-full max-w-full touch-pan-y rounded-2xl object-contain shadow-lg"
+                    className="max-h-full max-w-full touch-pan-y rounded-xl object-contain shadow-lg"
                     onClick={(event) => event.stopPropagation()}
                     draggable={false}
                   />

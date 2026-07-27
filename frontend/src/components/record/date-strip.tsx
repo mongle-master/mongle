@@ -51,7 +51,7 @@ export function DateStrip({
             type="button"
             onClick={() => onChange(d.iso)}
             className={cn(
-              'flex h-[4.5rem] w-14 shrink-0 flex-col items-center justify-center gap-1.5 rounded-2xl border transition-colors',
+              'flex h-[4.5rem] w-14 shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border transition-colors',
               selected
                 ? 'border-transparent bg-foreground/85 text-background'
                 : 'border-border bg-card text-foreground/70',

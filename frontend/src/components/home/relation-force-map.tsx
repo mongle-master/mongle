@@ -325,7 +325,7 @@ export function RelationForceMap({
               key={category.label}
               data-amp-mask
               // text-zinc-700/200은 foreground와 muted-foreground 사이 값이라 전용 토큰 나오기 전까지 손튜닝 값으로 둔다
-              className="inline-flex min-w-0 items-center gap-1 text-[10px] font-bold text-zinc-700 dark:text-zinc-200"
+              className="inline-flex min-w-0 items-center gap-1 text-[10px] font-medium text-zinc-700 dark:text-zinc-200"
             >
               <span
                 className="size-2 shrink-0 rounded-full"
@@ -443,7 +443,7 @@ function OrbitGraph({
         </div>
         <span
           data-amp-mask
-          className="mt-1.5 max-w-24 truncate rounded-full bg-background/88 px-2 py-1 text-[12px] leading-none font-black text-foreground shadow-e1 backdrop-blur-sm"
+          className="mt-1.5 max-w-24 truncate rounded-full bg-background/88 px-2 py-1 text-[12px] leading-none font-semibold text-foreground shadow-e1 backdrop-blur-sm"
         >
           {me.name}
         </span>
@@ -514,7 +514,7 @@ function CategoryClusterGraph({
             key={category.label}
             data-amp-mask
             // text-zinc-700/200은 foreground와 muted-foreground 사이 값이라 전용 토큰 나오기 전까지 손튜닝 값으로 둔다
-            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/80 px-2 py-1 text-caption font-black text-zinc-700 shadow-e2 dark:text-zinc-200"
+            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/80 px-2 py-1 text-caption font-semibold text-zinc-700 shadow-e2 dark:text-zinc-200"
             style={{
               left: `${position.x}%`,
               top: `${position.y + radius.labelOffset}%`,
@@ -728,11 +728,11 @@ function PersonNode({
       {showText ? (
         <span
           data-amp-mask
-          className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-black text-foreground shadow-e1 backdrop-blur-sm"
+          className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-semibold text-foreground shadow-e1 backdrop-blur-sm"
         >
           <span className="min-w-0 truncate">{displayName}</span>
           <span
-            className="max-w-[3.4rem] shrink-0 truncate rounded-full px-1 py-0.5 text-[9px] font-extrabold text-white"
+            className="max-w-[3.4rem] shrink-0 truncate rounded-full px-1 py-0.5 text-[9px] font-medium text-white"
             style={{ backgroundColor: person.color }}
           >
             {person.categoryLabel}

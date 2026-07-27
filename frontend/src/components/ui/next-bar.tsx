@@ -22,7 +22,7 @@ export function NextBar({
       onClick={onNext}
       disabled={disabled}
       className={cn(
-        'w-full bg-strong py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-lg font-bold text-strong-foreground disabled:opacity-30',
+        'w-full bg-strong py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-lg font-medium text-strong-foreground disabled:opacity-30',
         sticky && 'sticky bottom-0',
       )}
     >

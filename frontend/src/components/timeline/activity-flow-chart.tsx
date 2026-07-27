@@ -87,7 +87,7 @@ export function ActivityFlowChart({
     '최근'
   const axisLabelClass = (position: number) =>
     cn(
-      'absolute text-[10px] leading-none font-bold text-muted-foreground whitespace-nowrap',
+      'absolute text-[10px] leading-none font-medium text-muted-foreground whitespace-nowrap',
       position <= 0.02
         ? 'translate-x-0 text-left'
         : position >= 0.98
@@ -101,14 +101,14 @@ export function ActivityFlowChart({
       <div className="p-4">
         <div className="relative mb-1 flex items-start justify-between gap-2">
           <div>
-            <p className="text-sm font-extrabold">활동 흐름</p>
+            <p className="text-sm font-medium">활동 흐름</p>
           </div>
 
           <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
-              className="inline-flex h-8 items-center gap-1 rounded-full border border-border bg-background px-3 text-caption font-extrabold text-foreground"
+              className="inline-flex h-8 items-center gap-1 rounded-full border border-border bg-background px-3 text-caption font-medium text-foreground"
               aria-expanded={menuOpen}
               aria-haspopup="listbox"
             >
@@ -137,7 +137,7 @@ export function ActivityFlowChart({
                         onSelectPoint?.(null)
                       }}
                       className={cn(
-                        'flex w-full px-3 py-1.5 text-left text-caption font-bold',
+                        'flex w-full px-3 py-1.5 text-left text-caption font-medium',
                         period === option.value
                           ? 'bg-primary text-primary-foreground'
                           : 'text-foreground hover:bg-muted',
@@ -177,7 +177,7 @@ export function ActivityFlowChart({
                   />
                   <span
                     data-amp-mask
-                    className="min-w-0 flex-1 truncate text-caption font-extrabold text-muted-foreground"
+                    className="min-w-0 flex-1 truncate text-caption font-medium text-muted-foreground"
                   >
                     {lane.label}
                   </span>

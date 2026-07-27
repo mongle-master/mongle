@@ -40,7 +40,7 @@ export function ConfirmPopup({
       <div className="pr-9">
         <h2
           id="confirm-popup-title"
-          className="text-base font-extrabold tracking-tight text-foreground"
+          className="text-base font-medium tracking-tight text-foreground"
         >
           {title}
         </h2>
@@ -52,7 +52,7 @@ export function ConfirmPopup({
           {description}
         </p>
         {error ? (
-          <p className="mt-3 text-sm font-bold text-destructive" role="alert">
+          <p className="mt-3 text-sm font-medium text-destructive" role="alert">
             {error}
           </p>
         ) : null}
