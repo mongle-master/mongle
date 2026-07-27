@@ -113,7 +113,7 @@ export function TimelineEventCard({
               <Badge
                 data-amp-mask
                 variant="secondary"
-                className="h-7 shrink-0 rounded-full px-3 font-medium"
+                className="h-7 shrink-0 rounded-md px-3 font-medium"
               >
                 {item.category.label}
               </Badge>
@@ -122,7 +122,7 @@ export function TimelineEventCard({
           <div className="mt-2 flex items-start gap-3">
             <div className="min-w-0 flex-1">
               {persons.length > 0 ? (
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 py-1 pr-2 pl-1">
+                <div className="inline-flex items-center gap-1.5 rounded-md bg-muted/70 py-1 pr-2 pl-1">
                   <MonogramAvatar
                     name={persons[0].name}
                     imageUrl={persons[0].profileImageUrl}

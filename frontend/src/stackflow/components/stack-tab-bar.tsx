@@ -34,7 +34,7 @@ export function StackTabBar({ activeTab }: { activeTab: MainTab }) {
                 key="record"
                 type="button"
                 onClick={() => push('Record', {})}
-                className="-mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
+                className="-mt-5 flex size-12 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg"
                 aria-label="기록 작성"
               >
                 <Plus className="size-6" />

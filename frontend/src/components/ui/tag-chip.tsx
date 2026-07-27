@@ -6,14 +6,13 @@ import { Slot } from 'radix-ui'
 import { cn } from '@/lib/utils'
 import { coloredTagStyle } from '@/lib/relation-tag-colors'
 
-// badge.tsx가 이 문자열 위에 cva를 얹는다(부품 합성 선례). 배지의 기존 시각을
-// 고정하는 계약이라 값을 바꾸지 않는다. TagChip 자체는 아래 cva에서 높이·표면·
-// 채움색을 축으로 분해해 재조립한다.
+// badge.tsx가 이 문자열 위에 cva를 얹는다(부품 합성 선례). Airtable 태그/필드 칩은
+// pill이 아닌 둥근 사각(rounded-md, 10px)이라 계약 값을 Airtable 문법으로 바꾼다.
 export const tagChipBaseClass =
-  'inline-flex h-7 w-fit shrink-0 items-center justify-center gap-1.5 rounded-full border border-transparent px-3.5 text-label leading-none font-medium whitespace-nowrap transition-colors'
+  'inline-flex h-7 w-fit shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent px-3.5 text-label leading-none font-medium whitespace-nowrap transition-colors'
 
 const tagChipVariants = cva(
-  'group/tag-chip inline-flex w-fit shrink-0 items-center justify-center gap-1.5 rounded-full border border-transparent leading-none whitespace-nowrap transition-colors',
+  'group/tag-chip inline-flex w-fit shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent leading-none whitespace-nowrap transition-colors',
   {
     variants: {
       // 실측된 높이 4단계 + 아바타 필터 pill(xl). 높이에 딸린 패딩·글자 크기·굵기가
