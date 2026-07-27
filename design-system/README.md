@@ -54,8 +54,14 @@ design-system/
 
 ## 소비자 규칙 (채택 시)
 
-- 앱 CSS = 이 패키지 `globals.css` re-import 한 줄 + 앱 자기 `@source`. 앱은
-  토큰을 하나도 정의하지 않는다. 이것이 "토큰 교체만으로 룩을 갈아끼운다"의
-  물리적 보장이다.
-- 손글씨 서체(`font-hand`) 자산은 앱이 제공한다 — 패키지에는 폴백만 있다.
+- 앱 CSS = `@import 'tailwindcss'` + `'tw-animate-css'` + 이 패키지 `globals.css`
+  (상대 경로 직접 소비) + 앱 자기 층. globals.css에는 bare @import가 없어 호스트
+  번들러가 이 패키지의 node_modules를 요구하지 않는다. 앱은 팔레트 토큰을 정의하지
+  않는다 — 이것이 "토큰 교체만으로 룩을 갈아끼운다"의 물리적 보장이다.
+- **폰트는 소비자가 제공한다.** globals.css는 폰트 로딩 0. 앱: @fontsource 번들
+  (Pretendard + 디스플레이 세리프 2종), Storybook·쇼케이스: `.storybook/fonts.css` CDN.
+- **앱 타이포 스케일 재정의는 허용된 오버라이드다.** 앱은 기존 렌더 보전을 위해
+  `--text-caption`(11px) 등을 import *이후*에 재선언한다 (나머지 display/title
+  스케일은 패키지 것이 그대로 흐른다).
+- 손글씨 서체(`font-hand`) 자산도 앱이 제공한다 — 패키지에는 폴백만 있다.
 - `--brand` 훅: 전역 토큰을 덮지 말고 서브트리에서 `--brand`만 재할당한다.

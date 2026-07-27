@@ -3,7 +3,7 @@ import { ChevronLeft } from 'lucide-react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { eventQuery, personQuery } from '@/apis/queries'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
-import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { PersonChip } from '@/components/person/person-chip'
 import { ScrollBody } from '@/components/ui/scroll-body'
 import { Badge } from '@/components/ui/badge'
 import { StatusMessage } from '@/components/ui/status-message'
@@ -82,7 +82,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         <div className="flex items-start gap-2">
           <h2
             data-amp-mask
-            className="min-w-0 flex-1 text-[22px] leading-snug font-extrabold tracking-tight"
+            className="min-w-0 flex-1 font-display text-[22px] font-light leading-snug tracking-tight"
           >
             {event.title}
           </h2>
@@ -106,29 +106,17 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
             {event.persons.map((person) => {
               const profile = personById.get(person.id)
               return (
-                <button
+                <PersonChip
                   key={person.id}
-                  type="button"
+                  name={person.name}
+                  imageUrl={profile?.profileImageUrl}
+                  gender={profile?.gender}
+                  personId={person.id}
+                  favorite={profile?.favorite}
                   onClick={() =>
                     push('Person', { personId: String(person.id) })
                   }
-                  className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 py-1 pr-2.5 pl-1 transition-colors hover:bg-muted"
-                >
-                  <MonogramAvatar
-                    name={person.name}
-                    imageUrl={profile?.profileImageUrl}
-                    gender={profile?.gender}
-                    personId={person.id}
-                    favorite={profile?.favorite}
-                    className="size-6"
-                  />
-                  <span
-                    data-amp-mask
-                    className="text-xs font-extrabold text-foreground"
-                  >
-                    {person.name}
-                  </span>
-                </button>
+                />
               )
             })}
           </div>

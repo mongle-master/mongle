@@ -1,13 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { Clock3, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { homeQuery } from '@/apis/queries'
-import { cn } from '@/lib/utils'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { RelationForceMap } from '@/components/home/relation-force-map'
+import { ThrowbackCard } from '@/components/home/throwback-card'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { TabShell } from '@/stackflow/components/tab-shell'
-import { Card } from '@/components/ui/card'
 import { PageTitle } from '@/components/ui/page-title'
 import { StatusMessage } from '@/components/ui/status-message'
 import {
@@ -95,59 +93,24 @@ export function HomeTab() {
 
       {throwback && !throwbackDismissed ? (
         <div className="pointer-events-none absolute right-4 bottom-[6.25rem] left-4 z-40">
-          <div
-            className={cn(
-              'pointer-events-auto mx-auto w-full max-w-md',
-              throwbackExiting
-                ? 'animate-out fade-out slide-out-to-bottom-6 duration-300 ease-out fill-mode-forwards'
-                : 'animate-in fade-in slide-in-from-bottom-6 duration-300 ease-out',
-            )}
-            onAnimationEnd={() => {
-              if (throwbackExiting) setThrowbackDismissed(true)
+          <ThrowbackCard
+            occurredDate={throwback.occurredDate}
+            title={throwback.title}
+            personName={throwback.personName}
+            exiting={throwbackExiting}
+            onOpen={() => {
+              void trackFeature(featureEvents.throwbackOpened)
+              push('Person', {
+                personId: String(throwback.personId),
+                view: 'timeline',
+              })
             }}
-          >
-            <Card className="relative flex min-h-[82px] flex-row items-center gap-3 rounded-lg border border-border bg-card p-3.5 pr-10 text-card-foreground shadow-e4">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <Clock3 className="size-5" />
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  void trackFeature(featureEvents.throwbackOpened)
-                  push('Person', {
-                    personId: String(throwback.personId),
-                    view: 'timeline',
-                  })
-                }}
-                className="min-w-0 flex-1 text-left"
-              >
-                <p className="text-sm font-extrabold text-foreground">
-                  1년 전 오늘
-                  <span className="ml-2 text-caption font-bold text-muted-foreground">
-                    {throwback.occurredDate}
-                  </span>
-                </p>
-                <p
-                  data-amp-mask
-                  className="mt-1 line-clamp-2 text-label font-medium text-muted-foreground"
-                >
-                  {throwback.title ?? `작년 이맘때 ${throwback.personName}`}
-                </p>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setThrowbackExiting(true)
-                  void trackFeature(featureEvents.throwbackDismissed)
-                }}
-                disabled={throwbackExiting}
-                className="absolute top-2.5 right-2.5 flex size-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground disabled:pointer-events-none"
-                aria-label="닫기"
-              >
-                <X className="size-4" />
-              </button>
-            </Card>
-          </div>
+            onDismiss={() => {
+              setThrowbackExiting(true)
+              void trackFeature(featureEvents.throwbackDismissed)
+            }}
+            onExitEnd={() => setThrowbackDismissed(true)}
+          />
         </div>
       ) : null}
     </TabShell>

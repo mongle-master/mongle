@@ -35,6 +35,11 @@ css = css.replace(/url\((['"])?([^)'"]+)\1\)/g, (match, _q, ref) => {
   }
 })
 
+/* 폰트 CDN @import 주입 — @import는 스타일시트 맨 앞이어야 하므로 CSS 선두에 붙인다.
+   .storybook/fonts.css와 같은 목록을 유지한다. */
+const fontImports = readFileSync(path.join(root, '.storybook/fonts.css'), 'utf8')
+css = `${fontImports}\n${css}`
+
 const template = readFileSync(path.join(root, 'showcase/template.html'), 'utf8')
 
 /* 클래스 커버리지 점검 — 템플릿이 쓴 클래스가 컴파일 CSS에 실제로 있는지 */

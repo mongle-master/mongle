@@ -43,7 +43,7 @@ export function ProfileHero({
           )}
           <span className="absolute -right-0.5 -bottom-0.5 flex size-6 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-sm">
             {uploading ? (
-              <span className="text-[10px] font-bold">…</span>
+              <span className="text-micro font-bold">…</span>
             ) : (
               <Camera className="size-3" />
             )}
@@ -74,14 +74,14 @@ export function ProfileHero({
           className={cn(
             'flex shrink-0 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 transition-colors',
             favorite
-              ? 'bg-amber-500/12 text-amber-600 dark:text-amber-400'
+              ? 'bg-favorite/12 text-favorite'
               : 'bg-muted/60 text-muted-foreground hover:bg-muted',
           )}
         >
           <Star
-            className={cn('size-5', favorite && 'fill-current text-amber-500')}
+            className={cn('size-5', favorite && 'fill-current text-favorite')}
           />
-          <span className="text-[10px] font-extrabold">즐겨찾기</span>
+          <span className="text-micro font-extrabold">즐겨찾기</span>
         </button>
       </div>
     </div>

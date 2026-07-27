@@ -19,7 +19,7 @@ const tagChipVariants = cva(
       // 실측된 높이 4단계 + 아바타 필터 pill(xl). 높이에 딸린 패딩·글자 크기·굵기가
       // 함께 움직여 한 축으로 묶는다.
       size: {
-        xs: 'h-5 px-2 text-[10px] font-bold',
+        xs: 'h-5 px-2 text-micro font-bold',
         sm: 'h-6 px-2 text-caption font-bold',
         default: 'h-7 px-3.5 text-label font-bold',
         lg: 'h-8 px-2.5 text-label font-bold',

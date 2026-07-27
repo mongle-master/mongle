@@ -125,9 +125,10 @@ export const RadiusAndShadow: Story = {
       ))}
       {(
         [
-          ['card', 'var(--shadow-card)'],
-          ['float', 'var(--shadow-float)'],
-          ['overlay', 'var(--shadow-overlay)'],
+          ['e1', 'var(--elevation-1)'],
+          ['e2', 'var(--elevation-2)'],
+          ['e3', 'var(--elevation-3)'],
+          ['e4', 'var(--elevation-4)'],
         ] as const
       ).map(([label, shadow]) => (
         <div key={label} className="flex flex-col items-center gap-2">

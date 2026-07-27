@@ -79,14 +79,15 @@ const emotionWord = (label: string) => {
   return past ? `${past}다` : label
 }
 
-// 감정은 칩(테두리) 대신 색상 있는 글자만. 리터럴이라 Tailwind JIT가 스캔한다.
+// 감정은 칩(테두리) 대신 색상 있는 글자만. 디자인 시스템(결) 감정 5가족의
+// "읽기" 계층 토큰을 쓴다 — 라이트에서 AA, 다크에서 파스텔로 자동 반전.
+// 리터럴이라 Tailwind JIT가 스캔한다.
 const EMOTION_TEXT = [
-  'text-rose-500',
-  'text-amber-500',
-  'text-sky-500',
-  'text-violet-500',
-  'text-emerald-500',
-  'text-orange-500',
+  'text-emotion-dear-text',
+  'text-emotion-warm-text',
+  'text-emotion-clear-text',
+  'text-emotion-muse-text',
+  'text-emotion-calm-text',
 ]
 
 const bigChipBase =
@@ -600,7 +601,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                         className="size-20 rounded-xl object-cover"
                       />
                     ) : (
-                      <div className="flex size-20 items-center justify-center rounded-xl bg-muted text-[10px] font-bold text-muted-foreground">
+                      <div className="flex size-20 items-center justify-center rounded-xl bg-muted text-micro font-bold text-muted-foreground">
                         PHOTO
                       </div>
                     )}

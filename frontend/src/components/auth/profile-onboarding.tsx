@@ -3,6 +3,7 @@ import { Camera, RefreshCw } from 'lucide-react'
 import { BackButton } from '@/components/layout/back-button'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { Button } from '@/components/ui/button'
+import { Orb } from '@/components/ui/orb'
 import { uploadImage } from '@/lib/api/images'
 import {
   DEFAULT_FEMALE_PERSON_IMAGES,
@@ -92,9 +93,10 @@ export function ProfileOnboarding({
         aria-hidden
         className="absolute -top-20 -right-20 size-64 rounded-full bg-primary/8 blur-3xl"
       />
-      <div
-        aria-hidden
-        className="absolute bottom-8 -left-28 size-64 rounded-full bg-amber-200/20 blur-3xl"
+      <Orb
+        emotion="warm"
+        size={256}
+        className="bottom-8 -left-28 opacity-25 blur-3xl"
       />
 
       <div className="relative flex items-center gap-2">
@@ -112,7 +114,7 @@ export function ProfileOnboarding({
         <p className="text-sm font-extrabold text-primary">
           2 / 2 · 프로필 설정
         </p>
-        <h1 className="mt-3 text-[30px] font-black leading-[1.18] tracking-[-0.04em] text-foreground">
+        <h1 className="mt-3 font-display text-display-md font-light text-foreground">
           <span data-amp-mask>{username}</span>님을 보여줄
           <br />
           사진을 골라 주세요
@@ -123,7 +125,7 @@ export function ProfileOnboarding({
 
         <div className="relative mx-auto mt-8 size-48">
           <div className="absolute inset-2 rounded-full bg-muted/70 blur-xl" />
-          <div className="relative size-full overflow-hidden rounded-full border border-border/70 bg-white shadow-[0_18px_50px_-24px_rgba(0,0,0,0.45)]">
+          <div className="relative size-full overflow-hidden rounded-full border border-border/70 bg-card shadow-e4">
             <img
               key={selectedImageUrl}
               src={previewImageUrl ?? undefined}

@@ -68,7 +68,7 @@ export function TagColorPickerModal({
               aria-pressed={active}
             >
               <span
-                className="grid size-7 shrink-0 place-items-center rounded-full border border-background shadow-sm ring-1 ring-black/10"
+                className="grid size-7 shrink-0 place-items-center rounded-full border border-background shadow-sm ring-1 ring-foreground/10"
                 style={{ backgroundColor: option.value }}
               >
                 {active ? (

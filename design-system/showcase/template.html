@@ -40,7 +40,7 @@
     border: 1px solid var(--hairline-strong);
     border-radius: 32px;
     overflow: hidden;
-    box-shadow: var(--shadow-float);
+    box-shadow: var(--elevation-2);
     background: var(--background);
   }
   .chrome-phone-body {
@@ -262,13 +262,14 @@
       </div>
     </div>
     <div>
-      <p class="text-title-sm font-medium">Elevation — 부드러운 단일 계열</p>
+      <p class="text-title-sm font-medium">Elevation — 4단계, 라이트/다크 각각 정의</p>
       <div class="mt-4 flex flex-wrap items-end gap-5">
-        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--shadow-card)"></div><span class="text-caption text-muted-foreground">card</span></div>
-        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--shadow-float)"></div><span class="text-caption text-muted-foreground">float</span></div>
-        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--shadow-overlay)"></div><span class="text-caption text-muted-foreground">overlay</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--elevation-1)"></div><span class="text-caption text-muted-foreground">e1</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--elevation-2)"></div><span class="text-caption text-muted-foreground">e2</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--elevation-3)"></div><span class="text-caption text-muted-foreground">e3</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--elevation-4)"></div><span class="text-caption text-muted-foreground">e4</span></div>
       </div>
-      <p class="mt-4 text-body-sm text-body">그림자는 단계마다 강해질 뿐, 색상이나 방향이 바뀌지 않는다.</p>
+      <p class="mt-4 text-body-sm text-body">그림자는 단계마다 강해질 뿐, 색상이나 방향이 바뀌지 않는다. dark:shadow 중복 없이 테마 변수가 뒤집힌다.</p>
     </div>
   </div>
 
@@ -362,7 +363,7 @@
             <button type="button" class="inline-flex h-10 items-center rounded-pill px-5 text-body-sm font-medium text-foreground hover:bg-secondary">취소</button>
           </div>
         </div>
-        <div class="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-overlay">
+        <div class="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-e3">
           <h3 class="text-title-md font-medium">이 기록을 삭제할까요?</h3>
           <p class="mt-1.5 text-body-sm text-muted-foreground">삭제한 기록은 되돌릴 수 없습니다. (Dialog 정적 표현)</p>
           <div class="mt-6 flex justify-end gap-2">
@@ -406,7 +407,7 @@
       <p class="text-title-sm font-medium">감정 선택 — 색 점 + 라벨 항상 동반</p>
       <div class="mt-3 flex flex-wrap gap-2">
         <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-calm)"></span>고요</span>
-        <span class="inline-flex items-center gap-2 rounded-pill border border-foreground bg-card px-3.5 py-2 text-body-sm font-medium text-foreground shadow-card"><span class="size-3 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-foreground bg-card px-3.5 py-2 text-body-sm font-medium text-foreground shadow-e1"><span class="size-3 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
         <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-muse)"></span>사색</span>
         <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-clear)"></span>맑음</span>
         <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-dear)"></span>소중</span>
@@ -505,7 +506,7 @@
         <p class="text-caption font-medium text-foreground">오늘의 감정</p>
         <div class="flex flex-wrap gap-1.5">
           <span class="inline-flex items-center gap-1.5 rounded-pill border border-border px-3 py-1.5 text-caption text-muted-foreground"><span class="size-2.5 rounded-full" style="background: var(--emotion-calm)"></span>고요</span>
-          <span class="inline-flex items-center gap-1.5 rounded-pill border border-foreground bg-card px-3 py-1.5 text-caption font-medium text-foreground shadow-card"><span class="size-2.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+          <span class="inline-flex items-center gap-1.5 rounded-pill border border-foreground bg-card px-3 py-1.5 text-caption font-medium text-foreground shadow-e1"><span class="size-2.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
           <span class="inline-flex items-center gap-1.5 rounded-pill border border-border px-3 py-1.5 text-caption text-muted-foreground"><span class="size-2.5 rounded-full" style="background: var(--emotion-muse)"></span>사색</span>
         </div>
         <p class="text-caption font-medium text-foreground">함께한 사람</p>

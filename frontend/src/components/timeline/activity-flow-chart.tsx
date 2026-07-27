@@ -87,7 +87,7 @@ export function ActivityFlowChart({
     '최근'
   const axisLabelClass = (position: number) =>
     cn(
-      'absolute text-[10px] leading-none font-bold text-muted-foreground whitespace-nowrap',
+      'absolute text-micro leading-none font-bold text-muted-foreground whitespace-nowrap',
       position <= 0.02
         ? 'translate-x-0 text-left'
         : position >= 0.98

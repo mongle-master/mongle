@@ -82,11 +82,16 @@
 | `--primary` | 주요 액션 = 잉크 pill (라이트: stone-800 / 다크: paper-white 반전) |
 | `--secondary`, `--muted`, `--accent` | 보조 조작·hover·비활성 표면 |
 | `--destructive`, `--warning`, `--success` | 상태색 — 레퍼런스에 없던 warning을 도메인 확장으로 추가 |
-| `--emotion-*` (5) | 감정 orb 파스텔 — 대기 전용, semantic과 분리해 테마 반전 시 야간 변형으로 교체 |
+| `--emotion-*` (5) | 감정 orb 파스텔 — 대기 전용 (양 테마 모두 파스텔) |
+| `--emotion-*-text` (5) | 감정의 "읽기" 계층 — 라이트: AA 전면 변형(≥4.5:1) / 다크: 파스텔(≥10:1). 칩 글자·라벨용 |
+| `--favorite` | 즐겨찾기 별 전용 앰버 — 경고(--warning)와 역할을 분리 (ui-audit 8-4) |
 | `--hairline-*` (3) | 1px 구분선 3단계 |
 | `--radius-*` | 입력 8 / 카드 16 / 대기 카드 24 / pill 9999 |
-| `--shadow-*` | 부드러운 그림자 단일 계열 + orb 블룸 |
+| `--elevation-1..4` | 그림자 4단계, 라이트/다크 각각 정의 — 소비는 `shadow-e1..e4` 유틸리티로 |
 | `--font-display`, `--font-sans`, `--font-hand` | 세리프 300 / 산세리프 / 손글씨 |
+
+폰트 로딩은 토큰에 포함하지 않는다 — 소비자가 제공한다 (앱: @fontsource 번들,
+Storybook·쇼케이스: `.storybook/fonts.css`의 CDN).
 
 브랜드 주입 훅: `--brand: var(--primary)`를 루트에 두고, 테마·텐던트 브랜딩이
 필요한 서브트리에서만 재할당한다 (전역 토큰 덮어쓰기 금지).

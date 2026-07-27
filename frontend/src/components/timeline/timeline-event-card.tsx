@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { PersonChip } from '@/components/person/person-chip'
 import type {
   ChipRef,
   EventResponse,
@@ -75,7 +75,7 @@ function TimelinePhotoPreview({ photoUrls }: { photoUrls: string[] }) {
         loading="lazy"
       />
       {photoUrls.length > 1 ? (
-        <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1.5 py-0.5 text-[10px] font-extrabold text-background">
+        <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1.5 py-0.5 text-micro font-extrabold text-background">
           +{photoUrls.length - 1}
         </span>
       ) : null}
@@ -122,21 +122,13 @@ export function TimelineEventCard({
           <div className="mt-2 flex items-start gap-3">
             <div className="min-w-0 flex-1">
               {persons.length > 0 ? (
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 py-1 pr-2 pl-1">
-                  <MonogramAvatar
-                    name={persons[0].name}
-                    imageUrl={persons[0].profileImageUrl}
-                    personId={persons[0].id}
-                    favorite={persons[0].favorite}
-                    className="size-6"
-                  />
-                  <span
-                    data-amp-mask
-                    className="text-xs font-extrabold text-foreground"
-                  >
-                    {linkedPersonsLabel(persons)}
-                  </span>
-                </div>
+                <PersonChip
+                  name={persons[0].name}
+                  imageUrl={persons[0].profileImageUrl}
+                  personId={persons[0].id}
+                  favorite={persons[0].favorite}
+                  label={linkedPersonsLabel(persons)}
+                />
               ) : null}
               {memo ? (
                 <p

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Orb } from '@/components/ui/orb'
 
 export function NameOnboarding({
   onSubmit,
@@ -19,9 +20,10 @@ export function NameOnboarding({
         aria-hidden
         className="absolute -top-24 -right-20 size-64 rounded-full bg-primary/10 blur-3xl"
       />
-      <div
-        aria-hidden
-        className="absolute bottom-16 -left-24 size-56 rounded-full bg-amber-200/20 blur-3xl"
+      <Orb
+        emotion="warm"
+        size={224}
+        className="bottom-16 -left-24 opacity-25 blur-3xl"
       />
 
       <MongleLogo className="relative text-foreground" />
@@ -36,7 +38,7 @@ export function NameOnboarding({
         <p className="mb-3 text-sm font-extrabold text-primary">
           1 / 2 · 처음 만났네요
         </p>
-        <h1 className="text-[32px] font-black leading-[1.15] tracking-[-0.04em] text-foreground">
+        <h1 className="font-display text-display-md font-light text-foreground">
           당신을 어떻게
           <br />
           부르면 좋을까요?

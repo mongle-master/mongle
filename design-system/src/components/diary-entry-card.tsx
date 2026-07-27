@@ -27,7 +27,7 @@ function DiaryEntryCard({
     <article
       data-slot="diary-entry-card"
       className={cn(
-        'flex flex-col gap-3 rounded-xl border border-border bg-card p-6 text-card-foreground transition-shadow hover:shadow-card',
+        'flex flex-col gap-3 rounded-xl border border-border bg-card p-6 text-card-foreground transition-shadow hover:shadow-e1',
         className,
       )}
       {...props}

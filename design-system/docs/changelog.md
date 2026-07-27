@@ -89,10 +89,53 @@
 4. **Storybook 10 스토리 타입**: 필수 props가 있는 컴포넌트의 render-only 스토리는
    `args`를 요구한다 — 더미 args가 아니라 실제 값으로 채웠다.
 
-## 다음 단계 (앱으로)
+## 0.2.0 — 앱 채택 (같은 PR)
 
-1. 앱 styles.css → 이 패키지 re-import 한 줄로 교체하는 채택 PR (토큰 계산값
-   호환 여부 전수 대조).
-2. 앱 하드코딩 감정 팔레트·앰버 3역할·그림자 21건을 토큰으로 이관.
-3. Playwright 픽셀 QA로 design-qa를 렌더 실측으로 승격.
-4. 사용처 카운트가 쌓이면 variant 승격 + 모바일 프리미티브 (playbook H).
+독립 산출물로 세운 시스템을 앱이 소비하기 시작했다. 앱 ui/를 패키지 컴포넌트로
+교체하지는 않는다 — 앱은 최신 shadcn 소유 소스(앱 고유 variant·접근성 로직 보유)라
+**토큰만 패키지에서 import**하고 컴포넌트는 디자인 언어에 맞춰 정렬했다.
+
+### 패키지 쪽 정비
+
+- elevation 4단계를 정본으로: `--shadow-card/float/overlay` 폐기, 앱에서 검증된
+  `--elevation-1..4`(라이트/다크) + `shadow-e1..e4` 유틸리티로 통합.
+- 감정 "읽기" 계층 `--emotion-*-text` 신설 (라이트 AA 전면 변형 / 다크 파스텔) —
+  파스텔을 글자에 그대로 쓰면 대비 1.3~1.9:1이라 design-qa 발견 3으로 조치.
+- `--favorite` 토큰 신설 — 즐겨찾기 별을 경고색에서 역할 분리 (ui-audit 8-4).
+- globals.css에서 bare @import(폰트·tailwind) 제거 — 소비자가 자기 node_modules에서
+  선행 import한다. 상대 경로 직접 소비가 Vercel/CI에서 패키지 node_modules를
+  요구하지 않게 하는 조치.
+
+### 앱 쪽 채택
+
+- `frontend/src/styles.css` = tailwind + tw-animate + 패키지 globals.css(상대 경로)
+  + 앱 폰트(@fontsource + 디스플레이 세리프 2종 추가) + 앱 전용 층. 팔레트 정의 0.
+  앱 타이포 스케일(11/13/15, #117 계약)은 import 이후 재선언으로 보전.
+- 일관성 정렬: Button(primary-hover·destructive-foreground 토큰화), Badge, Card 반경
+  16px, PageTitle·기록 상세 제목을 디스플레이 세리프 300으로, DialogShell 잉크
+  오버레이·카드 표면, MonogramAvatar/ListField/PersonForm의 앰버·dark: 쌍을 토큰으로.
+- 신규 공통 컴포넌트: `ui/orb`(대기 orb), `person/person-chip`(2곳 치환 — 카드·상세의
+  사람 pill 드리프트 수렴), `home/throwback-card`(home-tab 인라인 60줄 추출). 전부
+  스토리 동반(mustpass).
+- 전역 적용: record-activity 감정 6색 리터럴 → 감정 텍스트 토큰 5색, 온보딩 앰버
+  blob → Orb, 온보딩·이벤트 상세 헤드라인 디스플레이 세리프화, text-[10px] 9곳 →
+  text-micro 토큰(신설), tag-color-picker ring 토큰화.
+- 검증: 앱 CI(lint·prettier·typecheck·test·build) + build-storybook + 스토리 테스트
+  217건 통과. 컴파일 CSS에서 새 토큰·유틸리티 실측 확인.
+
+### 의도적으로 안 한 것
+
+- relation-force-map 그래프 내부(zinc 잔여·stroke·CATEGORY_COLORS) — 데이터 시각화
+  팔레트라 개별 시각 확인 필요. 별도 PR.
+- 12/14/17px 잔여 임의 타이포 — 토큰 사이 값이라 렌더 변동 위험. text-micro(10px)만
+  등록.
+- EmotionPicker(5가족 단일 선택)·GratitudeList 앱 이식 보류 — 앱의 감정은 서버 칩
+  다중 선택 모델이라 5가족 피커와 맞지 않고, 감사 일기 기능은 아직 없다. 패키지에는
+  남아 있고 기능 추가 시 재검토.
+- Playwright 픽셀 QA — 패키지·앱 모두 미설치. design-qa는 컴파일 CSS 실측 수준.
+
+## 다음 단계
+
+1. relation-force-map 그래프 내부 토큰화 (시각 확인 동반).
+2. Playwright 픽셀 QA로 design-qa를 렌더 실측으로 승격.
+3. 사용처 카운트가 쌓이면 variant 승격 + 모바일 프리미티브 (playbook H).

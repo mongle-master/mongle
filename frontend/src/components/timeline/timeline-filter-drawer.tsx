@@ -43,7 +43,7 @@ export function TimelineFilterDrawer({
       <DrawerTrigger asChild>
         <Button type="button" variant="outline" size="pill-sm">
           {hasFilter ? (
-            <span className="rounded-full bg-foreground px-1.5 py-0.5 text-[10px] leading-none text-background">
+            <span className="rounded-full bg-foreground px-1.5 py-0.5 text-micro leading-none text-background">
               {activeFilterCount}
             </span>
           ) : (

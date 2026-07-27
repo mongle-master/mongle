@@ -44,7 +44,7 @@ function EmotionPicker({
               'inline-flex items-center gap-2 rounded-pill border px-3.5 py-2 text-body-sm font-medium transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
               selected
-                ? 'border-foreground bg-card text-foreground shadow-card'
+                ? 'border-foreground bg-card text-foreground shadow-e1'
                 : 'border-border bg-transparent text-muted-foreground hover:border-border-strong hover:text-foreground',
             )}
           >

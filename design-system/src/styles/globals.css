@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Noto+Serif+KR:wght@300;400&display=swap');
-/* Pretendard 공식 CDN — 자기 완결 쇼케이스의 외부 의존은 폰트 CDN으로 한정한다
-   (playbook G-2). 앱 채택 시 앱의 @fontsource 번들로 교체 가능하다. */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
-@import 'tailwindcss';
-@import 'tw-animate-css';
+/* 이 파일은 순수 토큰·테마 층이다 — bare 패키지 @import를 일부러 두지 않는다.
+   소비자가 자기 node_modules에서 'tailwindcss'·'tw-animate-css'를 먼저 import
+   해야 한다 (앱: 앱 styles.css / Storybook: .storybook/preview.tsx). 그래야
+   이 파일을 상대 경로로 직접 소비해도 호스트의 번들러·배포(Vercel 등)가
+   디자인 시스템의 node_modules를 요구하지 않는다.
+   폰트 역시 소비자가 제공한다 (앱: @fontsource, Storybook: fonts.css CDN). */
 
 @source '../**/*.{ts,tsx}';
 /* 쇼케이스 HTML도 토큰 소비자다 — 여기서 쓴 클래스가 컴파일 CSS에 포함된다 */
@@ -58,12 +58,13 @@
   --orb-sky: #a8c8e8;
   --orb-rose: #e8b8c4;
 
-  /* 야간 orb — Night 보존 시안. 저명도·고채도로 뒤집혀 어두운 캔버스에서 발광체로 동작 */
-  --orb-mint-night: #1f8f74;
-  --orb-peach-night: #c98d5f;
-  --orb-lavender-night: #8f76b8;
-  --orb-sky-night: #6f97c4;
-  --orb-rose-night: #c4849a;
+  /* 감정 전면 변형 — 표면 위 글자·점용. 흰 카드 위 전부 AA(≥4.5:1).
+     파스텔이 "대기"라면 이 쪽은 "읽기"다 (design-qa.md 실측으로 확정). */
+  --orb-mint-strong: #187a63;
+  --orb-peach-strong: #a06a3f;
+  --orb-lavender-strong: #755da0;
+  --orb-sky-strong: #52739c;
+  --orb-rose-strong: #a35f78;
 
   /* 상태색 */
   --red-400: #f87171;
@@ -72,6 +73,8 @@
   --green-600: #16a34a;
   --green-700: #15803d;
   --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
   --amber-700: #b45309;
 }
 
@@ -120,6 +123,17 @@
   --emotion-clear: var(--orb-sky);
   --emotion-dear: var(--orb-rose);
 
+  /* 감정 텍스트 계층 — 표면 위에서 "읽히는" 감정 색 (라이트: AA 전면 변형) */
+  --emotion-calm-text: var(--orb-mint-strong);
+  --emotion-warm-text: var(--orb-peach-strong);
+  --emotion-muse-text: var(--orb-lavender-strong);
+  --emotion-clear-text: var(--orb-sky-strong);
+  --emotion-dear-text: var(--orb-rose-strong);
+
+  /* 즐겨찾기 — 경고(warning)와 다른 역할. 별 아이콘·즐겨찾기 조작 전용.
+     라이트는 600(글자 AA에 근접), 다크는 400으로 반전 (ui-audit 8-4 역할 분리) */
+  --favorite: var(--amber-600);
+
   /* 헤어라인 3단계 */
   --hairline-soft: var(--neutral-75);
   --hairline: var(--neutral-100);
@@ -134,10 +148,12 @@
   --radius-2xl: 24px;
   --radius-pill: 9999px;
 
-  /* 그림자 — 부드러운 단일 계열 (레퍼런스 soft drop 0 4px 16px / 4% 기준) */
-  --shadow-card: 0 4px 16px rgb(0 0 0 / 4%);
-  --shadow-float: 0 12px 32px rgb(0 0 0 / 8%);
-  --shadow-overlay: 0 16px 48px rgb(0 0 0 / 12%);
+  /* Elevation 4단계 — 앱 실사용으로 검증된 값 (ui-audit #124).
+     라이트/다크 각각 정의해 dark:shadow 중복을 없앤다. 소비는 shadow-e1..e4로. */
+  --elevation-1: 0 4px 12px rgba(24, 24, 27, 0.07);
+  --elevation-2: 0 8px 18px rgba(24, 24, 27, 0.06);
+  --elevation-3: 0 10px 24px rgba(24, 24, 27, 0.08);
+  --elevation-4: 0 18px 42px rgba(24, 24, 27, 0.12);
 
   /* 편지지 괘선 — 배경 이미지라 currentColor를 못 받으므로 테마별 별도 정의 */
   --letter-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(12,10,9,0.07)' stroke-width='1'/%3E%3C/svg%3E");
@@ -181,11 +197,21 @@
   --brand: var(--primary);
   --brand-foreground: var(--primary-foreground);
 
-  --emotion-calm: var(--orb-mint-night);
-  --emotion-warm: var(--orb-peach-night);
-  --emotion-muse: var(--orb-lavender-night);
-  --emotion-clear: var(--orb-sky-night);
-  --emotion-dear: var(--orb-rose-night);
+  /* 다크 대기는 파스텔 글로우 — 어두운 캔버스에서는 파스텔이 빛으로 읽힌다 */
+  --emotion-calm: var(--orb-mint);
+  --emotion-warm: var(--orb-peach);
+  --emotion-muse: var(--orb-lavender);
+  --emotion-clear: var(--orb-sky);
+  --emotion-dear: var(--orb-rose);
+
+  /* 감정 텍스트 계층 — 다크에서는 파스텔이 근검정 위에서 ≥10:1 */
+  --emotion-calm-text: var(--orb-mint);
+  --emotion-warm-text: var(--orb-peach);
+  --emotion-muse-text: var(--orb-lavender);
+  --emotion-clear-text: var(--orb-sky);
+  --emotion-dear-text: var(--orb-rose);
+
+  --favorite: var(--amber-400);
 
   --hairline-soft: rgb(255 255 255 / 6%);
   --hairline: rgb(255 255 255 / 10%);
@@ -199,9 +225,10 @@
   --radius-2xl: 24px;
   --radius-pill: 9999px;
 
-  --shadow-card: 0 4px 16px rgb(0 0 0 / 30%);
-  --shadow-float: 0 12px 32px rgb(0 0 0 / 40%);
-  --shadow-overlay: 0 16px 48px rgb(0 0 0 / 50%);
+  --elevation-1: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --elevation-2: 0 8px 18px rgba(0, 0, 0, 0.26);
+  --elevation-3: 0 10px 24px rgba(0, 0, 0, 0.32);
+  --elevation-4: 0 18px 42px rgba(0, 0, 0, 0.38);
 
   --letter-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(255,255,255,0.10)' stroke-width='1'/%3E%3C/svg%3E");
 
@@ -255,6 +282,12 @@
   --color-emotion-muse: var(--emotion-muse);
   --color-emotion-clear: var(--emotion-clear);
   --color-emotion-dear: var(--emotion-dear);
+  --color-emotion-calm-text: var(--emotion-calm-text);
+  --color-emotion-warm-text: var(--emotion-warm-text);
+  --color-emotion-muse-text: var(--emotion-muse-text);
+  --color-emotion-clear-text: var(--emotion-clear-text);
+  --color-emotion-dear-text: var(--emotion-dear-text);
+  --color-favorite: var(--favorite);
 
   --radius-xs: var(--radius-xs);
   --radius-sm: var(--radius-sm);
@@ -264,9 +297,10 @@
   --radius-2xl: var(--radius-2xl);
   --radius-pill: var(--radius-pill);
 
-  --shadow-card: var(--shadow-card);
-  --shadow-float: var(--shadow-float);
-  --shadow-overlay: var(--shadow-overlay);
+  --shadow-e1: var(--elevation-1);
+  --shadow-e2: var(--elevation-2);
+  --shadow-e3: var(--elevation-3);
+  --shadow-e4: var(--elevation-4);
 
   /* 타이포 스케일 — 디스플레이 5 + 인터/산세리프 군.
      --line-height/--letter-spacing 쌍을 등록해 text-display-lg 하나면 행간·자간까지 확정. */
