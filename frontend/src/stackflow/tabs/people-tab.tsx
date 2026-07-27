@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
 import { SegmentedControl } from '@/components/ui/segmented-control'
+import { Skeleton } from '@/components/ui/skeleton'
 import { StatusMessage } from '@/components/ui/status-message'
 import { TagChip } from '@/components/ui/tag-chip'
 import { ListGroup } from '@/components/ui/list-group'
@@ -136,7 +137,7 @@ export function PeopleTab() {
         ) : null}
 
         {personsQuery.isPending ? (
-          <StatusMessage inset="list">사람 목록을 불러오는 중…</StatusMessage>
+          <PersonListSkeleton />
         ) : personsQuery.isError ? (
           <StatusMessage tone="error" inset="list">
             사람 목록을 불러오지 못했어요.
@@ -171,6 +172,32 @@ export function PeopleTab() {
         )}
       </ScrollBody>
     </TabShell>
+  )
+}
+
+// 로딩 중에도 사람 행(아바타 + 이름 + 관계)의 레이아웃을 그대로 차지해
+// 목록이 채워질 때 화면이 흔들리지 않는다.
+function PersonListSkeleton() {
+  return (
+    <section>
+      <ListGroup>
+        {Array.from({ length: 6 }, (_, index) => (
+          <ListGroupItem
+            key={index}
+            withDivider={index < 5}
+            className="py-3"
+          >
+            <div className="flex w-full items-center gap-3">
+              <Skeleton className="size-11 shrink-0 rounded-full" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-3 w-36" />
+              </div>
+            </div>
+          </ListGroupItem>
+        ))}
+      </ListGroup>
+    </section>
   )
 }
 

@@ -11,6 +11,7 @@ import { TimelineFeed } from '@/components/timeline/timeline-feed'
 import { TimelineScrollShell } from '@/components/timeline/timeline-scroll-shell'
 import { Button } from '@/components/ui/button'
 import { PageTitle } from '@/components/ui/page-title'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   EmptyState,
   EmptyStateAction,
@@ -163,7 +164,7 @@ export function TimelineTab() {
         </div>
 
         {filteredTimelineQuery.isPending ? (
-          <StatusMessage inset="list">타임라인을 불러오는 중…</StatusMessage>
+          <TimelineSkeleton />
         ) : filteredTimelineQuery.isError ? (
           <StatusMessage tone="error" inset="list">
             타임라인을 불러오지 못했어요.
@@ -206,5 +207,27 @@ export function TimelineTab() {
         )}
       </TimelineScrollShell>
     </TabShell>
+  )
+}
+
+// 로딩 중에도 타임라인 카드(제목 + 사람 + 메모)의 레이아웃을 그대로 차지한다.
+function TimelineSkeleton() {
+  return (
+    <div className="flex flex-col gap-3">
+      {Array.from({ length: 4 }, (_, index) => (
+        <div
+          key={index}
+          className="rounded-xl border border-border bg-card p-4"
+        >
+          <Skeleton className="h-5 w-2/3" />
+          <div className="mt-3 flex items-center gap-1.5">
+            <Skeleton className="size-6 rounded-full" />
+            <Skeleton className="h-4 w-24 rounded-full" />
+          </div>
+          <Skeleton className="mt-3 h-3 w-full" />
+          <Skeleton className="mt-1.5 h-3 w-4/5" />
+        </div>
+      ))}
+    </div>
   )
 }

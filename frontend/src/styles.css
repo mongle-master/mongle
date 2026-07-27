@@ -288,6 +288,14 @@
   --text-body: 15px;
 }
 
+/* 편지지 괘선 유틸리티. --letter-paper 변수를 배경으로 깔고 줄 높이(28px)를 고정해
+   손글씨 본문이 괘선에 맞춘다. DiaryEntry 본문과 기록 작성 입력이 사용한다. */
+@utility letter-paper {
+  background-image: var(--letter-paper);
+  background-size: 100% 28px;
+  line-height: 28px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
