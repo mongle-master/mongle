@@ -112,7 +112,7 @@ export function DialogShell({
         tabIndex={-1}
         onKeyDown={handleTrap}
         className={cn(
-          'relative w-full max-w-sm rounded-xl border border-border bg-background p-5 shadow-2xl outline-none',
+          'relative w-full max-w-sm rounded-xl border border-border bg-popover p-6 shadow-e4 outline-none',
           'transition-[scale,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]',
           'starting:scale-95 starting:opacity-0 motion-reduce:starting:scale-100',
           !open && 'scale-95 opacity-0 duration-150 motion-reduce:scale-100',

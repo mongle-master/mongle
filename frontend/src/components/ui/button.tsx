@@ -29,23 +29,24 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
+        // 디자인 시스템 레퍼런스 비율(h-9·px-4·gap-2)로 정렬. 모바일 터치 고려해
+        // icon만 한 단계 키움. 옛 h-8·px-2.5의 왜소한 비율을 대체한다.
         default:
-          'h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
-        xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        lg: 'h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
-        // Linear 기준: pill(rounded-full)을 걷어내고 8px radius(rounded-lg)로 통일.
+          'h-9 gap-2 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',
+        xs: "h-7 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-8 gap-1.5 rounded-[min(var(--radius-md),12px)] px-3 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 [&_svg:not([class*='size-'])]:size-3.5",
+        lg: 'h-11 gap-2 px-6 has-data-[icon=inline-end]:pr-5 has-data-[icon=inline-start]:pl-5',
         // cta: 하단 큰 CTA, pill: 단독 액션, pill-sm: 목록 옆 컴팩트 액션.
-        cta: 'h-11 gap-1.5 rounded-lg px-5 font-medium',
-        pill: 'h-8 gap-1.5 rounded-lg px-5 font-medium',
+        cta: 'h-12 gap-2 rounded-lg px-6 font-medium',
+        pill: 'h-9 gap-2 rounded-lg px-5 font-medium',
         'pill-sm':
-          "h-9 gap-1 rounded-lg px-3 text-[0.8rem] font-medium [&_svg:not([class*='size-'])]:size-3.5",
-        icon: 'size-8',
+          "h-8 gap-1.5 rounded-lg px-3.5 text-xs font-medium [&_svg:not([class*='size-'])]:size-3.5",
+        icon: 'size-9',
         'icon-xs':
-          "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+          "size-7 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
         'icon-sm':
-          'size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg',
-        'icon-lg': 'size-9',
+          'size-8 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg',
+        'icon-lg': 'size-10',
       },
     },
     defaultVariants: {
