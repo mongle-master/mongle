@@ -74,12 +74,12 @@ export function ProfileHero({
           className={cn(
             'flex shrink-0 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 transition-colors',
             favorite
-              ? 'bg-amber-500/12 text-amber-600 dark:text-amber-400'
+              ? 'bg-favorite/12 text-favorite'
               : 'bg-muted/60 text-muted-foreground hover:bg-muted',
           )}
         >
           <Star
-            className={cn('size-5', favorite && 'fill-current text-amber-500')}
+            className={cn('size-5', favorite && 'fill-current text-favorite')}
           />
           <span className="text-[10px] font-extrabold">즐겨찾기</span>
         </button>

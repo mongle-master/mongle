@@ -123,7 +123,7 @@ export function ProfileOnboarding({
 
         <div className="relative mx-auto mt-8 size-48">
           <div className="absolute inset-2 rounded-full bg-muted/70 blur-xl" />
-          <div className="relative size-full overflow-hidden rounded-full border border-border/70 bg-white shadow-[0_18px_50px_-24px_rgba(0,0,0,0.45)]">
+          <div className="relative size-full overflow-hidden rounded-full border border-border/70 bg-card shadow-[0_18px_50px_-24px_rgba(0,0,0,0.45)]">
             <img
               key={selectedImageUrl}
               src={previewImageUrl ?? undefined}
