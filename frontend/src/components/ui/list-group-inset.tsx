@@ -8,12 +8,7 @@ export function ListGroupInset({
   className?: string
 }) {
   return (
-    <div
-      className={cn(
-        'rounded-xl bg-background/80 p-2 dark:bg-background/40',
-        className,
-      )}
-    >
+    <div className={cn('rounded-lg bg-muted/40 p-2', className)}>
       {children}
     </div>
   )

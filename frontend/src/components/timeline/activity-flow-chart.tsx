@@ -96,7 +96,7 @@ export function ActivityFlowChart({
     )
 
   return (
-    <div className="relative rounded-sm bg-muted/55">
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card">
       <div className="pointer-events-none h-1 rounded-t-sm bg-gradient-to-r from-foreground/80 via-muted-foreground/25 to-transparent" />
       <div className="p-4">
         <div className="relative mb-1 flex items-start justify-between gap-2">

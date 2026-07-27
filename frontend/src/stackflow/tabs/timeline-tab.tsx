@@ -128,7 +128,7 @@ export function TimelineTab() {
           <>
             <MongleLogo className="mb-5 text-foreground" />
             <PageTitle>나의 몽글라인</PageTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-2 text-label text-muted-foreground">
               모든 사람과의 기록을 시간순으로
             </p>
           </>

@@ -114,8 +114,19 @@ Storybook·쇼케이스: `.storybook/fonts.css`의 CDN).
 - 페이지 제목과 주요 액션은 한 줄 헤더로 묶는다.
 - 간격은 4px 기반 9단계 토큰만. 임의 px 대괄호 값을 만들지 않는다.
 - 목록 행 기본 높이 48px+, 주요 버튼 44px+.
-- 섹션 사이 96px, 카드 사이 16~24px — 넓은 여백이 일기의 호흡이다.
+- 섹션 사이 96px(웹), 앱 탭 페이지는 24px(space-y-6) 리듬.
 - 데이터 표는 모바일에서 카드로 재발명하지 않고 가로 스크롤.
+
+## 페이지·리스트 문법
+
+- 페이지 오프닝: 브랜드 로고 → 디스플레이 세리프 제목 → 한 줄 설명
+  (text-label, muted). 제목 위에 별도 eyebrow를 쌓지 않는다 — 로고가 이미
+  브랜드 오프닝이다.
+- 리스트는 **카드 + 헤어라인 행**이다 (ListGroup = card + border + 내부 행은
+  hairline). 채운 그룹 박스(bg-muted 덩어리)나 박스 안 박스는 쓰지 않는다.
+- 오목한 입력 자리(검색 등)만 `bg-muted/40` inset을 쓴다.
+- 섹션 라벨은 eyebrow(ListGroupLabel), 행 사이 구분은 hairline 1px만.
+- 탭 페이지 본문은 ScrollBody(관성 스크롤 + scrollbar-gutter)로 통일한다.
 
 ## 상태와 애니메이션
 

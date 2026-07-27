@@ -83,7 +83,7 @@ export function PeopleTab() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <PageTitle>사람</PageTitle>
-            <p className="mt-2 text-label font-medium text-muted-foreground">
+            <p className="mt-2 text-label text-muted-foreground">
               {totalCount > 0
                 ? `함께한 사람 ${totalCount}명`
                 : '함께한 사람을 찾고 관리해요'}

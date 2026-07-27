@@ -170,6 +170,22 @@
 - Card 기본 텍스트 text-body, toggle/calendar text-label, 임의 반경·그림자 토큰화.
 - 도메인 코드에서 dark: 수동 반전 0건.
 
+## 0.5.0 — 페이지·리스트 레이아웃 문법 적용 (같은 PR)
+
+컴포넌트를 넘어 페이지 레이아웃도 언어에 맞췄다. ElevenLabs의 데스크톱
+마케팅 레이아웃(96px 섹션, 중앙 히어로)을 복사하는 게 아니라, 그 원칙
+(카드 + 헤어라인 행, 채운 박스 금지, 오프닝 위계)을 모바일 앱 셸에 번역했다.
+
+- ListGroup: 채운 그룹 박스(`bg-muted/50` + rounded-2xl) → 카드 + 헤어라인
+  (`rounded-xl border bg-card`). 행 구분 hairline 강화. 9개 사용처(설정, 사람,
+  인물 프로필·타임라인, 태그 패널 등)가 한 번에 전환.
+- ListGroupInset: 박스 안 박스(`bg-background/80`) → 오목 표면 `bg-muted/40`.
+  dark: 수동 반전 2건 추가 제거.
+- 탭 오프닝 설명 통일: text-label + muted, 무게 제거 (타임라인, 사람).
+- 활동 흐름 차트 컨테이너: 채운 muted → 카드 + 헤어라인.
+- design.md에 "페이지·리스트 문법" 섹션 추가 (오프닝 위계, 리스트 규칙,
+  섹션 리듬).
+
 ## 다음 단계
 
 1. Playwright 픽셀 QA로 design-qa를 렌더 실측으로 승격.

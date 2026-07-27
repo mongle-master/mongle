@@ -13,7 +13,7 @@ export function ListGroupItem({
     <div
       className={cn(
         'px-4 py-3.5',
-        withDivider && 'border-b border-border/50 last:border-b-0',
+        withDivider && 'border-b border-border last:border-b-0',
         className,
       )}
     >
