@@ -28,7 +28,7 @@ export function AuthStatusScreen({
             {error ? '!' : null}
           </span>
         </div>
-        <h1 className="text-2xl font-black tracking-tight text-foreground">
+        <h1 className="text-2xl font-medium tracking-tight text-foreground">
           {error ? (
             '공간을 열지 못했어요'
           ) : (

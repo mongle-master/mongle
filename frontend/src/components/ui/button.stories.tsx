@@ -51,7 +51,7 @@ export const Small: Story = {
   args: { size: 'sm' },
 }
 
-// 이 앱의 pill 버튼 언어(rounded-full + font-extrabold) 스토리.
+// 이 앱의 pill 버튼 언어(rounded-full + font-medium) 스토리.
 export const Cta: Story = {
   args: { size: 'cta', children: '저장' },
 }

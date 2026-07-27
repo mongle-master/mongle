@@ -43,7 +43,7 @@ export function ProfileHero({
           )}
           <span className="absolute -right-0.5 -bottom-0.5 flex size-6 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-sm">
             {uploading ? (
-              <span className="text-[10px] font-bold">…</span>
+              <span className="text-[10px] font-medium">…</span>
             ) : (
               <Camera className="size-3" />
             )}
@@ -56,7 +56,7 @@ export function ProfileHero({
           onClick={onPhotoClick}
           className="min-w-0 flex-1 text-left"
         >
-          <p className="text-sm font-extrabold text-foreground">
+          <p className="text-sm font-medium text-foreground">
             {hasPhoto ? '프로필 사진 변경' : '프로필 사진 추가'}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -81,7 +81,7 @@ export function ProfileHero({
           <Star
             className={cn('size-5', favorite && 'fill-current text-amber-500')}
           />
-          <span className="text-[10px] font-extrabold">즐겨찾기</span>
+          <span className="text-[10px] font-medium">즐겨찾기</span>
         </button>
       </div>
     </div>

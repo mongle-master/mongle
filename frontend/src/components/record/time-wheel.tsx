@@ -32,7 +32,7 @@ function Item({ label }: { label: string }) {
           className={cn(
             'tabular-nums transition-all',
             selected
-              ? 'text-2xl font-bold text-foreground/75'
+              ? 'text-2xl font-medium text-foreground/75'
               : 'text-base text-muted-foreground/40',
           )}
         >

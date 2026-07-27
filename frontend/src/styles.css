@@ -1,8 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+/* Airtable 타이포 규율: 디스플레이 400, 라벨/버튼 500, legal 600. 700/800 흑체는 안 쓴다. */
 @import '@fontsource/pretendard/400.css';
-@import '@fontsource/pretendard/700.css';
-@import '@fontsource/pretendard/800.css';
+@import '@fontsource/pretendard/500.css';
+@import '@fontsource/pretendard/600.css';
 
 /* 손글씨 폰트(온글잎 은별): 기록 작성 등 유저 입력·감성 화면 기본 서체 */
 @font-face {
@@ -15,7 +16,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.475rem;
+  /* Airtable 반경 위계: lg 12px(주요 CTA/카드), md 10px(콘텐츠 카드), sm 6px(입력). */
+  --radius: 0.75rem;
   /* 오버레이 레이어: 앱 콘텐츠 위에 뜨는 것들의 쌓임 순서를 한 곳에서 정한다.
      확인팝업·다이얼로그는 #stack-overlay-root 포탈(--z-overlay)에 모여 같은
      쌓임 맥락에서 DOM 순서로 겹친다. 바텀시트(vaul)·팝오버(radix)·탭바는 그
@@ -24,24 +26,26 @@
   /* 기록 편지지 괘선. 배경 이미지라 currentColor를 못 받으므로 라이트/다크 각각 정의한다.
      다크에선 검정 괘선이 어두운 카드에 묻혀 안 보여서 흰색 저투명으로 뒤집는다. */
   --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(0%2C0%2C0%2C0.07)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Airtable 편집적 백지 + 잉크. primary가 곧 잉크(검정)다. */
+  --background: #ffffff; /* canvas */
+  --foreground: #181d26; /* ink */
+  --card: #ffffff;
+  --card-foreground: #181d26;
+  --popover: #ffffff;
+  --popover-foreground: #181d26;
+  --primary: #181d26; /* ink = primary (Airtable은 검정이 브랜드) */
+  --primary-foreground: #ffffff; /* on-primary */
+  --secondary: #f8fafc; /* surface-soft */
+  --secondary-foreground: #181d26;
+  --muted: #f8fafc;
+  --muted-foreground: #41454d; /* muted */
+  --accent: #f8fafc;
+  --accent-foreground: #181d26;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #dddddd; /* hairline */
+  --input: #dddddd;
+  --ring: #9297a0; /* border-strong (포커스) */
+  --link: #1b61c9; /* Airtable 링크 파랑 (primary와 별도 역할) */
   /* elevation 단계 토큰, 라이트/다크 각각 정의해 dark:shadow 중복을 없앤다. */
   --elevation-1: 0 4px 12px rgba(24, 24, 27, 0.07);
   --elevation-2: 0 8px 18px rgba(24, 24, 27, 0.06);
@@ -99,6 +103,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-link: var(--link);
   --shadow-e1: var(--elevation-1);
   --shadow-e2: var(--elevation-2);
   --shadow-e3: var(--elevation-3);
@@ -106,10 +111,11 @@
   --font-sans: var(--font-sans);
   --font-hand: 'Onglip Eunbyeol', var(--font-sans);
   /* 앱 고유 타이포 스케일. font-size만 지정해 기존 text-[Npx] 임의값과 렌더가 동일하다
-     (line-height는 각 사용처의 leading 클래스가 계속 결정한다). */
+     (line-height는 각 사용처의 leading 클래스가 계속 결정한다).
+     본문은 Airtable body-md(14px) 기준. */
   --text-caption: 11px;
   --text-label: 13px;
-  --text-body: 15px;
+  --text-body: 14px;
 }
 
 @layer base {

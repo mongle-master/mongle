@@ -109,10 +109,8 @@ export function ProfileOnboarding({
       </div>
 
       <section className="relative my-auto py-8 text-center">
-        <p className="text-sm font-extrabold text-primary">
-          2 / 2 · 프로필 설정
-        </p>
-        <h1 className="mt-3 text-[30px] font-black leading-[1.18] tracking-[-0.04em] text-foreground">
+        <p className="text-sm font-medium text-primary">2 / 2 · 프로필 설정</p>
+        <h1 className="mt-3 text-[30px] font-medium leading-[1.18] tracking-[-0.04em] text-foreground">
           <span data-amp-mask>{username}</span>님을 보여줄
           <br />
           사진을 골라 주세요
@@ -150,7 +148,7 @@ export function ProfileOnboarding({
               disabled={pending}
               onClick={() => selectGender(option.value)}
               className={cn(
-                'h-10 rounded-xl text-sm font-extrabold transition-all',
+                'h-10 rounded-xl text-sm font-medium transition-all',
                 gender === option.value
                   ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground',
@@ -168,7 +166,7 @@ export function ProfileOnboarding({
             size="lg"
             disabled={pending}
             onClick={showNextAvatar}
-            className="h-12 rounded-2xl font-extrabold"
+            className="h-12 rounded-2xl font-medium"
           >
             <RefreshCw />
             다른 사진
@@ -179,7 +177,7 @@ export function ProfileOnboarding({
             size="lg"
             disabled={pending}
             onClick={() => fileRef.current?.click()}
-            className="h-12 rounded-2xl font-extrabold"
+            className="h-12 rounded-2xl font-medium"
           >
             <Camera />
             직접 올리기
@@ -197,7 +195,7 @@ export function ProfileOnboarding({
         />
 
         {error ? (
-          <p className="mt-4 text-xs font-bold text-destructive">{error}</p>
+          <p className="mt-4 text-xs font-medium text-destructive">{error}</p>
         ) : null}
 
         <Button
@@ -207,7 +205,7 @@ export function ProfileOnboarding({
           onClick={() =>
             void finish({ profileImageUrl: selectedImageUrl, gender })
           }
-          className="mt-7 h-14 w-full rounded-2xl text-base font-extrabold"
+          className="mt-7 h-14 w-full rounded-2xl text-base font-medium"
         >
           {saving ? '저장하는 중...' : '이 사진으로 시작하기'}
         </Button>
@@ -215,7 +213,7 @@ export function ProfileOnboarding({
           type="button"
           disabled={pending}
           onClick={() => void finish({ profileImageUrl: null, gender: null })}
-          className="mt-4 px-4 py-2 text-sm font-bold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline disabled:opacity-50"
+          className="mt-4 px-4 py-2 text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline disabled:opacity-50"
         >
           지금은 건너뛰기
         </button>

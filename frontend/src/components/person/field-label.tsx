@@ -8,7 +8,7 @@ export function FieldLabel({
   ...props
 }: ComponentProps<typeof Label>) {
   return (
-    <Label className={cn('font-extrabold', className)} {...props}>
+    <Label className={cn('font-medium', className)} {...props}>
       {children}
     </Label>
   )

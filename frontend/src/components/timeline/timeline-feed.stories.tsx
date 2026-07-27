@@ -59,7 +59,7 @@ const MULTI_YEAR_ITEMS: FeedItem[] = [
 function FeedCard({ item }: { item: FeedItem }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
-      <p className="text-sm font-extrabold">{item.title}</p>
+      <p className="text-sm font-medium">{item.title}</p>
       <p className="mt-1 text-xs text-muted-foreground">{item.memo}</p>
     </div>
   )
