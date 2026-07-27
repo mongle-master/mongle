@@ -14,7 +14,7 @@ export function TimelineCategoryFilters({
 
   return (
     <section className="mb-4">
-      <p className="mb-2 text-caption font-extrabold text-muted-foreground">
+      <p className="mb-2 text-caption font-semibold text-muted-foreground">
         카테고리
       </p>
       <div className="flex flex-wrap gap-2">

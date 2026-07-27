@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/empty-state'
 import { Field } from '@/components/ui/field'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { Orb } from '@/components/ui/orb'
 import { NextBar } from '@/components/ui/next-bar'
 import { StatusMessage } from '@/components/ui/status-message'
 import { Textarea } from '@/components/ui/textarea'
@@ -507,13 +508,20 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             />
           }
         >
-          <div className="flex justify-center">
+          <div className="relative flex justify-center">
+            {/* 디자인 언어: 감정 순간의 대기 orb — 아바타 뒤에서 따뜻하게 빛난다 */}
+            <Orb
+              emotion="warm"
+              animated
+              size={340}
+              className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40"
+            />
             <MonogramAvatar
               name={primaryPerson?.name ?? ''}
               imageUrl={primaryPerson?.profileImageUrl}
               // size-[62vw]는 뷰포트 기준이라 데스크톱에서 폭 상한(max-w)만 걸면
               // 높이가 그대로 남아 화면을 채우는 세로 알약이 된다 — 양축 모두 상한.
-              className="size-[62vw] max-h-72 max-w-72"
+              className="relative size-[62vw] max-h-72 max-w-72"
             />
           </div>
 

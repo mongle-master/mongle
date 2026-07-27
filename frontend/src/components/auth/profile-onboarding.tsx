@@ -111,9 +111,7 @@ export function ProfileOnboarding({
       </div>
 
       <section className="relative my-auto py-8 text-center">
-        <p className="text-sm font-extrabold text-primary">
-          2 / 2 · 프로필 설정
-        </p>
+        <p className="text-sm font-medium text-primary">2 / 2 · 프로필 설정</p>
         <h1 className="mt-3 font-display text-display-md font-light text-foreground">
           <span data-amp-mask>{username}</span>님을 보여줄
           <br />
@@ -141,7 +139,7 @@ export function ProfileOnboarding({
         </div>
 
         <div
-          className="mx-auto mt-7 grid w-full max-w-[240px] grid-cols-2 rounded-2xl bg-muted/70 p-1"
+          className="mx-auto mt-7 grid w-full max-w-[240px] grid-cols-2 rounded-pill bg-muted/70 p-1"
           aria-label="아바타 성별"
         >
           {GENDER_OPTIONS.map((option) => (
@@ -152,7 +150,7 @@ export function ProfileOnboarding({
               disabled={pending}
               onClick={() => selectGender(option.value)}
               className={cn(
-                'h-10 rounded-xl text-sm font-extrabold transition-all',
+                'h-10 rounded-pill text-sm transition-all',
                 gender === option.value
                   ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground',
@@ -170,7 +168,7 @@ export function ProfileOnboarding({
             size="lg"
             disabled={pending}
             onClick={showNextAvatar}
-            className="h-12 rounded-2xl font-extrabold"
+            className="h-12"
           >
             <RefreshCw />
             다른 사진
@@ -181,7 +179,7 @@ export function ProfileOnboarding({
             size="lg"
             disabled={pending}
             onClick={() => fileRef.current?.click()}
-            className="h-12 rounded-2xl font-extrabold"
+            className="h-12"
           >
             <Camera />
             직접 올리기
@@ -209,7 +207,7 @@ export function ProfileOnboarding({
           onClick={() =>
             void finish({ profileImageUrl: selectedImageUrl, gender })
           }
-          className="mt-7 h-14 w-full rounded-2xl text-base font-extrabold"
+          className="mt-7 h-14 w-full text-body"
         >
           {saving ? '저장하는 중...' : '이 사진으로 시작하기'}
         </Button>

@@ -36,7 +36,7 @@ export function PersonChip({
       />
       <span
         data-amp-mask
-        className="truncate text-xs font-extrabold text-foreground"
+        className="truncate text-xs font-semibold text-foreground"
       >
         {label ?? name}
       </span>

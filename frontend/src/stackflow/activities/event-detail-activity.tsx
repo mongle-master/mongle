@@ -68,11 +68,11 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         >
           <ChevronLeft className="size-6" />
         </button>
-        <h1 className="text-center text-base font-extrabold">몽글 상세</h1>
+        <h1 className="text-center text-base font-medium">몽글 상세</h1>
         <button
           type="button"
           onClick={() => push('Record', { eventId: String(id) })}
-          className="text-right text-body font-extrabold"
+          className="text-right text-body font-medium"
         >
           수정
         </button>
@@ -90,14 +90,14 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
             <Badge
               data-amp-mask
               variant="secondary"
-              className="h-7 shrink-0 rounded-full px-3 font-extrabold"
+              className="h-7 shrink-0 rounded-full px-3 font-semibold"
             >
               {event.category.label}
             </Badge>
           ) : null}
         </div>
 
-        <p className="mt-2 text-sm font-bold text-muted-foreground">
+        <p className="eyebrow mt-2">
           {formatWhen(event.occurredDate, event.occurredTime)}
         </p>
 

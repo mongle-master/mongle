@@ -44,7 +44,7 @@ export function TimelineFeed<T extends TimelineFeedItem>({
                 : 'top-[max(2.5rem,env(safe-area-inset-top))] -mx-5 px-5',
             )}
           >
-            <p className="inline-flex h-7 min-w-[4.375rem] items-center justify-center rounded-full bg-muted px-3 text-caption leading-tight font-extrabold text-muted-foreground">
+            <p className="inline-flex h-7 min-w-[4.375rem] items-center justify-center rounded-full bg-muted px-3 text-caption leading-tight font-semibold text-muted-foreground">
               {group.year}
             </p>
           </div>
@@ -54,7 +54,7 @@ export function TimelineFeed<T extends TimelineFeedItem>({
             return (
               <div key={item.id} className="mb-4 flex min-w-0 gap-3">
                 <div className="flex w-[4.375rem] shrink-0 flex-col items-center">
-                  <div className="flex size-10 flex-col items-center justify-center rounded-full border border-foreground bg-card text-micro leading-none font-extrabold shadow-e1">
+                  <div className="flex size-10 flex-col items-center justify-center rounded-full border border-foreground bg-card text-micro leading-none font-semibold shadow-e1">
                     <span>{month}</span>
                     <span>{day}</span>
                   </div>

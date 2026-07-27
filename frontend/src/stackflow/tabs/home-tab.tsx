@@ -6,6 +6,7 @@ import { RelationForceMap } from '@/components/home/relation-force-map'
 import { ThrowbackCard } from '@/components/home/throwback-card'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { TabShell } from '@/stackflow/components/tab-shell'
+import { Orb } from '@/components/ui/orb'
 import { PageTitle } from '@/components/ui/page-title'
 import { StatusMessage } from '@/components/ui/status-message'
 import {
@@ -62,9 +63,15 @@ export function HomeTab() {
 
   return (
     <TabShell>
-      <header className="mb-3">
-        <MongleLogo className="mb-5 text-foreground" />
-        <PageTitle>
+      <header className="relative mb-3">
+        {/* 디자인 언어: 홈 헤더의 잔잔한 대기 orb */}
+        <Orb
+          emotion="calm"
+          size={200}
+          className="-top-10 -right-8 opacity-30 blur-3xl"
+        />
+        <MongleLogo className="relative mb-5 text-foreground" />
+        <PageTitle className="relative">
           함께한 순간, <br /> 몽글몽글 쌓이는 중
         </PageTitle>
       </header>
