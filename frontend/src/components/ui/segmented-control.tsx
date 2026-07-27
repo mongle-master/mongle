@@ -46,7 +46,7 @@ export function SegmentedControl<T extends string>({
       ))}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 flex bg-foreground text-background shadow-sm transition-[clip-path] duration-[260ms] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
+        className="pointer-events-none absolute inset-0 flex bg-primary text-primary-foreground shadow-sm transition-[clip-path] duration-[260ms] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
         style={{ clipPath }}
       >
         {options.map((option) => (
