@@ -15,10 +15,12 @@ const ThemeContext = createContext<{
 } | null>(null)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // 고요 디자인 시스템의 기본 캔버스는 밤(다크)이다. 저장값이 없으면 dark로 연다.
+  // 저장값은 계속 우선한다(라이트로 써온 사용자는 그대로 라이트).
   const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'light'
+    if (typeof window === 'undefined') return 'dark'
     const stored = localStorage.getItem('mongle-theme')
-    return stored === 'dark' ? 'dark' : 'light'
+    return stored === 'light' ? 'light' : 'dark'
   })
 
   useEffect(() => {

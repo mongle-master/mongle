@@ -13,8 +13,26 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#0c0a0f" />
     <title>Mongle</title>
+    <!-- FOUC 방지: 테마 class를 첫 페인트 전에 적용한다. ThemeProvider가 .dark만
+         토글하므로 여기도 dark일 때만 .dark를 붙인다(라이트=class 없음). 저장값 우선,
+         기본은 고요의 밤 캔버스(dark). theme-color도 같은 값으로 맞춘다. -->
+    <script>
+      ;(function () {
+        try {
+          var theme =
+            localStorage.getItem('mongle-theme') === 'light' ? 'light' : 'dark'
+          if (theme === 'dark') document.documentElement.classList.add('dark')
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta)
+            meta.setAttribute(
+              'content',
+              theme === 'dark' ? '#0c0a0f' : '#faf9fc',
+            )
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body data-amp-mask-attributes="aria-label,alt,title">
     <div id="app"></div>

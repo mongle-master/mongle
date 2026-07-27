@@ -22,10 +22,10 @@ const buttonVariants = cva(
           'hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
         destructive:
           'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40',
-        // 채운 파괴적 확인 버튼(삭제 등). 테마에 --destructive-foreground 토큰이
-        // 없어 흰 글자는 text-white로 둔다. focus 링은 destructive와 동일 톤.
+        // 채운 파괴적 확인 버튼(삭제 등). --destructive-foreground 토큰이 생기면서
+        // 흰 글자를 리터럴(text-white) 대신 토큰으로 먹는다. focus 링은 destructive와 동일 톤.
         'destructive-solid':
-          'bg-destructive text-white hover:bg-destructive/90 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {

@@ -80,13 +80,15 @@ const emotionWord = (label: string) => {
 }
 
 // 감정은 칩(테두리) 대신 색상 있는 글자만. 리터럴이라 Tailwind JIT가 스캔한다.
+// 색은 styles.css의 --emotion-1..6(고요 디자인 시스템 저채도 감정 팔레트)에서 온다.
+// 인덱스 순서는 아래 배열 그대로 감정 라벨 순서와 1:1 대응한다.
 const EMOTION_TEXT = [
-  'text-rose-500',
-  'text-amber-500',
-  'text-sky-500',
-  'text-violet-500',
-  'text-emerald-500',
-  'text-orange-500',
+  'text-emotion-1',
+  'text-emotion-2',
+  'text-emotion-3',
+  'text-emotion-4',
+  'text-emotion-5',
+  'text-emotion-6',
 ]
 
 const bigChipBase =

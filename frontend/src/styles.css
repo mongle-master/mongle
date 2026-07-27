@@ -24,24 +24,47 @@
   /* 기록 편지지 괘선. 배경 이미지라 currentColor를 못 받으므로 라이트/다크 각각 정의한다.
      다크에선 검정 괘선이 어두운 카드에 묻혀 안 보여서 흰색 저투명으로 뒤집는다. */
   --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(0%2C0%2C0%2C0.07)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* 고요(Goyo) 디자인 시스템 팔레트 — Linear 기반 violet·웜뉴트럴.
+     정본: packages/design-system/src/styles/globals.css. 값만 이식하고
+     토큰 이름·구조는 기존 앱 계약을 그대로 유지한다. */
+  --background: #faf9fc;
+  --foreground: #0c0a0f;
+  --card: #ffffff;
+  --card-foreground: #0c0a0f;
+  --popover: #ffffff;
+  --popover-foreground: #0c0a0f;
+  --primary: #6a5cbf;
+  --primary-foreground: #ffffff;
+  --primary-hover: #584a9e;
+  --secondary: #f4f2f7;
+  --secondary-foreground: #0c0a0f;
+  --secondary-hover: #e8e5ed;
+  --muted: #f4f2f7;
+  --muted-foreground: #6e6a76;
+  --accent: #e8e5ed;
+  --accent-foreground: #0c0a0f;
+  --destructive: #c53d3d;
+  --destructive-foreground: #ffffff;
+  --border: rgb(0 0 0 / 10%);
+  --input: #e8e5ed;
+  --ring: #6a5cbf;
+  --brand: #6a5cbf;
+  --brand-foreground: #ffffff;
+  /* 반전 표면(하단 CTA 등): foreground/background를 맞바꾼 강한 면.
+     흩어져 있던 bg-foreground/85 text-background 패턴을 토큰화한다. */
+  --strong: #1c1a21;
+  --strong-foreground: #faf9fc;
+  /* 즐겨찾기 별 — 여기저기 흩어진 amber-500 리터럴을 단일 토큰으로 대체. */
+  --favorite: #c98a1b;
+  /* 감정 6색 — 기록 화면이 쓰던 6슬롯(로즈·앰버·스카이·바이올렛·에메랄드·오렌지)을
+     디자인 시스템의 저채도 문법으로 재정의. 인덱스 순서는 record-activity
+     EMOTION_TEXT와 1:1로 대응한다. */
+  --emotion-1: #c2556a;
+  --emotion-2: #b07a15;
+  --emotion-3: #3d7ab5;
+  --emotion-4: #6a5cbf;
+  --emotion-5: #3d9970;
+  --emotion-6: #c26a35;
   /* elevation 단계 토큰, 라이트/다크 각각 정의해 dark:shadow 중복을 없앤다. */
   --elevation-1: 0 4px 12px rgba(24, 24, 27, 0.07);
   --elevation-2: 0 8px 18px rgba(24, 24, 27, 0.06);
@@ -52,24 +75,41 @@
 
 .dark {
   --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(255%2C255%2C255%2C0.10)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  /* 고요의 본모습 — 가장 깊은 밤 캔버스. 표면 사다리(card→popover→secondary→accent)로
+     위계를 만들고, lavender는 primary/ring에만 얹는다. */
+  --background: #0c0a0f;
+  --foreground: #f4f2f7;
+  --card: #16141a;
+  --card-foreground: #f4f2f7;
+  --popover: #1c1a21;
+  --popover-foreground: #f4f2f7;
+  --primary: #7c6fd4;
+  --primary-foreground: #ffffff;
+  --primary-hover: #9187e3;
+  --secondary: #222028;
+  --secondary-foreground: #f4f2f7;
+  --secondary-hover: #28262e;
+  --muted: #1c1a21;
+  --muted-foreground: #a8a3b0;
+  --accent: #28262e;
+  --accent-foreground: #f4f2f7;
+  --destructive: #e06c6c;
+  --destructive-foreground: #0c0a0f;
+  --border: rgb(255 255 255 / 8%);
+  --input: #222028;
+  --ring: #7c6fd4;
+  --brand: #7c6fd4;
+  --brand-foreground: #ffffff;
+  --strong: #f4f2f7;
+  --strong-foreground: #0c0a0f;
+  --favorite: #e8a84c;
+  /* 다크에서는 어두운 표면 위에서 읽히도록 저채도·고명도로 올린다. */
+  --emotion-1: #cf6b6b;
+  --emotion-2: #e8a84c;
+  --emotion-3: #6b9ecf;
+  --emotion-4: #8b7fc7;
+  --emotion-5: #6bcf8e;
+  --emotion-6: #e8874c;
   --elevation-1: 0 4px 12px rgba(0, 0, 0, 0.3);
   --elevation-2: 0 8px 18px rgba(0, 0, 0, 0.26);
   --elevation-3: 0 10px 24px rgba(0, 0, 0, 0.32);
@@ -96,9 +136,23 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-strong: var(--strong);
+  --color-strong-foreground: var(--strong-foreground);
+  --color-favorite: var(--favorite);
+  --color-emotion-1: var(--emotion-1);
+  --color-emotion-2: var(--emotion-2);
+  --color-emotion-3: var(--emotion-3);
+  --color-emotion-4: var(--emotion-4);
+  --color-emotion-5: var(--emotion-5);
+  --color-emotion-6: var(--emotion-6);
   --shadow-e1: var(--elevation-1);
   --shadow-e2: var(--elevation-2);
   --shadow-e3: var(--elevation-3);
