@@ -30,7 +30,11 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  /* 브랜드 앰버(디자인 시스템 '고요'). Apple의 단일 액센트(Action Blue) 자리에
+     따뜻한 앰버를 둔다. --primary로 승격해 기본 Button·링크·포커스에 파급한다.
+     amber-600. 즐겨찾기/감정 색과 같은 앰버 족이지만 역할이 다르므로 아래
+     --favorite 및 lib/emotion-colors.ts와 서로 뭉개지 않고 토큰을 분리한다. */
+  --primary: oklch(0.666 0.179 58.318);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -41,7 +45,12 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* 포커스 링도 브랜드 앰버로. amber-600. */
+  --ring: oklch(0.666 0.179 58.318);
+  /* 즐겨찾기 별 색. amber-500. 브랜드(--primary)와 같은 앰버 족이지만
+     '즐겨찾기 표시'라는 별 역할이라 토큰을 따로 둔다(한 앰버로 뭉개면
+     둘 중 하나를 바꾸고 싶을 때 같이 끌려간다). */
+  --favorite: oklch(0.769 0.188 70.08);
   /* elevation 단계 토큰, 라이트/다크 각각 정의해 dark:shadow 중복을 없앤다. */
   --elevation-1: 0 4px 12px rgba(24, 24, 27, 0.07);
   --elevation-2: 0 8px 18px rgba(24, 24, 27, 0.06);
@@ -58,7 +67,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
+  /* 다크에선 앰버를 밝힌다(amber-400). 어두운 캔버스에서 가독성 확보. */
+  --primary: oklch(0.828 0.189 84.429);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -69,7 +79,9 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: oklch(0.828 0.189 84.429);
+  /* 즐겨찾기도 다크에선 밝은 앰버(amber-400). */
+  --favorite: oklch(0.828 0.189 84.429);
   --elevation-1: 0 4px 12px rgba(0, 0, 0, 0.3);
   --elevation-2: 0 8px 18px rgba(0, 0, 0, 0.26);
   --elevation-3: 0 10px 24px rgba(0, 0, 0, 0.32);
@@ -99,6 +111,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-favorite: var(--favorite);
   --shadow-e1: var(--elevation-1);
   --shadow-e2: var(--elevation-2);
   --shadow-e3: var(--elevation-3);

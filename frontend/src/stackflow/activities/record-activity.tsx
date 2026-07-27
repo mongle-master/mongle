@@ -32,6 +32,7 @@ import { DateStrip } from '@/components/record/date-strip'
 import { TimeWheel } from '@/components/record/time-wheel'
 import { AppScreen } from '@/stackflow/components/app-screen'
 import { uploadImage } from '@/lib/api/images'
+import { emotionTextColor } from '@/lib/emotion-colors'
 import { todayLocalIso } from '@/lib/format'
 import { optimizedImageUrl } from '@/lib/image-url'
 import {
@@ -78,16 +79,6 @@ const emotionWord = (label: string) => {
   const past = EMOTION_PAST[label]
   return past ? `${past}다` : label
 }
-
-// 감정은 칩(테두리) 대신 색상 있는 글자만. 리터럴이라 Tailwind JIT가 스캔한다.
-const EMOTION_TEXT = [
-  'text-rose-500',
-  'text-amber-500',
-  'text-sky-500',
-  'text-violet-500',
-  'text-emerald-500',
-  'text-orange-500',
-]
 
 const bigChipBase =
   'inline-flex h-11 items-center justify-center rounded-full border px-5 text-body whitespace-nowrap transition-colors'
@@ -544,7 +535,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                   onClick={() => toggleEmotion(chip.id)}
                   className={cn(
                     'text-3xl transition disabled:opacity-20',
-                    EMOTION_TEXT[i % EMOTION_TEXT.length],
+                    emotionTextColor(i),
                     on
                       ? 'underline decoration-2 underline-offset-8 opacity-100'
                       : 'opacity-40',
