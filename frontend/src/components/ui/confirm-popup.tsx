@@ -40,7 +40,7 @@ export function ConfirmPopup({
       <div className="pr-9">
         <h2
           id="confirm-popup-title"
-          className="text-base font-extrabold tracking-tight text-foreground"
+          className="text-base font-semibold tracking-tight text-foreground"
         >
           {title}
         </h2>

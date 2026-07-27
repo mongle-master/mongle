@@ -34,7 +34,7 @@ export function StackTabBar({ activeTab }: { activeTab: MainTab }) {
                 key="record"
                 type="button"
                 onClick={() => push('Record', {})}
-                className="-mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
+                className="-mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20 ring-1 ring-primary/10 transition-transform active:scale-95"
                 aria-label="기록 작성"
               >
                 <Plus className="size-6" />
@@ -49,7 +49,7 @@ export function StackTabBar({ activeTab }: { activeTab: MainTab }) {
               type="button"
               onClick={() => replaceStep({ tab: item.tab })}
               className={cn(
-                'flex flex-col items-center gap-1 text-caption font-bold',
+                'flex flex-col items-center gap-1 text-caption font-medium transition-colors',
                 activeTab === item.tab
                   ? 'text-foreground'
                   : 'text-muted-foreground',
