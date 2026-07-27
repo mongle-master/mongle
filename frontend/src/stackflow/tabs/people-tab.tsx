@@ -182,11 +182,7 @@ function PersonListSkeleton() {
     <section>
       <ListGroup>
         {Array.from({ length: 6 }, (_, index) => (
-          <ListGroupItem
-            key={index}
-            withDivider={index < 5}
-            className="py-3"
-          >
+          <ListGroupItem key={index} withDivider={index < 5} className="py-3">
             <div className="flex w-full items-center gap-3">
               <Skeleton className="size-11 shrink-0 rounded-full" />
               <div className="min-w-0 flex-1 space-y-2">
