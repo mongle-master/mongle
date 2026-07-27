@@ -127,7 +127,7 @@ export function TagTypePanel({
     <section>
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-[17px] font-black tracking-tight text-foreground">
+          <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-foreground">
             {label}
           </h2>
           <p className="mt-1 text-xs font-medium text-muted-foreground">
