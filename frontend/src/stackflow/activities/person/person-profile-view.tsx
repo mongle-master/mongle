@@ -98,7 +98,7 @@ export function PersonProfileView({
                 <div className="min-w-0 flex-1">
                   <h1
                     data-amp-mask
-                    className="truncate text-2xl font-black tracking-tight"
+                    className="truncate text-2xl font-semibold tracking-[-0.02em]"
                   >
                     {displayName}
                   </h1>

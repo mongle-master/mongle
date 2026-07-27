@@ -125,7 +125,7 @@ export function PersonEditForm({
       <section aria-labelledby="person-basic-heading">
         <h2
           id="person-basic-heading"
-          className="mb-6 text-xl font-extrabold tracking-tight"
+          className="mb-6 text-xl font-semibold tracking-[-0.02em]"
         >
           기본 정보
         </h2>
@@ -190,7 +190,7 @@ export function PersonEditForm({
       <section aria-labelledby="person-relation-heading">
         <h2
           id="person-relation-heading"
-          className="mb-6 text-xl font-extrabold tracking-tight"
+          className="mb-6 text-xl font-semibold tracking-[-0.02em]"
         >
           관계
         </h2>
@@ -233,7 +233,7 @@ export function PersonEditForm({
       <section aria-labelledby="person-dates-heading">
         <h2
           id="person-dates-heading"
-          className="mb-6 text-xl font-extrabold tracking-tight"
+          className="mb-6 text-xl font-semibold tracking-[-0.02em]"
         >
           함께한 날짜
         </h2>
@@ -275,7 +275,7 @@ export function PersonEditForm({
       <section aria-labelledby="person-memory-heading">
         <h2
           id="person-memory-heading"
-          className="mb-6 text-xl font-extrabold tracking-tight"
+          className="mb-6 text-xl font-semibold tracking-[-0.02em]"
         >
           기억 메모
         </h2>
