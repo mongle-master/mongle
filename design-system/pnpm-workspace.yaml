@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - esbuild
+  - lightningcss
+
+overrides:
+  rolldown: 1.1.4

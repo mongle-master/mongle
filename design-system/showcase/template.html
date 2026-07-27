@@ -1,0 +1,696 @@
+<!--
+  결 (Gyeol) 디자인 시스템 — 시각 레퍼런스 (playbook 단계 G)
+  빌드: scripts/build-showcase.mjs가 컴파일된 토큰 CSS를 <style id="gyeol-tokens">에
+  인라인한다. 이 파일은 템플릿이고, 정본 산출물은 docs/design-system.html이다.
+-->
+<style id="showcase-chrome">
+  /* 쇼케이스 전용 크롬 — 시스템 토큰이 아니다. 페이지 골격·전화기 프레임만 담당. */
+  .chrome-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--hairline);
+    background: color-mix(in oklab, var(--background) 88%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  .chrome-nav a {
+    padding: 6px 12px;
+    border-radius: 9999px;
+    font-size: 13px;
+    color: var(--muted-foreground);
+    text-decoration: none;
+  }
+  .chrome-nav a:hover {
+    color: var(--foreground);
+    background: var(--secondary);
+  }
+  .chrome-section {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 72px 24px 0;
+  }
+  .chrome-phone {
+    width: 300px;
+    flex-shrink: 0;
+    border: 1px solid var(--hairline-strong);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: var(--shadow-float);
+    background: var(--background);
+  }
+  .chrome-phone-body {
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 520px;
+  }
+</style>
+
+<nav class="chrome-nav">
+  <span class="mr-4 font-display text-title-sm font-normal">결 Gyeol</span>
+  <a href="#overview">개요</a>
+  <a href="#architecture">아키텍처</a>
+  <a href="#naming">네이밍</a>
+  <a href="#color">색상</a>
+  <a href="#type">타이포</a>
+  <a href="#space">간격·도형</a>
+  <a href="#icons">아이콘</a>
+  <a href="#components">컴포넌트</a>
+  <a href="#domain">도메인 패턴</a>
+  <a href="#screens">적용 화면</a>
+  <a href="#theme">테마</a>
+  <a href="#governance">거버넌스</a>
+  <button
+    id="theme-toggle"
+    type="button"
+    class="ml-auto h-9 rounded-pill border border-border-strong bg-transparent px-4 text-body-sm font-medium text-foreground"
+  >
+    Night으로
+  </button>
+</nav>
+
+<!-- 1. 개요 -->
+<section id="overview" class="chrome-section">
+  <p class="eyebrow">디자인 언어 · 2026-07-27</p>
+  <h1 class="mt-4 font-display text-display-mega font-light text-foreground">
+    종이의 결,<br />감정의 결
+  </h1>
+  <p class="mt-6 max-w-2xl text-body-md leading-relaxed text-body">
+    결은 일기·관계 기록 도메인을 위한 디자인 시스템이다. ElevenLabs 마케팅 서피스의
+    편집 잡지적 절제 — 오프화이트 캔버스, 따뜻한 근검정 잉크, weight 300 세리프
+    디스플레이, 파스텔 대기 orb — 에서 <strong>값이 아니라 규칙</strong>을 추출해
+    기록과 회고의 화면 문법으로 재배치했다. 색은 감정에만 살고, 크롬은 조용하다.
+  </p>
+  <div class="mt-10 flex flex-wrap gap-4">
+    <span class="inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground">기록 작성</span>
+    <span class="inline-flex h-10 items-center rounded-pill border border-border-strong px-5 text-body-sm font-medium text-foreground">둘러보기</span>
+    <span class="inline-flex h-10 items-center gap-2 rounded-pill border border-border bg-card px-4 text-body-sm text-foreground">
+      <span class="size-3 rounded-full" style="background: var(--emotion-warm)"></span>
+      따뜻
+    </span>
+  </div>
+</section>
+
+<!-- 2. 3계층 아키텍처 -->
+<section id="architecture" class="chrome-section">
+  <p class="eyebrow">토큰 아키텍처</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">3계층 — 그러나 성장은 2계층부터</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    정본은 <code class="rounded-xs bg-secondary px-1.5 py-0.5 text-caption">src/styles/globals.css</code>
+    하나다. 앱과 Storybook과 이 문서가 모두 이 파일을 소비한다.
+  </p>
+  <div class="mt-8 grid gap-4 md:grid-cols-3">
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-caption font-medium text-muted-foreground">TIER 1 · PRIMITIVES</p>
+      <p class="mt-2 text-title-sm font-medium">테마 불변 원시 팔레트</p>
+      <p class="mt-2 text-body-sm text-body">
+        따뜻한 중성 램프 14 + 파스텔 orb 5 + 야간 orb 5 + 상태색. <code class="text-caption">:root</code>에
+        한 번 정의되고 테마를 타지 않는다.
+      </p>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-caption font-medium text-muted-foreground">TIER 2 · SEMANTIC</p>
+      <p class="mt-2 text-title-sm font-medium">역할 토큰 — 리매핑 유일 장소</p>
+      <p class="mt-2 text-body-sm text-body">
+        <code class="text-caption">--background</code>, <code class="text-caption">--primary</code>,
+        <code class="text-caption">--emotion-*</code>… 전부 <code class="text-caption">var(--primitive)</code> 참조.
+        Paper/Night 전환은 이 블록만 교체한다.
+      </p>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-caption font-medium text-muted-foreground">TIER 3 · COMPONENT</p>
+      <p class="mt-2 text-title-sm font-medium">별도 계층 없음</p>
+      <p class="mt-2 text-body-sm text-body">
+        CVA variant와 <code class="text-caption">data-slot</code> 셀렉터가 Tier 2를 직접 소비한다.
+        수백 개 component 토큰은 우리 규모에 과잉 (YAGNI).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 네이밍 규칙 -->
+<section id="naming" class="chrome-section">
+  <p class="eyebrow">네이밍</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">역할로 짓고, 쌍으로 다닌다</h2>
+  <div class="mt-6 overflow-x-auto rounded-xl border border-border bg-card">
+    <table class="w-full text-left text-body-sm">
+      <thead>
+        <tr class="border-b border-border text-caption text-muted-foreground">
+          <th class="px-6 py-3 font-medium">규칙</th>
+          <th class="px-6 py-3 font-medium">예</th>
+        </tr>
+      </thead>
+      <tbody class="text-body">
+        <tr class="border-b border-border">
+          <td class="px-6 py-3">배경 역할에는 항상 글자 쌍</td>
+          <td class="px-6 py-3"><code class="text-caption">--card / --card-foreground</code>, <code class="text-caption">--primary / --primary-foreground</code></td>
+        </tr>
+        <tr class="border-b border-border">
+          <td class="px-6 py-3">원시값은 램프 번호, 역할값은 의미</td>
+          <td class="px-6 py-3"><code class="text-caption">--neutral-800</code> → <code class="text-caption">--primary</code></td>
+        </tr>
+        <tr class="border-b border-border">
+          <td class="px-6 py-3">감정은 영어 낱말 + 한글 라벨</td>
+          <td class="px-6 py-3"><code class="text-caption">--emotion-calm</code> = 고요, <code class="text-caption">--emotion-dear</code> = 소중</td>
+        </tr>
+        <tr>
+          <td class="px-6 py-3">컴포넌트는 data-slot, variant는 data-*</td>
+          <td class="px-6 py-3"><code class="text-caption">[data-slot="button"]</code>, <code class="text-caption">[data-emotion="warm"]</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 4. 색상 -->
+<section id="color" class="chrome-section">
+  <p class="eyebrow">색상</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">회색조 규율, 파스텔은 아낀다</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    무채색이 팔레트의 70%다. 유일한 색채 전압인 파스텔 orb 5색은
+    <strong>감정의 대기 표현으로만</strong> 쓴다 — 버튼 칠, 텍스트, 컴포넌트 배경 금지.
+  </p>
+
+  <p class="mt-10 text-title-sm font-medium">표면 · 글자 · 액션</p>
+  <div class="mt-4 flex flex-wrap gap-4">
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--background)"></div><p class="mt-2 text-caption font-medium">background</p><p class="text-[11px] text-muted-foreground">캔버스 #f5f5f5</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--card)"></div><p class="mt-2 text-caption font-medium">card</p><p class="text-[11px] text-muted-foreground">순백 카드</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--secondary)"></div><p class="mt-2 text-caption font-medium">secondary</p><p class="text-[11px] text-muted-foreground">조작 표면</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--foreground)"></div><p class="mt-2 text-caption font-medium">foreground</p><p class="text-[11px] text-muted-foreground">잉크 #0c0a09</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--body)"></div><p class="mt-2 text-caption font-medium">body</p><p class="text-[11px] text-muted-foreground">본문 #4e4e4e</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--muted-foreground)"></div><p class="mt-2 text-caption font-medium">muted-foreground</p><p class="text-[11px] text-muted-foreground">보조 #706a63 · AA</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--primary)"></div><p class="mt-2 text-caption font-medium">primary</p><p class="text-[11px] text-muted-foreground">잉크 pill</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--destructive)"></div><p class="mt-2 text-caption font-medium">destructive</p><p class="text-[11px] text-muted-foreground">위험</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--warning)"></div><p class="mt-2 text-caption font-medium">warning</p><p class="text-[11px] text-muted-foreground">경고</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--success)"></div><p class="mt-2 text-caption font-medium">success</p><p class="text-[11px] text-muted-foreground">성공 · AA 보정</p></div>
+  </div>
+
+  <p class="mt-10 text-title-sm font-medium">감정 orb 5가족 — 대기 전용</p>
+  <div class="mt-4 flex flex-wrap gap-6">
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="calm" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">고요 · calm</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="warm" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">따뜻 · warm</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="muse" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">사색 · muse</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="clear" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">맑음 · clear</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="dear" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">소중 · dear</p>
+    </div>
+  </div>
+
+  <p class="mt-10 text-title-sm font-medium">헤어라인 3단계</p>
+  <div class="mt-4 flex max-w-lg flex-col gap-3">
+    <div><div class="h-px w-full" style="background: var(--hairline-soft)"></div><p class="mt-1 text-caption text-muted-foreground">hairline-soft — 카드 내부 보조 구분</p></div>
+    <div><div class="h-px w-full" style="background: var(--hairline)"></div><p class="mt-1 text-caption text-muted-foreground">hairline — 기본 1px 구분선</p></div>
+    <div><div class="h-px w-full" style="background: var(--hairline-strong)"></div><p class="mt-1 text-caption text-muted-foreground">hairline-strong — 패널 외곽·입력 테두리</p></div>
+  </div>
+</section>
+
+<!-- 5. 타이포그래피 -->
+<section id="type" class="chrome-section">
+  <p class="eyebrow">타이포그래피</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">디스플레이는 항상 300, 본문은 400/500</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    세리프 디스플레이(Waldenburg의 규칙 승계 — 대체: Cormorant Garamond + Noto Serif KR 300)는
+    크게 쓸수록 자간을 조인다. 본문은 Pretendard. 기록 본문만 손글씨 서체 slot을 쓴다.
+  </p>
+  <div class="mt-8 flex flex-col gap-6">
+    <div class="border-b border-border pb-4"><p class="font-display text-display-mega font-light text-foreground">조용한 날에도 결은 남는다</p><p class="mt-1 text-caption text-muted-foreground">display-mega · 64/300/-1.92px — 히어로</p></div>
+    <div class="border-b border-border pb-4"><p class="font-display text-display-xl font-light text-foreground">오늘 만난 사람</p><p class="mt-1 text-caption text-muted-foreground">display-xl · 48/300/-0.96px</p></div>
+    <div class="border-b border-border pb-4"><p class="font-display text-display-lg font-light text-foreground">관계 지도</p><p class="mt-1 text-caption text-muted-foreground">display-lg · 36/300/-0.36px — 섹션 헤드</p></div>
+    <div class="border-b border-border pb-4"><p class="font-display text-display-sm font-light text-foreground">“그날 우리는 아무 말 없이 걸었다”</p><p class="mt-1 text-caption text-muted-foreground">display-sm · 24/300 — 회고 인용</p></div>
+    <div class="border-b border-border pb-4"><p class="text-title-md font-medium text-foreground">서연이와 한강 산책</p><p class="mt-1 text-caption text-muted-foreground">title-md · 20/500 — 카드 제목 (산세리프)</p></div>
+    <div class="border-b border-border pb-4"><p class="text-body-md text-body">편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다. 요즘 고민을 털어놓았는데, 서연이는 늘 그렇듯 과장 없이 들어줬다.</p><p class="mt-1 text-caption text-muted-foreground">body-md · 16/400/+0.16px — 기본 본문</p></div>
+    <div class="border-b border-border pb-4"><p class="text-body-sm text-body">보조 본문은 한 단계 작게 쓴다.</p><p class="mt-1 text-caption text-muted-foreground">body-sm · 15/400</p></div>
+    <div class="border-b border-border pb-4"><p class="text-caption text-muted-foreground">캡션 — 날짜·부가 정보</p><p class="mt-1 text-caption text-muted-foreground">caption · 14/400</p></div>
+    <div class="border-b border-border pb-4"><p class="eyebrow">2026년 7월 27일 · 월</p><p class="mt-1 text-caption text-muted-foreground">eyebrow · 12/600/대문자 — 날짜·섹션 라벨</p></div>
+    <div><p class="font-hand text-title-sm leading-relaxed text-foreground">손글씨 서체는 기록 본문과 회고 인용에만 쓴다. UI 라벨에 쓰면 역할이 오염된다.</p><p class="mt-1 text-caption text-muted-foreground">font-hand — 소비 앱이 서체 자산 제공 (폴백: Pretendard)</p></div>
+  </div>
+</section>
+
+<!-- 6. 간격 · 도형 · Elevation · 모션 -->
+<section id="space" class="chrome-section">
+  <p class="eyebrow">간격 · 도형 · Elevation · 모션</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">96px의 호흡, pill의 조작</h2>
+
+  <div class="mt-8 grid gap-8 md:grid-cols-2">
+    <div>
+      <p class="text-title-sm font-medium">반경 — 용도 고정</p>
+      <div class="mt-4 flex flex-wrap items-end gap-5">
+        <div class="flex flex-col items-center gap-2"><div class="size-16 bg-secondary" style="border-radius: var(--radius-xs)"></div><span class="text-caption text-muted-foreground">xs 4</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 bg-secondary" style="border-radius: var(--radius-md)"></div><span class="text-caption text-muted-foreground">md 8 · 입력</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 bg-secondary" style="border-radius: var(--radius-xl)"></div><span class="text-caption text-muted-foreground">xl 16 · 카드</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 bg-secondary" style="border-radius: var(--radius-2xl)"></div><span class="text-caption text-muted-foreground">2xl 24 · 대기</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="h-10 w-24 bg-primary" style="border-radius: var(--radius-pill)"></div><span class="text-caption text-muted-foreground">pill · CTA</span></div>
+      </div>
+    </div>
+    <div>
+      <p class="text-title-sm font-medium">Elevation — 부드러운 단일 계열</p>
+      <div class="mt-4 flex flex-wrap items-end gap-5">
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--shadow-card)"></div><span class="text-caption text-muted-foreground">card</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--shadow-float)"></div><span class="text-caption text-muted-foreground">float</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--shadow-overlay)"></div><span class="text-caption text-muted-foreground">overlay</span></div>
+      </div>
+      <p class="mt-4 text-body-sm text-body">그림자는 단계마다 강해질 뿐, 색상이나 방향이 바뀌지 않는다.</p>
+    </div>
+  </div>
+
+  <div class="mt-10">
+    <p class="text-title-sm font-medium">모션</p>
+    <div class="mt-4 flex items-center gap-8">
+      <div class="relative size-28 overflow-hidden rounded-2xl border border-border bg-card">
+        <div class="orb absolute -top-6 left-2" data-emotion="muse" data-animated style="width: 110px; height: 110px"></div>
+      </div>
+      <ul class="flex flex-col gap-1.5 text-body-sm text-body">
+        <li>상태 전이: 색·opacity·transform만 120~200ms</li>
+        <li>orb 대기: 느린 float 8s — 빠른 펄스 금지</li>
+        <li>새 기록 저장 같은 단일 이벤트만 짧게 강조</li>
+        <li><code class="text-caption">prefers-reduced-motion</code>에서 전부 제거</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 7. 아이콘 -->
+<section id="icons" class="chrome-section">
+  <p class="eyebrow">아이콘</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">Lucide — stroke 2, 라운드 캡</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    아이콘은 <a class="underline" href="https://lucide.dev">Lucide</a>를 그대로 쓴다.
+    24px 그리드, stroke 2, round cap/join. 색은 <code class="text-caption">currentColor</code> —
+    주변 글자색을 따른다. 장식 아이콘은 <code class="text-caption">aria-hidden</code>.
+  </p>
+  <div class="mt-6 flex flex-wrap gap-6 text-foreground">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+  </div>
+</section>
+
+<!-- 8. 컴포넌트 라이브러리 -->
+<section id="components" class="chrome-section">
+  <p class="eyebrow">컴포넌트 라이브러리</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">Core 12 + Domain 6</h2>
+
+  <div class="mt-8 flex flex-col gap-10">
+    <div>
+      <p class="text-title-sm font-medium">Button — pill, 3단계 위계</p>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <button type="button" class="inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground">기록 작성</button>
+        <button type="button" class="inline-flex h-10 items-center rounded-pill border border-border-strong bg-transparent px-5 text-body-sm font-medium text-foreground">둘러보기</button>
+        <button type="button" class="inline-flex h-10 items-center rounded-pill bg-transparent px-5 text-body-sm font-medium text-foreground hover:bg-secondary">취소</button>
+        <button type="button" class="inline-flex h-10 items-center rounded-pill bg-destructive px-5 text-body-sm font-medium text-destructive-foreground">삭제</button>
+        <button type="button" disabled class="inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground opacity-50">비활성</button>
+      </div>
+    </div>
+
+    <div>
+      <p class="text-title-sm font-medium">Badge — pill + 대문자 캡션</p>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <span class="inline-flex items-center rounded-pill bg-secondary px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-secondary-foreground">가족</span>
+        <span class="inline-flex items-center rounded-pill border border-border-strong px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-foreground">친구</span>
+        <span class="inline-flex items-center rounded-pill bg-success/10 px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-success">저장됨</span>
+        <span class="inline-flex items-center gap-1.5 rounded-pill border px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-foreground"><span class="size-2 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+      </div>
+    </div>
+
+    <div>
+      <p class="text-title-sm font-medium">Input · Textarea — 포커스는 2px 잉크</p>
+      <div class="mt-3 grid max-w-2xl gap-4 md:grid-cols-2">
+        <div class="flex flex-col gap-2">
+          <label class="text-caption font-medium text-foreground" for="qa-name">사람 이름</label>
+          <input id="qa-name" type="text" placeholder="누구를 만났나요?" class="h-11 w-full rounded-md border border-input-border bg-input px-4 text-body-md text-foreground placeholder:text-muted-foreground focus-visible:border-2 focus-visible:border-foreground focus-visible:outline-none" />
+        </div>
+        <div class="rounded-xl border border-border p-3">
+          <textarea rows="3" aria-label="편지지 기록" class="letter-paper font-hand w-full border-none bg-transparent px-2 pt-1 text-title-sm leading-[28px] text-foreground focus-visible:outline-none">오랜 친구를 만났다.
+커피잔을 사이에 두고
+세 시간이나 떠들었다.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="text-title-sm font-medium">Card · Dialog · Tabs · Empty · Skeleton</p>
+      <div class="mt-3 grid gap-4 md:grid-cols-2">
+        <div class="rounded-xl border border-border bg-card text-card-foreground">
+          <div class="flex flex-col gap-1.5 p-6">
+            <h3 class="text-title-md font-medium">프로필 설정</h3>
+            <p class="text-body-sm text-muted-foreground">이름과 사진을 등록하면 관계 지도에 표시됩니다.</p>
+          </div>
+          <div class="flex gap-2 p-6 pt-0">
+            <button type="button" class="inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground">저장</button>
+            <button type="button" class="inline-flex h-10 items-center rounded-pill px-5 text-body-sm font-medium text-foreground hover:bg-secondary">취소</button>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-overlay">
+          <h3 class="text-title-md font-medium">이 기록을 삭제할까요?</h3>
+          <p class="mt-1.5 text-body-sm text-muted-foreground">삭제한 기록은 되돌릴 수 없습니다. (Dialog 정적 표현)</p>
+          <div class="mt-6 flex justify-end gap-2">
+            <button type="button" class="inline-flex h-9 items-center rounded-pill px-4 text-caption font-medium text-foreground hover:bg-secondary">취소</button>
+            <button type="button" class="inline-flex h-9 items-center rounded-pill bg-destructive px-4 text-caption font-medium text-destructive-foreground">삭제</button>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-6 border-b border-border">
+            <button type="button" class="-mb-px border-b-2 border-foreground px-1 py-2.5 text-body-sm font-medium text-foreground">타임라인</button>
+            <button type="button" class="-mb-px border-b-2 border-transparent px-1 py-2.5 text-body-sm font-medium text-muted-foreground">기록</button>
+            <button type="button" class="-mb-px border-b-2 border-transparent px-1 py-2.5 text-body-sm font-medium text-muted-foreground">프로필</button>
+          </div>
+          <div class="flex w-full flex-col gap-3 py-4">
+            <div class="animate-pulse rounded-md bg-muted" style="height: 12px; width: 40%"></div>
+            <div class="animate-pulse rounded-md bg-muted" style="height: 16px; width: 70%"></div>
+            <div class="animate-pulse rounded-md bg-muted" style="height: 12px; width: 90%"></div>
+          </div>
+          <p class="text-caption text-muted-foreground">Tabs + Skeleton (로딩은 레이아웃 유지)</p>
+        </div>
+        <div class="flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-card py-10 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground/60"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M12 8.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z"/></svg>
+          <div>
+            <p class="text-title-sm font-medium text-foreground">아직 기록이 없어요</p>
+            <p class="mt-1 text-body-sm text-muted-foreground">오늘 만난 사람과의 순간을 처음으로 남겨보세요.</p>
+          </div>
+          <button type="button" class="mt-2 inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground">첫 기록 작성</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. 도메인 패턴 -->
+<section id="domain" class="chrome-section">
+  <p class="eyebrow">도메인 패턴</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">레퍼런스 문법으로 짓는 일기 요소</h2>
+
+  <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <div>
+      <p class="text-title-sm font-medium">감정 선택 — 색 점 + 라벨 항상 동반</p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-calm)"></span>고요</span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-foreground bg-card px-3.5 py-2 text-body-sm font-medium text-foreground shadow-card"><span class="size-3 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-muse)"></span>사색</span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-clear)"></span>맑음</span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-dear)"></span>소중</span>
+      </div>
+    </div>
+    <div>
+      <p class="text-title-sm font-medium">사람 chip — voice-row 문법 재사용</p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-card py-1 pr-3 pl-1"><span class="inline-flex size-8 items-center justify-center rounded-full bg-secondary text-caption font-medium text-secondary-foreground">김</span><span class="text-body-sm text-foreground">김서연</span></span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-card py-1 pr-3 pl-1"><span class="inline-flex size-8 items-center justify-center rounded-full bg-secondary text-caption font-medium text-secondary-foreground">이</span><span class="text-body-sm text-foreground">이하준</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-6 md:grid-cols-2">
+    <article class="flex flex-col gap-3 rounded-xl border border-border bg-card p-6 text-card-foreground">
+      <div class="flex items-center justify-between gap-2">
+        <span class="eyebrow">2026년 7월 27일 · 월</span>
+        <span class="inline-flex items-center gap-1.5 rounded-pill border px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-foreground"><span class="size-2 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+      </div>
+      <h3 class="text-title-md font-medium">서연이와 한강 산책</h3>
+      <p class="text-body-sm leading-relaxed text-body">퇴근하고 한강에서 만났다. 편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다.</p>
+      <div class="mt-1 flex flex-wrap gap-1.5">
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-card py-1 pr-3 pl-1"><span class="inline-flex size-6 items-center justify-center rounded-full bg-secondary text-[10px] font-medium text-secondary-foreground">김</span><span class="text-caption text-foreground">김서연</span></span>
+      </div>
+    </article>
+
+    <figure class="relative overflow-hidden rounded-2xl border border-border bg-card p-8 text-card-foreground">
+      <div class="orb absolute -top-16 -right-16" data-emotion="warm" style="width: 220px; height: 220px"></div>
+      <figcaption class="eyebrow relative">1년 전 오늘 · 2025년 7월 27일</figcaption>
+      <blockquote class="relative mt-4 font-display text-display-sm leading-snug font-normal text-foreground">“첫 출근 날. 아무것도 모르지만 그래도 설렜다. 잘하고 싶다.”</blockquote>
+      <p class="relative mt-4 text-caption text-muted-foreground">그때의 감정 · 따뜻</p>
+    </figure>
+  </div>
+
+  <div class="mt-6 grid gap-6 md:grid-cols-2">
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="eyebrow mb-2">오늘의 감사 · 7월 27일</p>
+      <ol class="flex flex-col">
+        <li class="flex items-baseline gap-4 py-3.5"><span aria-hidden class="w-6 shrink-0 text-right font-display text-display-sm leading-none text-muted-foreground/70">1</span><span class="text-body-md leading-relaxed text-foreground">아침에 늦잠을 자지 않고 해를 본 것</span></li>
+        <li class="flex items-baseline gap-4 border-t border-border py-3.5"><span aria-hidden class="w-6 shrink-0 text-right font-display text-display-sm leading-none text-muted-foreground/70">2</span><span class="text-body-md leading-relaxed text-foreground">서연이가 먼저 안부를 물어준 것</span></li>
+        <li class="flex items-baseline gap-4 border-t border-border py-3.5"><span aria-hidden class="w-6 shrink-0 text-right font-display text-display-sm leading-none text-muted-foreground/70">3</span><span class="text-body-md leading-relaxed text-foreground">저녁 산책 공기가 선선했던 것</span></li>
+      </ol>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-title-sm font-medium">Year in Pixels — orb 5색 한정</p>
+      <p class="mt-1 text-body-sm text-body">1년을 감정 색 점 하나로 그린다. 새 시리즈마다 새 색을 칠하지 않는다.</p>
+      <div id="pixels" class="mt-4 grid gap-1" style="grid-template-columns: repeat(26, 1fr)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. 적용 화면 -->
+<section id="screens" class="chrome-section">
+  <p class="eyebrow">적용 화면</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">이 시스템으로 조립한 5개 화면</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    컴포넌트 나열이 아니라 실제 화면으로 시스템의 체력을 증명한다. 전부 위 코어·도메인
+    컴포넌트의 조합이고, 임의 색상·임의 간격이 하나도 없다.
+  </p>
+
+  <div class="mt-8 flex gap-6 overflow-x-auto pb-8">
+    <!-- 화면 1: 홈/오늘 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <p class="eyebrow">7월 27일 · 월</p>
+        <h3 class="font-display text-display-sm font-light text-foreground">오늘은 어떤<br />하루였나요?</h3>
+        <figure class="relative -mx-2 overflow-hidden rounded-2xl border border-border bg-card p-5">
+          <div class="orb absolute -top-10 -right-10" data-emotion="warm" style="width: 140px; height: 140px"></div>
+          <figcaption class="eyebrow relative">1년 전 오늘</figcaption>
+          <blockquote class="relative mt-2 font-display text-body-md leading-snug text-foreground">“첫 출근 날. 설렜다.”</blockquote>
+        </figure>
+        <article class="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+          <div class="flex items-center justify-between"><span class="eyebrow">어제</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase text-foreground"><span class="size-1.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span></div>
+          <h4 class="text-body-sm font-medium text-foreground">서연이와 한강 산책</h4>
+          <p class="text-caption text-body">편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다.</p>
+        </article>
+        <button type="button" class="mt-auto inline-flex h-11 w-full items-center justify-center rounded-pill bg-primary text-body-sm font-medium text-primary-foreground">오늘 기록 작성</button>
+      </div>
+    </div>
+
+    <!-- 화면 2: 기록 작성 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <div class="flex items-center justify-between">
+          <p class="text-title-sm font-medium text-foreground">기록 작성</p>
+          <span class="eyebrow">7월 27일</span>
+        </div>
+        <label class="text-caption font-medium text-foreground" for="screen-title">제목</label>
+        <input id="screen-title" type="text" value="서연이와 한강 산책" class="h-11 w-full rounded-md border border-input-border bg-input px-4 text-body-sm text-foreground focus-visible:border-2 focus-visible:border-foreground focus-visible:outline-none" />
+        <div class="rounded-xl border border-border p-3">
+          <textarea rows="5" aria-label="기록 본문" class="letter-paper font-hand w-full border-none bg-transparent px-2 pt-1 text-body-md leading-[28px] text-foreground focus-visible:outline-none">해가 지는 걸 끝까지 봤다.
+고민을 털어놓았는데
+과장 없이 들어줬다.</textarea>
+        </div>
+        <p class="text-caption font-medium text-foreground">오늘의 감정</p>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-pill border border-border px-3 py-1.5 text-caption text-muted-foreground"><span class="size-2.5 rounded-full" style="background: var(--emotion-calm)"></span>고요</span>
+          <span class="inline-flex items-center gap-1.5 rounded-pill border border-foreground bg-card px-3 py-1.5 text-caption font-medium text-foreground shadow-card"><span class="size-2.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+          <span class="inline-flex items-center gap-1.5 rounded-pill border border-border px-3 py-1.5 text-caption text-muted-foreground"><span class="size-2.5 rounded-full" style="background: var(--emotion-muse)"></span>사색</span>
+        </div>
+        <p class="text-caption font-medium text-foreground">함께한 사람</p>
+        <div class="flex gap-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-pill border border-border bg-card py-0.5 pr-2.5 pl-0.5"><span class="inline-flex size-6 items-center justify-center rounded-full bg-secondary text-[10px] text-secondary-foreground">김</span><span class="text-caption text-foreground">김서연</span></span>
+        </div>
+        <button type="button" class="mt-auto inline-flex h-11 w-full items-center justify-center rounded-pill bg-primary text-body-sm font-medium text-primary-foreground">저장</button>
+      </div>
+    </div>
+
+    <!-- 화면 3: 감정 일기 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <p class="text-title-sm font-medium text-foreground">감정 흐름</p>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <p class="text-caption text-muted-foreground">이번 주</p>
+          <div class="mt-3 flex items-end justify-between gap-1.5">
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 28px; background: var(--emotion-calm)"></div><span class="text-[10px] text-muted-foreground">월</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 44px; background: var(--emotion-warm)"></div><span class="text-[10px] text-muted-foreground">화</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 20px; background: var(--emotion-muse)"></div><span class="text-[10px] text-muted-foreground">수</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 52px; background: var(--emotion-warm)"></div><span class="text-[10px] text-muted-foreground">목</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 36px; background: var(--emotion-clear)"></div><span class="text-[10px] text-muted-foreground">금</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 60px; background: var(--emotion-dear)"></div><span class="text-[10px] text-muted-foreground">토</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 40px; background: var(--emotion-calm)"></div><span class="text-[10px] text-muted-foreground">일</span></div>
+          </div>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <p class="text-caption text-muted-foreground">7월의 결</p>
+          <div id="pixels-mini" class="mt-2 grid gap-1" style="grid-template-columns: repeat(14, 1fr)"></div>
+        </div>
+        <p class="mt-auto text-caption leading-relaxed text-muted-foreground">이번 주는 <strong class="text-foreground">따뜻</strong>이 가장 많았어요. 서연·하준과 함께한 날이었습니다.</p>
+      </div>
+    </div>
+
+    <!-- 화면 4: 감사 일기 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <div class="flex items-center justify-between">
+          <p class="text-title-sm font-medium text-foreground">감사 일기</p>
+          <span class="eyebrow">7월 27일</span>
+        </div>
+        <ol class="flex flex-col">
+          <li class="flex items-baseline gap-3 py-3"><span aria-hidden class="w-5 shrink-0 text-right font-display text-title-sm leading-none text-muted-foreground/70">1</span><span class="text-body-sm leading-relaxed text-foreground">해를 본 것</span></li>
+          <li class="flex items-baseline gap-3 border-t border-border py-3"><span aria-hidden class="w-5 shrink-0 text-right font-display text-title-sm leading-none text-muted-foreground/70">2</span><span class="text-body-sm leading-relaxed text-foreground">서연이가 안부를 물어준 것</span></li>
+          <li class="flex items-baseline gap-3 border-t border-border py-3"><span aria-hidden class="w-5 shrink-0 text-right font-display text-title-sm leading-none text-muted-foreground/70">3</span><span class="text-body-sm leading-relaxed text-foreground">공기가 선선했던 것</span></li>
+        </ol>
+        <label class="text-caption font-medium text-foreground" for="screen-gratitude">오늘의 감사 추가</label>
+        <input id="screen-gratitude" type="text" placeholder="한 줄이면 충분해요" class="h-11 w-full rounded-md border border-input-border bg-input px-4 text-body-sm text-foreground placeholder:text-muted-foreground focus-visible:border-2 focus-visible:border-foreground focus-visible:outline-none" />
+        <button type="button" class="mt-auto inline-flex h-11 w-full items-center justify-center rounded-pill border border-border-strong bg-transparent text-body-sm font-medium text-foreground">오늘도 채우기</button>
+      </div>
+    </div>
+
+    <!-- 화면 5: 사람 타임라인 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex size-12 items-center justify-center rounded-full bg-secondary text-title-sm font-medium text-secondary-foreground">김</span>
+          <div>
+            <p class="text-title-sm font-medium text-foreground">김서연</p>
+            <p class="text-caption text-muted-foreground">대학 동기 · 기록 24</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-5 border-b border-border">
+          <button type="button" class="-mb-px border-b-2 border-foreground px-1 py-2 text-caption font-medium text-foreground">타임라인</button>
+          <button type="button" class="-mb-px border-b-2 border-transparent px-1 py-2 text-caption font-medium text-muted-foreground">프로필</button>
+        </div>
+        <article class="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+          <div class="flex items-center justify-between"><span class="eyebrow">7월 27일</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase text-foreground"><span class="size-1.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span></div>
+          <h4 class="text-body-sm font-medium text-foreground">한강 산책</h4>
+          <p class="text-caption text-body">해가 지는 걸 끝까지 봤다.</p>
+        </article>
+        <article class="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+          <div class="flex items-center justify-between"><span class="eyebrow">7월 12일</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase text-foreground"><span class="size-1.5 rounded-full" style="background: var(--emotion-clear)"></span>맑음</span></div>
+          <h4 class="text-body-sm font-medium text-foreground">점심 약속</h4>
+          <p class="text-caption text-body">새 회사 이야기를 들었다.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11. 테마 -->
+<section id="theme" class="chrome-section">
+  <p class="eyebrow">테마 — 역할 반전</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">Paper 채택, Night 보존</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    기본 정체성은 Paper(라이트)다. Night는 독립 스킨이 아니라 동일한 토큰 구조의
+    <code class="text-caption">.dark</code> 역할 반전으로 보존된다 — 아래 두 패널은
+    같은 마크업, 다른 클래스 하나다.
+  </p>
+  <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <div class="light rounded-2xl border border-border p-8" style="background: var(--background)">
+      <p class="eyebrow">Paper · light</p>
+      <div class="mt-4 flex flex-col gap-3">
+        <div class="rounded-xl border p-5" style="border-color: var(--border); background: var(--card)">
+          <div class="flex items-center justify-between"><span class="eyebrow">7월 27일</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase" style="border-color: var(--border-strong); color: var(--foreground)"><span class="size-1.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span></div>
+          <p class="mt-2 text-title-md font-medium" style="color: var(--foreground)">서연이와 한강 산책</p>
+          <p class="mt-1 text-body-sm" style="color: var(--body)">편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다.</p>
+          <button type="button" class="mt-4 inline-flex h-10 items-center rounded-pill px-5 text-body-sm font-medium" style="background: var(--primary); color: var(--primary-foreground)">기록 작성</button>
+        </div>
+      </div>
+    </div>
+    <div class="dark rounded-2xl border p-8" style="border-color: rgb(255 255 255 / 10%); background: var(--background)">
+      <p class="eyebrow">Night · dark</p>
+      <div class="mt-4 flex flex-col gap-3">
+        <div class="rounded-xl border p-5" style="border-color: var(--border); background: var(--card)">
+          <div class="flex items-center justify-between"><span class="eyebrow">7월 27일</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase" style="border-color: var(--border-strong); color: var(--foreground)"><span class="size-1.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span></div>
+          <p class="mt-2 text-title-md font-medium" style="color: var(--foreground)">서연이와 한강 산책</p>
+          <p class="mt-1 text-body-sm" style="color: var(--body)">편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다.</p>
+          <button type="button" class="mt-4 inline-flex h-10 items-center rounded-pill px-5 text-body-sm font-medium" style="background: var(--primary); color: var(--primary-foreground)">기록 작성</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12. 거버넌스 -->
+<section id="governance" class="chrome-section" style="padding-bottom: 96px">
+  <p class="eyebrow">거버넌스</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">어디서 가져왔고, 다음에 무엇을 하나</h2>
+  <div class="mt-6 grid gap-4 md:grid-cols-3">
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-title-sm font-medium">벤치마크에서 가져온 것</p>
+      <ul class="mt-3 flex flex-col gap-2 text-body-sm text-body">
+        <li>code-first · CSS 단일 정본 (shadcn 철학)</li>
+        <li>semantic 단층 네이밍 + fg/bg 쌍 (Polaris·shadcn)</li>
+        <li>primitive→semantic 3계층과 전수 대조 계약 (Spectrum 교훈)</li>
+        <li>DO/DON'T 원칙 문서를 코드리뷰 판정 기준으로 (matchday Encore)</li>
+        <li>비주얼 리그레션 미사용 · 사람 갤러리 우선 정책</li>
+      </ul>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-title-sm font-medium">가져오지 않은 것</p>
+      <ul class="mt-3 flex flex-col gap-2 text-body-sm text-body">
+        <li>ElevenLabs 로고·상표·Waldenburg 서체·서비스 IA</li>
+        <li>hover 상태 미문서화 관행 (폼 중심 도메인이라 상태 필수 정의)</li>
+        <li>Figma↔code 자동 동기화 파이프라인 (업계 미해결)</li>
+        <li>수백 개 component 토큰 계층 (규모 과잉)</li>
+      </ul>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-title-sm font-medium">다음에 할 것</p>
+      <ul class="mt-3 flex flex-col gap-2 text-body-sm text-body">
+        <li>앱 styles.css를 이 패키지 re-import 한 줄로 교체하는 채택 PR</li>
+        <li>앱의 하드코딩 감정 팔레트·앰버 3역할을 이 토큰으로 이관</li>
+        <li>Playwright 픽셀 QA로 이 문서의 "컴파일 CSS 실측"을 렌더 실측으로 승격</li>
+        <li>사용처 카운트가 쌓이면 variant 승격 (playbook H)</li>
+      </ul>
+    </div>
+  </div>
+  <p class="mt-10 text-caption text-muted-foreground">
+    결 0.1.0 · 2026-07-27 · 이 파일은 <code>scripts/build-showcase.mjs</code>가 토큰 정본의
+    컴파일 CSS를 인라인해 생성한다 — 명세와 구현이 같은 파일이라 어긋날 수 없다.
+  </p>
+</section>
+
+<script>
+  // 테마 토글 — .dark 클래스 전환. 팔레트 변수와 dark: 유틸리티가 같은 스위치로 전환된다.
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    btn.addEventListener('click', function () {
+      var dark = document.documentElement.classList.toggle('dark');
+      document.documentElement.classList.toggle('light', !dark);
+      btn.textContent = dark ? 'Paper로' : 'Night으로';
+    });
+  })();
+
+  // Year in Pixels — 감정 orb 5색만으로. 결정적 의사난수로 매번 같은 그림.
+  (function () {
+    var emotions = ['calm', 'warm', 'muse', 'clear', 'dear'];
+    function fill(id, count) {
+      var grid = document.getElementById(id);
+      if (!grid) return;
+      var seed = 20260727;
+      for (var i = 0; i < count; i++) {
+        seed = (seed * 1103515245 + 12345) % 2147483648;
+        var dot = document.createElement('span');
+        dot.style.cssText =
+          'aspect-ratio:1;border-radius:50%;background:var(--emotion-' +
+          emotions[seed % 5] +
+          ');opacity:0.85';
+        grid.appendChild(dot);
+      }
+    }
+    fill('pixels', 364);
+    fill('pixels-mini', 28);
+  })();
+</script>

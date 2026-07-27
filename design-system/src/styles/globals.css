@@ -1,0 +1,404 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Noto+Serif+KR:wght@300;400&display=swap');
+/* Pretendard 공식 CDN — 자기 완결 쇼케이스의 외부 의존은 폰트 CDN으로 한정한다
+   (playbook G-2). 앱 채택 시 앱의 @fontsource 번들로 교체 가능하다. */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@source '../**/*.{ts,tsx}';
+/* 쇼케이스 HTML도 토큰 소비자다 — 여기서 쓴 클래스가 컴파일 CSS에 포함된다 */
+@source '../showcase/*.html';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * 결 (Gyeol) design tokens — 3계층 아키텍처 (design-systems-benchmark playbook 적용).
+ *
+ *   TIER 1 · PRIMITIVES (`:root`): 테마 불변 원시 팔레트.
+ *     따뜻한 중성 램프(warm neutral) + 파스텔 orb 5 + 야간 orb 5 + 상태색.
+ *     한 번 정의하고 테마를 타지 않는다.
+ *   TIER 2 · SEMANTIC (`:root, .light` / `.dark`): 역할 토큰
+ *     (--background, --primary, --muted, …). 전부 var(--primitive) 참조.
+ *     다크/라이트 리매핑이 일어나는 유일한 장소.
+ *   TIER 3 · COMPONENT: 별도 계층 없음 — CVA variant와 data-slot 셀렉터가
+ *     Tier 2를 직접 소비한다 (shadcn이 semantic 위에서 동작하는 설계 그대로).
+ *
+ * 테마 전략: class 기반(.dark / .light on <html>). 미디어 쿼리가 아니라 class인
+ * 이유는 아래 `dark` 커스텀 variant가 모든 `dark:` 유틸리티를 .dark 클래스에
+ * 게이트하므로, 팔레트 변수와 유틸리티 변형이 같은 스위치로 동시에 전환돼야
+ * 하기 때문이다. FOUC는 소비 앱의 index.html 인라인 스크립트로 차단한다.
+ *
+ * 스킨 판정(skin-decision.md): Paper(라이트) 채택, Night는 .dark 역할 반전으로 보존.
+ */
+
+/* ---------- TIER 1 · PRIMITIVES ---------- */
+:root {
+  /* 따뜻한 중성 램프 — ElevenLabs stone 계열 실측값 */
+  --neutral-0: #ffffff;
+  --neutral-25: #fafafa;
+  --neutral-50: #f5f5f5;
+  --neutral-75: #f0efed;
+  --neutral-100: #e7e5e4;
+  --neutral-150: #d6d3d1;
+  --neutral-300: #a8a29e;
+  /* 레퍼런스 실측값(#777169)은 캔버스 대비 4.43:1로 AA 미만 — design-qa.md의
+     실측에서 잡아 4.90:1로 미세 조정했다. 따뜻한 색상은 유지한다. */
+  --neutral-500: #706a63;
+  --neutral-600: #57534e;
+  --neutral-700: #44403c;
+  --neutral-750: #4e4e4e;
+  --neutral-800: #292524;
+  --neutral-850: #1c1917;
+  --neutral-950: #0c0a09;
+
+  /* 파스텔 대기 orb — 감정 5가족 (Paper) */
+  --orb-mint: #a7e5d3;
+  --orb-peach: #f4c5a8;
+  --orb-lavender: #c8b8e0;
+  --orb-sky: #a8c8e8;
+  --orb-rose: #e8b8c4;
+
+  /* 야간 orb — Night 보존 시안. 저명도·고채도로 뒤집혀 어두운 캔버스에서 발광체로 동작 */
+  --orb-mint-night: #1f8f74;
+  --orb-peach-night: #c98d5f;
+  --orb-lavender-night: #8f76b8;
+  --orb-sky-night: #6f97c4;
+  --orb-rose-night: #c4849a;
+
+  /* 상태색 */
+  --red-400: #f87171;
+  --red-600: #dc2626;
+  --green-400: #4ade80;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --amber-400: #fbbf24;
+  --amber-700: #b45309;
+}
+
+/* ---------- TIER 2 · SEMANTIC (light — Paper) ---------- */
+:root,
+.light {
+  color-scheme: light;
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-950);
+  /* 본문 글자 — ink보다 한 단계 부드럽다 (레퍼런스의 ink/body 이원 구조) */
+  --body: var(--neutral-750);
+  --card: var(--neutral-0);
+  --card-foreground: var(--neutral-950);
+  --popover: var(--neutral-0);
+  --popover-foreground: var(--neutral-950);
+  --primary: var(--neutral-800);
+  --primary-foreground: var(--neutral-0);
+  --primary-hover: var(--neutral-950);
+  --secondary: var(--neutral-75);
+  --secondary-foreground: var(--neutral-950);
+  --secondary-hover: var(--neutral-100);
+  --muted: var(--neutral-75);
+  --muted-foreground: var(--neutral-500);
+  --accent: var(--neutral-100);
+  --accent-foreground: var(--neutral-950);
+  --destructive: var(--red-600);
+  --destructive-foreground: var(--neutral-0);
+  --warning: var(--amber-700);
+  --warning-foreground: var(--neutral-0);
+  /* 레퍼런스의 success(#16a34a)는 흰 카드 위 3.30:1 — 작은 글자 AA를 위해 700으로 */
+  --success: var(--green-700);
+  --success-foreground: var(--neutral-0);
+  --border: var(--neutral-100);
+  --border-strong: var(--neutral-150);
+  --input: var(--neutral-0);
+  --input-border: var(--neutral-150);
+  /* 레퍼런스 명세의 공백(포커스 링 미정의)을 잉크 링으로 보완 */
+  --ring: var(--neutral-800);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+
+  /* 감정 orb — 대기 전용. 텍스트·버튼 칠로 참조하지 않는다 */
+  --emotion-calm: var(--orb-mint);
+  --emotion-warm: var(--orb-peach);
+  --emotion-muse: var(--orb-lavender);
+  --emotion-clear: var(--orb-sky);
+  --emotion-dear: var(--orb-rose);
+
+  /* 헤어라인 3단계 */
+  --hairline-soft: var(--neutral-75);
+  --hairline: var(--neutral-100);
+  --hairline-strong: var(--neutral-150);
+
+  /* 반경 — 용도 고정: 입력 md(8) / 카드 xl(16) / 대기 카드 2xl(24) / CTA·배지 pill */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-pill: 9999px;
+
+  /* 그림자 — 부드러운 단일 계열 (레퍼런스 soft drop 0 4px 16px / 4% 기준) */
+  --shadow-card: 0 4px 16px rgb(0 0 0 / 4%);
+  --shadow-float: 0 12px 32px rgb(0 0 0 / 8%);
+  --shadow-overlay: 0 16px 48px rgb(0 0 0 / 12%);
+
+  /* 편지지 괘선 — 배경 이미지라 currentColor를 못 받으므로 테마별 별도 정의 */
+  --letter-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(12,10,9,0.07)' stroke-width='1'/%3E%3C/svg%3E");
+
+  /* 섹션 리듬 — 96px (spacing 스케일 24와 동일값. 이름으로 의도를 명시) */
+  --section-gap: 96px;
+}
+
+/* ---------- TIER 2 · SEMANTIC (dark — Night) ---------- */
+.dark {
+  color-scheme: dark;
+  --background: var(--neutral-950);
+  --foreground: var(--neutral-25);
+  --body: var(--neutral-150);
+  --card: var(--neutral-850);
+  --card-foreground: var(--neutral-25);
+  --popover: var(--neutral-850);
+  --popover-foreground: var(--neutral-25);
+  /* Night의 주요 액션은 종이흰 pill — Paper의 역할 반전 */
+  --primary: var(--neutral-25);
+  --primary-foreground: var(--neutral-950);
+  --primary-hover: var(--neutral-100);
+  --secondary: var(--neutral-800);
+  --secondary-foreground: var(--neutral-25);
+  --secondary-hover: var(--neutral-700);
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-300);
+  --accent: var(--neutral-700);
+  --accent-foreground: var(--neutral-25);
+  --destructive: var(--red-400);
+  --destructive-foreground: var(--neutral-950);
+  --warning: var(--amber-400);
+  --warning-foreground: var(--neutral-950);
+  --success: var(--green-400);
+  --success-foreground: var(--neutral-950);
+  --border: rgb(255 255 255 / 10%);
+  --border-strong: rgb(255 255 255 / 16%);
+  --input: var(--neutral-850);
+  --input-border: var(--neutral-600);
+  --ring: var(--neutral-25);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+
+  --emotion-calm: var(--orb-mint-night);
+  --emotion-warm: var(--orb-peach-night);
+  --emotion-muse: var(--orb-lavender-night);
+  --emotion-clear: var(--orb-sky-night);
+  --emotion-dear: var(--orb-rose-night);
+
+  --hairline-soft: rgb(255 255 255 / 6%);
+  --hairline: rgb(255 255 255 / 10%);
+  --hairline-strong: rgb(255 255 255 / 16%);
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-pill: 9999px;
+
+  --shadow-card: 0 4px 16px rgb(0 0 0 / 30%);
+  --shadow-float: 0 12px 32px rgb(0 0 0 / 40%);
+  --shadow-overlay: 0 16px 48px rgb(0 0 0 / 50%);
+
+  --letter-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(255,255,255,0.10)' stroke-width='1'/%3E%3C/svg%3E");
+
+  --section-gap: 96px;
+}
+
+/* ---------- Tailwind v4 유틸리티 매핑 ---------- */
+@theme inline {
+  --font-sans:
+    'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system,
+    'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  /* Waldenburg(라이선스) 대체: 라틴 Cormorant Garamond 300 + 한글 Noto Serif KR 300.
+     값이 아니라 "디스플레이 세리프 weight 300" 규칙을 승계한다 (design.md). */
+  --font-display: 'Cormorant Garamond', 'Noto Serif KR', 'Times New Roman', serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-body: var(--body);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-hairline: var(--hairline);
+  --color-hairline-soft: var(--hairline-soft);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-input: var(--input);
+  --color-input-border: var(--input-border);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-emotion-calm: var(--emotion-calm);
+  --color-emotion-warm: var(--emotion-warm);
+  --color-emotion-muse: var(--emotion-muse);
+  --color-emotion-clear: var(--emotion-clear);
+  --color-emotion-dear: var(--emotion-dear);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+  --shadow-overlay: var(--shadow-overlay);
+
+  /* 타이포 스케일 — 디스플레이 5 + 인터/산세리프 군.
+     --line-height/--letter-spacing 쌍을 등록해 text-display-lg 하나면 행간·자간까지 확정. */
+  --text-display-mega: 4rem;
+  --text-display-mega--line-height: 1.05;
+  --text-display-mega--letter-spacing: -1.92px;
+  --text-display-xl: 3rem;
+  --text-display-xl--line-height: 1.08;
+  --text-display-xl--letter-spacing: -0.96px;
+  --text-display-lg: 2.25rem;
+  --text-display-lg--line-height: 1.17;
+  --text-display-lg--letter-spacing: -0.36px;
+  --text-display-md: 2rem;
+  --text-display-md--line-height: 1.13;
+  --text-display-md--letter-spacing: -0.32px;
+  --text-display-sm: 1.5rem;
+  --text-display-sm--line-height: 1.2;
+  --text-display-sm--letter-spacing: 0;
+  --text-title-md: 1.25rem;
+  --text-title-md--line-height: 1.35;
+  --text-title-sm: 1.125rem;
+  --text-title-sm--line-height: 1.44;
+  --text-body-md: 1rem;
+  --text-body-md--line-height: 1.5;
+  --text-body-md--letter-spacing: 0.16px;
+  --text-body-sm: 0.9375rem;
+  --text-body-sm--line-height: 1.47;
+  --text-body-sm--letter-spacing: 0.15px;
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.5;
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.96px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    margin: 0;
+    min-width: 320px;
+    font-size: 1rem;
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--foreground) 16%, transparent);
+  }
+}
+
+@layer components {
+  /* 대문자 섹션 라벨 — 레퍼런스 caption-uppercase (12/600/+0.96px) */
+  .eyebrow {
+    font-size: var(--text-eyebrow);
+    line-height: 1.4;
+    letter-spacing: 0.96px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .font-hand {
+    font-family: 'Onglip Eunbyeol', var(--font-sans);
+  }
+
+  /* 대기 orb — 감정 5가족의 유일한 시각 표현. data-emotion으로 색을 고르고
+     크기·흐림만 외부에서 받는다. 장식 전용이므로 pointer-events 없음. */
+  .orb {
+    pointer-events: none;
+    border-radius: 50%;
+    filter: blur(48px);
+    opacity: 0.55;
+    background: var(--orb-color, var(--emotion-calm));
+  }
+
+  .orb[data-emotion='calm'] {
+    --orb-color: var(--emotion-calm);
+  }
+  .orb[data-emotion='warm'] {
+    --orb-color: var(--emotion-warm);
+  }
+  .orb[data-emotion='muse'] {
+    --orb-color: var(--emotion-muse);
+  }
+  .orb[data-emotion='clear'] {
+    --orb-color: var(--emotion-clear);
+  }
+  .orb[data-emotion='dear'] {
+    --orb-color: var(--emotion-dear);
+  }
+
+  @keyframes orb-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(0, -12px, 0) scale(1.04);
+    }
+  }
+
+  .orb[data-animated] {
+    animation: orb-float 8s ease-in-out infinite;
+  }
+
+  /* 편지지 표면 — 손글씨 기록용 괘선 배경 */
+  .letter-paper {
+    background-color: var(--card);
+    background-image: var(--letter-paper);
+    background-size: 90px 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

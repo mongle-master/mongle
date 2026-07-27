@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="ko" class="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>결 (Gyeol) — 디자인 시스템</title>
+<style id="gyeol-tokens">
+/* src/styles/globals.css 의 컴파일 산출물 — 편집 금지. 재생성: scripts/build-showcase.mjs */
+@import "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Noto+Serif+KR:wght@300;400&display=swap";@import "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css";@layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0;--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-border-style:solid;--tw-leading:initial;--tw-font-weight:initial;--tw-tracking:initial;--tw-ordinal:initial;--tw-slashed-zero:initial;--tw-numeric-figure:initial;--tw-numeric-spacing:initial;--tw-numeric-fraction:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-outline-style:solid;--tw-blur:initial;--tw-brightness:initial;--tw-contrast:initial;--tw-grayscale:initial;--tw-hue-rotate:initial;--tw-invert:initial;--tw-opacity:initial;--tw-saturate:initial;--tw-sepia:initial;--tw-drop-shadow:initial;--tw-drop-shadow-color:initial;--tw-drop-shadow-alpha:100%;--tw-drop-shadow-size:initial;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-ease:initial;--tw-animation-delay:0s;--tw-animation-direction:normal;--tw-animation-duration:initial;--tw-animation-fill-mode:none;--tw-animation-iteration-count:1;--tw-enter-blur:0;--tw-enter-opacity:1;--tw-enter-rotate:0;--tw-enter-scale:1;--tw-enter-translate-x:0;--tw-enter-translate-y:0;--tw-exit-blur:0;--tw-exit-opacity:1;--tw-exit-rotate:0;--tw-exit-scale:1;--tw-exit-translate-x:0;--tw-exit-translate-y:0}}}@layer theme{:root,:host{--font-sans:"Pretendard Variable", Pretendard, ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;--font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;--spacing:.25rem;--container-md:28rem;--container-lg:32rem;--container-2xl:42rem;--font-weight-light:300;--font-weight-normal:400;--font-weight-medium:500;--font-weight-semibold:600;--tracking-wide:.025em;--leading-tight:1.25;--leading-snug:1.375;--leading-relaxed:1.625;--radius-xs:var(--radius-xs);--radius-sm:var(--radius-sm);--radius-md:var(--radius-md);--radius-lg:var(--radius-lg);--radius-xl:var(--radius-xl);--radius-2xl:var(--radius-2xl);--ease-out:cubic-bezier(0, 0, .2, 1);--ease-in-out:cubic-bezier(.4, 0, .2, 1);--animate-pulse:pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--default-font-family:"Pretendard Variable", Pretendard, ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;--default-mono-font-family:var(--font-mono);--font-display:"Cormorant Garamond", "Noto Serif KR", "Times New Roman", serif;--radius-pill:var(--radius-pill);--shadow-card:var(--shadow-card);--shadow-float:var(--shadow-float);--shadow-overlay:var(--shadow-overlay);--text-eyebrow:.75rem}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;tab-size:4;line-height:1.5;font-family:var(--default-font-family,-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");font-feature-settings:var(--default-font-feature-settings,normal);font-variation-settings:var(--default-font-variation-settings,normal);-webkit-tap-highlight-color:transparent}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring:where(:not(iframe)){outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::placeholder{opacity:1}@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px){::placeholder{color:currentColor}@supports (color:color-mix(in lab, red, red)){::placeholder{color:color-mix(in oklab, currentcolor 50%, transparent)}}}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}::-webkit-calendar-picker-indicator{line-height:1}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){appearance:button}::file-selector-button{appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}*{border-color:var(--border);outline-color:var(--ring)}@supports (color:color-mix(in lab, red, red)){*{outline-color:color-mix(in oklab, var(--ring) 50%, transparent)}}html{font-family:var(--font-sans);text-rendering:optimizelegibility}body{background-color:var(--background);color:var(--foreground);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;min-width:320px;margin:0;font-size:1rem}button:not(:disabled),[role=button]:not(:disabled){cursor:pointer}::selection{background:var(--foreground)}@supports (color:color-mix(in lab, red, red)){::selection{background:color-mix(in oklch, var(--foreground) 16%, transparent)}}}@layer components{.eyebrow{font-size:var(--text-eyebrow);letter-spacing:.96px;text-transform:uppercase;color:var(--muted-foreground);font-weight:600;line-height:1.4}.font-hand{font-family:"Onglip Eunbyeol", var(--font-sans)}.orb{pointer-events:none;filter:blur(48px);opacity:.55;background:var(--orb-color,var(--emotion-calm));border-radius:50%}.orb[data-emotion=calm]{--orb-color:var(--emotion-calm)}.orb[data-emotion=warm]{--orb-color:var(--emotion-warm)}.orb[data-emotion=muse]{--orb-color:var(--emotion-muse)}.orb[data-emotion=clear]{--orb-color:var(--emotion-clear)}.orb[data-emotion=dear]{--orb-color:var(--emotion-dear)}@keyframes orb-float{0%,to{transform:translate(0)scale(1)}50%{transform:translateY(-12px)scale(1.04)}}.orb[data-animated]{animation:8s ease-in-out infinite orb-float}.letter-paper{background-color:var(--card);background-image:var(--letter-paper);background-size:90px 28px}}@layer utilities{.\@container{container-type:inline-size}.collapse{visibility:collapse}.invisible{visibility:hidden}.visible{visibility:visible}.sr-only{clip-path:inset(50%);white-space:nowrap;border-width:0;width:1px;height:1px;margin:-1px;padding:0;position:absolute;overflow:hidden}.absolute{position:absolute}.fixed{position:fixed}.relative{position:relative}.static{position:static}.sticky{position:sticky}.inset-0{inset:0}.-top-6{top:calc(var(--spacing) * -6)}.-top-10{top:calc(var(--spacing) * -10)}.-top-16{top:calc(var(--spacing) * -16)}.-top-20{top:calc(var(--spacing) * -20)}.top-0{top:0}.top-1{top:var(--spacing)}.top-1\/2{top:50%}.top-4{top:calc(var(--spacing) * 4)}.-right-10{right:calc(var(--spacing) * -10)}.-right-16{right:calc(var(--spacing) * -16)}.right-4{right:calc(var(--spacing) * 4)}.-bottom-16{bottom:calc(var(--spacing) * -16)}.left-0{left:0}.left-1{left:var(--spacing)}.left-1\/2{left:50%}.left-1\/4{left:25%}.left-2{left:calc(var(--spacing) * 2)}.isolate{isolation:isolate}.z-50{z-index:50}.float-left{float:left}.float-right{float:right}.\!container{width:100%!important}@media (width>=40rem){.\!container{max-width:40rem!important}}@media (width>=48rem){.\!container{max-width:48rem!important}}@media (width>=64rem){.\!container{max-width:64rem!important}}@media (width>=80rem){.\!container{max-width:80rem!important}}@media (width>=96rem){.\!container{max-width:96rem!important}}.container{width:100%}@media (width>=40rem){.container{max-width:40rem}}@media (width>=48rem){.container{max-width:48rem}}@media (width>=64rem){.container{max-width:64rem}}@media (width>=80rem){.container{max-width:80rem}}@media (width>=96rem){.container{max-width:96rem}}.-mx-2{margin-inline:calc(var(--spacing) * -2)}.mt-1{margin-top:var(--spacing)}.mt-1\.5{margin-top:calc(var(--spacing) * 1.5)}.mt-2{margin-top:calc(var(--spacing) * 2)}.mt-3{margin-top:calc(var(--spacing) * 3)}.mt-4{margin-top:calc(var(--spacing) * 4)}.mt-6{margin-top:calc(var(--spacing) * 6)}.mt-8{margin-top:calc(var(--spacing) * 8)}.mt-10{margin-top:calc(var(--spacing) * 10)}.mt-auto{margin-top:auto}.mr-4{margin-right:calc(var(--spacing) * 4)}.-mb-px{margin-bottom:-1px}.mb-2{margin-bottom:calc(var(--spacing) * 2)}.mb-3{margin-bottom:calc(var(--spacing) * 3)}.ml-auto{margin-left:auto}.\!hidden{display:none!important}.block{display:block}.contents{display:contents}.flex{display:flex}.grid{display:grid}.hidden{display:none}.inline{display:inline}.inline-block{display:inline-block}.inline-flex{display:inline-flex}.inline-grid{display:inline-grid}.table{display:table}.table-cell{display:table-cell}.table-row{display:table-row}.aspect-square{aspect-ratio:1}.size-1{width:var(--spacing);height:var(--spacing)}.size-1\.5{width:calc(var(--spacing) * 1.5);height:calc(var(--spacing) * 1.5)}.size-2{width:calc(var(--spacing) * 2);height:calc(var(--spacing) * 2)}.size-2\.5{width:calc(var(--spacing) * 2.5);height:calc(var(--spacing) * 2.5)}.size-3{width:calc(var(--spacing) * 3);height:calc(var(--spacing) * 3)}.size-4{width:calc(var(--spacing) * 4);height:calc(var(--spacing) * 4)}.size-6{width:calc(var(--spacing) * 6);height:calc(var(--spacing) * 6)}.size-8{width:calc(var(--spacing) * 8);height:calc(var(--spacing) * 8)}.size-10{width:calc(var(--spacing) * 10);height:calc(var(--spacing) * 10)}.size-12{width:calc(var(--spacing) * 12);height:calc(var(--spacing) * 12)}.size-16{width:calc(var(--spacing) * 16);height:calc(var(--spacing) * 16)}.size-24{width:calc(var(--spacing) * 24);height:calc(var(--spacing) * 24)}.size-28{width:calc(var(--spacing) * 28);height:calc(var(--spacing) * 28)}.size-full{width:100%;height:100%}.h-3{height:calc(var(--spacing) * 3)}.h-4{height:calc(var(--spacing) * 4)}.h-5{height:calc(var(--spacing) * 5)}.h-9{height:calc(var(--spacing) * 9)}.h-10{height:calc(var(--spacing) * 10)}.h-11{height:calc(var(--spacing) * 11)}.h-16{height:calc(var(--spacing) * 16)}.h-64{height:calc(var(--spacing) * 64)}.h-full{height:100%}.h-px{height:1px}.w-2{width:calc(var(--spacing) * 2)}.w-2\/3{width:66.6667%}.w-4{width:calc(var(--spacing) * 4)}.w-4\/5{width:80%}.w-5{width:calc(var(--spacing) * 5)}.w-6{width:calc(var(--spacing) * 6)}.w-10{width:calc(var(--spacing) * 10)}.w-20{width:calc(var(--spacing) * 20)}.w-24{width:calc(var(--spacing) * 24)}.w-36{width:calc(var(--spacing) * 36)}.w-80{width:calc(var(--spacing) * 80)}.w-96{width:calc(var(--spacing) * 96)}.w-\[350px\]{width:350px}.w-full{width:100%}.w-px{width:1px}.max-w-2xl{max-width:var(--container-2xl)}.max-w-\[calc\(100\%-2rem\)\]{max-width:calc(100% - 2rem)}.max-w-full{max-width:100%}.max-w-lg{max-width:var(--container-lg)}.flex-1{flex:1}.flex-shrink,.shrink{flex-shrink:1}.shrink-0{flex-shrink:0}.flex-grow,.grow{flex-grow:1}.-translate-x-1{--tw-translate-x:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.-translate-x-1\/2{--tw-translate-x:calc(calc(1 / 2 * 100%) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.-translate-y-1{--tw-translate-y:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.-translate-y-1\/2{--tw-translate-y:calc(calc(1 / 2 * 100%) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.transform{transform:var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)}.animate-pulse{animation:var(--animate-pulse)}.resize{resize:both}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-baseline{align-items:baseline}.items-center{align-items:center}.items-end{align-items:flex-end}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.justify-end{justify-content:flex-end}.gap-1{gap:var(--spacing)}.gap-1\.5{gap:calc(var(--spacing) * 1.5)}.gap-2{gap:calc(var(--spacing) * 2)}.gap-3{gap:calc(var(--spacing) * 3)}.gap-4{gap:calc(var(--spacing) * 4)}.gap-5{gap:calc(var(--spacing) * 5)}.gap-6{gap:calc(var(--spacing) * 6)}.gap-8{gap:calc(var(--spacing) * 8)}.gap-10{gap:calc(var(--spacing) * 10)}.truncate{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:var(--radius-2xl)}.rounded-full{border-radius:2147483647px}.rounded-lg{border-radius:var(--radius-lg)}.rounded-md{border-radius:var(--radius-md)}.rounded-none{border-radius:0}.rounded-pill{border-radius:var(--radius-pill)}.rounded-xl{border-radius:var(--radius-xl)}.rounded-xs{border-radius:var(--radius-xs)}.border{border-style:var(--tw-border-style);border-width:1px}.border-t{border-top-style:var(--tw-border-style);border-top-width:1px}.border-b{border-bottom-style:var(--tw-border-style);border-bottom-width:1px}.border-b-2{border-bottom-style:var(--tw-border-style);border-bottom-width:2px}.border-none{--tw-border-style:none;border-style:none}.border-border{border-color:var(--border)}.border-border-strong{border-color:var(--border-strong)}.border-foreground{border-color:var(--foreground)}.border-input-border{border-color:var(--input-border)}.border-transparent{border-color:#0000}.bg-background{background-color:var(--background)}.bg-card{background-color:var(--card)}.bg-destructive{background-color:var(--destructive)}.bg-emotion-calm{background-color:var(--emotion-calm)}.bg-emotion-clear{background-color:var(--emotion-clear)}.bg-emotion-dear{background-color:var(--emotion-dear)}.bg-emotion-muse{background-color:var(--emotion-muse)}.bg-emotion-warm{background-color:var(--emotion-warm)}.bg-foreground,.bg-foreground\/40{background-color:var(--foreground)}@supports (color:color-mix(in lab, red, red)){.bg-foreground\/40{background-color:color-mix(in oklab, var(--foreground) 40%, transparent)}}.bg-hairline{background-color:var(--hairline)}.bg-input{background-color:var(--input)}.bg-muted{background-color:var(--muted)}.bg-primary{background-color:var(--primary)}.bg-secondary{background-color:var(--secondary)}.bg-success,.bg-success\/10{background-color:var(--success)}@supports (color:color-mix(in lab, red, red)){.bg-success\/10{background-color:color-mix(in oklab, var(--success) 10%, transparent)}}.bg-transparent{background-color:#0000}.bg-warning,.bg-warning\/10{background-color:var(--warning)}@supports (color:color-mix(in lab, red, red)){.bg-warning\/10{background-color:color-mix(in oklab, var(--warning) 10%, transparent)}}.object-cover{object-fit:cover}.p-1{padding:var(--spacing)}.p-3{padding:calc(var(--spacing) * 3)}.p-4{padding:calc(var(--spacing) * 4)}.p-5{padding:calc(var(--spacing) * 5)}.p-6{padding:calc(var(--spacing) * 6)}.p-8{padding:calc(var(--spacing) * 8)}.px-1{padding-inline:var(--spacing)}.px-1\.5{padding-inline:calc(var(--spacing) * 1.5)}.px-2{padding-inline:calc(var(--spacing) * 2)}.px-2\.5{padding-inline:calc(var(--spacing) * 2.5)}.px-3{padding-inline:calc(var(--spacing) * 3)}.px-3\.5{padding-inline:calc(var(--spacing) * 3.5)}.px-4{padding-inline:calc(var(--spacing) * 4)}.px-5{padding-inline:calc(var(--spacing) * 5)}.px-6{padding-inline:calc(var(--spacing) * 6)}.py-0{padding-block:0}.py-0\.5{padding-block:calc(var(--spacing) * .5)}.py-1{padding-block:var(--spacing)}.py-1\.5{padding-block:calc(var(--spacing) * 1.5)}.py-2{padding-block:calc(var(--spacing) * 2)}.py-2\.5{padding-block:calc(var(--spacing) * 2.5)}.py-3{padding-block:calc(var(--spacing) * 3)}.py-3\.5{padding-block:calc(var(--spacing) * 3.5)}.py-4{padding-block:calc(var(--spacing) * 4)}.py-10{padding-block:calc(var(--spacing) * 10)}.py-16{padding-block:calc(var(--spacing) * 16)}.pt-0{padding-top:0}.pt-1{padding-top:var(--spacing)}.pr-2{padding-right:calc(var(--spacing) * 2)}.pr-2\.5{padding-right:calc(var(--spacing) * 2.5)}.pr-3{padding-right:calc(var(--spacing) * 3)}.pb-4{padding-bottom:calc(var(--spacing) * 4)}.pb-8{padding-bottom:calc(var(--spacing) * 8)}.pl-0{padding-left:0}.pl-0\.5{padding-left:calc(var(--spacing) * .5)}.pl-1{padding-left:var(--spacing)}.text-center{text-align:center}.text-left{text-align:left}.text-right{text-align:right}.font-display{font-family:Cormorant Garamond,Noto Serif KR,Times New Roman,serif}.text-body-md{font-size:1rem;line-height:var(--tw-leading,1.5);letter-spacing:var(--tw-tracking,.16px)}.text-body-sm{font-size:.9375rem;line-height:var(--tw-leading,1.47);letter-spacing:var(--tw-tracking,.15px)}.text-display-lg{font-size:2.25rem;line-height:var(--tw-leading,1.17);letter-spacing:var(--tw-tracking,-.36px)}.text-display-mega{font-size:4rem;line-height:var(--tw-leading,1.05);letter-spacing:var(--tw-tracking,-1.92px)}.text-display-sm{font-size:1.5rem;line-height:var(--tw-leading,1.2);letter-spacing:var(--tw-tracking,0)}.text-display-xl{font-size:3rem;line-height:var(--tw-leading,1.08);letter-spacing:var(--tw-tracking,-.96px)}.text-eyebrow{font-size:.75rem;line-height:var(--tw-leading,1.4);letter-spacing:var(--tw-tracking,.96px)}.text-caption{font-size:.875rem;line-height:var(--tw-leading,1.5)}.text-title-md{font-size:1.25rem;line-height:var(--tw-leading,1.35)}.text-title-sm{font-size:1.125rem;line-height:var(--tw-leading,1.44)}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.leading-\[28px\]{--tw-leading:28px;line-height:28px}.leading-none{--tw-leading:1;line-height:1}.leading-relaxed{--tw-leading:var(--leading-relaxed);line-height:var(--leading-relaxed)}.leading-snug{--tw-leading:var(--leading-snug);line-height:var(--leading-snug)}.leading-tight{--tw-leading:var(--leading-tight);line-height:var(--leading-tight)}.font-light{--tw-font-weight:var(--font-weight-light);font-weight:var(--font-weight-light)}.font-medium{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.font-normal{--tw-font-weight:var(--font-weight-normal);font-weight:var(--font-weight-normal)}.font-semibold{--tw-font-weight:var(--font-weight-semibold);font-weight:var(--font-weight-semibold)}.tracking-wide{--tw-tracking:var(--tracking-wide);letter-spacing:var(--tracking-wide)}.text-wrap{text-wrap:wrap}.whitespace-nowrap{white-space:nowrap}.text-body{color:var(--body)}.text-card-foreground{color:var(--card-foreground)}.text-destructive-foreground{color:var(--destructive-foreground)}.text-foreground{color:var(--foreground)}.text-input{color:var(--input)}.text-muted-foreground,.text-muted-foreground\/60{color:var(--muted-foreground)}@supports (color:color-mix(in lab, red, red)){.text-muted-foreground\/60{color:color-mix(in oklab, var(--muted-foreground) 60%, transparent)}}.text-muted-foreground\/70{color:var(--muted-foreground)}@supports (color:color-mix(in lab, red, red)){.text-muted-foreground\/70{color:color-mix(in oklab, var(--muted-foreground) 70%, transparent)}}.text-primary-foreground{color:var(--primary-foreground)}.text-secondary-foreground{color:var(--secondary-foreground)}.text-success{color:var(--success)}.text-warning{color:var(--warning)}.lowercase{text-transform:lowercase}.uppercase{text-transform:uppercase}.italic{font-style:italic}.ordinal{--tw-ordinal:ordinal;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.overline{text-decoration-line:overline}.underline{text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-50{opacity:.5}.shadow{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a), 0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-card{--tw-shadow:var(--shadow-card);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-overlay{--tw-shadow:var(--shadow-overlay);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring-ring,.ring-ring\/60{--tw-ring-color:var(--ring)}@supports (color:color-mix(in lab, red, red)){.ring-ring\/60{--tw-ring-color:color-mix(in oklab, var(--ring) 60%, transparent)}}.ring-offset-2{--tw-ring-offset-width:2px;--tw-ring-offset-shadow:var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)}.outline{outline-style:var(--tw-outline-style);outline-width:1px}.blur{--tw-blur:blur(8px);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.grayscale{--tw-grayscale:grayscale(100%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.filter{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.backdrop-blur-\[2px\]{--tw-backdrop-blur:blur(2px);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.transition{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-colors{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-shadow{transition-property:box-shadow;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.ease-in-out{--tw-ease:var(--ease-in-out);transition-timing-function:var(--ease-in-out)}.ease-out{--tw-ease:var(--ease-out);transition-timing-function:var(--ease-out)}.select-all{-webkit-user-select:all;user-select:all}.select-none{-webkit-user-select:none;user-select:none}.paused{animation-play-state:paused}.running{animation-play-state:running}.peer-disabled\:cursor-not-allowed:is(:where(.peer):disabled~*){cursor:not-allowed}.peer-disabled\:opacity-50:is(:where(.peer):disabled~*){opacity:.5}.placeholder\:text-muted-foreground::placeholder{color:var(--muted-foreground)}@media (hover:hover){.hover\:border-border-strong:hover{border-color:var(--border-strong)}.hover\:bg-destructive\/90:hover{background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.hover\:bg-destructive\/90:hover{background-color:color-mix(in oklab, var(--destructive) 90%, transparent)}}.hover\:bg-primary-hover:hover{background-color:var(--primary-hover)}.hover\:bg-secondary:hover{background-color:var(--secondary)}.hover\:text-foreground:hover{color:var(--foreground)}.hover\:shadow-card:hover{--tw-shadow:var(--shadow-card);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}}.focus-visible\:border-2:focus-visible{border-style:var(--tw-border-style);border-width:2px}.focus-visible\:border-foreground:focus-visible{border-color:var(--foreground)}.focus-visible\:px-\[15px\]:focus-visible{padding-inline:15px}.focus-visible\:py-\[11px\]:focus-visible{padding-block:11px}.focus-visible\:ring-0:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus-visible\:ring-2:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus-visible\:ring-ring\/60:focus-visible{--tw-ring-color:var(--ring)}@supports (color:color-mix(in lab, red, red)){.focus-visible\:ring-ring\/60:focus-visible{--tw-ring-color:color-mix(in oklab, var(--ring) 60%, transparent)}}.focus-visible\:ring-offset-2:focus-visible{--tw-ring-offset-width:2px;--tw-ring-offset-shadow:var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)}.focus-visible\:ring-offset-background:focus-visible{--tw-ring-offset-color:var(--background)}.focus-visible\:outline-none:focus-visible{--tw-outline-style:none;outline-style:none}.disabled\:pointer-events-none:disabled{pointer-events:none}.disabled\:cursor-not-allowed:disabled{cursor:not-allowed}.disabled\:opacity-50:disabled{opacity:.5}.data-\[state\=active\]\:border-foreground[data-state=active]{border-color:var(--foreground)}.data-\[state\=active\]\:text-foreground[data-state=active]{color:var(--foreground)}.data-\[state\=closed\]\:animate-out[data-state=closed]{animation:exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none)}.data-\[state\=closed\]\:fade-out-0[data-state=closed]{--tw-exit-opacity:0}.data-\[state\=closed\]\:zoom-out-95[data-state=closed]{--tw-exit-scale:.95}.data-\[state\=open\]\:animate-in[data-state=open]{animation:enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none)}.data-\[state\=open\]\:fade-in-0[data-state=open]{--tw-enter-opacity:0}.data-\[state\=open\]\:zoom-in-95[data-state=open]{--tw-enter-scale:.95}@media (width>=40rem){.sm\:max-w-md{max-width:var(--container-md)}}@media (width>=48rem){.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}.\[\&_svg\]\:pointer-events-none svg{pointer-events:none}.\[\&_svg\]\:shrink-0 svg{flex-shrink:0}}@property --tw-animation-delay{syntax:"*";inherits:false;initial-value:0s}@property --tw-animation-direction{syntax:"*";inherits:false;initial-value:normal}@property --tw-animation-duration{syntax:"*";inherits:false}@property --tw-animation-fill-mode{syntax:"*";inherits:false;initial-value:none}@property --tw-animation-iteration-count{syntax:"*";inherits:false;initial-value:1}@property --tw-enter-blur{syntax:"*";inherits:false;initial-value:0}@property --tw-enter-opacity{syntax:"*";inherits:false;initial-value:1}@property --tw-enter-rotate{syntax:"*";inherits:false;initial-value:0}@property --tw-enter-scale{syntax:"*";inherits:false;initial-value:1}@property --tw-enter-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-enter-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-blur{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-opacity{syntax:"*";inherits:false;initial-value:1}@property --tw-exit-rotate{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-scale{syntax:"*";inherits:false;initial-value:1}@property --tw-exit-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-translate-y{syntax:"*";inherits:false;initial-value:0}:root{--neutral-0:#fff;--neutral-25:#fafafa;--neutral-50:#f5f5f5;--neutral-75:#f0efed;--neutral-100:#e7e5e4;--neutral-150:#d6d3d1;--neutral-300:#a8a29e;--neutral-500:#706a63;--neutral-600:#57534e;--neutral-700:#44403c;--neutral-750:#4e4e4e;--neutral-800:#292524;--neutral-850:#1c1917;--neutral-950:#0c0a09;--orb-mint:#a7e5d3;--orb-peach:#f4c5a8;--orb-lavender:#c8b8e0;--orb-sky:#a8c8e8;--orb-rose:#e8b8c4;--orb-mint-night:#1f8f74;--orb-peach-night:#c98d5f;--orb-lavender-night:#8f76b8;--orb-sky-night:#6f97c4;--orb-rose-night:#c4849a;--red-400:#f87171;--red-600:#dc2626;--green-400:#4ade80;--green-600:#16a34a;--green-700:#15803d;--amber-400:#fbbf24;--amber-700:#b45309}:root,.light{--lightningcss-light:initial;--lightningcss-dark: ;color-scheme:light;--background:var(--neutral-50);--foreground:var(--neutral-950);--body:var(--neutral-750);--card:var(--neutral-0);--card-foreground:var(--neutral-950);--popover:var(--neutral-0);--popover-foreground:var(--neutral-950);--primary:var(--neutral-800);--primary-foreground:var(--neutral-0);--primary-hover:var(--neutral-950);--secondary:var(--neutral-75);--secondary-foreground:var(--neutral-950);--secondary-hover:var(--neutral-100);--muted:var(--neutral-75);--muted-foreground:var(--neutral-500);--accent:var(--neutral-100);--accent-foreground:var(--neutral-950);--destructive:var(--red-600);--destructive-foreground:var(--neutral-0);--warning:var(--amber-700);--warning-foreground:var(--neutral-0);--success:var(--green-700);--success-foreground:var(--neutral-0);--border:var(--neutral-100);--border-strong:var(--neutral-150);--input:var(--neutral-0);--input-border:var(--neutral-150);--ring:var(--neutral-800);--brand:var(--primary);--brand-foreground:var(--primary-foreground);--emotion-calm:var(--orb-mint);--emotion-warm:var(--orb-peach);--emotion-muse:var(--orb-lavender);--emotion-clear:var(--orb-sky);--emotion-dear:var(--orb-rose);--hairline-soft:var(--neutral-75);--hairline:var(--neutral-100);--hairline-strong:var(--neutral-150);--radius-xs:4px;--radius-sm:6px;--radius-md:8px;--radius-lg:12px;--radius-xl:16px;--radius-2xl:24px;--radius-pill:9999px;--shadow-card:0 4px 16px #0000000a;--shadow-float:0 12px 32px #00000014;--shadow-overlay:0 16px 48px #0000001f;--letter-paper:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(12,10,9,0.07)' stroke-width='1'/%3E%3C/svg%3E");--section-gap:96px}.dark{--lightningcss-light: ;--lightningcss-dark:initial;color-scheme:dark;--background:var(--neutral-950);--foreground:var(--neutral-25);--body:var(--neutral-150);--card:var(--neutral-850);--card-foreground:var(--neutral-25);--popover:var(--neutral-850);--popover-foreground:var(--neutral-25);--primary:var(--neutral-25);--primary-foreground:var(--neutral-950);--primary-hover:var(--neutral-100);--secondary:var(--neutral-800);--secondary-foreground:var(--neutral-25);--secondary-hover:var(--neutral-700);--muted:var(--neutral-800);--muted-foreground:var(--neutral-300);--accent:var(--neutral-700);--accent-foreground:var(--neutral-25);--destructive:var(--red-400);--destructive-foreground:var(--neutral-950);--warning:var(--amber-400);--warning-foreground:var(--neutral-950);--success:var(--green-400);--success-foreground:var(--neutral-950);--border:#ffffff1a;--border-strong:#ffffff29;--input:var(--neutral-850);--input-border:var(--neutral-600);--ring:var(--neutral-25);--brand:var(--primary);--brand-foreground:var(--primary-foreground);--emotion-calm:var(--orb-mint-night);--emotion-warm:var(--orb-peach-night);--emotion-muse:var(--orb-lavender-night);--emotion-clear:var(--orb-sky-night);--emotion-dear:var(--orb-rose-night);--hairline-soft:#ffffff0f;--hairline:#ffffff1a;--hairline-strong:#ffffff29;--radius-xs:4px;--radius-sm:6px;--radius-md:8px;--radius-lg:12px;--radius-xl:16px;--radius-2xl:24px;--radius-pill:9999px;--shadow-card:0 4px 16px #0000004d;--shadow-float:0 12px 32px #0006;--shadow-overlay:0 16px 48px #00000080;--letter-paper:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(255,255,255,0.10)' stroke-width='1'/%3E%3C/svg%3E");--section-gap:96px}@media (prefers-reduced-motion:reduce){*,:before,:after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}@property --tw-rotate-x{syntax:"*";inherits:false}@property --tw-rotate-y{syntax:"*";inherits:false}@property --tw-rotate-z{syntax:"*";inherits:false}@property --tw-skew-x{syntax:"*";inherits:false}@property --tw-skew-y{syntax:"*";inherits:false}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-tracking{syntax:"*";inherits:false}@property --tw-ordinal{syntax:"*";inherits:false}@property --tw-slashed-zero{syntax:"*";inherits:false}@property --tw-numeric-figure{syntax:"*";inherits:false}@property --tw-numeric-spacing{syntax:"*";inherits:false}@property --tw-numeric-fraction{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-outline-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-drop-shadow-color{syntax:"*";inherits:false}@property --tw-drop-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-drop-shadow-size{syntax:"*";inherits:false}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-ease{syntax:"*";inherits:false}@keyframes pulse{50%{opacity:.5}}@keyframes enter{0%{opacity:var(--tw-enter-opacity,1);transform:translate3d(var(--tw-enter-translate-x,0),var(--tw-enter-translate-y,0),0)scale3d(var(--tw-enter-scale,1),var(--tw-enter-scale,1),var(--tw-enter-scale,1))rotate(var(--tw-enter-rotate,0));filter:blur(var(--tw-enter-blur,0))}}@keyframes exit{to{opacity:var(--tw-exit-opacity,1);transform:translate3d(var(--tw-exit-translate-x,0),var(--tw-exit-translate-y,0),0)scale3d(var(--tw-exit-scale,1),var(--tw-exit-scale,1),var(--tw-exit-scale,1))rotate(var(--tw-exit-rotate,0));filter:blur(var(--tw-exit-blur,0))}}
+
+</style>
+</head>
+<body class="bg-background text-foreground antialiased">
+<!--
+  결 (Gyeol) 디자인 시스템 — 시각 레퍼런스 (playbook 단계 G)
+  빌드: scripts/build-showcase.mjs가 컴파일된 토큰 CSS를 <style id="gyeol-tokens">에
+  인라인한다. 이 파일은 템플릿이고, 정본 산출물은 docs/design-system.html이다.
+-->
+<style id="showcase-chrome">
+  /* 쇼케이스 전용 크롬 — 시스템 토큰이 아니다. 페이지 골격·전화기 프레임만 담당. */
+  .chrome-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--hairline);
+    background: color-mix(in oklab, var(--background) 88%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  .chrome-nav a {
+    padding: 6px 12px;
+    border-radius: 9999px;
+    font-size: 13px;
+    color: var(--muted-foreground);
+    text-decoration: none;
+  }
+  .chrome-nav a:hover {
+    color: var(--foreground);
+    background: var(--secondary);
+  }
+  .chrome-section {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 72px 24px 0;
+  }
+  .chrome-phone {
+    width: 300px;
+    flex-shrink: 0;
+    border: 1px solid var(--hairline-strong);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: var(--shadow-float);
+    background: var(--background);
+  }
+  .chrome-phone-body {
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 520px;
+  }
+</style>
+
+<nav class="chrome-nav">
+  <span class="mr-4 font-display text-title-sm font-normal">결 Gyeol</span>
+  <a href="#overview">개요</a>
+  <a href="#architecture">아키텍처</a>
+  <a href="#naming">네이밍</a>
+  <a href="#color">색상</a>
+  <a href="#type">타이포</a>
+  <a href="#space">간격·도형</a>
+  <a href="#icons">아이콘</a>
+  <a href="#components">컴포넌트</a>
+  <a href="#domain">도메인 패턴</a>
+  <a href="#screens">적용 화면</a>
+  <a href="#theme">테마</a>
+  <a href="#governance">거버넌스</a>
+  <button
+    id="theme-toggle"
+    type="button"
+    class="ml-auto h-9 rounded-pill border border-border-strong bg-transparent px-4 text-body-sm font-medium text-foreground"
+  >
+    Night으로
+  </button>
+</nav>
+
+<!-- 1. 개요 -->
+<section id="overview" class="chrome-section">
+  <p class="eyebrow">디자인 언어 · 2026-07-27</p>
+  <h1 class="mt-4 font-display text-display-mega font-light text-foreground">
+    종이의 결,<br />감정의 결
+  </h1>
+  <p class="mt-6 max-w-2xl text-body-md leading-relaxed text-body">
+    결은 일기·관계 기록 도메인을 위한 디자인 시스템이다. ElevenLabs 마케팅 서피스의
+    편집 잡지적 절제 — 오프화이트 캔버스, 따뜻한 근검정 잉크, weight 300 세리프
+    디스플레이, 파스텔 대기 orb — 에서 <strong>값이 아니라 규칙</strong>을 추출해
+    기록과 회고의 화면 문법으로 재배치했다. 색은 감정에만 살고, 크롬은 조용하다.
+  </p>
+  <div class="mt-10 flex flex-wrap gap-4">
+    <span class="inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground">기록 작성</span>
+    <span class="inline-flex h-10 items-center rounded-pill border border-border-strong px-5 text-body-sm font-medium text-foreground">둘러보기</span>
+    <span class="inline-flex h-10 items-center gap-2 rounded-pill border border-border bg-card px-4 text-body-sm text-foreground">
+      <span class="size-3 rounded-full" style="background: var(--emotion-warm)"></span>
+      따뜻
+    </span>
+  </div>
+</section>
+
+<!-- 2. 3계층 아키텍처 -->
+<section id="architecture" class="chrome-section">
+  <p class="eyebrow">토큰 아키텍처</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">3계층 — 그러나 성장은 2계층부터</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    정본은 <code class="rounded-xs bg-secondary px-1.5 py-0.5 text-caption">src/styles/globals.css</code>
+    하나다. 앱과 Storybook과 이 문서가 모두 이 파일을 소비한다.
+  </p>
+  <div class="mt-8 grid gap-4 md:grid-cols-3">
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-caption font-medium text-muted-foreground">TIER 1 · PRIMITIVES</p>
+      <p class="mt-2 text-title-sm font-medium">테마 불변 원시 팔레트</p>
+      <p class="mt-2 text-body-sm text-body">
+        따뜻한 중성 램프 14 + 파스텔 orb 5 + 야간 orb 5 + 상태색. <code class="text-caption">:root</code>에
+        한 번 정의되고 테마를 타지 않는다.
+      </p>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-caption font-medium text-muted-foreground">TIER 2 · SEMANTIC</p>
+      <p class="mt-2 text-title-sm font-medium">역할 토큰 — 리매핑 유일 장소</p>
+      <p class="mt-2 text-body-sm text-body">
+        <code class="text-caption">--background</code>, <code class="text-caption">--primary</code>,
+        <code class="text-caption">--emotion-*</code>… 전부 <code class="text-caption">var(--primitive)</code> 참조.
+        Paper/Night 전환은 이 블록만 교체한다.
+      </p>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-caption font-medium text-muted-foreground">TIER 3 · COMPONENT</p>
+      <p class="mt-2 text-title-sm font-medium">별도 계층 없음</p>
+      <p class="mt-2 text-body-sm text-body">
+        CVA variant와 <code class="text-caption">data-slot</code> 셀렉터가 Tier 2를 직접 소비한다.
+        수백 개 component 토큰은 우리 규모에 과잉 (YAGNI).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 네이밍 규칙 -->
+<section id="naming" class="chrome-section">
+  <p class="eyebrow">네이밍</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">역할로 짓고, 쌍으로 다닌다</h2>
+  <div class="mt-6 overflow-x-auto rounded-xl border border-border bg-card">
+    <table class="w-full text-left text-body-sm">
+      <thead>
+        <tr class="border-b border-border text-caption text-muted-foreground">
+          <th class="px-6 py-3 font-medium">규칙</th>
+          <th class="px-6 py-3 font-medium">예</th>
+        </tr>
+      </thead>
+      <tbody class="text-body">
+        <tr class="border-b border-border">
+          <td class="px-6 py-3">배경 역할에는 항상 글자 쌍</td>
+          <td class="px-6 py-3"><code class="text-caption">--card / --card-foreground</code>, <code class="text-caption">--primary / --primary-foreground</code></td>
+        </tr>
+        <tr class="border-b border-border">
+          <td class="px-6 py-3">원시값은 램프 번호, 역할값은 의미</td>
+          <td class="px-6 py-3"><code class="text-caption">--neutral-800</code> → <code class="text-caption">--primary</code></td>
+        </tr>
+        <tr class="border-b border-border">
+          <td class="px-6 py-3">감정은 영어 낱말 + 한글 라벨</td>
+          <td class="px-6 py-3"><code class="text-caption">--emotion-calm</code> = 고요, <code class="text-caption">--emotion-dear</code> = 소중</td>
+        </tr>
+        <tr>
+          <td class="px-6 py-3">컴포넌트는 data-slot, variant는 data-*</td>
+          <td class="px-6 py-3"><code class="text-caption">[data-slot="button"]</code>, <code class="text-caption">[data-emotion="warm"]</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 4. 색상 -->
+<section id="color" class="chrome-section">
+  <p class="eyebrow">색상</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">회색조 규율, 파스텔은 아낀다</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    무채색이 팔레트의 70%다. 유일한 색채 전압인 파스텔 orb 5색은
+    <strong>감정의 대기 표현으로만</strong> 쓴다 — 버튼 칠, 텍스트, 컴포넌트 배경 금지.
+  </p>
+
+  <p class="mt-10 text-title-sm font-medium">표면 · 글자 · 액션</p>
+  <div class="mt-4 flex flex-wrap gap-4">
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--background)"></div><p class="mt-2 text-caption font-medium">background</p><p class="text-[11px] text-muted-foreground">캔버스 #f5f5f5</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--card)"></div><p class="mt-2 text-caption font-medium">card</p><p class="text-[11px] text-muted-foreground">순백 카드</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--secondary)"></div><p class="mt-2 text-caption font-medium">secondary</p><p class="text-[11px] text-muted-foreground">조작 표면</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--foreground)"></div><p class="mt-2 text-caption font-medium">foreground</p><p class="text-[11px] text-muted-foreground">잉크 #0c0a09</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--body)"></div><p class="mt-2 text-caption font-medium">body</p><p class="text-[11px] text-muted-foreground">본문 #4e4e4e</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--muted-foreground)"></div><p class="mt-2 text-caption font-medium">muted-foreground</p><p class="text-[11px] text-muted-foreground">보조 #706a63 · AA</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--primary)"></div><p class="mt-2 text-caption font-medium">primary</p><p class="text-[11px] text-muted-foreground">잉크 pill</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--destructive)"></div><p class="mt-2 text-caption font-medium">destructive</p><p class="text-[11px] text-muted-foreground">위험</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--warning)"></div><p class="mt-2 text-caption font-medium">warning</p><p class="text-[11px] text-muted-foreground">경고</p></div>
+    <div class="w-36"><div class="h-16 rounded-lg border border-border" style="background: var(--success)"></div><p class="mt-2 text-caption font-medium">success</p><p class="text-[11px] text-muted-foreground">성공 · AA 보정</p></div>
+  </div>
+
+  <p class="mt-10 text-title-sm font-medium">감정 orb 5가족 — 대기 전용</p>
+  <div class="mt-4 flex flex-wrap gap-6">
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="calm" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">고요 · calm</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="warm" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">따뜻 · warm</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="muse" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">사색 · muse</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="clear" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">맑음 · clear</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="relative size-24 overflow-hidden rounded-full border border-border bg-card"><div class="orb absolute top-0 left-0" data-emotion="dear" style="width: 96px; height: 96px"></div></div>
+      <p class="text-caption font-medium">소중 · dear</p>
+    </div>
+  </div>
+
+  <p class="mt-10 text-title-sm font-medium">헤어라인 3단계</p>
+  <div class="mt-4 flex max-w-lg flex-col gap-3">
+    <div><div class="h-px w-full" style="background: var(--hairline-soft)"></div><p class="mt-1 text-caption text-muted-foreground">hairline-soft — 카드 내부 보조 구분</p></div>
+    <div><div class="h-px w-full" style="background: var(--hairline)"></div><p class="mt-1 text-caption text-muted-foreground">hairline — 기본 1px 구분선</p></div>
+    <div><div class="h-px w-full" style="background: var(--hairline-strong)"></div><p class="mt-1 text-caption text-muted-foreground">hairline-strong — 패널 외곽·입력 테두리</p></div>
+  </div>
+</section>
+
+<!-- 5. 타이포그래피 -->
+<section id="type" class="chrome-section">
+  <p class="eyebrow">타이포그래피</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">디스플레이는 항상 300, 본문은 400/500</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    세리프 디스플레이(Waldenburg의 규칙 승계 — 대체: Cormorant Garamond + Noto Serif KR 300)는
+    크게 쓸수록 자간을 조인다. 본문은 Pretendard. 기록 본문만 손글씨 서체 slot을 쓴다.
+  </p>
+  <div class="mt-8 flex flex-col gap-6">
+    <div class="border-b border-border pb-4"><p class="font-display text-display-mega font-light text-foreground">조용한 날에도 결은 남는다</p><p class="mt-1 text-caption text-muted-foreground">display-mega · 64/300/-1.92px — 히어로</p></div>
+    <div class="border-b border-border pb-4"><p class="font-display text-display-xl font-light text-foreground">오늘 만난 사람</p><p class="mt-1 text-caption text-muted-foreground">display-xl · 48/300/-0.96px</p></div>
+    <div class="border-b border-border pb-4"><p class="font-display text-display-lg font-light text-foreground">관계 지도</p><p class="mt-1 text-caption text-muted-foreground">display-lg · 36/300/-0.36px — 섹션 헤드</p></div>
+    <div class="border-b border-border pb-4"><p class="font-display text-display-sm font-light text-foreground">“그날 우리는 아무 말 없이 걸었다”</p><p class="mt-1 text-caption text-muted-foreground">display-sm · 24/300 — 회고 인용</p></div>
+    <div class="border-b border-border pb-4"><p class="text-title-md font-medium text-foreground">서연이와 한강 산책</p><p class="mt-1 text-caption text-muted-foreground">title-md · 20/500 — 카드 제목 (산세리프)</p></div>
+    <div class="border-b border-border pb-4"><p class="text-body-md text-body">편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다. 요즘 고민을 털어놓았는데, 서연이는 늘 그렇듯 과장 없이 들어줬다.</p><p class="mt-1 text-caption text-muted-foreground">body-md · 16/400/+0.16px — 기본 본문</p></div>
+    <div class="border-b border-border pb-4"><p class="text-body-sm text-body">보조 본문은 한 단계 작게 쓴다.</p><p class="mt-1 text-caption text-muted-foreground">body-sm · 15/400</p></div>
+    <div class="border-b border-border pb-4"><p class="text-caption text-muted-foreground">캡션 — 날짜·부가 정보</p><p class="mt-1 text-caption text-muted-foreground">caption · 14/400</p></div>
+    <div class="border-b border-border pb-4"><p class="eyebrow">2026년 7월 27일 · 월</p><p class="mt-1 text-caption text-muted-foreground">eyebrow · 12/600/대문자 — 날짜·섹션 라벨</p></div>
+    <div><p class="font-hand text-title-sm leading-relaxed text-foreground">손글씨 서체는 기록 본문과 회고 인용에만 쓴다. UI 라벨에 쓰면 역할이 오염된다.</p><p class="mt-1 text-caption text-muted-foreground">font-hand — 소비 앱이 서체 자산 제공 (폴백: Pretendard)</p></div>
+  </div>
+</section>
+
+<!-- 6. 간격 · 도형 · Elevation · 모션 -->
+<section id="space" class="chrome-section">
+  <p class="eyebrow">간격 · 도형 · Elevation · 모션</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">96px의 호흡, pill의 조작</h2>
+
+  <div class="mt-8 grid gap-8 md:grid-cols-2">
+    <div>
+      <p class="text-title-sm font-medium">반경 — 용도 고정</p>
+      <div class="mt-4 flex flex-wrap items-end gap-5">
+        <div class="flex flex-col items-center gap-2"><div class="size-16 bg-secondary" style="border-radius: var(--radius-xs)"></div><span class="text-caption text-muted-foreground">xs 4</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 bg-secondary" style="border-radius: var(--radius-md)"></div><span class="text-caption text-muted-foreground">md 8 · 입력</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 bg-secondary" style="border-radius: var(--radius-xl)"></div><span class="text-caption text-muted-foreground">xl 16 · 카드</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 bg-secondary" style="border-radius: var(--radius-2xl)"></div><span class="text-caption text-muted-foreground">2xl 24 · 대기</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="h-10 w-24 bg-primary" style="border-radius: var(--radius-pill)"></div><span class="text-caption text-muted-foreground">pill · CTA</span></div>
+      </div>
+    </div>
+    <div>
+      <p class="text-title-sm font-medium">Elevation — 부드러운 단일 계열</p>
+      <div class="mt-4 flex flex-wrap items-end gap-5">
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--shadow-card)"></div><span class="text-caption text-muted-foreground">card</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--shadow-float)"></div><span class="text-caption text-muted-foreground">float</span></div>
+        <div class="flex flex-col items-center gap-2"><div class="size-16 rounded-xl bg-card" style="box-shadow: var(--shadow-overlay)"></div><span class="text-caption text-muted-foreground">overlay</span></div>
+      </div>
+      <p class="mt-4 text-body-sm text-body">그림자는 단계마다 강해질 뿐, 색상이나 방향이 바뀌지 않는다.</p>
+    </div>
+  </div>
+
+  <div class="mt-10">
+    <p class="text-title-sm font-medium">모션</p>
+    <div class="mt-4 flex items-center gap-8">
+      <div class="relative size-28 overflow-hidden rounded-2xl border border-border bg-card">
+        <div class="orb absolute -top-6 left-2" data-emotion="muse" data-animated style="width: 110px; height: 110px"></div>
+      </div>
+      <ul class="flex flex-col gap-1.5 text-body-sm text-body">
+        <li>상태 전이: 색·opacity·transform만 120~200ms</li>
+        <li>orb 대기: 느린 float 8s — 빠른 펄스 금지</li>
+        <li>새 기록 저장 같은 단일 이벤트만 짧게 강조</li>
+        <li><code class="text-caption">prefers-reduced-motion</code>에서 전부 제거</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 7. 아이콘 -->
+<section id="icons" class="chrome-section">
+  <p class="eyebrow">아이콘</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">Lucide — stroke 2, 라운드 캡</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    아이콘은 <a class="underline" href="https://lucide.dev">Lucide</a>를 그대로 쓴다.
+    24px 그리드, stroke 2, round cap/join. 색은 <code class="text-caption">currentColor</code> —
+    주변 글자색을 따른다. 장식 아이콘은 <code class="text-caption">aria-hidden</code>.
+  </p>
+  <div class="mt-6 flex flex-wrap gap-6 text-foreground">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+  </div>
+</section>
+
+<!-- 8. 컴포넌트 라이브러리 -->
+<section id="components" class="chrome-section">
+  <p class="eyebrow">컴포넌트 라이브러리</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">Core 12 + Domain 6</h2>
+
+  <div class="mt-8 flex flex-col gap-10">
+    <div>
+      <p class="text-title-sm font-medium">Button — pill, 3단계 위계</p>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <button type="button" class="inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground">기록 작성</button>
+        <button type="button" class="inline-flex h-10 items-center rounded-pill border border-border-strong bg-transparent px-5 text-body-sm font-medium text-foreground">둘러보기</button>
+        <button type="button" class="inline-flex h-10 items-center rounded-pill bg-transparent px-5 text-body-sm font-medium text-foreground hover:bg-secondary">취소</button>
+        <button type="button" class="inline-flex h-10 items-center rounded-pill bg-destructive px-5 text-body-sm font-medium text-destructive-foreground">삭제</button>
+        <button type="button" disabled class="inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground opacity-50">비활성</button>
+      </div>
+    </div>
+
+    <div>
+      <p class="text-title-sm font-medium">Badge — pill + 대문자 캡션</p>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <span class="inline-flex items-center rounded-pill bg-secondary px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-secondary-foreground">가족</span>
+        <span class="inline-flex items-center rounded-pill border border-border-strong px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-foreground">친구</span>
+        <span class="inline-flex items-center rounded-pill bg-success/10 px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-success">저장됨</span>
+        <span class="inline-flex items-center gap-1.5 rounded-pill border px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-foreground"><span class="size-2 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+      </div>
+    </div>
+
+    <div>
+      <p class="text-title-sm font-medium">Input · Textarea — 포커스는 2px 잉크</p>
+      <div class="mt-3 grid max-w-2xl gap-4 md:grid-cols-2">
+        <div class="flex flex-col gap-2">
+          <label class="text-caption font-medium text-foreground" for="qa-name">사람 이름</label>
+          <input id="qa-name" type="text" placeholder="누구를 만났나요?" class="h-11 w-full rounded-md border border-input-border bg-input px-4 text-body-md text-foreground placeholder:text-muted-foreground focus-visible:border-2 focus-visible:border-foreground focus-visible:outline-none" />
+        </div>
+        <div class="rounded-xl border border-border p-3">
+          <textarea rows="3" aria-label="편지지 기록" class="letter-paper font-hand w-full border-none bg-transparent px-2 pt-1 text-title-sm leading-[28px] text-foreground focus-visible:outline-none">오랜 친구를 만났다.
+커피잔을 사이에 두고
+세 시간이나 떠들었다.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="text-title-sm font-medium">Card · Dialog · Tabs · Empty · Skeleton</p>
+      <div class="mt-3 grid gap-4 md:grid-cols-2">
+        <div class="rounded-xl border border-border bg-card text-card-foreground">
+          <div class="flex flex-col gap-1.5 p-6">
+            <h3 class="text-title-md font-medium">프로필 설정</h3>
+            <p class="text-body-sm text-muted-foreground">이름과 사진을 등록하면 관계 지도에 표시됩니다.</p>
+          </div>
+          <div class="flex gap-2 p-6 pt-0">
+            <button type="button" class="inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground">저장</button>
+            <button type="button" class="inline-flex h-10 items-center rounded-pill px-5 text-body-sm font-medium text-foreground hover:bg-secondary">취소</button>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-overlay">
+          <h3 class="text-title-md font-medium">이 기록을 삭제할까요?</h3>
+          <p class="mt-1.5 text-body-sm text-muted-foreground">삭제한 기록은 되돌릴 수 없습니다. (Dialog 정적 표현)</p>
+          <div class="mt-6 flex justify-end gap-2">
+            <button type="button" class="inline-flex h-9 items-center rounded-pill px-4 text-caption font-medium text-foreground hover:bg-secondary">취소</button>
+            <button type="button" class="inline-flex h-9 items-center rounded-pill bg-destructive px-4 text-caption font-medium text-destructive-foreground">삭제</button>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-6 border-b border-border">
+            <button type="button" class="-mb-px border-b-2 border-foreground px-1 py-2.5 text-body-sm font-medium text-foreground">타임라인</button>
+            <button type="button" class="-mb-px border-b-2 border-transparent px-1 py-2.5 text-body-sm font-medium text-muted-foreground">기록</button>
+            <button type="button" class="-mb-px border-b-2 border-transparent px-1 py-2.5 text-body-sm font-medium text-muted-foreground">프로필</button>
+          </div>
+          <div class="flex w-full flex-col gap-3 py-4">
+            <div class="animate-pulse rounded-md bg-muted" style="height: 12px; width: 40%"></div>
+            <div class="animate-pulse rounded-md bg-muted" style="height: 16px; width: 70%"></div>
+            <div class="animate-pulse rounded-md bg-muted" style="height: 12px; width: 90%"></div>
+          </div>
+          <p class="text-caption text-muted-foreground">Tabs + Skeleton (로딩은 레이아웃 유지)</p>
+        </div>
+        <div class="flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-card py-10 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground/60"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M12 8.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z"/></svg>
+          <div>
+            <p class="text-title-sm font-medium text-foreground">아직 기록이 없어요</p>
+            <p class="mt-1 text-body-sm text-muted-foreground">오늘 만난 사람과의 순간을 처음으로 남겨보세요.</p>
+          </div>
+          <button type="button" class="mt-2 inline-flex h-10 items-center rounded-pill bg-primary px-5 text-body-sm font-medium text-primary-foreground">첫 기록 작성</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. 도메인 패턴 -->
+<section id="domain" class="chrome-section">
+  <p class="eyebrow">도메인 패턴</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">레퍼런스 문법으로 짓는 일기 요소</h2>
+
+  <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <div>
+      <p class="text-title-sm font-medium">감정 선택 — 색 점 + 라벨 항상 동반</p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-calm)"></span>고요</span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-foreground bg-card px-3.5 py-2 text-body-sm font-medium text-foreground shadow-card"><span class="size-3 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-muse)"></span>사색</span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-clear)"></span>맑음</span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-transparent px-3.5 py-2 text-body-sm font-medium text-muted-foreground"><span class="size-3 rounded-full" style="background: var(--emotion-dear)"></span>소중</span>
+      </div>
+    </div>
+    <div>
+      <p class="text-title-sm font-medium">사람 chip — voice-row 문법 재사용</p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-card py-1 pr-3 pl-1"><span class="inline-flex size-8 items-center justify-center rounded-full bg-secondary text-caption font-medium text-secondary-foreground">김</span><span class="text-body-sm text-foreground">김서연</span></span>
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-card py-1 pr-3 pl-1"><span class="inline-flex size-8 items-center justify-center rounded-full bg-secondary text-caption font-medium text-secondary-foreground">이</span><span class="text-body-sm text-foreground">이하준</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-6 md:grid-cols-2">
+    <article class="flex flex-col gap-3 rounded-xl border border-border bg-card p-6 text-card-foreground">
+      <div class="flex items-center justify-between gap-2">
+        <span class="eyebrow">2026년 7월 27일 · 월</span>
+        <span class="inline-flex items-center gap-1.5 rounded-pill border px-2.5 py-0.5 text-eyebrow font-semibold uppercase text-foreground"><span class="size-2 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+      </div>
+      <h3 class="text-title-md font-medium">서연이와 한강 산책</h3>
+      <p class="text-body-sm leading-relaxed text-body">퇴근하고 한강에서 만났다. 편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다.</p>
+      <div class="mt-1 flex flex-wrap gap-1.5">
+        <span class="inline-flex items-center gap-2 rounded-pill border border-border bg-card py-1 pr-3 pl-1"><span class="inline-flex size-6 items-center justify-center rounded-full bg-secondary text-[10px] font-medium text-secondary-foreground">김</span><span class="text-caption text-foreground">김서연</span></span>
+      </div>
+    </article>
+
+    <figure class="relative overflow-hidden rounded-2xl border border-border bg-card p-8 text-card-foreground">
+      <div class="orb absolute -top-16 -right-16" data-emotion="warm" style="width: 220px; height: 220px"></div>
+      <figcaption class="eyebrow relative">1년 전 오늘 · 2025년 7월 27일</figcaption>
+      <blockquote class="relative mt-4 font-display text-display-sm leading-snug font-normal text-foreground">“첫 출근 날. 아무것도 모르지만 그래도 설렜다. 잘하고 싶다.”</blockquote>
+      <p class="relative mt-4 text-caption text-muted-foreground">그때의 감정 · 따뜻</p>
+    </figure>
+  </div>
+
+  <div class="mt-6 grid gap-6 md:grid-cols-2">
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="eyebrow mb-2">오늘의 감사 · 7월 27일</p>
+      <ol class="flex flex-col">
+        <li class="flex items-baseline gap-4 py-3.5"><span aria-hidden class="w-6 shrink-0 text-right font-display text-display-sm leading-none text-muted-foreground/70">1</span><span class="text-body-md leading-relaxed text-foreground">아침에 늦잠을 자지 않고 해를 본 것</span></li>
+        <li class="flex items-baseline gap-4 border-t border-border py-3.5"><span aria-hidden class="w-6 shrink-0 text-right font-display text-display-sm leading-none text-muted-foreground/70">2</span><span class="text-body-md leading-relaxed text-foreground">서연이가 먼저 안부를 물어준 것</span></li>
+        <li class="flex items-baseline gap-4 border-t border-border py-3.5"><span aria-hidden class="w-6 shrink-0 text-right font-display text-display-sm leading-none text-muted-foreground/70">3</span><span class="text-body-md leading-relaxed text-foreground">저녁 산책 공기가 선선했던 것</span></li>
+      </ol>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-title-sm font-medium">Year in Pixels — orb 5색 한정</p>
+      <p class="mt-1 text-body-sm text-body">1년을 감정 색 점 하나로 그린다. 새 시리즈마다 새 색을 칠하지 않는다.</p>
+      <div id="pixels" class="mt-4 grid gap-1" style="grid-template-columns: repeat(26, 1fr)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. 적용 화면 -->
+<section id="screens" class="chrome-section">
+  <p class="eyebrow">적용 화면</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">이 시스템으로 조립한 5개 화면</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    컴포넌트 나열이 아니라 실제 화면으로 시스템의 체력을 증명한다. 전부 위 코어·도메인
+    컴포넌트의 조합이고, 임의 색상·임의 간격이 하나도 없다.
+  </p>
+
+  <div class="mt-8 flex gap-6 overflow-x-auto pb-8">
+    <!-- 화면 1: 홈/오늘 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <p class="eyebrow">7월 27일 · 월</p>
+        <h3 class="font-display text-display-sm font-light text-foreground">오늘은 어떤<br />하루였나요?</h3>
+        <figure class="relative -mx-2 overflow-hidden rounded-2xl border border-border bg-card p-5">
+          <div class="orb absolute -top-10 -right-10" data-emotion="warm" style="width: 140px; height: 140px"></div>
+          <figcaption class="eyebrow relative">1년 전 오늘</figcaption>
+          <blockquote class="relative mt-2 font-display text-body-md leading-snug text-foreground">“첫 출근 날. 설렜다.”</blockquote>
+        </figure>
+        <article class="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+          <div class="flex items-center justify-between"><span class="eyebrow">어제</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase text-foreground"><span class="size-1.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span></div>
+          <h4 class="text-body-sm font-medium text-foreground">서연이와 한강 산책</h4>
+          <p class="text-caption text-body">편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다.</p>
+        </article>
+        <button type="button" class="mt-auto inline-flex h-11 w-full items-center justify-center rounded-pill bg-primary text-body-sm font-medium text-primary-foreground">오늘 기록 작성</button>
+      </div>
+    </div>
+
+    <!-- 화면 2: 기록 작성 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <div class="flex items-center justify-between">
+          <p class="text-title-sm font-medium text-foreground">기록 작성</p>
+          <span class="eyebrow">7월 27일</span>
+        </div>
+        <label class="text-caption font-medium text-foreground" for="screen-title">제목</label>
+        <input id="screen-title" type="text" value="서연이와 한강 산책" class="h-11 w-full rounded-md border border-input-border bg-input px-4 text-body-sm text-foreground focus-visible:border-2 focus-visible:border-foreground focus-visible:outline-none" />
+        <div class="rounded-xl border border-border p-3">
+          <textarea rows="5" aria-label="기록 본문" class="letter-paper font-hand w-full border-none bg-transparent px-2 pt-1 text-body-md leading-[28px] text-foreground focus-visible:outline-none">해가 지는 걸 끝까지 봤다.
+고민을 털어놓았는데
+과장 없이 들어줬다.</textarea>
+        </div>
+        <p class="text-caption font-medium text-foreground">오늘의 감정</p>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-pill border border-border px-3 py-1.5 text-caption text-muted-foreground"><span class="size-2.5 rounded-full" style="background: var(--emotion-calm)"></span>고요</span>
+          <span class="inline-flex items-center gap-1.5 rounded-pill border border-foreground bg-card px-3 py-1.5 text-caption font-medium text-foreground shadow-card"><span class="size-2.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span>
+          <span class="inline-flex items-center gap-1.5 rounded-pill border border-border px-3 py-1.5 text-caption text-muted-foreground"><span class="size-2.5 rounded-full" style="background: var(--emotion-muse)"></span>사색</span>
+        </div>
+        <p class="text-caption font-medium text-foreground">함께한 사람</p>
+        <div class="flex gap-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-pill border border-border bg-card py-0.5 pr-2.5 pl-0.5"><span class="inline-flex size-6 items-center justify-center rounded-full bg-secondary text-[10px] text-secondary-foreground">김</span><span class="text-caption text-foreground">김서연</span></span>
+        </div>
+        <button type="button" class="mt-auto inline-flex h-11 w-full items-center justify-center rounded-pill bg-primary text-body-sm font-medium text-primary-foreground">저장</button>
+      </div>
+    </div>
+
+    <!-- 화면 3: 감정 일기 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <p class="text-title-sm font-medium text-foreground">감정 흐름</p>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <p class="text-caption text-muted-foreground">이번 주</p>
+          <div class="mt-3 flex items-end justify-between gap-1.5">
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 28px; background: var(--emotion-calm)"></div><span class="text-[10px] text-muted-foreground">월</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 44px; background: var(--emotion-warm)"></div><span class="text-[10px] text-muted-foreground">화</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 20px; background: var(--emotion-muse)"></div><span class="text-[10px] text-muted-foreground">수</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 52px; background: var(--emotion-warm)"></div><span class="text-[10px] text-muted-foreground">목</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 36px; background: var(--emotion-clear)"></div><span class="text-[10px] text-muted-foreground">금</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 60px; background: var(--emotion-dear)"></div><span class="text-[10px] text-muted-foreground">토</span></div>
+            <div class="flex flex-1 flex-col items-center gap-1.5"><div class="w-full rounded-md" style="height: 40px; background: var(--emotion-calm)"></div><span class="text-[10px] text-muted-foreground">일</span></div>
+          </div>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <p class="text-caption text-muted-foreground">7월의 결</p>
+          <div id="pixels-mini" class="mt-2 grid gap-1" style="grid-template-columns: repeat(14, 1fr)"></div>
+        </div>
+        <p class="mt-auto text-caption leading-relaxed text-muted-foreground">이번 주는 <strong class="text-foreground">따뜻</strong>이 가장 많았어요. 서연·하준과 함께한 날이었습니다.</p>
+      </div>
+    </div>
+
+    <!-- 화면 4: 감사 일기 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <div class="flex items-center justify-between">
+          <p class="text-title-sm font-medium text-foreground">감사 일기</p>
+          <span class="eyebrow">7월 27일</span>
+        </div>
+        <ol class="flex flex-col">
+          <li class="flex items-baseline gap-3 py-3"><span aria-hidden class="w-5 shrink-0 text-right font-display text-title-sm leading-none text-muted-foreground/70">1</span><span class="text-body-sm leading-relaxed text-foreground">해를 본 것</span></li>
+          <li class="flex items-baseline gap-3 border-t border-border py-3"><span aria-hidden class="w-5 shrink-0 text-right font-display text-title-sm leading-none text-muted-foreground/70">2</span><span class="text-body-sm leading-relaxed text-foreground">서연이가 안부를 물어준 것</span></li>
+          <li class="flex items-baseline gap-3 border-t border-border py-3"><span aria-hidden class="w-5 shrink-0 text-right font-display text-title-sm leading-none text-muted-foreground/70">3</span><span class="text-body-sm leading-relaxed text-foreground">공기가 선선했던 것</span></li>
+        </ol>
+        <label class="text-caption font-medium text-foreground" for="screen-gratitude">오늘의 감사 추가</label>
+        <input id="screen-gratitude" type="text" placeholder="한 줄이면 충분해요" class="h-11 w-full rounded-md border border-input-border bg-input px-4 text-body-sm text-foreground placeholder:text-muted-foreground focus-visible:border-2 focus-visible:border-foreground focus-visible:outline-none" />
+        <button type="button" class="mt-auto inline-flex h-11 w-full items-center justify-center rounded-pill border border-border-strong bg-transparent text-body-sm font-medium text-foreground">오늘도 채우기</button>
+      </div>
+    </div>
+
+    <!-- 화면 5: 사람 타임라인 -->
+    <div class="chrome-phone">
+      <div class="chrome-phone-body">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex size-12 items-center justify-center rounded-full bg-secondary text-title-sm font-medium text-secondary-foreground">김</span>
+          <div>
+            <p class="text-title-sm font-medium text-foreground">김서연</p>
+            <p class="text-caption text-muted-foreground">대학 동기 · 기록 24</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-5 border-b border-border">
+          <button type="button" class="-mb-px border-b-2 border-foreground px-1 py-2 text-caption font-medium text-foreground">타임라인</button>
+          <button type="button" class="-mb-px border-b-2 border-transparent px-1 py-2 text-caption font-medium text-muted-foreground">프로필</button>
+        </div>
+        <article class="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+          <div class="flex items-center justify-between"><span class="eyebrow">7월 27일</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase text-foreground"><span class="size-1.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span></div>
+          <h4 class="text-body-sm font-medium text-foreground">한강 산책</h4>
+          <p class="text-caption text-body">해가 지는 걸 끝까지 봤다.</p>
+        </article>
+        <article class="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+          <div class="flex items-center justify-between"><span class="eyebrow">7월 12일</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase text-foreground"><span class="size-1.5 rounded-full" style="background: var(--emotion-clear)"></span>맑음</span></div>
+          <h4 class="text-body-sm font-medium text-foreground">점심 약속</h4>
+          <p class="text-caption text-body">새 회사 이야기를 들었다.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11. 테마 -->
+<section id="theme" class="chrome-section">
+  <p class="eyebrow">테마 — 역할 반전</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">Paper 채택, Night 보존</h2>
+  <p class="mt-4 max-w-2xl text-body-md text-body">
+    기본 정체성은 Paper(라이트)다. Night는 독립 스킨이 아니라 동일한 토큰 구조의
+    <code class="text-caption">.dark</code> 역할 반전으로 보존된다 — 아래 두 패널은
+    같은 마크업, 다른 클래스 하나다.
+  </p>
+  <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <div class="light rounded-2xl border border-border p-8" style="background: var(--background)">
+      <p class="eyebrow">Paper · light</p>
+      <div class="mt-4 flex flex-col gap-3">
+        <div class="rounded-xl border p-5" style="border-color: var(--border); background: var(--card)">
+          <div class="flex items-center justify-between"><span class="eyebrow">7월 27일</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase" style="border-color: var(--border-strong); color: var(--foreground)"><span class="size-1.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span></div>
+          <p class="mt-2 text-title-md font-medium" style="color: var(--foreground)">서연이와 한강 산책</p>
+          <p class="mt-1 text-body-sm" style="color: var(--body)">편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다.</p>
+          <button type="button" class="mt-4 inline-flex h-10 items-center rounded-pill px-5 text-body-sm font-medium" style="background: var(--primary); color: var(--primary-foreground)">기록 작성</button>
+        </div>
+      </div>
+    </div>
+    <div class="dark rounded-2xl border p-8" style="border-color: rgb(255 255 255 / 10%); background: var(--background)">
+      <p class="eyebrow">Night · dark</p>
+      <div class="mt-4 flex flex-col gap-3">
+        <div class="rounded-xl border p-5" style="border-color: var(--border); background: var(--card)">
+          <div class="flex items-center justify-between"><span class="eyebrow">7월 27일</span><span class="inline-flex items-center gap-1.5 rounded-pill border px-2 py-0.5 text-[10px] font-semibold uppercase" style="border-color: var(--border-strong); color: var(--foreground)"><span class="size-1.5 rounded-full" style="background: var(--emotion-warm)"></span>따뜻</span></div>
+          <p class="mt-2 text-title-md font-medium" style="color: var(--foreground)">서연이와 한강 산책</p>
+          <p class="mt-1 text-body-sm" style="color: var(--body)">편의점 커피를 들고 걷다가 해가 지는 걸 끝까지 봤다.</p>
+          <button type="button" class="mt-4 inline-flex h-10 items-center rounded-pill px-5 text-body-sm font-medium" style="background: var(--primary); color: var(--primary-foreground)">기록 작성</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12. 거버넌스 -->
+<section id="governance" class="chrome-section" style="padding-bottom: 96px">
+  <p class="eyebrow">거버넌스</p>
+  <h2 class="mt-3 font-display text-display-lg font-light">어디서 가져왔고, 다음에 무엇을 하나</h2>
+  <div class="mt-6 grid gap-4 md:grid-cols-3">
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-title-sm font-medium">벤치마크에서 가져온 것</p>
+      <ul class="mt-3 flex flex-col gap-2 text-body-sm text-body">
+        <li>code-first · CSS 단일 정본 (shadcn 철학)</li>
+        <li>semantic 단층 네이밍 + fg/bg 쌍 (Polaris·shadcn)</li>
+        <li>primitive→semantic 3계층과 전수 대조 계약 (Spectrum 교훈)</li>
+        <li>DO/DON'T 원칙 문서를 코드리뷰 판정 기준으로 (matchday Encore)</li>
+        <li>비주얼 리그레션 미사용 · 사람 갤러리 우선 정책</li>
+      </ul>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-title-sm font-medium">가져오지 않은 것</p>
+      <ul class="mt-3 flex flex-col gap-2 text-body-sm text-body">
+        <li>ElevenLabs 로고·상표·Waldenburg 서체·서비스 IA</li>
+        <li>hover 상태 미문서화 관행 (폼 중심 도메인이라 상태 필수 정의)</li>
+        <li>Figma↔code 자동 동기화 파이프라인 (업계 미해결)</li>
+        <li>수백 개 component 토큰 계층 (규모 과잉)</li>
+      </ul>
+    </div>
+    <div class="rounded-xl border border-border bg-card p-6">
+      <p class="text-title-sm font-medium">다음에 할 것</p>
+      <ul class="mt-3 flex flex-col gap-2 text-body-sm text-body">
+        <li>앱 styles.css를 이 패키지 re-import 한 줄로 교체하는 채택 PR</li>
+        <li>앱의 하드코딩 감정 팔레트·앰버 3역할을 이 토큰으로 이관</li>
+        <li>Playwright 픽셀 QA로 이 문서의 "컴파일 CSS 실측"을 렌더 실측으로 승격</li>
+        <li>사용처 카운트가 쌓이면 variant 승격 (playbook H)</li>
+      </ul>
+    </div>
+  </div>
+  <p class="mt-10 text-caption text-muted-foreground">
+    결 0.1.0 · 2026-07-27 · 이 파일은 <code>scripts/build-showcase.mjs</code>가 토큰 정본의
+    컴파일 CSS를 인라인해 생성한다 — 명세와 구현이 같은 파일이라 어긋날 수 없다.
+  </p>
+</section>
+
+<script>
+  // 테마 토글 — .dark 클래스 전환. 팔레트 변수와 dark: 유틸리티가 같은 스위치로 전환된다.
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    btn.addEventListener('click', function () {
+      var dark = document.documentElement.classList.toggle('dark');
+      document.documentElement.classList.toggle('light', !dark);
+      btn.textContent = dark ? 'Paper로' : 'Night으로';
+    });
+  })();
+
+  // Year in Pixels — 감정 orb 5색만으로. 결정적 의사난수로 매번 같은 그림.
+  (function () {
+    var emotions = ['calm', 'warm', 'muse', 'clear', 'dear'];
+    function fill(id, count) {
+      var grid = document.getElementById(id);
+      if (!grid) return;
+      var seed = 20260727;
+      for (var i = 0; i < count; i++) {
+        seed = (seed * 1103515245 + 12345) % 2147483648;
+        var dot = document.createElement('span');
+        dot.style.cssText =
+          'aspect-ratio:1;border-radius:50%;background:var(--emotion-' +
+          emotions[seed % 5] +
+          ');opacity:0.85';
+        grid.appendChild(dot);
+      }
+    }
+    fill('pixels', 364);
+    fill('pixels-mini', 28);
+  })();
+</script>
+
+</body>
+</html>
