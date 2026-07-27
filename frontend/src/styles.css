@@ -16,7 +16,9 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.475rem;
+  /* Apple식 둥근 모서리. 0.475rem(7.6px)에서 0.75rem(12px)으로 키워
+     버튼·카드·입력의 rounded-lg가 Apple 컨트롤 반경에 가까워진다. */
+  --radius: 0.75rem;
   /* 오버레이 레이어: 앱 콘텐츠 위에 뜨는 것들의 쌓임 순서를 한 곳에서 정한다.
      확인팝업·다이얼로그는 #stack-overlay-root 포탈(--z-overlay)에 모여 같은
      쌓임 맥락에서 DOM 순서로 겹친다. 바텀시트(vaul)·팝오버(radix)·탭바는 그

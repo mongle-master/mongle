@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="ko" class="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고요 (Goyo) — Mongle Design Language</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* ============================================================
+   고요 (Goyo) — 토큰 정본 (인라인)
+   Reference: Apple DESIGN.md → 일기/감정기록 도메인
+   ============================================================ */
+:root{
+  /* TIER 1 · PRIMITIVES */
+  --amber-300:#fcd34d; --amber-400:#e8a84c; --amber-500:#d97706;
+  --amber-600:#b45309; --amber-700:#92400e;
+  --neutral-0:#ffffff; --neutral-25:#fafafc; --neutral-50:#f5f5f7;
+  --neutral-100:#f0f0f2; --neutral-200:#e8e8ed; --neutral-300:#d2d2d7;
+  --neutral-400:#a1a1a6; --neutral-500:#86868b; --neutral-600:#6e6e73;
+  --neutral-700:#48484a; --neutral-800:#2c2c2e; --neutral-850:#242426;
+  --neutral-900:#1c1c1e; --neutral-925:#161618; --neutral-950:#121214;
+  --neutral-1000:#000000;
+  --ink:#1d1d1f;
+  --emotion-joy:#d97706; --emotion-calm:#4a90b8; --emotion-sadness:#7c7fc7;
+  --emotion-anger:#c05050; --emotion-gratitude:#4a9e6e;
+  --red-400:#e06c6c; --red-600:#c53d3d; --green-500:#4a9e6e;
+}
+:root,.light{
+  color-scheme:light;
+  --background:var(--neutral-0); --foreground:var(--ink);
+  --card:var(--neutral-25); --card-foreground:var(--ink);
+  --popover:var(--neutral-0); --popover-foreground:var(--ink);
+  --primary:var(--amber-600); --primary-foreground:var(--neutral-0);
+  --primary-hover:var(--amber-700);
+  --secondary:var(--neutral-50); --secondary-foreground:var(--ink);
+  --secondary-hover:var(--neutral-200);
+  --muted:var(--neutral-50); --muted-foreground:var(--neutral-600);
+  --accent:var(--neutral-100); --accent-foreground:var(--ink);
+  --destructive:var(--red-600); --destructive-foreground:var(--neutral-0);
+  --border:rgb(0 0 0 / 8%);
+  --input:var(--neutral-0); --input-border:var(--neutral-300);
+  --ring:var(--amber-600);
+  --shadow-overlay:0 12px 32px rgb(0 0 0 / 12%);
+  --shadow-pop:0 16px 48px rgb(0 0 0 / 16%);
+  --glow:rgb(217 119 6 / 7%);
+  --rule:rgb(0 0 0 / 5%);
+}
+.dark{
+  color-scheme:dark;
+  --background:var(--neutral-950); --foreground:var(--neutral-50);
+  --card:var(--neutral-900); --card-foreground:var(--neutral-50);
+  --popover:var(--neutral-850); --popover-foreground:var(--neutral-50);
+  --primary:var(--amber-400); --primary-foreground:var(--neutral-950);
+  --primary-hover:var(--amber-300);
+  --secondary:var(--neutral-850); --secondary-foreground:var(--neutral-50);
+  --secondary-hover:var(--neutral-800);
+  --muted:var(--neutral-900); --muted-foreground:var(--neutral-400);
+  --accent:var(--neutral-800); --accent-foreground:var(--neutral-50);
+  --destructive:var(--red-400); --destructive-foreground:var(--neutral-950);
+  --border:rgb(255 255 255 / 8%);
+  --input:var(--neutral-850); --input-border:var(--neutral-600);
+  --ring:var(--amber-400);
+  --shadow-overlay:0 12px 32px rgb(0 0 0 / 50%);
+  --shadow-pop:0 16px 48px rgb(0 0 0 / 60%);
+  --glow:rgb(232 168 76 / 6%);
+  --rule:rgb(255 255 255 / 6%);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable',Pretendard,'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  background:var(--background); color:var(--foreground);
+  font-size:15px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  transition:background .35s ease,color .35s ease;
+  overflow-x:hidden;
+}
+.hand{font-family:'Gaegu','Onglip Eunbyeol',cursive}
+::selection{background:color-mix(in srgb,var(--primary) 22%,transparent)}
+
+/* ambient layered background: ruled paper + warm glow */
+.bg-layer{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.bg-rules{
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--rule) 31px,var(--rule) 32px);
+  opacity:.5;
+}
+.bg-glow{
+  background:
+    radial-gradient(900px 500px at 85% -5%,var(--glow),transparent 70%),
+    radial-gradient(700px 450px at -10% 30%,var(--glow),transparent 70%);
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:color-mix(in srgb,var(--background) 82%,transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  transition:background .35s;
+}
+.nav-inner{max-width:1080px;margin:0 auto;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-weight:600;font-size:16px;letter-spacing:-0.02em;display:flex;align-items:baseline;gap:8px}
+.nav-brand .hand{color:var(--primary);font-size:18px}
+.nav-links{display:flex;gap:20px;font-size:13px;color:var(--muted-foreground)}
+.nav-links a{color:inherit;text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--foreground)}
+.theme-btn{
+  height:32px;padding:0 14px;border-radius:9999px;border:1px solid var(--border);
+  background:var(--secondary);color:var(--secondary-foreground);
+  font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;
+  transition:all .15s;display:inline-flex;align-items:center;gap:6px;
+}
+.theme-btn:hover{background:var(--secondary-hover)}
+.theme-btn:active{transform:scale(.95)}
+@media(max-width:760px){.nav-links{display:none}}
+
+/* ============================================================
+   LAYOUT / TYPE
+   ============================================================ */
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+section{padding:120px 0;position:relative}
+.eyebrow{
+  font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--primary);display:flex;align-items:center;gap:10px;margin-bottom:20px;
+}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--primary)}
+h2.sec-title{
+  font-size:clamp(34px,5vw,56px);font-weight:600;letter-spacing:-0.03em;
+  line-height:1.08;margin-bottom:16px;
+}
+.sec-sub{font-size:17px;color:var(--muted-foreground);max-width:560px;line-height:1.65}
+.divider{height:1px;background:var(--border);max-width:1080px;margin:0 auto}
+
+/* scroll reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal[data-d="1"]{transition-delay:.08s}.reveal[data-d="2"]{transition-delay:.16s}
+.reveal[data-d="3"]{transition-delay:.24s}.reveal[data-d="4"]{transition-delay:.32s}
+
+/* ============================================================
+   HERO — journal page being written
+   ============================================================ */
+.hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 80px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:64px;align-items:center;width:100%}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:48px}}
+
+.hero-kicker{font-size:13px;color:var(--muted-foreground);letter-spacing:.02em;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.hero-kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--primary);animation:pulse 2.4s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+.hero-title{
+  font-size:clamp(72px,11vw,148px);font-weight:600;letter-spacing:-0.045em;
+  line-height:.95;position:relative;display:inline-block;
+}
+.hero-title .hand-overlay{
+  position:absolute;font-size:.42em;color:var(--primary);
+  right:-.55em;top:-.35em;transform:rotate(-8deg);font-weight:700;
+  letter-spacing:0;white-space:nowrap;
+}
+.hero-hand-line{
+  font-size:clamp(24px,3.2vw,34px);line-height:1.5;margin-top:36px;
+  min-height:2.6em;color:var(--foreground);
+}
+.hero-hand-line .ch{opacity:0;display:inline-block;transform:translateY(8px) rotate(2deg);transition:opacity .3s,transform .3s}
+.hero-hand-line .ch.on{opacity:1;transform:none}
+.hero-hand-line .accent-word{color:var(--hero-accent,var(--emotion-joy));font-weight:700;transition:color .3s}
+
+.hero-prompt{font-size:13px;color:var(--muted-foreground);margin-top:40px;margin-bottom:14px}
+
+/* emotion picker (shared) */
+.emotion-picker{display:flex;gap:10px;flex-wrap:wrap}
+.emo{
+  width:52px;height:52px;border-radius:50%;border:1.5px solid var(--border);
+  background:var(--card);display:flex;align-items:center;justify-content:center;
+  font-size:22px;cursor:pointer;transition:all .18s cubic-bezier(.22,1,.36,1);
+  position:relative;
+}
+.emo:hover{transform:translateY(-4px);border-color:var(--muted-foreground)}
+.emo:active{transform:scale(.9)}
+.emo .emo-label{
+  position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
+  font-size:10px;color:var(--muted-foreground);white-space:nowrap;opacity:0;transition:opacity .15s;
+}
+.emo:hover .emo-label{opacity:1}
+.emo.sel{border-width:2px}
+.emo[data-e="joy"].sel{border-color:var(--emotion-joy);background:color-mix(in srgb,var(--emotion-joy) 12%,transparent);box-shadow:0 4px 16px color-mix(in srgb,var(--emotion-joy) 25%,transparent)}
+.emo[data-e="calm"].sel{border-color:var(--emotion-calm);background:color-mix(in srgb,var(--emotion-calm) 12%,transparent);box-shadow:0 4px 16px color-mix(in srgb,var(--emotion-calm) 25%,transparent)}
+.emo[data-e="sadness"].sel{border-color:var(--emotion-sadness);background:color-mix(in srgb,var(--emotion-sadness) 12%,transparent);box-shadow:0 4px 16px color-mix(in srgb,var(--emotion-sadness) 25%,transparent)}
+.emo[data-e="anger"].sel{border-color:var(--emotion-anger);background:color-mix(in srgb,var(--emotion-anger) 12%,transparent);box-shadow:0 4px 16px color-mix(in srgb,var(--emotion-anger) 25%,transparent)}
+.emo[data-e="gratitude"].sel{border-color:var(--emotion-gratitude);background:color-mix(in srgb,var(--emotion-gratitude) 12%,transparent);box-shadow:0 4px 16px color-mix(in srgb,var(--emotion-gratitude) 25%,transparent)}
+
+/* hero live diary card */
+.hero-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:28px;box-shadow:var(--shadow-overlay);
+  transform:rotate(1.5deg);transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s;
+  position:relative;
+}
+.hero-card:hover{transform:rotate(0deg) translateY(-6px);box-shadow:var(--shadow-pop)}
+.hero-card::before{
+  content:"";position:absolute;top:0;left:28px;right:28px;height:3px;
+  border-radius:0 0 3px 3px;background:var(--hero-accent,var(--emotion-joy));transition:background .3s;
+}
+.hc-date{font-size:11px;color:var(--muted-foreground);letter-spacing:.04em}
+.hc-title{font-size:20px;font-weight:600;letter-spacing:-0.02em;margin-top:6px}
+.hc-body{
+  margin-top:16px;padding-top:16px;border-top:1px dashed var(--border);
+  font-size:19px;line-height:1.9;color:var(--card-foreground);
+}
+.hc-badge{
+  display:inline-flex;align-items:center;gap:5px;border-radius:9999px;
+  padding:4px 12px;font-size:11px;font-weight:600;margin-top:18px;
+  background:color-mix(in srgb,var(--hero-accent,var(--emotion-joy)) 12%,transparent);
+  color:var(--hero-accent,var(--emotion-joy));transition:all .3s;
+}
+.scroll-cue{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  font-size:11px;color:var(--muted-foreground);letter-spacing:.1em;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.scroll-cue span{animation:bob 1.8s ease infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+/* ============================================================
+   PRINCIPLES — numbered rows
+   ============================================================ */
+.principle{
+  display:grid;grid-template-columns:120px 1fr;gap:32px;align-items:start;
+  padding:40px 0;border-bottom:1px solid var(--border);
+  transition:background .2s;
+}
+.principle:hover{background:color-mix(in srgb,var(--primary) 3%,transparent)}
+.principle:last-child{border-bottom:none}
+.p-num{font-size:64px;font-weight:600;letter-spacing:-0.04em;color:var(--primary);line-height:1;opacity:.85;font-family:'Inter',sans-serif}
+.p-body h3{font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-bottom:8px}
+.p-body p{font-size:14px;color:var(--muted-foreground);max-width:520px;line-height:1.7}
+.p-body .hand-note{font-size:17px;color:var(--primary);margin-top:10px;display:inline-block;transform:rotate(-1deg)}
+@media(max-width:640px){.principle{grid-template-columns:1fr;gap:12px}.p-num{font-size:44px}}
+
+/* ============================================================
+   COLOR — bands + inspector
+   ============================================================ */
+.ramp{display:flex;flex-direction:column;gap:0;border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:48px}
+.ramp-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 28px;cursor:pointer;transition:all .2s;position:relative;
+}
+.ramp-row:hover{padding-left:38px}
+.ramp-row .r-name{font-size:13px;font-weight:600;letter-spacing:.02em}
+.ramp-row .r-hex{font-size:12px;font-family:'Inter',monospace;opacity:.75}
+.ramp-row .r-role{font-size:11px;opacity:.7}
+
+.swatch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.swatch{
+  border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;
+  transition:all .2s cubic-bezier(.22,1,.36,1);background:var(--card);
+}
+.swatch:hover{transform:translateY(-5px);box-shadow:var(--shadow-overlay)}
+.swatch .sw-color{height:72px;transition:height .2s}
+.swatch:hover .sw-color{height:84px}
+.swatch .sw-meta{padding:10px 14px;font-size:11px}
+.swatch .sw-meta code{display:block;color:var(--muted-foreground);margin-top:2px;font-family:'Inter',monospace}
+
+.inspector{
+  margin-top:32px;border:1px solid var(--border);border-radius:16px;background:var(--card);
+  padding:24px 28px;display:flex;align-items:center;gap:24px;
+  transition:all .3s;
+}
+.inspector .ins-chip{width:64px;height:64px;border-radius:14px;flex-shrink:0;border:1px solid var(--border);transition:background .3s}
+.inspector .ins-name{font-size:18px;font-weight:600;letter-spacing:-0.02em}
+.inspector .ins-val{font-size:13px;font-family:'Inter',monospace;color:var(--muted-foreground);margin-top:2px}
+.inspector .ins-role{font-size:12px;color:var(--muted-foreground);margin-top:6px}
+.inspector .ins-hint{margin-left:auto;font-size:11px;color:var(--muted-foreground)}
+@media(max-width:640px){.inspector{flex-wrap:wrap}.inspector .ins-hint{display:none}}
+
+/* ============================================================
+   TYPE
+   ============================================================ */
+.type-row{
+  display:flex;align-items:baseline;gap:32px;padding:28px 0;border-bottom:1px solid var(--border);
+  transition:all .2s;
+}
+.type-row:hover{padding-left:12px}
+.type-meta{width:170px;flex-shrink:0;font-size:11px;color:var(--muted-foreground);font-family:'Inter',monospace;line-height:1.5}
+.type-sample{flex:1;letter-spacing:-0.02em}
+.hand-specimen{
+  margin-top:56px;background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:48px;position:relative;overflow:hidden;
+}
+.hand-specimen::before{
+  content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 35px,var(--rule) 35px,var(--rule) 36px);
+}
+.hand-specimen .hs-text{position:relative;font-size:clamp(24px,3.4vw,36px);line-height:36px;font-weight:400}
+.hand-specimen .hs-cap{position:relative;font-size:11px;color:var(--muted-foreground);margin-top:24px;font-family:'Inter',monospace}
+
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+.comp-block{margin-bottom:64px}
+.comp-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-foreground);margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.comp-label::after{content:"";flex:1;height:1px;background:var(--border)}
+.stage{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:40px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;
+  transition:all .2s;
+}
+.stage:hover{border-color:color-mix(in srgb,var(--primary) 30%,var(--border))}
+.stage.col{flex-direction:column;align-items:stretch}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-weight:500;font-size:15px;height:44px;padding:0 24px;border-radius:9999px;
+  border:none;cursor:pointer;transition:all .18s cubic-bezier(.22,1,.36,1);font-family:inherit;
+  letter-spacing:-0.01em;
+}
+.btn:active{transform:scale(.95)}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-primary:hover{background:var(--primary-hover);transform:translateY(-2px);box-shadow:0 6px 20px color-mix(in srgb,var(--primary) 30%,transparent)}
+.btn-secondary{background:var(--secondary);color:var(--secondary-foreground);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--secondary-hover);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--foreground)}
+.btn-ghost:hover{background:var(--accent)}
+.btn-destructive{background:var(--destructive);color:var(--destructive-foreground)}
+.btn-destructive:hover{transform:translateY(-2px);box-shadow:0 6px 20px color-mix(in srgb,var(--destructive) 30%,transparent)}
+.btn-utility{background:var(--accent);color:var(--accent-foreground);border-radius:10px;height:36px;padding:0 16px;font-size:13px}
+.btn-sm{height:36px;padding:0 16px;font-size:13px}
+.btn-lg{height:50px;padding:0 32px;font-size:17px}
+.btn:disabled{opacity:.45;pointer-events:none}
+
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:9999px;padding:5px 13px;font-size:11px;font-weight:600;transition:transform .15s}
+.badge:hover{transform:scale(1.06)}
+.badge-default{background:var(--accent);color:var(--accent-foreground)}
+.badge-primary{background:color-mix(in srgb,var(--primary) 10%,transparent);color:var(--primary)}
+.badge-joy{background:color-mix(in srgb,var(--emotion-joy) 12%,transparent);color:var(--emotion-joy)}
+.badge-calm{background:color-mix(in srgb,var(--emotion-calm) 12%,transparent);color:var(--emotion-calm)}
+.badge-sadness{background:color-mix(in srgb,var(--emotion-sadness) 12%,transparent);color:var(--emotion-sadness)}
+.badge-anger{background:color-mix(in srgb,var(--emotion-anger) 12%,transparent);color:var(--emotion-anger)}
+.badge-gratitude{background:color-mix(in srgb,var(--emotion-gratitude) 12%,transparent);color:var(--emotion-gratitude)}
+
+.input{
+  height:44px;width:100%;border-radius:10px;border:1px solid var(--input-border);
+  background:var(--input);padding:0 16px;font-size:15px;color:var(--foreground);
+  outline:none;transition:all .18s;font-family:inherit;
+}
+.input:focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 18%,transparent)}
+.input::placeholder{color:var(--muted-foreground)}
+.textarea{min-height:130px;padding:12px 16px;line-height:1.7;resize:vertical}
+
+.tabs-list{display:inline-flex;align-items:center;gap:4px;height:44px;border-radius:9999px;background:var(--secondary);padding:4px}
+.tab-trigger{
+  border-radius:9999px;padding:7px 18px;font-size:13px;font-weight:500;border:none;
+  background:transparent;color:var(--muted-foreground);cursor:pointer;
+  transition:all .18s;font-family:inherit;
+}
+.tab-trigger:active{transform:scale(.95)}
+.tab-trigger.active{background:var(--card);color:var(--foreground);box-shadow:0 1px 4px rgb(0 0 0 / 10%)}
+.tab-panel{display:none;animation:fadeUp .35s cubic-bezier(.22,1,.36,1)}
+.tab-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* live diary entry (component demo) */
+.live-entry{
+  border-radius:16px;border:1px solid var(--border);background:var(--background);
+  padding:24px;max-width:420px;width:100%;transition:all .3s;
+}
+.live-entry .le-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.live-entry .le-date{font-size:11px;color:var(--muted-foreground)}
+.live-entry .le-title{font-size:16px;font-weight:600;letter-spacing:-0.01em;margin-top:4px}
+.live-entry .le-body{margin-top:14px;font-size:17px;line-height:1.8}
+.live-entry .le-badge{
+  display:inline-flex;align-items:center;gap:5px;border-radius:9999px;padding:4px 12px;
+  font-size:11px;font-weight:600;transition:all .3s;flex-shrink:0;
+}
+
+.person-card{
+  display:flex;align-items:center;gap:14px;border-radius:14px;border:1px solid var(--border);
+  background:var(--background);padding:16px 18px;transition:all .2s cubic-bezier(.22,1,.36,1);
+  cursor:pointer;width:100%;max-width:420px;
+}
+.person-card:hover{transform:translateX(6px);border-color:color-mix(in srgb,var(--primary) 35%,var(--border));box-shadow:var(--shadow-overlay)}
+.person-avatar{
+  width:44px;height:44px;border-radius:50%;background:var(--secondary);
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;
+  color:var(--secondary-foreground);flex-shrink:0;transition:all .2s;
+}
+.person-card:hover .person-avatar{background:color-mix(in srgb,var(--primary) 12%,transparent);color:var(--primary)}
+.person-name{font-size:15px;font-weight:500}
+.person-relation{font-size:11px;color:var(--muted-foreground)}
+.person-time{margin-left:auto;font-size:11px;color:var(--muted-foreground)}
+
+/* dialog */
+.dialog-overlay{
+  position:fixed;inset:0;z-index:200;background:rgb(0 0 0 / 45%);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.dialog-overlay.open{opacity:1;pointer-events:auto}
+.dialog-box{
+  background:var(--popover);color:var(--popover-foreground);border:1px solid var(--border);
+  border-radius:20px;padding:32px;max-width:400px;width:100%;box-shadow:var(--shadow-pop);
+  transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.22,1,.36,1);
+}
+.dialog-overlay.open .dialog-box{transform:none}
+.dialog-box h3{font-size:19px;font-weight:600;letter-spacing:-0.02em}
+.dialog-box p{font-size:13px;color:var(--muted-foreground);margin-top:8px;line-height:1.6}
+.dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:28px}
+
+/* ============================================================
+   SCREENS — phone mockups
+   ============================================================ */
+.screen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:28px}
+.phone{
+  border-radius:32px;border:1px solid var(--border);overflow:hidden;background:var(--background);
+  box-shadow:var(--shadow-overlay);transition:all .35s cubic-bezier(.22,1,.36,1);
+  transform-style:preserve-3d;
+}
+.phone:hover{transform:translateY(-10px) rotate(-1deg);box-shadow:var(--shadow-pop)}
+.phone-bar{height:44px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted-foreground);border-bottom:1px solid var(--border);font-weight:500}
+.phone-body{padding:20px;min-height:230px}
+.phone-tabs{height:56px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid var(--border);font-size:10px;color:var(--muted-foreground)}
+.phone-tabs .on{color:var(--primary);font-weight:600}
+.mini-entry{border-radius:12px;border:1px solid var(--border);background:var(--card);padding:14px;transition:all .2s}
+.mini-entry:hover{border-color:color-mix(in srgb,var(--primary) 30%,var(--border))}
+.mini-badge{display:inline-flex;border-radius:9999px;padding:2px 9px;font-size:10px;font-weight:600}
+.mini-avatar{width:36px;height:36px;border-radius:50%;background:var(--secondary);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+
+/* ============================================================
+   THEME split
+   ============================================================ */
+.theme-split{display:grid;grid-template-columns:1fr 1fr;border-radius:24px;overflow:hidden;border:1px solid var(--border)}
+@media(max-width:700px){.theme-split{grid-template-columns:1fr}}
+.theme-pane{padding:48px 40px;transition:all .3s}
+.theme-pane.light-pane{background:#ffffff;color:#1d1d1f}
+.theme-pane.dark-pane{background:#121214;color:#f5f5f7}
+.theme-pane .tp-eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;margin-bottom:20px;opacity:.6}
+.theme-pane .tp-big{font-size:44px;font-weight:600;letter-spacing:-0.03em;line-height:1.05}
+.theme-pane .tp-hand{font-size:22px;margin-top:20px;line-height:1.7}
+.theme-pane .tp-tokens{margin-top:28px;display:flex;flex-direction:column;gap:8px;font-size:12px;font-family:'Inter',monospace;opacity:.8}
+.light-pane .tp-accent{color:#b45309}
+.dark-pane .tp-accent{color:#e8a84c}
+.light-pane .tp-hand{color:#b45309}
+.dark-pane .tp-hand{color:#e8a84c}
+
+/* ============================================================
+   GOVERNANCE
+   ============================================================ */
+.gov-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:760px){.gov-grid{grid-template-columns:1fr}}
+.gov-card{border:1px solid var(--border);border-radius:20px;background:var(--card);padding:32px;transition:all .25s}
+.gov-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-overlay)}
+.gov-card h3{font-size:17px;font-weight:600;letter-spacing:-0.01em;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.gov-card h3 .g-dot{width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.gov-card ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--muted-foreground);line-height:1.6}
+.gov-card ul strong{color:var(--foreground);font-weight:600}
+.gov-card ul .todo{opacity:.7}
+.legal-note{
+  margin-top:24px;border-left:3px solid var(--primary);background:color-mix(in srgb,var(--primary) 5%,transparent);
+  border-radius:0 14px 14px 0;padding:20px 24px;font-size:13px;color:var(--muted-foreground);line-height:1.7;
+}
+.legal-note strong{color:var(--foreground)}
+
+footer{padding:64px 24px;text-align:center;font-size:11px;color:var(--muted-foreground);border-top:1px solid var(--border)}
+footer .hand{font-size:16px;color:var(--primary);display:block;margin-bottom:8px}
+
+/* ===== Apple app-chrome patterns ===== */
+.apple-frame{border-radius:36px;border:1px solid var(--border);overflow:hidden;background:var(--background);box-shadow:var(--shadow-overlay);max-width:380px;margin:0 auto;display:flex;flex-direction:column;transition:box-shadow .35s,transform .35s}
+.apple-frame:hover{box-shadow:var(--shadow-pop);transform:translateY(-6px)}
+.apple-navbar{position:relative;display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 16px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--background) 78%,transparent);backdrop-filter:blur(14px)}
+.apple-navbar .nb-title{position:absolute;left:50%;transform:translateX(-50%);font-size:17px;font-weight:600;letter-spacing:-0.02em}
+.nb-btn{width:36px;height:36px;border-radius:50%;border:none;background:transparent;color:var(--foreground);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;font-size:18px}
+.nb-btn:hover{background:var(--accent)}
+.nb-btn:active{transform:scale(.9)}
+.apple-body{padding:20px;flex:1}
+.search-field{display:flex;align-items:center;gap:8px;height:40px;border-radius:9999px;background:var(--secondary);padding:0 14px;color:var(--muted-foreground);transition:box-shadow .15s}
+.search-field:focus-within{box-shadow:0 0 0 2px color-mix(in srgb,var(--ring) 30%,transparent)}
+.search-field input{flex:1;border:none;background:transparent;outline:none;font-size:15px;color:var(--foreground);font-family:inherit}
+.search-field input::placeholder{color:var(--muted-foreground)}
+.grouped-list{border-radius:12px;border:1px solid var(--border);background:var(--card);overflow:hidden}
+.list-row{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border:none;background:transparent;text-align:left;cursor:pointer;transition:background .15s;font-family:inherit;color:var(--card-foreground)}
+.list-row:hover{background:color-mix(in srgb,var(--accent) 50%,transparent)}
+.list-row:active{background:var(--accent)}
+.list-row + .list-row{border-top:1px solid var(--border)}
+.list-row .lr-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.list-row .lr-title{flex:1;font-size:15px}
+.list-row .lr-trail{font-size:13px;color:var(--muted-foreground)}
+.list-row .lr-chev{color:var(--muted-foreground);opacity:.5;font-size:16px}
+.ios-switch{position:relative;width:51px;height:31px;border-radius:9999px;border:none;padding:2px;cursor:pointer;transition:background .2s;flex-shrink:0}
+.ios-switch .thumb{display:block;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(0 0 0 / 25%);transition:transform .2s cubic-bezier(.22,1,.36,1)}
+.ios-switch[aria-checked="true"]{background:var(--primary)}
+.ios-switch[aria-checked="true"] .thumb{transform:translateX(20px)}
+.ios-switch[aria-checked="false"]{background:var(--secondary-hover)}
+.apple-tabbar{display:flex;justify-content:space-around;align-items:stretch;border-top:1px solid var(--border);background:color-mix(in srgb,var(--background) 85%,transparent);backdrop-filter:blur(14px);padding:6px 0 10px}
+.apple-tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:transparent;cursor:pointer;padding:6px 0;font-family:inherit;transition:all .15s;color:var(--muted-foreground)}
+.apple-tabbar button:active{transform:scale(.9)}
+.apple-tabbar button .tb-ico{font-size:22px;line-height:1}
+.apple-tabbar button .tb-lbl{font-size:10px;font-weight:500}
+.apple-tabbar button.on{color:var(--primary)}
+.sec-header-demo{display:flex;flex-direction:column;gap:12px}
+.sec-header-demo .sh-eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--primary)}
+.sec-header-demo .sh-title{font-size:clamp(28px,5vw,48px);font-weight:600;line-height:1.08;letter-spacing:-0.03em}
+.sec-header-demo .sh-desc{font-size:17px;color:var(--muted-foreground);max-width:560px;line-height:1.6}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer bg-glow"></div>
+<div class="bg-layer bg-rules"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="nav-brand">고요 <span class="hand">Goyo</span></span>
+    <div class="nav-links">
+      <a href="#principles">원칙</a><a href="#color">색</a><a href="#type">타이포</a>
+      <a href="#components">컴포넌트</a><a href="#apple-patterns">Apple 패턴</a><a href="#screens">화면</a><a href="#theme">테마</a><a href="#governance">거버넌스</a>
+    </div>
+    <button class="theme-btn" id="themeToggle"><span id="themeIcon">◐</span> <span id="themeLabel">다크</span></button>
+  </div>
+</nav>
+
+<!-- ============ HERO : journal page ============ -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-kicker"><span class="dot"></span> MONGLE DESIGN LANGUAGE · Apple DESIGN.md reference</div>
+      <h1 class="hero-title">고요<span class="hand-overlay hand">몽글몽글</span></h1>
+      <p class="hero-hand-line hand" id="heroLine"></p>
+      <p class="hero-prompt">오늘의 감정을 골라보세요 — 페이지가 반응합니다.</p>
+      <div class="emotion-picker" id="heroPicker">
+        <button class="emo sel" data-e="joy" data-word="기쁨">☀️<span class="emo-label">기쁨</span></button>
+        <button class="emo" data-e="calm" data-word="평온">🌊<span class="emo-label">평온</span></button>
+        <button class="emo" data-e="sadness" data-word="슬픔">🌧️<span class="emo-label">슬픔</span></button>
+        <button class="emo" data-e="anger" data-word="분노">🔥<span class="emo-label">분노</span></button>
+        <button class="emo" data-e="gratitude" data-word="감사">🌱<span class="emo-label">감사</span></button>
+      </div>
+    </div>
+
+    <div class="hero-card" id="heroCard">
+      <p class="hc-date">2026년 7월 28일 화요일 · 오늘</p>
+      <h2 class="hc-title">엄마랑 전화</h2>
+      <p class="hc-body hand">오랜만에 엄마 목소리를 들었다.<br>"밥은 먹었니?" 그 한마디에<br>오늘 하루가 <span class="accent-word" id="heroAccentWord">따뜻</span>해졌다.</p>
+      <span class="hc-badge" id="heroBadge">☀️ 기쁨</span>
+    </div>
+  </div>
+  <div class="scroll-cue">SCROLL<span>↓</span></div>
+</header>
+
+<div class="divider"></div>
+
+<!-- ============ PRINCIPLES ============ -->
+<section id="principles">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow">Principles</p>
+    <h2 class="sec-title">벽은 사라지고,<br>유물이 말한다.</h2>
+    <p class="sec-sub">Apple이 제품을 박물관 전시품처럼 다루듯, 우리는 사용자의 기억을 그렇게 다룬다. 콘텐츠가 주인공이고 크롬은 조용히 물러난다.</p></div>
+
+    <div style="margin-top:64px">
+      <div class="principle reveal"><div class="p-num">01</div><div class="p-body">
+        <h3>단일 액센트 — 아낄수록 강해진다</h3>
+        <p>amber는 주요 CTA, 활성 상태, 포커스 링에만 쓴다. 넓은 배경이나 장식에 쓰지 않는다. Apple의 Action Blue가 하듯, 하나의 색이 시스템 전체의 리듬을 만든다.</p>
+        <span class="hand-note hand">색이 적을수록 감정이 또렷해진다</span>
+      </div></div>
+      <div class="principle reveal" data-d="1"><div class="p-num">02</div><div class="p-body">
+        <h3>면으로 구분 — 그림자보다 표면 색</h3>
+        <p>깊이는 box-shadow가 아니라 white → parchment → pearl 의 표면 사다리로 표현한다. 그림자는 오버레이(대화상자, 시트)에만, 정확히 하나만 존재한다.</p>
+      </div></div>
+      <div class="principle reveal" data-d="2"><div class="p-num">03</div><div class="p-body">
+        <h3>Pill 버튼 — Apple의 시그니처</h3>
+        <p>주요 액션은 항상 9999px radius. 유틸 버튼만 10px. 터치 타겟은 최소 44px(HIG). 형태만 봐도 "눌러도 된다"는 신호를 준다.</p>
+      </div></div>
+      <div class="principle reveal" data-d="3"><div class="p-num">04</div><div class="p-body">
+        <h3>여백이 받침대</h3>
+        <p>기록 카드 위아래로 충분한 공기. 콘텐츠 최대 폭 680px — 일기 읽기에 최적화된 시야. 한 화면에 카드를 5개 이상 쌓지 않는다.</p>
+      </div></div>
+      <div class="principle reveal" data-d="4"><div class="p-num">05</div><div class="p-body">
+        <h3>scale(0.95) — 유일한 micro-interaction</h3>
+        <p>누르는 순간 살짝 줄어드는 것. Apple이 쓰는 단 하나의 피드백. 반복 애니메이션도, 300ms를 넘는 전환도 없다. 조용함이 곧 품격이다.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ COLOR ============ -->
+<section id="color">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow">Color</p>
+    <h2 class="sec-title">하나의 온기,<br>다섯의 감정.</h2>
+    <p class="sec-sub">amber ramp가 브랜드의 온도를, 감정 팔레트가 기록의 색을 담당한다. 아래 스와치를 클릭하면 토큰을 검사할 수 있다.</p></div>
+
+    <div style="margin-top:64px" class="reveal">
+      <div class="comp-label">Amber Ramp · 브랜드</div>
+      <div class="ramp" id="amberRamp">
+        <div class="ramp-row" data-name="amber-300" data-hex="#fcd34d" data-role="다크 모드 hover" style="background:#fcd34d;color:#1d1d1f"><span class="r-name">amber-300</span><span class="r-role">dark hover</span><span class="r-hex">#fcd34d</span></div>
+        <div class="ramp-row" data-name="amber-400" data-hex="#e8a84c" data-role="다크 모드 primary" style="background:#e8a84c;color:#1d1d1f"><span class="r-name">amber-400</span><span class="r-role">dark primary</span><span class="r-hex">#e8a84c</span></div>
+        <div class="ramp-row" data-name="amber-500" data-hex="#d97706" data-role="감정: 기쁨" style="background:#d97706;color:#fff"><span class="r-name">amber-500</span><span class="r-role">emotion · joy</span><span class="r-hex">#d97706</span></div>
+        <div class="ramp-row" data-name="amber-600" data-hex="#b45309" data-role="라이트 primary · CTA" style="background:#b45309;color:#fff"><span class="r-name">amber-600</span><span class="r-role">light primary · CTA</span><span class="r-hex">#b45309</span></div>
+        <div class="ramp-row" data-name="amber-700" data-hex="#92400e" data-role="라이트 hover" style="background:#92400e;color:#fff"><span class="r-name">amber-700</span><span class="r-role">light hover</span><span class="r-hex">#92400e</span></div>
+      </div>
+    </div>
+
+    <div class="reveal" data-d="1">
+      <div class="comp-label">Emotion Palette · 도메인</div>
+      <div class="swatch-grid" id="emoSwatches">
+        <div class="swatch" data-name="emotion-joy" data-hex="#d97706" data-role="기쁨 — 브랜드와 같은 족"><div class="sw-color" style="background:#d97706"></div><div class="sw-meta">joy · 기쁨<code>#d97706</code></div></div>
+        <div class="swatch" data-name="emotion-calm" data-hex="#4a90b8" data-role="평온 — 조용한 파랑"><div class="sw-color" style="background:#4a90b8"></div><div class="sw-meta">calm · 평온<code>#4a90b8</code></div></div>
+        <div class="swatch" data-name="emotion-sadness" data-hex="#7c7fc7" data-role="슬픔 — 탁한 남보라"><div class="sw-color" style="background:#7c7fc7"></div><div class="sw-meta">sadness · 슬픔<code>#7c7fc7</code></div></div>
+        <div class="swatch" data-name="emotion-anger" data-hex="#c05050" data-role="분노 — 누그러진 빨강"><div class="sw-color" style="background:#c05050"></div><div class="sw-meta">anger · 분노<code>#c05050</code></div></div>
+        <div class="swatch" data-name="emotion-gratitude" data-hex="#4a9e6e" data-role="감사 — 부드러운 초록"><div class="sw-color" style="background:#4a9e6e"></div><div class="sw-meta">gratitude · 감사<code>#4a9e6e</code></div></div>
+      </div>
+    </div>
+
+    <div class="reveal" data-d="2">
+      <div class="comp-label" style="margin-top:48px">Semantic Surfaces · 현재 테마</div>
+      <div class="swatch-grid" id="semSwatches">
+        <div class="swatch" data-name="background" data-hex="white / #121214" data-role="순백 캔버스 (다크: near-black)"><div class="sw-color" style="background:var(--background);border-bottom:1px solid var(--border)"></div><div class="sw-meta">background<code>canvas</code></div></div>
+        <div class="swatch" data-name="card" data-hex="#fafafc / #1c1c1e" data-role="pearl 카드 표면"><div class="sw-color" style="background:var(--card)"></div><div class="sw-meta">card<code>pearl</code></div></div>
+        <div class="swatch" data-name="primary" data-hex="#b45309 / #e8a84c" data-role="주요 CTA · 활성"><div class="sw-color" style="background:var(--primary)"></div><div class="sw-meta">primary<code>amber</code></div></div>
+        <div class="swatch" data-name="secondary" data-hex="#f5f5f7 / #242426" data-role="조작 · hover 표면"><div class="sw-color" style="background:var(--secondary)"></div><div class="sw-meta">secondary<code>parchment</code></div></div>
+        <div class="swatch" data-name="muted-foreground" data-hex="#6e6e73 / #a1a1a6" data-role="보조 텍스트"><div class="sw-color" style="background:var(--muted-foreground)"></div><div class="sw-meta">muted-fg<code>caption</code></div></div>
+        <div class="swatch" data-name="destructive" data-hex="#c53d3d / #e06c6c" data-role="삭제 · 위험"><div class="sw-color" style="background:var(--destructive)"></div><div class="sw-meta">destructive<code>red</code></div></div>
+      </div>
+    </div>
+
+    <div class="inspector reveal" data-d="3" id="inspector">
+      <div class="ins-chip" id="insChip" style="background:#b45309"></div>
+      <div>
+        <div class="ins-name" id="insName">amber-600</div>
+        <div class="ins-val" id="insVal">#b45309</div>
+        <div class="ins-role" id="insRole">라이트 primary · CTA</div>
+      </div>
+      <div class="ins-hint">스와치를 클릭하세요</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ TYPE ============ -->
+<section id="type">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow">Typography</p>
+    <h2 class="sec-title">조이는 제목,<br>풀어지는 손글씨.</h2>
+    <p class="sec-sub">Pretendard·Inter는 음의 자간(-0.02em)으로 조이고, 손글씨는 감정을 위해 풀어준다. Weight 500은 의도적으로 부재한다.</p></div>
+
+    <div style="margin-top:56px">
+      <div class="type-row reveal"><div class="type-meta">hero<br>clamp 72–148 / 600<br>-0.045em</div><div class="type-sample" style="font-size:clamp(48px,7vw,88px);font-weight:600;letter-spacing:-0.045em;line-height:1">함께한 순간</div></div>
+      <div class="type-row reveal" data-d="1"><div class="type-meta">display<br>40 / 600 / -0.03em</div><div class="type-sample" style="font-size:40px;font-weight:600;letter-spacing:-0.03em;line-height:1.1">몽글몽글 쌓이는 중</div></div>
+      <div class="type-row reveal" data-d="2"><div class="type-meta">tagline<br>21 / 600 / -0.02em</div><div class="type-sample" style="font-size:21px;font-weight:600;letter-spacing:-0.02em">오늘의 기록</div></div>
+      <div class="type-row reveal" data-d="3"><div class="type-meta">body<br>15 / 400 / 1.6</div><div class="type-sample" style="font-size:15px;line-height:1.6;max-width:560px">오늘은 오랜만에 산책을 나갔다. 저녁 공기가 선선해서 기분이 좋았다. 길가에 핀 꽃을 보니 엄마 생각이 났다.</div></div>
+      <div class="type-row reveal" data-d="4"><div class="type-meta">caption<br>13 / 400</div><div class="type-sample" style="font-size:13px;color:var(--muted-foreground)">2026년 7월 28일 화요일 · 가족</div></div>
+      <div class="type-row reveal" data-d="4"><div class="type-meta">micro<br>11 / 400</div><div class="type-sample" style="font-size:11px;color:var(--muted-foreground)">3일 전 · 마지막 기록</div></div>
+    </div>
+
+    <div class="hand-specimen reveal">
+      <p class="hs-text hand">오늘도 무사히 하루가 지나갔다. 감사한 것 세 가지를 적어본다. 따뜻한 커피, 좋은 음악, 그리고 너.</p>
+      <p class="hs-cap">hand · Gaegu (프로덕션: Onglip Eunbyeol) — 기록 본문 전용. UI 크롬(버튼·내비·라벨)에 사용하지 않는다.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ COMPONENTS ============ -->
+<section id="components">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow">Library</p>
+    <h2 class="sec-title">만져지는<br>컴포넌트.</h2>
+    <p class="sec-sub">전부 살아있다. 눌러보고, 고르고, 열어보세요. React 구현은 <code style="background:var(--accent);padding:2px 7px;border-radius:5px;font-size:13px">src/components/</code> 에 동일하게 존재한다.</p></div>
+
+    <div style="margin-top:64px">
+      <div class="comp-block reveal">
+        <div class="comp-label">Button · pill</div>
+        <div class="stage">
+          <button class="btn btn-primary">기록하기</button>
+          <button class="btn btn-secondary">둘러보기</button>
+          <button class="btn btn-ghost">취소</button>
+          <button class="btn btn-destructive">삭제</button>
+          <button class="btn btn-utility">설정</button>
+          <button class="btn btn-primary" disabled>비활성</button>
+        </div>
+        <div class="stage" style="margin-top:14px;border:none;background:transparent;padding:0 8px">
+          <button class="btn btn-primary btn-sm">작게</button>
+          <button class="btn btn-primary">기본</button>
+          <button class="btn btn-primary btn-lg">크게</button>
+        </div>
+      </div>
+
+      <div class="comp-block reveal">
+        <div class="comp-label">Badge · emotion</div>
+        <div class="stage">
+          <span class="badge badge-default">기본</span>
+          <span class="badge badge-primary">활성</span>
+          <span class="badge badge-joy">☀️ 기쁨</span>
+          <span class="badge badge-calm">🌊 평온</span>
+          <span class="badge badge-sadness">🌧️ 슬픔</span>
+          <span class="badge badge-anger">🔥 분노</span>
+          <span class="badge badge-gratitude">🌱 감사</span>
+        </div>
+      </div>
+
+      <div class="comp-block reveal">
+        <div class="comp-label">EmotionPicker → DiaryEntry · live</div>
+        <div class="stage col">
+          <div class="emotion-picker" id="livePicker">
+            <button class="emo sel" data-e="joy">☀️</button>
+            <button class="emo" data-e="calm">🌊</button>
+            <button class="emo" data-e="sadness">🌧️</button>
+            <button class="emo" data-e="anger">🔥</button>
+            <button class="emo" data-e="gratitude">🌱</button>
+          </div>
+          <div class="live-entry" id="liveEntry">
+            <div class="le-top">
+              <div><p class="le-date">2026년 7월 28일</p><p class="le-title">엄마랑 전화</p></div>
+              <span class="le-badge" id="liveBadge">☀️ 기쁨</span>
+            </div>
+            <p class="le-body hand" id="liveBody">오랜만에 엄마 목소리를 들었다. "밥은 먹었니?" 그 한마디에 오늘 하루가 따뜻해졌다.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp-block reveal">
+        <div class="comp-label">Tabs · working</div>
+        <div class="stage col">
+          <div class="tabs-list" id="demoTabs">
+            <button class="tab-trigger active" data-tab="all">전체</button>
+            <button class="tab-trigger" data-tab="family">가족</button>
+            <button class="tab-trigger" data-tab="friend">친구</button>
+          </div>
+          <div class="tab-panel active" data-panel="all"><p style="font-size:13px;color:var(--muted-foreground);padding:8px 4px">모든 기록 35개 — 감정별로 정렬할 수 있어요.</p></div>
+          <div class="tab-panel" data-panel="family"><p style="font-size:13px;color:var(--muted-foreground);padding:8px 4px">가족 기록 23개 — 엄마, 아빠, 동생.</p></div>
+          <div class="tab-panel" data-panel="friend"><p style="font-size:13px;color:var(--muted-foreground);padding:8px 4px">친구 기록 12개 — 지은, 수현.</p></div>
+        </div>
+      </div>
+
+      <div class="comp-block reveal">
+        <div class="comp-label">PersonCard</div>
+        <div class="stage col">
+          <div class="person-card"><div class="person-avatar">엄</div><div><p class="person-name">엄마</p><p class="person-relation">가족 · 기록 23개</p></div><span class="person-time">오늘</span></div>
+          <div class="person-card"><div class="person-avatar">지</div><div><p class="person-name">지은</p><p class="person-relation">친구 · 기록 15개</p></div><span class="person-time">3일 전</span></div>
+          <div class="person-card"><div class="person-avatar">수</div><div><p class="person-name">수현</p><p class="person-relation">연인 · 기록 42개</p></div><span class="person-time">1주 전</span></div>
+        </div>
+      </div>
+
+      <div class="comp-block reveal">
+        <div class="comp-label">Input · Dialog</div>
+        <div class="stage col" style="max-width:460px">
+          <input class="input" placeholder="이름을 입력하세요">
+          <textarea class="input textarea" placeholder="오늘의 기록을 남겨보세요..."></textarea>
+          <div><button class="btn btn-secondary" id="openDialog">기록 삭제하기</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- dialog -->
+<div class="dialog-overlay" id="dialog">
+  <div class="dialog-box">
+    <h3>이 기록을 삭제할까요?</h3>
+    <p>삭제한 기록은 되돌릴 수 없습니다. 2026년 7월 28일의 "엄마랑 전화" 기록이 영구 삭제됩니다.</p>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost btn-sm" id="cancelDialog">취소</button>
+      <button class="btn btn-destructive btn-sm" id="confirmDialog">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ============ APPLE PATTERNS ============ -->
+<section id="apple-patterns">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow">Apple App Chrome</p>
+    <h2 class="sec-title">앱의 뼈대까지<br>Apple처럼.</h2>
+    <p class="sec-sub">프로스트 내비게이션 바, iOS 스위치, 그룹드 리스트, 필 탭 바. 일기 앱의 골격을 이루는 패턴들이다. 스위치를 켜고 탭을 눌러보세요.</p></div>
+
+    <div style="margin-top:64px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start" class="grid-2">
+      <!-- interactive phone frame -->
+      <div class="reveal">
+        <div class="apple-frame">
+          <div class="apple-navbar">
+            <button class="nb-btn" aria-label="뒤로">‹</button>
+            <span class="nb-title">설정</span>
+            <button class="nb-btn" aria-label="추가">＋</button>
+          </div>
+          <div class="apple-body">
+            <div class="search-field" style="margin-bottom:20px">
+              <span>⌕</span>
+              <input placeholder="검색" />
+            </div>
+            <div class="grouped-list">
+              <button class="list-row">
+                <span class="lr-icon" style="background:color-mix(in srgb,var(--primary) 12%,transparent);color:var(--primary)">☾</span>
+                <span class="lr-title">다크 모드</span>
+                <span class="ios-switch" role="switch" aria-checked="false" onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')==='true'?'false':'true')"><span class="thumb"></span></span>
+              </button>
+              <button class="list-row">
+                <span class="lr-icon" style="background:color-mix(in srgb,var(--emotion-gratitude) 12%,transparent);color:var(--emotion-gratitude)">＃</span>
+                <span class="lr-title">관계 태그</span>
+                <span class="lr-trail">5개</span>
+                <span class="lr-chev">›</span>
+              </button>
+              <button class="list-row">
+                <span class="lr-icon" style="background:color-mix(in srgb,var(--emotion-calm) 12%,transparent);color:var(--emotion-calm)">⌂</span>
+                <span class="lr-title">홈 설정</span>
+                <span class="lr-chev">›</span>
+              </button>
+            </div>
+            <div class="grouped-list" style="margin-top:20px">
+              <button class="list-row">
+                <span class="lr-icon" style="background:color-mix(in srgb,var(--emotion-joy) 12%,transparent);color:var(--emotion-joy)">☀</span>
+                <span class="lr-title">알림</span>
+                <span class="ios-switch" role="switch" aria-checked="true" onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')==='true'?'false':'true')"><span class="thumb"></span></span>
+              </button>
+            </div>
+          </div>
+          <div class="apple-tabbar" id="appleTabbar">
+            <button data-t="home"><span class="tb-ico">⌂</span><span class="tb-lbl">홈</span></button>
+            <button data-t="line"><span class="tb-ico">≋</span><span class="tb-lbl">몽글라인</span></button>
+            <button data-t="people" class="on"><span class="tb-ico">☺</span><span class="tb-lbl">사람</span></button>
+            <button data-t="set"><span class="tb-ico">⚙</span><span class="tb-lbl">설정</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- patterns explained -->
+      <div class="reveal" data-d="1" style="display:flex;flex-direction:column;gap:40px">
+        <div class="sec-header-demo">
+          <span class="sh-eyebrow">Section Header</span>
+          <span class="sh-title">오늘의 기록</span>
+          <span class="sh-desc">eyebrow + 큰 디스플레이 제목. Apple 마케팅 페이지의 위계를 일기 화면에.</span>
+        </div>
+        <div>
+          <div class="comp-label">NavigationBar · frosted</div>
+          <div class="stage" style="padding:0;overflow:hidden;border-radius:14px">
+            <div class="apple-navbar" style="position:relative;width:100%">
+              <button class="nb-btn">‹</button>
+              <span class="nb-title">기록</span>
+              <button class="nb-btn">＋</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="comp-label">Switch · iOS</div>
+          <div class="stage">
+            <span class="ios-switch" role="switch" aria-checked="true" onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')==='true'?'false':'true')"><span class="thumb"></span></span>
+            <span class="ios-switch" role="switch" aria-checked="false" onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')==='true'?'false':'true')"><span class="thumb"></span></span>
+          </div>
+        </div>
+        <div>
+          <div class="comp-label">SearchField · pill</div>
+          <div class="stage col" style="max-width:320px">
+            <div class="search-field"><span>⌕</span><input placeholder="사람 검색" /></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ SCREENS ============ -->
+<section id="screens">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow">Applied Screens</p>
+    <h2 class="sec-title">시스템으로<br>지은 화면.</h2>
+    <p class="sec-sub">컴포넌트 나열이 아니라 실제 서비스 흐름이다. 모바일 우선, 하단 탭 내비게이션.</p></div>
+
+    <div class="screen-grid" style="margin-top:64px">
+      <div class="phone reveal"><div class="phone-bar">홈</div><div class="phone-body">
+        <p style="font-size:20px;font-weight:600;letter-spacing:-0.02em">함께한 순간</p>
+        <p style="font-size:12px;color:var(--muted-foreground);margin:2px 0 18px">몽글몽글 쌓이는 중</p>
+        <div style="border-radius:12px;background:var(--secondary);padding:14px;margin-bottom:12px">
+          <p style="font-size:10px;color:var(--muted-foreground)">1년 전 오늘</p>
+          <p style="font-size:14px;font-weight:500;margin-top:3px">지은이와 한강 피크닉</p>
+          <p style="font-size:12px;color:var(--muted-foreground);margin-top:3px">☀️ 기쁨 · 2025.07.28</p>
+        </div>
+        <div style="display:flex;gap:6px"><span class="mini-badge badge-joy">☀️ 12</span><span class="mini-badge badge-calm">🌊 8</span><span class="mini-badge badge-gratitude">🌱 15</span></div>
+      </div><div class="phone-tabs"><span class="on">홈</span><span>몽글라인</span><span>사람</span><span>설정</span></div></div>
+
+      <div class="phone reveal" data-d="1"><div class="phone-bar">기록하기</div><div class="phone-body">
+        <p style="font-size:10px;color:var(--muted-foreground);margin-bottom:10px">누구와 함께했나요?</p>
+        <div style="display:flex;align-items:center;gap:10px;border:1.5px solid var(--primary);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:color-mix(in srgb,var(--primary) 6%,transparent)"><div class="mini-avatar" style="background:color-mix(in srgb,var(--primary) 12%,transparent);color:var(--primary)">엄</div><div><p style="font-size:13px;font-weight:500">엄마</p><p style="font-size:10px;color:var(--muted-foreground)">가족</p></div></div>
+        <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:18px"><div class="mini-avatar">지</div><div><p style="font-size:13px;font-weight:500">지은</p><p style="font-size:10px;color:var(--muted-foreground)">친구</p></div></div>
+        <p style="font-size:10px;color:var(--muted-foreground);margin-bottom:10px">어떤 감정이었나요?</p>
+        <div style="display:flex;gap:8px"><span style="font-size:20px">☀️</span><span style="font-size:20px">🌊</span><span style="font-size:20px">🌧️</span><span style="font-size:20px">🔥</span><span style="font-size:20px;outline:2px solid var(--emotion-gratitude);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--emotion-gratitude) 10%,transparent)">🌱</span></div>
+      </div><div class="phone-tabs" style="justify-content:flex-end;padding:0 16px"><button class="btn btn-primary btn-sm">다음</button></div></div>
+
+      <div class="phone reveal" data-d="2"><div class="phone-bar">← 기록</div><div class="phone-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div><p style="font-size:10px;color:var(--muted-foreground)">2026년 7월 28일</p><p style="font-size:19px;font-weight:600;letter-spacing:-0.02em;margin-top:3px">엄마랑 전화</p></div>
+          <span class="mini-badge badge-gratitude">🌱 감사</span>
+        </div>
+        <div class="letter-paper-bg" style="border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--card)">
+          <p class="hand" style="font-size:15px;line-height:1.9">오랜만에 엄마한테 전화가 왔다.<br>"밥은 먹었니?" 그 한마디에<br>오늘 하루가 따뜻해졌다.</p>
+        </div>
+        <div style="margin-top:14px;display:flex;align-items:center;gap:8px"><div class="mini-avatar" style="width:28px;height:28px;font-size:11px">엄</div><span style="font-size:12px">엄마</span><span style="font-size:10px;color:var(--muted-foreground)">· 가족</span></div>
+      </div></div>
+
+      <div class="phone reveal"><div class="phone-bar">사람</div><div class="phone-body">
+        <input class="input" placeholder="검색" style="height:36px;font-size:13px;margin-bottom:14px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:10px 12px"><div class="mini-avatar">엄</div><div><p style="font-size:13px;font-weight:500">엄마</p><p style="font-size:10px;color:var(--muted-foreground)">가족 · 23개</p></div><span style="margin-left:auto;font-size:10px;color:var(--muted-foreground)">오늘</span></div>
+          <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:10px 12px"><div class="mini-avatar">지</div><div><p style="font-size:13px;font-weight:500">지은</p><p style="font-size:10px;color:var(--muted-foreground)">친구 · 15개</p></div><span style="margin-left:auto;font-size:10px;color:var(--muted-foreground)">3일 전</span></div>
+          <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:10px 12px"><div class="mini-avatar">수</div><div><p style="font-size:13px;font-weight:500">수현</p><p style="font-size:10px;color:var(--muted-foreground)">연인 · 42개</p></div><span style="margin-left:auto;font-size:10px;color:var(--muted-foreground)">1주 전</span></div>
+        </div>
+      </div><div class="phone-tabs"><span>홈</span><span>몽글라인</span><span class="on">사람</span><span>설정</span></div></div>
+
+      <div class="phone reveal" data-d="1"><div class="phone-bar">몽글라인</div><div class="phone-body">
+        <div class="tabs-list" style="height:34px;margin-bottom:14px"><button class="tab-trigger active" style="font-size:11px;padding:4px 12px">전체</button><button class="tab-trigger" style="font-size:11px;padding:4px 12px">가족</button><button class="tab-trigger" style="font-size:11px;padding:4px 12px">친구</button></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="mini-entry"><div style="display:flex;justify-content:space-between"><span style="font-size:10px;color:var(--muted-foreground)">오늘</span><span class="mini-badge badge-gratitude">🌱</span></div><p style="font-size:13px;font-weight:600;margin-top:4px">엄마랑 전화</p></div>
+          <div class="mini-entry"><div style="display:flex;justify-content:space-between"><span style="font-size:10px;color:var(--muted-foreground)">어제</span><span class="mini-badge badge-joy">☀️</span></div><p style="font-size:13px;font-weight:600;margin-top:4px">지은이와 카페</p></div>
+          <div class="mini-entry"><div style="display:flex;justify-content:space-between"><span style="font-size:10px;color:var(--muted-foreground)">3일 전</span><span class="mini-badge badge-calm">🌊</span></div><p style="font-size:13px;font-weight:600;margin-top:4px">혼자 본 영화</p></div>
+        </div>
+      </div><div class="phone-tabs"><span>홈</span><span class="on">몽글라인</span><span>사람</span><span>설정</span></div></div>
+
+      <div class="phone reveal" data-d="2"><div class="phone-bar">설정</div><div class="phone-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)"><span style="font-size:14px">다크 모드</span><div style="width:42px;height:25px;border-radius:13px;background:var(--primary);position:relative"><div style="width:21px;height:21px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px"></div></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)"><span style="font-size:14px">관계 태그</span><span style="font-size:12px;color:var(--muted-foreground)">5개 ›</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)"><span style="font-size:14px">홈 설정</span><span style="font-size:12px;color:var(--muted-foreground)">›</span></div>
+        <div style="padding:13px 0"><span style="font-size:14px;color:var(--destructive)">데이터 초기화</span></div>
+      </div><div class="phone-tabs"><span>홈</span><span>몽글라인</span><span>사람</span><span class="on">설정</span></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ THEME ============ -->
+<section id="theme">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow">Theme</p>
+    <h2 class="sec-title">역할은 그대로,<br>값만 반전.</h2>
+    <p class="sec-sub">class 기반(.dark / .light). 라이트가 기본 — Apple처럼. 다크에서 amber는 밝아지고 캔버스는 near-black이 된다. 토큰 이름은 변하지 않는다.</p></div>
+
+    <div class="theme-split reveal" style="margin-top:56px">
+      <div class="theme-pane light-pane">
+        <p class="tp-eyebrow">Light · 기본</p>
+        <p class="tp-big">오늘의<br>기록</p>
+        <p class="tp-hand hand">따뜻한 커피 한 잔, 그리고 너.</p>
+        <div class="tp-tokens">
+          <span>--background · #ffffff</span>
+          <span>--card · #fafafc</span>
+          <span>--primary · <span class="tp-accent">#b45309</span></span>
+          <span>--foreground · #1d1d1f</span>
+        </div>
+      </div>
+      <div class="theme-pane dark-pane">
+        <p class="tp-eyebrow">Dark</p>
+        <p class="tp-big">오늘의<br>기록</p>
+        <p class="tp-hand hand">따뜻한 커피 한 잔, 그리고 너.</p>
+        <div class="tp-tokens">
+          <span>--background · #121214</span>
+          <span>--card · #1c1c1e</span>
+          <span>--primary · <span class="tp-accent">#e8a84c</span></span>
+          <span>--foreground · #f5f5f7</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ GOVERNANCE ============ -->
+<section id="governance">
+  <div class="wrap">
+    <div class="reveal"><p class="eyebrow">Governance</p>
+    <h2 class="sec-title">어디서 왔고,<br>어디로 가나.</h2></div>
+
+    <div class="gov-grid" style="margin-top:56px">
+      <div class="gov-card reveal"><h3><span class="g-dot"></span>벤치마크에서 가져온 것</h3>
+        <ul>
+          <li><strong>Apple DESIGN.md</strong> — 단일 액센트, pill 버튼, surface alternation, one-shadow 철학, negative tracking, weight 500 부재</li>
+          <li><strong>playbook.md</strong> — 2계층 토큰, code-first 노선, DO/DON'T 원칙 문서, 자기 완결 HTML 산출물</li>
+          <li><strong>matchday 사례</strong> — CVA variant, data-slot 마킹, 감정 팔레트 도메인 확장, 편지지 질감</li>
+          <li><strong>shadcn/ui</strong> — 소유형 컴포넌트 구조, role/-foreground 토큰 네이밍</li>
+        </ul>
+      </div>
+      <div class="gov-card reveal" data-d="1"><h3><span class="g-dot"></span>다음 단계</h3>
+        <ul>
+          <li class="todo">[ ] 실제 앱(frontend/)에 토큰 이식</li>
+          <li class="todo">[ ] primitive 계층 분리 (3계층) — 변수 전수 대조</li>
+          <li class="todo">[ ] 픽셀 QA: Apple 레퍼런스 대비 실측 대조</li>
+          <li class="todo">[ ] 전량 스크린샷 갤러리 (Playwright)</li>
+          <li class="todo">[ ] 도메인 컴포넌트 확장: TimelineCard · ThrowbackCard · RelationMap</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="legal-note reveal" data-d="2">
+      <strong>법적 경계.</strong> Apple의 로고, 상표, 전용 서체(SF Pro Display/Text)와 제품 카탈로그·스토어 화면 구조(IA)는 복제하지 않는다. 가져간 것은 색 관계, 밀도, 위계, 모션의 <strong>원리</strong>다. 손글씨 폰트는 프로덕션에서 Onglip Eunbyeol을 사용한다(이 페이지는 웹 폰트 Gaegu로 시연).
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="hand">고요</span>
+  @mongle/design-system · 2026-07-28 · Apple DESIGN.md reference · playbook.md procedure
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var EMOTIONS = {
+    joy:{label:"기쁨",emoji:"☀️",color:"var(--emotion-joy)",word:"따뜻"},
+    calm:{label:"평온",emoji:"🌊",color:"var(--emotion-calm)",word:"고요"},
+    sadness:{label:"슬픔",emoji:"🌧️",color:"var(--emotion-sadness)",word:"축축"},
+    anger:{label:"분노",emoji:"🔥",color:"var(--emotion-anger)",word:"뜨겁"},
+    gratitude:{label:"감사",emoji:"🌱",color:"var(--emotion-gratitude)",word:"벅차"}
+  };
+
+  /* ---- theme toggle ---- */
+  var root=document.documentElement;
+  var tBtn=document.getElementById("themeToggle");
+  var tIcon=document.getElementById("themeIcon");
+  var tLabel=document.getElementById("themeLabel");
+  function setTheme(dark){
+    root.classList.toggle("dark",dark);
+    root.classList.toggle("light",!dark);
+    tIcon.textContent=dark?"◑":"◐";
+    tLabel.textContent=dark?"라이트":"다크";
+  }
+  tBtn.addEventListener("click",function(){setTheme(!root.classList.contains("dark"));});
+
+  /* ---- hero handwritten line: write-on effect ---- */
+  var line="오늘 하루도, 몽글몽글 잘 쌓였다.";
+  var heroLine=document.getElementById("heroLine");
+  line.split("").forEach(function(ch,i){
+    var s=document.createElement("span");
+    s.className="ch"; s.textContent=ch===" "?"\u00A0":ch;
+    s.style.transitionDelay=(i*45)+"ms";
+    heroLine.appendChild(s);
+  });
+  setTimeout(function(){
+    heroLine.querySelectorAll(".ch").forEach(function(s){s.classList.add("on");});
+  },400);
+
+  /* ---- hero emotion picker → live card ---- */
+  var heroPicker=document.getElementById("heroPicker");
+  var heroCard=document.getElementById("heroCard");
+  var heroBadge=document.getElementById("heroBadge");
+  var heroAccentWord=document.getElementById("heroAccentWord");
+  heroPicker.addEventListener("click",function(e){
+    var b=e.target.closest(".emo"); if(!b)return;
+    heroPicker.querySelectorAll(".emo").forEach(function(x){x.classList.remove("sel");});
+    b.classList.add("sel");
+    var em=EMOTIONS[b.dataset.e];
+    heroCard.style.setProperty("--hero-accent",em.color);
+    heroBadge.textContent=em.emoji+" "+em.label;
+    heroAccentWord.textContent=em.word;
+    heroLine.style.setProperty("--hero-accent",em.color);
+  });
+
+  /* ---- live component picker → diary entry ---- */
+  var livePicker=document.getElementById("livePicker");
+  var liveBadge=document.getElementById("liveBadge");
+  var liveBody=document.getElementById("liveBody");
+  var BODIES={
+    joy:'오랜만에 엄마 목소리를 들었다. "밥은 먹었니?" 그 한마디에 오늘 하루가 따뜻해졌다.',
+    calm:'창밖에 비가 온다. 따뜻한 차 한 잔을 놓고 아무것도 하지 않는 오후. 이게 평화지.',
+    sadness:'혼자 밥을 먹었다. 빈 집이 유난히 넓게 느껴지는 밤이다. 엄마가 보고 싶다.',
+    anger:'지각한 버스, 쏟아진 커피. 오늘은 모든 게 엉망이었다. 그래도 집에 왔다.',
+    gratitude:'지은이가 갑자기 커피를 사 왔다. 별거 아닌데 자꾸 웃음이 난다. 고마워.'
+  };
+  livePicker.addEventListener("click",function(e){
+    var b=e.target.closest(".emo"); if(!b)return;
+    livePicker.querySelectorAll(".emo").forEach(function(x){x.classList.remove("sel");});
+    b.classList.add("sel");
+    var k=b.dataset.e, em=EMOTIONS[k];
+    liveBadge.textContent=em.emoji+" "+em.label;
+    liveBadge.style.background="color-mix(in srgb,"+em.color+" 12%,transparent)";
+    liveBadge.style.color=em.color;
+    liveBody.textContent=BODIES[k];
+  });
+
+  /* ---- tabs ---- */
+  var tabs=document.getElementById("demoTabs");
+  tabs.addEventListener("click",function(e){
+    var t=e.target.closest(".tab-trigger"); if(!t)return;
+    tabs.querySelectorAll(".tab-trigger").forEach(function(x){x.classList.remove("active");});
+    t.classList.add("active");
+    document.querySelectorAll(".tab-panel").forEach(function(p){
+      p.classList.toggle("active",p.dataset.panel===t.dataset.tab);
+    });
+  });
+
+  /* ---- dialog ---- */
+  var dialog=document.getElementById("dialog");
+  document.getElementById("openDialog").addEventListener("click",function(){dialog.classList.add("open");});
+  document.getElementById("cancelDialog").addEventListener("click",function(){dialog.classList.remove("open");});
+  document.getElementById("confirmDialog").addEventListener("click",function(){dialog.classList.remove("open");});
+  dialog.addEventListener("click",function(e){if(e.target===dialog)dialog.classList.remove("open");});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")dialog.classList.remove("open");});
+
+  /* ---- token inspector ---- */
+  var insChip=document.getElementById("insChip");
+  var insName=document.getElementById("insName");
+  var insVal=document.getElementById("insVal");
+  var insRole=document.getElementById("insRole");
+  function bindInspectors(containerId){
+    var c=document.getElementById(containerId); if(!c)return;
+    c.addEventListener("click",function(e){
+      var s=e.target.closest("[data-name]"); if(!s)return;
+      insName.textContent=s.dataset.name;
+      insVal.textContent=s.dataset.hex;
+      insRole.textContent=s.dataset.role;
+      var bg=s.querySelector(".sw-color");
+      insChip.style.background=bg?getComputedStyle(bg).backgroundColor:s.style.background;
+      insChip.scrollIntoView({behavior:"smooth",block:"nearest"});
+    });
+  }
+  bindInspectors("amberRamp");
+  bindInspectors("emoSwatches");
+  bindInspectors("semSwatches");
+
+  /* ---- apple tab bar ---- */
+  var appleTabbar=document.getElementById("appleTabbar");
+  if(appleTabbar){
+    appleTabbar.addEventListener("click",function(e){
+      var b=e.target.closest("button"); if(!b)return;
+      appleTabbar.querySelectorAll("button").forEach(function(x){x.classList.remove("on");});
+      b.classList.add("on");
+    });
+  }
+
+  /* ---- scroll reveal ---- */
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target);}
+      });
+    },{threshold:0.12,rootMargin:"0px 0px -40px 0px"});
+    document.querySelectorAll(".reveal").forEach(function(el){io.observe(el);});
+  }else{
+    document.querySelectorAll(".reveal").forEach(function(el){el.classList.add("in");});
+  }
+})();
+</script>
+</body>
+</html>
