@@ -130,13 +130,29 @@
   --emotion-calm: var(--calm-500);
   --emotion-calm-bg: color-mix(in oklch, var(--calm-400) 14%, var(--cream-50));
   --emotion-sadness: var(--sadness-500);
-  --emotion-sadness-bg: color-mix(in oklch, var(--sadness-400) 14%, var(--cream-50));
+  --emotion-sadness-bg: color-mix(
+    in oklch,
+    var(--sadness-400) 14%,
+    var(--cream-50)
+  );
   --emotion-anger: var(--anger-500);
-  --emotion-anger-bg: color-mix(in oklch, var(--anger-400) 14%, var(--cream-50));
+  --emotion-anger-bg: color-mix(
+    in oklch,
+    var(--anger-400) 14%,
+    var(--cream-50)
+  );
   --emotion-anxiety: var(--anxiety-500);
-  --emotion-anxiety-bg: color-mix(in oklch, var(--anxiety-400) 14%, var(--cream-50));
+  --emotion-anxiety-bg: color-mix(
+    in oklch,
+    var(--anxiety-400) 14%,
+    var(--cream-50)
+  );
   --emotion-gratitude: var(--gratitude-500);
-  --emotion-gratitude-bg: color-mix(in oklch, var(--gratitude-400) 14%, var(--cream-50));
+  --emotion-gratitude-bg: color-mix(
+    in oklch,
+    var(--gratitude-400) 14%,
+    var(--cream-50)
+  );
 
   /* elevation 단계 토큰, 라이트/다크 각각 정의해 dark:shadow 중복을 없앤다.
      따뜻한 저깊이 — Lovable의 규율(그림자보다 테두리). */
@@ -183,13 +199,29 @@
   --emotion-calm: var(--calm-400);
   --emotion-calm-bg: color-mix(in oklch, var(--calm-400) 16%, var(--cream-950));
   --emotion-sadness: var(--sadness-400);
-  --emotion-sadness-bg: color-mix(in oklch, var(--sadness-400) 16%, var(--cream-950));
+  --emotion-sadness-bg: color-mix(
+    in oklch,
+    var(--sadness-400) 16%,
+    var(--cream-950)
+  );
   --emotion-anger: var(--anger-400);
-  --emotion-anger-bg: color-mix(in oklch, var(--anger-400) 16%, var(--cream-950));
+  --emotion-anger-bg: color-mix(
+    in oklch,
+    var(--anger-400) 16%,
+    var(--cream-950)
+  );
   --emotion-anxiety: var(--anxiety-400);
-  --emotion-anxiety-bg: color-mix(in oklch, var(--anxiety-400) 16%, var(--cream-950));
+  --emotion-anxiety-bg: color-mix(
+    in oklch,
+    var(--anxiety-400) 16%,
+    var(--cream-950)
+  );
   --emotion-gratitude: var(--gratitude-400);
-  --emotion-gratitude-bg: color-mix(in oklch, var(--gratitude-400) 16%, var(--cream-950));
+  --emotion-gratitude-bg: color-mix(
+    in oklch,
+    var(--gratitude-400) 16%,
+    var(--cream-950)
+  );
 
   --elevation-1: 0 1px 3px rgb(0 0 0 / 20%);
   --elevation-2: 0 4px 12px rgb(0 0 0 / 28%);
@@ -270,12 +302,14 @@
     margin: 0;
     font-family: var(--font-sans);
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--foreground) 30%, transparent) transparent;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 30%, transparent)
+      transparent;
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--foreground) 28%, transparent) transparent;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 28%, transparent)
+      transparent;
   }
 
   *::-webkit-scrollbar {

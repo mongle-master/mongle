@@ -7,12 +7,7 @@ import { cn } from '@/lib/utils'
 // 감정 일기의 6가지 감정. 색은 토큰 정본(styles.css)의 --emotion-* 쌍을 쓴다.
 // fg(--emotion-joy)와 bg(--emotion-joy-bg)가 한 쌍이라 테마가 바뀌어도 대비가 산다.
 export type Emotion =
-  | 'joy'
-  | 'calm'
-  | 'sadness'
-  | 'anger'
-  | 'anxiety'
-  | 'gratitude'
+  'joy' | 'calm' | 'sadness' | 'anger' | 'anxiety' | 'gratitude'
 
 const emotionBadgeVariants = cva(
   'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-caption font-bold whitespace-nowrap transition-colors',
