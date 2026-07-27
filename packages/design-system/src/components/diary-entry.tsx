@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "./badge";
 import { EMOTION_META, type Emotion } from "./emotion-picker";
 
-interface DiaryEntryProps extends React.HTMLAttributes<HTMLArticleElement> {
+interface DiaryEntryProps extends React.HTMLAttributes<HTMLElement> {
   title: string;
   date: string;
   emotion?: Emotion;
