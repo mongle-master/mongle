@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고요 (Goyo) — Mongle Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   고요 (Goyo) Design Tokens — ACTUAL production CSS inlined.
+   Source: packages/design-system/src/styles/globals.css
+   Reference: Linear (linear.app) — values adapted, never copied.
+   ============================================================ */
+
+/* TIER 1 · PRIMITIVES */
+:root {
+  --violet-300: #a89ef0;
+  --violet-400: #9187e3;
+  --violet-500: #7c6fd4;
+  --violet-600: #6a5cbf;
+  --violet-700: #584a9e;
+  --neutral-0: #ffffff;
+  --neutral-50: #faf9fc;
+  --neutral-100: #f4f2f7;
+  --neutral-200: #e8e5ed;
+  --neutral-300: #d4d0dc;
+  --neutral-400: #a8a3b0;
+  --neutral-500: #8a8592;
+  --neutral-600: #6e6a76;
+  --neutral-700: #4a4650;
+  --neutral-800: #28262e;
+  --neutral-825: #222028;
+  --neutral-850: #1c1a21;
+  --neutral-875: #16141a;
+  --neutral-900: #110f14;
+  --neutral-950: #0c0a0f;
+  --neutral-1000: #000000;
+  --emotion-joy: #e8a84c;
+  --emotion-calm: #6b9ecf;
+  --emotion-sadness: #8b7fc7;
+  --emotion-anger: #cf6b6b;
+  --emotion-gratitude: #6bcf8e;
+  --red-400: #e06c6c;
+  --red-600: #c53d3d;
+}
+
+/* TIER 2 · SEMANTIC (dark — default) */
+:root, .dark {
+  color-scheme: dark;
+  --background: var(--neutral-950);
+  --foreground: var(--neutral-100);
+  --card: var(--neutral-875);
+  --card-foreground: var(--neutral-100);
+  --popover: var(--neutral-850);
+  --popover-foreground: var(--neutral-100);
+  --primary: var(--violet-500);
+  --primary-foreground: var(--neutral-0);
+  --primary-hover: var(--violet-400);
+  --secondary: var(--neutral-825);
+  --secondary-foreground: var(--neutral-100);
+  --secondary-hover: var(--neutral-800);
+  --muted: var(--neutral-850);
+  --muted-foreground: var(--neutral-400);
+  --accent: var(--neutral-800);
+  --accent-foreground: var(--neutral-100);
+  --destructive: var(--red-400);
+  --destructive-foreground: var(--neutral-950);
+  --border: rgb(255 255 255 / 8%);
+  --input: var(--neutral-825);
+  --input-border: var(--neutral-600);
+  --ring: var(--violet-500);
+  --radius: 0.5rem;
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 50%);
+  --shadow-pop: 0 16px 48px rgb(0 0 0 / 60%);
+}
+
+/* TIER 2 · SEMANTIC (light) */
+.light {
+  color-scheme: light;
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-950);
+  --card: var(--neutral-0);
+  --card-foreground: var(--neutral-950);
+  --popover: var(--neutral-0);
+  --popover-foreground: var(--neutral-950);
+  --primary: var(--violet-600);
+  --primary-foreground: var(--neutral-0);
+  --primary-hover: var(--violet-700);
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--neutral-950);
+  --secondary-hover: var(--neutral-200);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-600);
+  --accent: var(--neutral-200);
+  --accent-foreground: var(--neutral-950);
+  --destructive: var(--red-600);
+  --destructive-foreground: var(--neutral-0);
+  --border: rgb(0 0 0 / 10%);
+  --input: var(--neutral-0);
+  --input-border: var(--neutral-400);
+  --ring: var(--violet-600);
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 12%);
+  --shadow-pop: 0 16px 48px rgb(0 0 0 / 16%);
+}
+
+/* ============================================================
+   SHOWCASE STYLES (this file only — not part of the DS)
+   ============================================================ */
+:root {
+  --ambient: var(--violet-500);
+  --font-ui: "Inter", "Pretendard", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif KR", "Inter", "Pretendard", ui-serif, serif;
+  --font-hand: "Nanum Pen Script", "Pretendard", cursive; /* prod: Onglip Eunbyeol */
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-ui);
+  background: var(--background);
+  color: var(--foreground);
+  line-height: 1.6;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* ---- Ambient night sky ---- */
+#sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.star {
+  position: absolute; border-radius: 50%;
+  background: var(--foreground);
+  animation: twinkle var(--dur, 4s) ease-in-out var(--delay, 0s) infinite;
+}
+@keyframes twinkle { 0%,100% { opacity: var(--o, .5); } 50% { opacity: .08; } }
+.mote {
+  position: absolute; border-radius: 50%;
+  background: var(--ambient);
+  filter: blur(6px); opacity: .35;
+  animation: drift var(--dur, 20s) ease-in-out var(--delay, 0s) infinite alternate;
+  transition: background 0.6s ease;
+}
+@keyframes drift {
+  from { transform: translate(0,0); }
+  to { transform: translate(var(--dx, 40px), var(--dy, -60px)); }
+}
+.glow {
+  position: fixed; z-index: 0; pointer-events: none;
+  width: 900px; height: 900px; border-radius: 50%;
+  top: -300px; left: 50%; transform: translateX(-50%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--ambient) 14%, transparent) 0%, transparent 65%);
+  transition: background 0.8s ease;
+  animation: breathe 9s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100% { opacity: .8; } 50% { opacity: .45; } }
+.light .star { opacity: .15; }
+.light .mote, .light .glow { opacity: .18; }
+
+main, header.top { position: relative; z-index: 1; }
+.container { max-width: 1000px; margin: 0 auto; padding: 0 28px; }
+section { padding: 88px 0; border-bottom: 1px solid var(--border); }
+section:last-of-type { border-bottom: none; }
+
+/* ---- Type scale (strong contrast) ---- */
+.eyebrow {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.14em; color: var(--muted-foreground);
+  display: flex; align-items: center; gap: 10px;
+}
+.eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--primary); }
+h1.display {
+  font-family: var(--font-serif); font-weight: 700;
+  font-size: clamp(72px, 13vw, 148px);
+  line-height: 1; letter-spacing: -0.02em;
+  margin: 20px 0 8px;
+}
+h2 {
+  font-family: var(--font-serif); font-weight: 600;
+  font-size: clamp(30px, 4.5vw, 42px);
+  letter-spacing: -0.015em; line-height: 1.2; margin-bottom: 14px;
+}
+h3 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; margin: 34px 0 14px; }
+h3:first-of-type { margin-top: 0; }
+.desc { color: var(--muted-foreground); max-width: 620px; margin-bottom: 36px; font-size: 15px; }
+.num {
+  font-family: var(--font-serif); font-size: 13px; color: var(--primary);
+  letter-spacing: 0.05em;
+}
+
+/* ---- Scroll reveal ---- */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ---- Opening scene ---- */
+header.top { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 80px 0 60px; }
+.opening-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; }
+@media (max-width: 860px) { .opening-grid { grid-template-columns: 1fr; gap: 40px; } }
+.lede { font-family: var(--font-serif); font-size: clamp(17px, 2.2vw, 21px); line-height: 1.75; color: var(--foreground); max-width: 440px; margin-top: 18px; }
+.lede em { font-style: normal; color: var(--primary); }
+.meta-row { display: flex; gap: 22px; margin-top: 30px; flex-wrap: wrap; }
+.meta-item { font-size: 12px; color: var(--muted-foreground); }
+.meta-item b { display: block; font-family: var(--font-serif); font-size: 22px; color: var(--foreground); font-weight: 600; }
+
+/* Diary page (the living centerpiece) */
+.diary-page {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 30px 30px 26px;
+  box-shadow: var(--shadow-pop);
+  position: relative; overflow: hidden;
+  transition: border-color .5s ease, box-shadow .5s ease;
+}
+.diary-page::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(420px 200px at 88% -8%, color-mix(in srgb, var(--ambient) 13%, transparent), transparent 70%);
+  transition: background .8s ease;
+}
+.diary-date { font-size: 12px; color: var(--muted-foreground); letter-spacing: 0.04em; }
+.diary-title-hand {
+  font-family: var(--font-hand); font-size: 34px; line-height: 1.3;
+  margin: 10px 0 4px; color: var(--foreground);
+}
+.write-on { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom;
+  animation: writeon 2.2s steps(14, end) .4s both; border-right: 2px solid var(--ambient);
+  animation: writeon 2.2s steps(14,end) .4s both, caret 1s step-end infinite; }
+@keyframes writeon { from { width: 0; } to { width: 100%; } }
+@keyframes caret { 50% { border-color: transparent; } }
+.diary-body-hand {
+  font-family: var(--font-hand); font-size: 19px; line-height: 1.9;
+  color: color-mix(in srgb, var(--foreground) 82%, transparent);
+  margin-top: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='34'%3E%3Cpath d='M0 30 Q 22 26 45 30 T 90 30' fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='1'/%3E%3C/svg%3E");
+}
+.light .diary-body-hand {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='34'%3E%3Cpath d='M0 30 Q 22 26 45 30 T 90 30' fill='none' stroke='rgba(0,0,0,0.05)' stroke-width='1'/%3E%3C/svg%3E");
+}
+.mood-label { font-size: 12px; color: var(--muted-foreground); margin: 20px 0 10px; }
+.mood-label b { color: var(--ambient); font-weight: 600; transition: color .4s ease; }
+
+/* Emotion picker */
+.emotion-picker { display: flex; gap: 9px; }
+.emotion-btn {
+  width: 46px; height: 46px; border-radius: 11px;
+  border: 1px solid var(--border); background: var(--secondary);
+  font-size: 19px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), border-color .2s, background .2s, box-shadow .2s;
+}
+.emotion-btn:hover { transform: translateY(-3px); border-color: var(--muted-foreground); }
+.emotion-btn:active { transform: scale(.92); }
+.emotion-btn[aria-checked="true"] { transform: translateY(-3px); }
+.emotion-btn[data-e="joy"][aria-checked="true"] { border-color: var(--emotion-joy); background: color-mix(in srgb, var(--emotion-joy) 13%, transparent); box-shadow: 0 6px 18px color-mix(in srgb, var(--emotion-joy) 28%, transparent); }
+.emotion-btn[data-e="calm"][aria-checked="true"] { border-color: var(--emotion-calm); background: color-mix(in srgb, var(--emotion-calm) 13%, transparent); box-shadow: 0 6px 18px color-mix(in srgb, var(--emotion-calm) 28%, transparent); }
+.emotion-btn[data-e="sadness"][aria-checked="true"] { border-color: var(--emotion-sadness); background: color-mix(in srgb, var(--emotion-sadness) 13%, transparent); box-shadow: 0 6px 18px color-mix(in srgb, var(--emotion-sadness) 28%, transparent); }
+.emotion-btn[data-e="anger"][aria-checked="true"] { border-color: var(--emotion-anger); background: color-mix(in srgb, var(--emotion-anger) 13%, transparent); box-shadow: 0 6px 18px color-mix(in srgb, var(--emotion-anger) 28%, transparent); }
+.emotion-btn[data-e="gratitude"][aria-checked="true"] { border-color: var(--emotion-gratitude); background: color-mix(in srgb, var(--emotion-gratitude) 13%, transparent); box-shadow: 0 6px 18px color-mix(in srgb, var(--emotion-gratitude) 28%, transparent); }
+
+.scroll-hint { margin-top: 54px; font-size: 12px; color: var(--muted-foreground); display: flex; align-items: center; gap: 8px; }
+.scroll-hint span { display: inline-block; animation: bob 1.8s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 17px; border-radius: 8px; border: none;
+  font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--font-ui);
+  transition: background .16s, transform .12s, box-shadow .2s;
+}
+.btn:active { transform: scale(.96); }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-primary:hover { background: var(--primary-hover); box-shadow: 0 6px 20px color-mix(in srgb, var(--primary) 35%, transparent); }
+.btn-secondary { background: var(--secondary); color: var(--secondary-foreground); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--secondary-hover); }
+.btn-ghost { background: transparent; color: var(--foreground); }
+.btn-ghost:hover { background: var(--accent); }
+.btn-destructive { background: var(--destructive); color: var(--destructive-foreground); }
+.btn-sm { height: 32px; padding: 0 13px; font-size: 13px; }
+.btn-lg { height: 46px; padding: 0 24px; font-size: 15px; }
+
+/* ---- Badge ---- */
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 11px; border-radius: 9999px; font-size: 12px; font-weight: 500; transition: transform .15s; }
+.badge:hover { transform: translateY(-1px); }
+.badge-default { background: var(--secondary); color: var(--secondary-foreground); }
+.badge-primary { background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary); }
+.badge-joy { background: color-mix(in srgb, var(--emotion-joy) 15%, transparent); color: var(--emotion-joy); }
+.badge-calm { background: color-mix(in srgb, var(--emotion-calm) 15%, transparent); color: var(--emotion-calm); }
+.badge-sadness { background: color-mix(in srgb, var(--emotion-sadness) 15%, transparent); color: var(--emotion-sadness); }
+.badge-anger { background: color-mix(in srgb, var(--emotion-anger) 15%, transparent); color: var(--emotion-anger); }
+.badge-gratitude { background: color-mix(in srgb, var(--emotion-gratitude) 15%, transparent); color: var(--emotion-gratitude); }
+
+/* ---- Input ---- */
+.input {
+  width: 100%; height: 38px; padding: 0 13px;
+  background: var(--input); border: 1px solid var(--input-border);
+  border-radius: 8px; color: var(--foreground); font-size: 14px; font-family: var(--font-ui);
+  outline: none; transition: border-color .16s, box-shadow .16s;
+}
+.input:focus { border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 22%, transparent); }
+.input::placeholder { color: var(--muted-foreground); }
+textarea.input { height: auto; min-height: 110px; padding: 12px 13px; resize: vertical; line-height: 1.7; }
+
+/* ---- Tabs ---- */
+.tabs-list { display: inline-flex; gap: 4px; padding: 4px; background: var(--secondary); border-radius: 10px; }
+.tab {
+  padding: 7px 16px; border-radius: 7px; border: none; font-size: 14px; font-weight: 500;
+  cursor: pointer; background: transparent; color: var(--muted-foreground); font-family: var(--font-ui);
+  transition: color .16s, background .16s, box-shadow .16s;
+}
+.tab:hover { color: var(--foreground); }
+.tab.active { background: var(--card); color: var(--foreground); box-shadow: 0 2px 8px rgb(0 0 0 / .25); }
+.tab-panel { display: none; animation: fadeup .35s ease; }
+.tab-panel.active { display: block; }
+@keyframes fadeup { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---- Cards / entries / people ---- */
+.demo-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; transition: transform .2s, border-color .2s; }
+.demo-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--foreground) 16%, transparent); }
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.grid-5 { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+
+.diary-entry { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: transform .2s, border-color .2s; }
+.diary-entry:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--foreground) 16%, transparent); }
+.diary-entry .t { font-size: 15px; font-weight: 500; margin-top: 4px; }
+.diary-entry .x { font-size: 14px; color: var(--muted-foreground); margin-top: 10px; line-height: 1.65; }
+
+.person-card { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px 16px; transition: transform .2s, border-color .2s; }
+.person-card:hover { transform: translateX(3px); border-color: color-mix(in srgb, var(--foreground) 16%, transparent); }
+.person-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; border: 1px solid var(--border); }
+.person-name { font-size: 14px; font-weight: 500; }
+.person-relation { font-size: 12px; color: var(--muted-foreground); }
+.person-time { margin-left: auto; font-size: 12px; color: var(--muted-foreground); }
+
+/* ---- Swatches ---- */
+.swatch { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: transform .18s, box-shadow .18s; position: relative; }
+.swatch:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 22px rgb(0 0 0 / .35); }
+.swatch-color { height: 68px; }
+.swatch-label { padding: 9px 12px; font-size: 12px; background: var(--card); }
+.swatch-label code { color: var(--muted-foreground); font-size: 11px; }
+.swatch .copied { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--background) 82%, transparent); font-size: 12px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.swatch.copied .copied { opacity: 1; }
+
+/* ---- Type specimen ---- */
+.type-row { display: flex; align-items: baseline; gap: 26px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.type-meta { font-size: 12px; color: var(--muted-foreground); min-width: 170px; flex-shrink: 0; font-family: var(--font-ui); }
+
+/* ---- Spacing bars ---- */
+.space-bar { background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 40%, transparent)); border-radius: 3px; height: 22px; }
+
+/* ---- Phone mock ---- */
+.screen-mock { background: var(--background); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; max-width: 300px; box-shadow: var(--shadow-overlay); transition: transform .25s; }
+.screen-mock:hover { transform: translateY(-4px); }
+.screen-header { padding: 15px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.screen-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.screen-nav { display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border); }
+.nav-dot { width: 22px; height: 22px; border-radius: 6px; background: var(--secondary); }
+.nav-dot.active { background: var(--primary); }
+
+/* ---- Dialog ---- */
+.dialog-overlay { position: fixed; inset: 0; z-index: 60; background: color-mix(in srgb, var(--neutral-1000) 62%, transparent); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; animation: fadein .2s ease; }
+.dialog-overlay.open { display: flex; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+.dialog-box { background: var(--popover); border: 1px solid var(--border); border-radius: 14px; padding: 26px; max-width: 380px; width: calc(100% - 48px); box-shadow: var(--shadow-pop); animation: pop .28s cubic-bezier(.22,1.4,.36,1); }
+@keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+
+/* ---- Theme toggle ---- */
+.theme-toggle {
+  position: fixed; top: 18px; right: 18px; z-index: 100;
+  padding: 9px 15px; border-radius: 9999px;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--foreground); font-size: 13px; cursor: pointer; font-family: var(--font-ui);
+  box-shadow: var(--shadow-overlay); transition: transform .15s, background .3s;
+}
+.theme-toggle:hover { transform: translateY(-1px); }
+
+/* ---- Tables / governance ---- */
+.token-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.token-table th { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--muted-foreground); font-weight: 500; }
+.token-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+.token-table code { font-size: 12px; color: var(--primary); }
+.gov-item { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.gov-item:last-child { border-bottom: none; }
+.gov-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 6px; }
+.dodont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .dodont { grid-template-columns: 1fr; } }
+.dodont .col { border: 1px solid var(--border); border-radius: 12px; padding: 20px; background: var(--card); }
+.dodont .col h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+.dodont .do h4 { color: var(--emotion-gratitude); }
+.dodont .dont h4 { color: var(--emotion-anger); }
+.dodont li { font-size: 14px; color: var(--muted-foreground); margin: 8px 0 8px 18px; line-height: 1.55; }
+
+footer { padding: 44px 0 60px; text-align: center; font-size: 12px; color: var(--muted-foreground); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<div id="sky" aria-hidden="true"></div>
+<div class="glow" aria-hidden="true"></div>
+
+<button class="theme-toggle" id="themeToggle">☀️ 라이트로</button>
+
+<main>
+
+<!-- ===== OPENING — tonight's page ===== -->
+<header class="top">
+  <div class="container">
+    <div class="opening-grid">
+      <div>
+        <p class="eyebrow">Mongle Design System · Goyo v0.1</p>
+        <h1 class="display">고요</h1>
+        <p class="lede">
+          하루가 끝난 밤, 불을 끄고 마주 앉는 <em>기록의 시간</em>.
+          고요는 Linear의 절제된 어둠을 빌려와
+          당신의 하루가 조용히 주인공이 되도록 물러서는 디자인 언어입니다.
+        </p>
+        <div class="meta-row">
+          <div class="meta-item"><b>2-tier</b>토큰 아키텍처</div>
+          <div class="meta-item"><b>9</b>컴포넌트</div>
+          <div class="meta-item"><b>5</b>감정 색</div>
+          <div class="meta-item"><b>2</b>테마</div>
+        </div>
+      </div>
+
+      <div class="diary-page" id="diaryPage">
+        <p class="diary-date">2026년 7월 28일 화요일 · 밤 11시</p>
+        <div class="diary-title-hand"><span class="write-on">오랜만의 산책</span></div>
+        <p class="diary-body-hand">
+          저녁 먹고 한강변을 걸었다. 선선한 바람이 불어와서
+          이어폰 없이 그냥 걷기만 했는데, 그게 오히려 좋았다.
+        </p>
+        <p class="mood-label">오늘의 기분 — <b id="moodName">평온</b></p>
+        <div class="emotion-picker" role="radiogroup" aria-label="감정 선택" id="heroPicker">
+          <button class="emotion-btn" data-e="joy" data-name="기쁨" role="radio" aria-checked="false" aria-label="기쁨">☀️</button>
+          <button class="emotion-btn" data-e="calm" data-name="평온" role="radio" aria-checked="true" aria-label="평온">🌊</button>
+          <button class="emotion-btn" data-e="sadness" data-name="슬픔" role="radio" aria-checked="false" aria-label="슬픔">🌧️</button>
+          <button class="emotion-btn" data-e="anger" data-name="분노" role="radio" aria-checked="false" aria-label="분노">🔥</button>
+          <button class="emotion-btn" data-e="gratitude" data-name="감사" role="radio" aria-checked="false" aria-label="감사">🌱</button>
+        </div>
+      </div>
+    </div>
+    <p class="scroll-hint"><span>↓</span> 스크롤해서 시스템 전체 보기 · 감정을 골라보면 밤하늘 색이 바뀝니다</p>
+  </div>
+</header>
+
+<!-- ===== 01 PRINCIPLES ===== -->
+<section>
+  <div class="container">
+    <p class="num">01</p>
+    <h2 class="reveal">원칙 — 값이 아니라 규칙</h2>
+    <p class="desc reveal">Linear에서 가져온 것은 hex 코드가 아니라 절제의 규칙입니다. 색은 콘텐츠에 살고, 크롬은 조용합니다.</p>
+    <div class="dodont reveal">
+      <div class="col do">
+        <h4>DO</h4>
+        <ul>
+          <li>캔버스(#0c0a0f)를 시스템 앵커로 — 미약한 violet 기운은 의도</li>
+          <li>lavender는 브랜드·주요 CTA·포커스·활성 탭에만</li>
+          <li>표면 사다리 4단계로 위계, 단계 건너뛰지 않기</li>
+          <li>감정 색은 기록 콘텐츠 안에서만</li>
+          <li>깊이는 표면 + hairline border로, 그림자 최소화</li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>DON'T</h4>
+        <ul>
+          <li>lavender를 섹션 배경이나 카드 fill로</li>
+          <li>두 번째 채도 높은 액센트 도입</li>
+          <li>대기 그라디언트, 스포트라이트 카드</li>
+          <li>#000000 순수 검정 캔버스</li>
+          <li>손글씨 폰트를 UI 크롬에</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 02 COLORS ===== -->
+<section>
+  <div class="container">
+    <p class="num">02</p>
+    <h2 class="reveal">색상</h2>
+    <p class="desc reveal">스와치를 클릭하면 hex가 복사됩니다.</p>
+
+    <h3>표면 사다리</h3>
+    <div class="grid grid-5 reveal">
+      <div class="swatch" data-hex="#0c0a0f"><div class="swatch-color" style="background:#0c0a0f"></div><div class="swatch-label">background<br><code>#0c0a0f</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#16141a"><div class="swatch-color" style="background:#16141a"></div><div class="swatch-label">card<br><code>#16141a</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#1c1a21"><div class="swatch-color" style="background:#1c1a21"></div><div class="swatch-label">popover<br><code>#1c1a21</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#222028"><div class="swatch-color" style="background:#222028"></div><div class="swatch-label">secondary<br><code>#222028</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#28262e"><div class="swatch-color" style="background:#28262e"></div><div class="swatch-label">accent<br><code>#28262e</code></div><span class="copied">복사됨</span></div>
+    </div>
+
+    <h3>브랜드 액센트 — lavender-violet</h3>
+    <div class="grid grid-5 reveal">
+      <div class="swatch" data-hex="#a89ef0"><div class="swatch-color" style="background:#a89ef0"></div><div class="swatch-label">violet-300<br><code>#a89ef0</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#9187e3"><div class="swatch-color" style="background:#9187e3"></div><div class="swatch-label">hover<br><code>#9187e3</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#7c6fd4"><div class="swatch-color" style="background:#7c6fd4"></div><div class="swatch-label">primary<br><code>#7c6fd4</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#6a5cbf"><div class="swatch-color" style="background:#6a5cbf"></div><div class="swatch-label">violet-600<br><code>#6a5cbf</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#584a9e"><div class="swatch-color" style="background:#584a9e"></div><div class="swatch-label">violet-700<br><code>#584a9e</code></div><span class="copied">복사됨</span></div>
+    </div>
+
+    <h3>감정 팔레트 — 도메인 확장</h3>
+    <div class="grid grid-5 reveal">
+      <div class="swatch" data-hex="#e8a84c"><div class="swatch-color" style="background:#e8a84c"></div><div class="swatch-label">기쁨 joy<br><code>#e8a84c</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#6b9ecf"><div class="swatch-color" style="background:#6b9ecf"></div><div class="swatch-label">평온 calm<br><code>#6b9ecf</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#8b7fc7"><div class="swatch-color" style="background:#8b7fc7"></div><div class="swatch-label">슬픔 sadness<br><code>#8b7fc7</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#cf6b6b"><div class="swatch-color" style="background:#cf6b6b"></div><div class="swatch-label">분노 anger<br><code>#cf6b6b</code></div><span class="copied">복사됨</span></div>
+      <div class="swatch" data-hex="#6bcf8e"><div class="swatch-color" style="background:#6bcf8e"></div><div class="swatch-label">감사 gratitude<br><code>#6bcf8e</code></div><span class="copied">복사됨</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 TYPOGRAPHY ===== -->
+<section>
+  <div class="container">
+    <p class="num">03</p>
+    <h2 class="reveal">타이포그래피 — 세 개의 목소리</h2>
+    <p class="desc reveal">세리프는 기록의 무게를, 산스는 UI의 명료함을, 손글씨는 하루의 온기를 담당합니다.</p>
+
+    <div class="reveal">
+      <div class="type-row"><span class="type-meta">display · Noto Serif KR<br>700 / -0.02em</span><span style="font-family:var(--font-serif);font-size:56px;font-weight:700;letter-spacing:-0.02em;line-height:1.1;">고요한 밤</span></div>
+      <div class="type-row"><span class="type-meta">headline · Noto Serif KR<br>600 / 32px</span><span style="font-family:var(--font-serif);font-size:32px;font-weight:600;">오늘의 기록</span></div>
+      <div class="type-row"><span class="type-meta">body-lg · Inter/Pretendard<br>400 / 18px</span><span style="font-size:18px;">저녁 산책에서 돌아와 이 글을 씁니다.</span></div>
+      <div class="type-row"><span class="type-meta">body · Inter/Pretendard<br>400 / 15px</span><span style="font-size:15px;">오늘은 오랜만에 한강변을 걸었다.</span></div>
+      <div class="type-row"><span class="type-meta">caption · 12px</span><span style="font-size:12px;color:var(--muted-foreground);">2026. 7. 28. 화요일 · 3일 전</span></div>
+      <div class="type-row"><span class="type-meta">handwriting · Nanum Pen<br>(prod: Onglip Eunbyeol)</span><span style="font-family:var(--font-hand);font-size:26px;">오늘도 무사히, 감사한 하루.</span></div>
+      <div class="type-row"><span class="type-meta">eyebrow · 11px / +0.14em</span><span class="eyebrow" style="margin:0;">MONGLE DIARY</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 SPACING / SHAPE / ELEVATION ===== -->
+<section>
+  <div class="container">
+    <p class="num">04</p>
+    <h2 class="reveal">간격 · 도형 · 깊이</h2>
+    <div class="reveal" style="display:flex;flex-direction:column;gap:9px;max-width:420px;margin-bottom:40px;">
+      <div style="display:flex;align-items:center;gap:14px;"><span class="type-meta" style="min-width:44px;">4</span><div class="space-bar" style="width:4px"></div></div>
+      <div style="display:flex;align-items:center;gap:14px;"><span class="type-meta" style="min-width:44px;">8</span><div class="space-bar" style="width:8px"></div></div>
+      <div style="display:flex;align-items:center;gap:14px;"><span class="type-meta" style="min-width:44px;">16</span><div class="space-bar" style="width:16px"></div></div>
+      <div style="display:flex;align-items:center;gap:14px;"><span class="type-meta" style="min-width:44px;">24</span><div class="space-bar" style="width:24px"></div></div>
+      <div style="display:flex;align-items:center;gap:14px;"><span class="type-meta" style="min-width:44px;">32</span><div class="space-bar" style="width:32px"></div></div>
+      <div style="display:flex;align-items:center;gap:14px;"><span class="type-meta" style="min-width:44px;">48</span><div class="space-bar" style="width:48px"></div></div>
+      <div style="display:flex;align-items:center;gap:14px;"><span class="type-meta" style="min-width:44px;">96</span><div class="space-bar" style="width:96px"></div></div>
+    </div>
+    <div class="reveal" style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:40px;">
+      <div style="width:52px;height:52px;background:var(--secondary);border:1px solid var(--border);border-radius:4px;" title="4px"></div>
+      <div style="width:52px;height:52px;background:var(--secondary);border:1px solid var(--border);border-radius:8px;" title="8px"></div>
+      <div style="width:52px;height:52px;background:var(--secondary);border:1px solid var(--border);border-radius:12px;" title="12px"></div>
+      <div style="width:52px;height:52px;background:var(--secondary);border:1px solid var(--border);border-radius:16px;" title="16px"></div>
+      <div style="width:52px;height:52px;background:var(--secondary);border:1px solid var(--border);border-radius:9999px;" title="pill"></div>
+    </div>
+    <p class="desc reveal" style="margin-bottom:0;">깊이는 그림자가 아니라 표면 사다리와 hairline border로 만듭니다. 그림자는 오버레이(다이얼로그·시트)에만 씁니다 — Linear와 같은 철학입니다.</p>
+  </div>
+</section>
+
+<!-- ===== 05 COMPONENTS ===== -->
+<section>
+  <div class="container">
+    <p class="num">05</p>
+    <h2 class="reveal">컴포넌트</h2>
+    <p class="desc reveal">전부 실제 토큰 위에서만 스타일됩니다 — 하드코딩 색 없음.</p>
+
+    <h3>Button</h3>
+    <div class="reveal" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+      <button class="btn btn-primary">기록하기</button>
+      <button class="btn btn-secondary">취소</button>
+      <button class="btn btn-ghost">더 보기</button>
+      <button class="btn btn-destructive">삭제</button>
+      <button class="btn btn-primary btn-sm">작게</button>
+      <button class="btn btn-primary btn-lg">크게</button>
+      <button class="btn btn-primary" disabled style="opacity:.45;cursor:not-allowed;">비활성</button>
+    </div>
+
+    <h3>Badge</h3>
+    <div class="reveal" style="display:flex;gap:9px;flex-wrap:wrap;">
+      <span class="badge badge-default">기본</span>
+      <span class="badge badge-primary">활성</span>
+      <span class="badge badge-joy">☀️ 기쁨</span>
+      <span class="badge badge-calm">🌊 평온</span>
+      <span class="badge badge-sadness">🌧️ 슬픔</span>
+      <span class="badge badge-anger">🔥 분노</span>
+      <span class="badge badge-gratitude">🌱 감사</span>
+    </div>
+
+    <h3>Input</h3>
+    <div class="reveal" style="max-width:340px;">
+      <label style="font-size:14px;font-weight:500;display:block;margin-bottom:7px;" for="t1">제목</label>
+      <input class="input" id="t1" placeholder="오늘의 제목을 입력하세요">
+    </div>
+
+    <h3>Tabs — 작동합니다</h3>
+    <div class="reveal">
+      <div class="tabs-list" id="demoTabs">
+        <button class="tab active" data-tab="a">일기</button>
+        <button class="tab" data-tab="b">감정</button>
+        <button class="tab" data-tab="c">주변인</button>
+      </div>
+      <div class="tab-panel active" data-panel="a" style="margin-top:16px;"><p style="font-size:14px;color:var(--muted-foreground);">오늘의 기록 3개가 있습니다.</p></div>
+      <div class="tab-panel" data-panel="b" style="margin-top:16px;"><p style="font-size:14px;color:var(--muted-foreground);">이번 주 감정은 대체로 평온했습니다.</p></div>
+      <div class="tab-panel" data-panel="c" style="margin-top:16px;"><p style="font-size:14px;color:var(--muted-foreground);">주변인 12명을 기록 중입니다.</p></div>
+    </div>
+
+    <h3>Dialog — 열어보세요</h3>
+    <div class="reveal">
+      <button class="btn btn-destructive" id="openDialog">기록 삭제</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 06 DOMAIN PATTERNS ===== -->
+<section>
+  <div class="container">
+    <p class="num">06</p>
+    <h2 class="reveal">도메인 패턴</h2>
+    <p class="desc reveal">일기·감정·주변인 기록을 위한 전용 컴포넌트입니다.</p>
+
+    <h3>DiaryEntry</h3>
+    <div class="reveal" style="display:flex;flex-direction:column;gap:12px;max-width:460px;">
+      <div class="diary-entry">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><span style="font-size:12px;color:var(--muted-foreground);">2026. 7. 28</span><div class="t">오랜만의 산책</div></div>
+          <span class="badge badge-calm">🌊 평온</span>
+        </div>
+        <p class="x">저녁 먹고 한강변을 걸었다. 선선한 바람이 불어와서 이어폰 없이 그냥 걷기만 했는데, 그게 오히려 좋았다.</p>
+      </div>
+      <div class="diary-entry">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div><span style="font-size:12px;color:var(--muted-foreground);">2026. 7. 27</span><div class="t">감사 일기</div></div>
+          <span class="badge badge-gratitude">🌱 감사</span>
+        </div>
+        <p class="x" style="font-family:var(--font-hand);font-size:17px;">따뜻한 밥, 편안한 잠자리, 연락해준 친구.</p>
+      </div>
+    </div>
+
+    <h3>PersonCard</h3>
+    <div class="reveal" style="display:flex;flex-direction:column;gap:9px;max-width:400px;">
+      <div class="person-card"><div class="person-avatar">서</div><div><div class="person-name">김서연</div><div class="person-relation">대학 친구</div></div><span class="person-time">3일 전</span></div>
+      <div class="person-card"><div class="person-avatar">민</div><div><div class="person-name">박민수</div><div class="person-relation">회사 동료</div></div><span class="person-time">어제</span></div>
+      <div class="person-card"><div class="person-avatar">엄</div><div><div class="person-name">엄마</div><div class="person-relation">가족</div></div><span class="person-time">오늘</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 07 APPLIED SCREENS ===== -->
+<section>
+  <div class="container">
+    <p class="num">07</p>
+    <h2 class="reveal">적용 화면</h2>
+    <p class="desc reveal">이 시스템으로 구성한 모바일 화면입니다.</p>
+    <div class="reveal" style="display:flex;gap:26px;flex-wrap:wrap;">
+      <div class="screen-mock">
+        <div class="screen-header"><span style="font-weight:600;">기록</span><button class="btn btn-primary btn-sm">+ 새 기록</button></div>
+        <div class="screen-body">
+          <div class="diary-entry" style="padding:13px;"><div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted-foreground);">오늘</span><span class="badge badge-calm" style="font-size:11px;padding:2px 8px;">🌊</span></div><div style="font-size:14px;font-weight:500;margin-top:4px;">오랜만의 산책</div></div>
+          <div class="diary-entry" style="padding:13px;"><div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted-foreground);">어제</span><span class="badge badge-gratitude" style="font-size:11px;padding:2px 8px;">🌱</span></div><div style="font-size:14px;font-weight:500;margin-top:4px;">감사 일기</div></div>
+          <div class="diary-entry" style="padding:13px;"><div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted-foreground);">7.25</span><span class="badge badge-joy" style="font-size:11px;padding:2px 8px;">☀️</span></div><div style="font-size:14px;font-weight:500;margin-top:4px;">친구와 점심</div></div>
+        </div>
+        <div class="screen-nav"><div class="nav-dot active"></div><div class="nav-dot"></div><div class="nav-dot"></div><div class="nav-dot"></div></div>
+      </div>
+
+      <div class="screen-mock">
+        <div class="screen-header"><span style="font-weight:600;">새 기록</span><button class="btn btn-primary btn-sm">저장</button></div>
+        <div class="screen-body">
+          <input class="input" value="저녁 산책" style="font-weight:500;">
+          <p style="font-size:12px;color:var(--muted-foreground);margin-top:4px;">오늘의 기분</p>
+          <div class="emotion-picker" style="gap:7px;">
+            <button class="emotion-btn" style="width:38px;height:38px;font-size:16px;">☀️</button>
+            <button class="emotion-btn" data-e="calm" aria-checked="true" style="width:38px;height:38px;font-size:16px;">🌊</button>
+            <button class="emotion-btn" style="width:38px;height:38px;font-size:16px;">🌧️</button>
+            <button class="emotion-btn" style="width:38px;height:38px;font-size:16px;">🔥</button>
+            <button class="emotion-btn" style="width:38px;height:38px;font-size:16px;">🌱</button>
+          </div>
+          <textarea class="input" style="min-height:110px;font-family:var(--font-hand);font-size:17px;line-height:1.8;">저녁 먹고 한강변을 걸었다. 선선한 바람이 좋았다.</textarea>
+        </div>
+        <div class="screen-nav"><div class="nav-dot active"></div><div class="nav-dot"></div><div class="nav-dot"></div><div class="nav-dot"></div></div>
+      </div>
+
+      <div class="screen-mock">
+        <div class="screen-header"><span style="font-weight:600;">주변인</span><button class="btn btn-secondary btn-sm">+ 추가</button></div>
+        <div class="screen-body">
+          <div class="person-card" style="padding:11px 13px;"><div class="person-avatar" style="width:34px;height:34px;font-size:13px;">서</div><div><div class="person-name" style="font-size:13px;">김서연</div><div class="person-relation">대학 친구</div></div><span class="person-time">3일 전</span></div>
+          <div class="person-card" style="padding:11px 13px;"><div class="person-avatar" style="width:34px;height:34px;font-size:13px;">민</div><div><div class="person-name" style="font-size:13px;">박민수</div><div class="person-relation">회사 동료</div></div><span class="person-time">어제</span></div>
+          <div class="person-card" style="padding:11px 13px;"><div class="person-avatar" style="width:34px;height:34px;font-size:13px;">엄</div><div><div class="person-name" style="font-size:13px;">엄마</div><div class="person-relation">가족</div></div><span class="person-time">오늘</span></div>
+          <div class="person-card" style="padding:11px 13px;"><div class="person-avatar" style="width:34px;height:34px;font-size:13px;">준</div><div><div class="person-name" style="font-size:13px;">이준호</div><div class="person-relation">고등학교 동기</div></div><span class="person-time">1주 전</span></div>
+        </div>
+        <div class="screen-nav"><div class="nav-dot"></div><div class="nav-dot"></div><div class="nav-dot active"></div><div class="nav-dot"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 08 GOVERNANCE ===== -->
+<section>
+  <div class="container">
+    <p class="num">08</p>
+    <h2 class="reveal">거버넌스 — 어디서 왔고, 어디로 가나</h2>
+    <div class="demo-card reveal">
+      <div class="gov-item">
+        <div class="gov-label">레퍼런스</div>
+        <p style="font-size:14px;color:var(--muted-foreground);">Linear (linear.app) — getdesign.md 명세 기반. 가장 깊은 다크 캔버스, 4단계 표면 사다리, 단일 라벤더 액센트의 절제.</p>
+      </div>
+      <div class="gov-item">
+        <div class="gov-label">가져온 것 (원리)</div>
+        <p style="font-size:14px;color:var(--muted-foreground);">색 관계(표면 사다리 + 단일 액센트), 밀도 원칙, 타이포 위계(음의 자간), 깊이 철학(그림자 최소화 + hairline), 캔버스 앵커 사상.</p>
+      </div>
+      <div class="gov-item">
+        <div class="gov-label">복제하지 않은 것 (법적 경계)</div>
+        <p style="font-size:14px;color:var(--muted-foreground);">Linear의 로고·상표·전용 서체(Display/Text/Mono)·프로젝트 관리 IA. SaaS 마케팅 레이아웃(pricing 테이블, 3-up 기능 카드).</p>
+      </div>
+      <div class="gov-item">
+        <div class="gov-label">도메인 확장 (우리가 만든 것)</div>
+        <p style="font-size:14px;color:var(--muted-foreground);">감정 팔레트 5색, EmotionPicker, DiaryEntry, PersonCard, 편지지 괘선, 세리프 편집 음성, 손글씨 기록 음성. 모두 Linear의 절제 문법 안에서 정의.</p>
+      </div>
+      <div class="gov-item">
+        <div class="gov-label">다음 단계</div>
+        <p style="font-size:14px;color:var(--muted-foreground);">사용처 카운트 기반 variant 승격 → 3개월 후 primitive→semantic 전수 대조 재편 → 감정 추이 차트 컴포넌트 → 앱 CSS re-import 1줄 적용.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  고요 (Goyo) · Mongle Design System v0.1 · 2026-07-28 · design-systems-benchmark playbook 기준
+</footer>
+
+<!-- Dialog -->
+<div class="dialog-overlay" id="dialogOverlay">
+  <div class="dialog-box" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <h3 id="dlgTitle" style="margin:0;font-size:18px;">이 기록을 삭제할까요?</h3>
+    <p style="font-size:14px;color:var(--muted-foreground);margin-top:8px;">삭제된 기록은 되돌릴 수 없습니다.</p>
+    <div style="display:flex;justify-content:flex-end;gap:9px;margin-top:22px;">
+      <button class="btn btn-secondary btn-sm" id="cancelDialog">취소</button>
+      <button class="btn btn-destructive btn-sm" id="confirmDialog">삭제</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var EMOTION_COLORS = {
+    joy: "#e8a84c", calm: "#6b9ecf", sadness: "#8b7fc7",
+    anger: "#cf6b6b", gratitude: "#6bcf8e"
+  };
+
+  /* ---- starfield + motes ---- */
+  var sky = document.getElementById("sky");
+  for (var i = 0; i < 80; i++) {
+    var s = document.createElement("div");
+    s.className = "star";
+    var size = Math.random() < 0.85 ? 1 : 2;
+    s.style.width = size + "px";
+    s.style.height = size + "px";
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 100 + "%";
+    s.style.setProperty("--o", (0.15 + Math.random() * 0.5).toFixed(2));
+    s.style.setProperty("--dur", (3 + Math.random() * 5).toFixed(1) + "s");
+    s.style.setProperty("--delay", (Math.random() * 5).toFixed(1) + "s");
+    sky.appendChild(s);
+  }
+  for (var j = 0; j < 7; j++) {
+    var m = document.createElement("div");
+    m.className = "mote";
+    var ms = 4 + Math.random() * 5;
+    m.style.width = ms + "px";
+    m.style.height = ms + "px";
+    m.style.left = Math.random() * 100 + "%";
+    m.style.top = (20 + Math.random() * 70) + "%";
+    m.style.setProperty("--dx", (Math.random() * 120 - 60).toFixed(0) + "px");
+    m.style.setProperty("--dy", (-(30 + Math.random() * 80)).toFixed(0) + "px");
+    m.style.setProperty("--dur", (14 + Math.random() * 14).toFixed(0) + "s");
+    m.style.setProperty("--delay", (Math.random() * 8).toFixed(1) + "s");
+    sky.appendChild(m);
+  }
+
+  /* ---- emotion picker -> ambient glow ---- */
+  var moodName = document.getElementById("moodName");
+  function setEmotion(e, name) {
+    document.documentElement.style.setProperty("--ambient", EMOTION_COLORS[e]);
+    if (moodName) moodName.textContent = name;
+    document.querySelectorAll("#heroPicker .emotion-btn").forEach(function (b) {
+      b.setAttribute("aria-checked", b.dataset.e === e ? "true" : "false");
+    });
+  }
+  document.querySelectorAll("#heroPicker .emotion-btn").forEach(function (b) {
+    b.addEventListener("click", function () { setEmotion(b.dataset.e, b.dataset.name); });
+  });
+
+  /* ---- theme toggle ---- */
+  var tt = document.getElementById("themeToggle");
+  tt.addEventListener("click", function () {
+    var root = document.documentElement;
+    var toLight = root.classList.contains("dark");
+    root.classList.toggle("dark", !toLight);
+    root.classList.toggle("light", toLight);
+    tt.textContent = toLight ? "🌙 다크로" : "☀️ 라이트로";
+  });
+
+  /* ---- tabs ---- */
+  var tabs = document.querySelectorAll("#demoTabs .tab");
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      tabs.forEach(function (x) { x.classList.remove("active"); });
+      t.classList.add("active");
+      document.querySelectorAll(".tab-panel").forEach(function (p) {
+        p.classList.toggle("active", p.dataset.panel === t.dataset.tab);
+      });
+    });
+  });
+
+  /* ---- dialog ---- */
+  var ov = document.getElementById("dialogOverlay");
+  document.getElementById("openDialog").addEventListener("click", function () { ov.classList.add("open"); });
+  document.getElementById("cancelDialog").addEventListener("click", function () { ov.classList.remove("open"); });
+  document.getElementById("confirmDialog").addEventListener("click", function () { ov.classList.remove("open"); });
+  ov.addEventListener("click", function (e) { if (e.target === ov) ov.classList.remove("open"); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") ov.classList.remove("open"); });
+
+  /* ---- swatch copy ---- */
+  document.querySelectorAll(".swatch").forEach(function (sw) {
+    sw.addEventListener("click", function () {
+      var hex = sw.dataset.hex;
+      if (navigator.clipboard) navigator.clipboard.writeText(hex);
+      sw.classList.add("copied");
+      setTimeout(function () { sw.classList.remove("copied"); }, 900);
+    });
+  });
+
+  /* ---- scroll reveal ---- */
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+})();
+</script>
+
+</body>
+</html>

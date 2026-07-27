@@ -1,0 +1,270 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@source "../**/*.{ts,tsx}";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * 고요 (Goyo) design tokens — 2-tier architecture.
+ * Reference: Linear DESIGN.md (design-systems-benchmark/getdesign-md/linear.app.md)
+ *
+ *   TIER 1 · PRIMITIVES (`:root` block): theme-invariant raw palette —
+ *     violet ramp, warm neutral ramp, emotion colors, status colors.
+ *     Defined once, never themed.
+ *   TIER 2 · SEMANTIC (`:root, .dark` / `.light`): role tokens
+ *     (--background, --primary, --muted, …) referencing primitives via var().
+ *     This is the ONLY place dark/light remapping happens.
+ *
+ * Theme strategy: class-based (`.dark` / `.light` on <html>).
+ * Default is DARK — the product's primary canvas (Linear's deepest-dark
+ * philosophy, warmed slightly for the intimacy of a night journal).
+ * A class is required (not a media query) because the `dark` custom-variant
+ * gates every `dark:` utility on the `.dark` class, so the palette variables
+ * and the utility variant must switch together. The app's index.html inline
+ * script applies the class before first paint to avoid FOUC.
+ *
+ * Linear principles carried over (values adapted, never copied):
+ *   - Deepest-dark canvas as the system anchor, faint tint intentional
+ *   - Four-step surface ladder for hierarchy — no skipped levels
+ *   - Single chromatic accent (lavender-violet), used scarce
+ *   - Depth from surface + hairline border, not drop shadow
+ *   - Aggressive negative tracking on display, weight 600 max
+ *
+ * Domain extensions (not in Linear, defined within its grammar):
+ *   - Emotion palette (5 muted colors) for diary/mood content only
+ *   - Serif display voice (Noto Serif KR) for editorial/reflective moments
+ *   - Handwriting voice for diary body text
+ *
+ * Legal boundary: Linear's logo, trademark, proprietary typefaces
+ * (Linear Display/Text/Mono), and project-management IA are NOT replicated.
+ */
+
+/* ---------- TIER 1 · PRIMITIVES ---------- */
+:root {
+  /* violet ramp (brand — Linear lavender, warmed) */
+  --violet-300: #a89ef0;
+  --violet-400: #9187e3;
+  --violet-500: #7c6fd4;
+  --violet-600: #6a5cbf;
+  --violet-700: #584a9e;
+
+  /* neutral ramp (warm violet-tinted surfaces + ink) */
+  --neutral-0: #ffffff;
+  --neutral-50: #faf9fc;
+  --neutral-100: #f4f2f7;
+  --neutral-200: #e8e5ed;
+  --neutral-300: #d4d0dc;
+  --neutral-400: #a8a3b0;
+  --neutral-500: #8a8592;
+  --neutral-600: #6e6a76;
+  --neutral-700: #4a4650;
+  --neutral-800: #28262e;
+  --neutral-825: #222028;
+  --neutral-850: #1c1a21;
+  --neutral-875: #16141a;
+  --neutral-900: #110f14;
+  --neutral-950: #0c0a0f;
+  --neutral-1000: #000000;
+
+  /* emotion palette (domain-specific, muted to sit on dark surfaces) */
+  --emotion-joy: #e8a84c;
+  --emotion-calm: #6b9ecf;
+  --emotion-sadness: #8b7fc7;
+  --emotion-anger: #cf6b6b;
+  --emotion-gratitude: #6bcf8e;
+
+  /* status */
+  --red-400: #e06c6c;
+  --red-600: #c53d3d;
+  --green-500: #6bcf8e;
+}
+
+/* ---------- TIER 2 · SEMANTIC (dark — default) ---------- */
+:root,
+.dark {
+  color-scheme: dark;
+  --background: var(--neutral-950);
+  --foreground: var(--neutral-100);
+  --card: var(--neutral-875);
+  --card-foreground: var(--neutral-100);
+  --popover: var(--neutral-850);
+  --popover-foreground: var(--neutral-100);
+  --primary: var(--violet-500);
+  --primary-foreground: var(--neutral-0);
+  --primary-hover: var(--violet-400);
+  --secondary: var(--neutral-825);
+  --secondary-foreground: var(--neutral-100);
+  --secondary-hover: var(--neutral-800);
+  --muted: var(--neutral-850);
+  --muted-foreground: var(--neutral-400);
+  --accent: var(--neutral-800);
+  --accent-foreground: var(--neutral-100);
+  --destructive: var(--red-400);
+  --destructive-foreground: var(--neutral-950);
+  --border: rgb(255 255 255 / 8%);
+  --input: var(--neutral-825);
+  --input-border: var(--neutral-600);
+  --ring: var(--violet-500);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+  --sidebar: var(--neutral-900);
+  --sidebar-foreground: var(--neutral-100);
+  --radius: 0.5rem;
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 50%);
+  --shadow-pop: 0 16px 48px rgb(0 0 0 / 60%);
+}
+
+/* ---------- TIER 2 · SEMANTIC (light) ---------- */
+.light {
+  color-scheme: light;
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-950);
+  --card: var(--neutral-0);
+  --card-foreground: var(--neutral-950);
+  --popover: var(--neutral-0);
+  --popover-foreground: var(--neutral-950);
+  --primary: var(--violet-600);
+  --primary-foreground: var(--neutral-0);
+  --primary-hover: var(--violet-700);
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--neutral-950);
+  --secondary-hover: var(--neutral-200);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-600);
+  --accent: var(--neutral-200);
+  --accent-foreground: var(--neutral-950);
+  --destructive: var(--red-600);
+  --destructive-foreground: var(--neutral-0);
+  --border: rgb(0 0 0 / 10%);
+  --input: var(--neutral-0);
+  --input-border: var(--neutral-400);
+  --ring: var(--violet-600);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+  --sidebar: var(--neutral-0);
+  --sidebar-foreground: var(--neutral-950);
+  --radius: 0.5rem;
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 12%);
+  --shadow-pop: 0 16px 48px rgb(0 0 0 / 16%);
+}
+
+@theme inline {
+  /* UI voice: Inter (latin) + Pretendard (한글) */
+  --font-sans: "Inter", "Pretendard", ui-sans-serif, system-ui, sans-serif;
+  /* Editorial voice: serif display for titles & reflective moments */
+  --font-display: "Noto Serif KR", "Inter", "Pretendard", ui-serif, serif;
+  /* Handwriting voice: diary body (production: Onglip Eunbyeol) */
+  --font-hand: "Onglip Eunbyeol", "Nanum Pen Script", "Pretendard", cursive;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-border: var(--input-border);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  --color-emotion-joy: var(--emotion-joy);
+  --color-emotion-calm: var(--emotion-calm);
+  --color-emotion-sadness: var(--emotion-sadness);
+  --color-emotion-anger: var(--emotion-anger);
+  --color-emotion-gratitude: var(--emotion-gratitude);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-pill: 9999px;
+
+  --shadow-overlay: var(--shadow-overlay);
+  --shadow-pop: var(--shadow-pop);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    min-width: 320px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 24%, transparent);
+  }
+}
+
+@layer components {
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted-foreground);
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  .font-hand {
+    font-family: var(--font-hand);
+  }
+
+  /* 일기 편지지 괘선 — 저투명, 콘텐츠 영역 전용 */
+  .letter-paper {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='1'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
+
+  .light .letter-paper {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(0,0,0,0.05)' stroke-width='1'/%3E%3C/svg%3E");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
