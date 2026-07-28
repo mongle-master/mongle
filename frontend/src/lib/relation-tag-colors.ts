@@ -60,3 +60,18 @@ export function coloredTagStyle(
     color: active ? '#FFFFFF' : normalized,
   }
 }
+
+// 결(Gyeol) 디자인 시스템 권장 칩 시드 팔레트. Airtable의 따뜻한 시그니처 표면을
+// 텍스트 대비가 안전한 중간~어두운 톤으로 추린 것으로, 새 칩(감정·관계태그)의 기본색
+// 제안·시각 레퍼런스용이다. 피커에 연결하지 않는다 — 칩 색은 백엔드에 저장되는 데이터라
+// 선택지를 바꾸면 기존 데이터와 어긋날 수 있다(RELATION_TAG_COLOR_OPTIONS 는 그대로 유지).
+export const GYEOL_CHIP_PALETTE = [
+  '#AA2D00', // coral · 사랑
+  '#D96A3D', // coral-soft
+  '#D9A441', // mustard · 감사
+  '#B45309', // amber · 힘듦
+  '#3F7A44', // forest · 평온
+  '#14B8A6', // mint
+  '#1B61C9', // blue · 슬픔
+  '#475569', // slate
+] as const

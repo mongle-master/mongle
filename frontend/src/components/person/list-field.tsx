@@ -24,11 +24,11 @@ export function ListField({
 }) {
   const [draft, setDraft] = useState('')
   const [error, setError] = useState<string | null>(null)
+  // 시맨틱 상태 토큰 — dark: 쌍 없이 테마가 자동으로 반전된다 (결 globals.css)
   const chipToneClass = {
     neutral: 'bg-muted text-foreground',
-    green:
-      'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200',
-    red: 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200',
+    green: 'bg-success/10 text-success',
+    red: 'bg-destructive/10 text-destructive',
   }[tone]
 
   const addItem = () => {
@@ -78,7 +78,7 @@ export function ListField({
             <span
               key={item}
               className={cn(
-                'inline-flex h-7 max-w-full items-center gap-1 rounded-md px-2.5 text-label font-bold',
+                'inline-flex h-7 max-w-full items-center gap-1 rounded-md px-2.5 text-label font-semibold',
                 chipToneClass,
               )}
             >

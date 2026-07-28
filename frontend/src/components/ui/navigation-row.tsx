@@ -30,8 +30,8 @@ export function NavigationRow({
         <span
           className={
             isDestructive
-              ? 'text-body font-extrabold text-destructive'
-              : 'text-body font-extrabold text-foreground'
+              ? 'text-body font-medium text-destructive'
+              : 'text-body font-medium text-foreground'
           }
         >
           {label}

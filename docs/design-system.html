@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="ko" class="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>결 (Gyeol) — Mongle 디자인 시스템</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet" />
+<style>
+/* ==========================================================================
+   결 (Gyeol) 토큰 정본 — frontend/src/styles.css의 :root/.light/.dark 블록을
+   "그대로" 인라인했다. 명세와 구현이 같은 파일이므로 어긋날 수 없다.
+   토큰이 바뀌면 이 블록도 frontend/src/styles.css에서 다시 복사해야 한다(거버넌스 참고).
+   (@theme inline은 Tailwind 매핑 레이어라 정적 HTML에는 불필요 — var()로 직접 소비.)
+   ========================================================================== */
+
+/* ---------- TIER 1 · PRIMITIVES ---------- */
+:root {
+  --ink-0: #ffffff;
+  --ink-50: #f8fafc;
+  --ink-100: #e0e2e6;
+  --ink-200: #dddddd;
+  --ink-400: #9297a0;
+  --ink-600: #41454d;
+  --ink-700: #333840;
+  --ink-800: #1d1f25;
+  --ink-900: #181d26;
+  --ink-950: #0d1218;
+
+  --coral-100: #fbe4d8;
+  --coral-500: #d96a3d;
+  --coral-700: #aa2d00;
+  --peach-200: #fde3d0;
+  --peach-500: #fcab79;
+  --cream-100: #faf3e6;
+  --cream-300: #f5e9d4;
+  --mustard-200: #f3e3bd;
+  --mustard-600: #d9a441;
+  --yellow-500: #f4d35e;
+  --mint-200: #d8efe5;
+  --mint-500: #a8d8c4;
+  --forest-100: #dcefe0;
+  --forest-500: #3f7a44;
+  --forest-800: #0a2e0e;
+
+  --blue-800: #1a3866;
+  --blue-700: #1b61c9;
+  --blue-600: #254fad;
+  --blue-400: #458fff;
+  --green-800: #006400;
+  --green-500: #39bf45;
+  --red-700: #b42318;
+  --red-500: #d02f3a;
+  --amber-700: #b45309;
+  --amber-500: #ffa42b;
+
+  --charcoal-100: #e8e2d5;
+  --charcoal-300: #a89f8d;
+  --charcoal-500: #6b6455;
+  --charcoal-700: #3a352c;
+  --charcoal-800: #2a2620;
+  --charcoal-850: #221f19;
+  --charcoal-900: #1c1a15;
+  --charcoal-950: #14120e;
+}
+
+/* ---------- TIER 2 · SEMANTIC (light) ---------- */
+:root, .light {
+  color-scheme: light;
+  --background: var(--ink-0);
+  --foreground: var(--ink-900);
+  --card: var(--ink-0);
+  --card-foreground: var(--ink-900);
+  --popover: var(--ink-0);
+  --popover-foreground: var(--ink-900);
+  --primary: var(--ink-900);
+  --primary-foreground: var(--ink-0);
+  --primary-hover: var(--ink-950);
+  --secondary: var(--ink-0);
+  --secondary-foreground: var(--ink-900);
+  --secondary-hover: var(--ink-50);
+  --muted: var(--ink-50);
+  --muted-foreground: var(--ink-600);
+  --accent: var(--ink-50);
+  --accent-foreground: var(--ink-900);
+  --destructive: var(--red-700);
+  --destructive-foreground: var(--ink-0);
+  --warning: var(--amber-700);
+  --warning-foreground: var(--ink-0);
+  --success: var(--green-800);
+  --success-foreground: var(--ink-0);
+  --info: var(--blue-600);
+  --info-foreground: var(--ink-0);
+  --link: var(--blue-700);
+  --link-active: var(--blue-800);
+  --border: var(--ink-200);
+  --border-strong: var(--ink-400);
+  --input: var(--ink-0);
+  --input-border: var(--ink-200);
+  --ring: var(--ink-900);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+
+  --emotion-joy: var(--peach-500);
+  --emotion-joy-bg: color-mix(in oklch, var(--peach-500) 20%, var(--card));
+  --emotion-gratitude: var(--mustard-600);
+  --emotion-gratitude-bg: color-mix(in oklch, var(--cream-300) 55%, var(--card));
+  --emotion-love: var(--coral-700);
+  --emotion-love-bg: color-mix(in oklch, var(--coral-500) 18%, var(--card));
+  --emotion-calm: var(--forest-500);
+  --emotion-calm-bg: color-mix(in oklch, var(--mint-500) 30%, var(--card));
+  --emotion-sadness: var(--blue-700);
+  --emotion-sadness-bg: color-mix(in oklch, var(--blue-400) 16%, var(--card));
+  --emotion-hard: var(--amber-700);
+  --emotion-hard-bg: color-mix(in oklch, var(--mustard-600) 20%, var(--card));
+
+  --radius: 0.625rem;
+  --elevation-1: 0 1px 2px rgb(24 29 38 / 6%);
+  --elevation-2: 0 2px 8px rgb(24 29 38 / 8%);
+  --elevation-3: 0 8px 24px rgb(24 29 38 / 10%);
+  --elevation-4: 0 16px 48px rgb(24 29 38 / 14%);
+  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'30'%3E%3Cpath%20d%3D'M0%2026%20Q%2022%2022%2045%2026%20T%2090%2026'%20fill%3D'none'%20stroke%3D'rgba(24%2C29%2C38%2C0.06)'%20stroke-width%3D'1'%2F%3E%3C/svg%3E");
+}
+
+/* ---------- TIER 2 · SEMANTIC (dark) ---------- */
+.dark {
+  color-scheme: dark;
+  --background: var(--charcoal-950);
+  --foreground: var(--charcoal-100);
+  --card: var(--charcoal-900);
+  --card-foreground: var(--charcoal-100);
+  --popover: var(--charcoal-850);
+  --popover-foreground: var(--charcoal-100);
+  --primary: var(--charcoal-100);
+  --primary-foreground: var(--charcoal-950);
+  --primary-hover: var(--ink-0);
+  --secondary: var(--charcoal-800);
+  --secondary-foreground: var(--charcoal-100);
+  --secondary-hover: var(--charcoal-700);
+  --muted: var(--charcoal-850);
+  --muted-foreground: var(--charcoal-300);
+  --accent: var(--charcoal-800);
+  --accent-foreground: var(--charcoal-100);
+  --destructive: var(--red-500);
+  --destructive-foreground: var(--charcoal-950);
+  --warning: var(--amber-500);
+  --warning-foreground: var(--charcoal-950);
+  --success: var(--green-500);
+  --success-foreground: var(--charcoal-950);
+  --info: var(--blue-400);
+  --info-foreground: var(--charcoal-950);
+  --link: var(--blue-400);
+  --link-active: var(--blue-700);
+  --border: rgb(255 255 255 / 12%);
+  --border-strong: var(--charcoal-500);
+  --input: var(--charcoal-850);
+  --input-border: var(--charcoal-700);
+  --ring: var(--charcoal-100);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+
+  --emotion-joy: var(--peach-200);
+  --emotion-joy-bg: color-mix(in oklch, var(--peach-500) 16%, var(--card));
+  --emotion-gratitude: var(--cream-300);
+  --emotion-gratitude-bg: color-mix(in oklch, var(--mustard-600) 16%, var(--card));
+  --emotion-love: var(--coral-100);
+  --emotion-love-bg: color-mix(in oklch, var(--coral-500) 16%, var(--card));
+  --emotion-calm: var(--mint-200);
+  --emotion-calm-bg: color-mix(in oklch, var(--mint-500) 16%, var(--card));
+  --emotion-sadness: var(--blue-400);
+  --emotion-sadness-bg: color-mix(in oklch, var(--blue-400) 16%, var(--card));
+  --emotion-hard: var(--amber-500);
+  --emotion-hard-bg: color-mix(in oklch, var(--amber-500) 14%, var(--card));
+
+  --radius: 0.625rem;
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 30%);
+  --elevation-2: 0 2px 8px rgb(0 0 0 / 34%);
+  --elevation-3: 0 8px 24px rgb(0 0 0 / 40%);
+  --elevation-4: 0 16px 48px rgb(0 0 0 / 50%);
+  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'30'%3E%3Cpath%20d%3D'M0%2026%20Q%2022%2022%2045%2026%20T%2090%2026'%20fill%3D'none'%20stroke%3D'rgba(232%2C226%2C213%2C0.08)'%20stroke-width%3D'1'%2F%3E%3C/svg%3E");
+}
+
+/* ==========================================================================
+   쇼케이스 프레젠테이션 스타일 (토큰을 var()로 소비 — 문서용 사본 팔레트 없음)
+   ========================================================================== */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: 'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background .2s ease, color .2s ease;
+}
+.font-hand { font-family: 'Onglip Eunbyeol', 'Nanum Pen Script', cursive; }
+.eyebrow {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .12em; color: var(--muted-foreground);
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+header.top {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in oklch, var(--background) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+.brand { display: flex; align-items: baseline; gap: 10px; font-weight: 700; }
+.brand .ko { font-size: 20px; }
+.brand .en { font-size: 12px; color: var(--muted-foreground); letter-spacing: .08em; }
+nav.toc { display: flex; gap: 4px; flex-wrap: wrap; }
+nav.toc a {
+  font-size: 12.5px; color: var(--muted-foreground); text-decoration: none;
+  padding: 5px 9px; border-radius: 6px;
+}
+nav.toc a:hover { background: var(--muted); color: var(--foreground); }
+
+section { padding: 72px 0; border-bottom: 1px solid var(--border); }
+section > .wrap > h2 { font-size: 28px; font-weight: 500; margin: 0 0 6px; letter-spacing: -.01em; }
+section > .wrap > .lede { color: var(--muted-foreground); margin: 0 0 32px; max-width: 60ch; }
+h3.sub { font-size: 16px; font-weight: 600; margin: 36px 0 14px; }
+
+/* hero */
+.hero { padding: 96px 0 80px; }
+.hero h1 { font-size: 52px; line-height: 1.12; font-weight: 500; margin: 14px 0 18px; letter-spacing: -.02em; }
+.hero p { font-size: 17px; color: var(--muted-foreground); max-width: 56ch; margin: 0 0 28px; }
+.hero .moods { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* generic component demos */
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.grid { display: grid; gap: 16px; }
+.panel {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--card); padding: 24px;
+}
+
+/* swatches */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.swatch { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.swatch .chip { height: 64px; }
+.swatch .meta { padding: 8px 10px; font-size: 11.5px; }
+.swatch .meta .name { font-weight: 600; }
+.swatch .meta .val { color: var(--muted-foreground); font-family: ui-monospace, monospace; }
+
+/* type scale */
+.type-row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.type-row .spec { font-size: 11.5px; color: var(--muted-foreground); font-family: ui-monospace, monospace; }
+
+/* buttons (mirror React button.tsx) */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 36px; padding: 0 14px; border-radius: 12px; border: 1px solid transparent;
+  font: 500 14px/1 'Pretendard Variable', sans-serif; cursor: pointer; text-decoration: none;
+  transition: background .15s ease, color .15s ease; white-space: nowrap;
+}
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 40%, transparent); }
+.btn-default { background: var(--primary); color: var(--primary-foreground); }
+.btn-default:hover { background: var(--primary-hover); }
+.btn-outline { background: transparent; border-color: var(--border); color: var(--foreground); }
+.btn-outline:hover { background: var(--muted); }
+.btn-secondary { background: var(--secondary); border-color: var(--border); color: var(--secondary-foreground); }
+.btn-secondary:hover { background: var(--secondary-hover); }
+.btn-ghost { background: transparent; color: var(--foreground); }
+.btn-ghost:hover { background: var(--muted); }
+.btn-destructive { background: color-mix(in oklch, var(--destructive) 12%, transparent); color: var(--destructive); }
+.btn-link { background: transparent; color: var(--link); height: auto; padding: 0; }
+.btn-link:hover { text-decoration: underline; }
+.btn-sm { height: 32px; padding: 0 11px; font-size: 13px; }
+.btn-lg { height: 40px; padding: 0 18px; }
+.btn-cta { height: 44px; padding: 0 22px; border-radius: 9999px; font-weight: 700; }
+
+/* badge */
+.badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 500; }
+.badge-default { background: var(--primary); color: var(--primary-foreground); }
+.badge-secondary { background: var(--secondary); border: 1px solid var(--border); color: var(--secondary-foreground); }
+.badge-outline { border: 1px solid var(--border); color: var(--foreground); }
+
+/* emotion badge (mirror emotion-badge.tsx) */
+.emo { display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px; padding: 4px 12px; font-size: 12px; font-weight: 500; }
+.emo .dot { width: 6px; height: 6px; border-radius: 50%; }
+.emo-joy { background: var(--emotion-joy-bg); color: var(--emotion-joy); } .emo-joy .dot { background: var(--emotion-joy); }
+.emo-gratitude { background: var(--emotion-gratitude-bg); color: var(--emotion-gratitude); } .emo-gratitude .dot { background: var(--emotion-gratitude); }
+.emo-love { background: var(--emotion-love-bg); color: var(--emotion-love); } .emo-love .dot { background: var(--emotion-love); }
+.emo-calm { background: var(--emotion-calm-bg); color: var(--emotion-calm); } .emo-calm .dot { background: var(--emotion-calm); }
+.emo-sadness { background: var(--emotion-sadness-bg); color: var(--emotion-sadness); } .emo-sadness .dot { background: var(--emotion-sadness); }
+.emo-hard { background: var(--emotion-hard-bg); color: var(--emotion-hard); } .emo-hard .dot { background: var(--emotion-hard); }
+
+/* mood picker */
+.mood-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+.mood-picker button {
+  display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px;
+  border: 1px solid var(--border); background: var(--card); color: var(--muted-foreground);
+  padding: 6px 13px; font: 500 14px/1 'Pretendard Variable', sans-serif; cursor: pointer;
+}
+.mood-picker button .dot { width: 8px; height: 8px; border-radius: 50%; }
+.mood-picker button[aria-checked="true"] { border-color: transparent; }
+.mood-picker button.on-joy { background: var(--emotion-joy-bg); color: var(--emotion-joy); }
+.mood-picker button.on-gratitude { background: var(--emotion-gratitude-bg); color: var(--emotion-gratitude); }
+.mood-picker button.on-love { background: var(--emotion-love-bg); color: var(--emotion-love); }
+.mood-picker button.on-calm { background: var(--emotion-calm-bg); color: var(--emotion-calm); }
+.mood-picker button.on-sadness { background: var(--emotion-sadness-bg); color: var(--emotion-sadness); }
+.mood-picker button.on-hard { background: var(--emotion-hard-bg); color: var(--emotion-hard); }
+
+/* inputs */
+.field { display: flex; flex-direction: column; gap: 6px; max-width: 360px; }
+.field label { font-size: 13px; font-weight: 500; }
+.input, .textarea {
+  width: 100%; background: var(--input); color: var(--foreground);
+  border: 1px solid var(--input-border); border-radius: 6px; padding: 10px 14px;
+  font: 400 15px/1.5 'Pretendard Variable', sans-serif;
+}
+.input:focus, .textarea:focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 18%, transparent); }
+.textarea { min-height: 96px; resize: vertical; }
+.textarea.hand { font-family: 'Nanum Pen Script', cursive; font-size: 19px; line-height: 30px; background-image: var(--letter-paper); }
+
+/* card */
+.card { border: 1px solid var(--border); border-radius: 16px; background: var(--card); color: var(--card-foreground); overflow: hidden; }
+.card .c-head { padding: 16px 16px 0; }
+.card .c-title { font-size: 16px; font-weight: 500; }
+.card .c-desc { font-size: 14px; color: var(--muted-foreground); margin-top: 2px; }
+.card .c-body { padding: 12px 16px; font-size: 14px; }
+.card .c-foot { padding: 12px 16px; border-top: 1px solid var(--border); background: color-mix(in oklch, var(--muted) 50%, transparent); }
+
+/* avatar */
+.avatar { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: var(--secondary); color: var(--secondary-foreground); font-weight: 700; font-size: 15px; }
+
+/* tabs */
+.tabs-list { display: inline-flex; gap: 2px; border: 1px solid var(--border); border-radius: 10px; padding: 3px; background: var(--muted); }
+.tabs-list button { border: 0; background: transparent; padding: 6px 14px; border-radius: 7px; font: 500 13.5px/1 'Pretendard Variable', sans-serif; color: var(--muted-foreground); cursor: pointer; }
+.tabs-list button[aria-selected="true"] { background: var(--card); color: var(--foreground); box-shadow: var(--elevation-1); }
+
+/* checkbox / switch */
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+.check .box { width: 18px; height: 18px; border-radius: 5px; border: 1px solid var(--border-strong); display: inline-flex; align-items: center; justify-content: center; }
+.check .box.on { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+.switch { width: 40px; height: 22px; border-radius: 9999px; background: var(--border-strong); position: relative; display: inline-block; }
+.switch.on { background: var(--primary); }
+.switch .knob { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .15s ease; }
+.switch.on .knob { left: 20px; }
+
+/* skeleton + empty */
+.skeleton { background: color-mix(in oklch, var(--muted-foreground) 14%, transparent); border-radius: 6px; animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+.empty { text-align: center; padding: 40px 20px; color: var(--muted-foreground); }
+.empty .ic { font-size: 28px; }
+
+/* diary entry (mirror diary-entry.tsx) */
+.diary { display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); padding: 16px; }
+.diary .d-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.diary .d-date { font-size: 12px; color: var(--muted-foreground); }
+.diary .d-body { font-family: 'Nanum Pen Script', cursive; font-size: 18px; line-height: 30px; background-image: var(--letter-paper); color: var(--card-foreground); }
+.diary .d-foot { display: flex; gap: 8px; }
+
+/* person card */
+.person { display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); padding: 12px; }
+.person .p-name { font-size: 14px; font-weight: 500; }
+.person .p-rel { font-size: 12px; color: var(--muted-foreground); }
+
+/* on-this-day */
+.otd { display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--emotion-gratitude-bg); padding: 16px; }
+.otd .o-head { display: flex; align-items: center; justify-content: space-between; }
+.otd .o-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--emotion-gratitude); }
+.otd .o-excerpt { font-family: 'Nanum Pen Script', cursive; font-size: 18px; line-height: 30px; margin: 0; }
+.otd .o-foot { display: flex; gap: 8px; font-size: 12px; color: var(--muted-foreground); }
+
+/* phone frames for applied screens */
+.screens { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+.phone { border: 1px solid var(--border); border-radius: 28px; background: var(--background); overflow: hidden; box-shadow: var(--elevation-3); }
+.phone .p-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.phone .p-bar .t { font-weight: 600; font-size: 15px; }
+.phone .p-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; min-height: 360px; }
+.phone .p-tabbar { display: flex; justify-content: space-around; border-top: 1px solid var(--border); padding: 10px 0; font-size: 11px; color: var(--muted-foreground); }
+.phone .p-tabbar span.on { color: var(--foreground); font-weight: 600; }
+.map-ph { border: 1px dashed var(--border-strong); border-radius: 12px; height: 180px; display: flex; align-items: center; justify-content: center; color: var(--muted-foreground); font-size: 13px; background: var(--muted); }
+.node { display: inline-flex; align-items: center; gap: 6px; }
+.statbar { display: flex; height: 12px; border-radius: 9999px; overflow: hidden; }
+.statbar i { display: block; height: 100%; }
+
+/* governance table */
+table.gov { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.gov th, table.gov td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.gov th { color: var(--muted-foreground); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+
+.theme-toggle { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 9999px; padding: 6px 14px; background: var(--card); cursor: pointer; font: 500 13px/1 'Pretendard Variable', sans-serif; color: var(--foreground); }
+footer.foot { padding: 48px 0; color: var(--muted-foreground); font-size: 13px; }
+@media (max-width: 720px) {
+  nav.toc { display: none; }
+  .hero h1 { font-size: 38px; }
+  .type-row { grid-template-columns: 1fr; gap: 2px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="ko">결</span><span class="en">GYEOL · MONGLE DS</span></div>
+    <nav class="toc">
+      <a href="#arch">아키텍처</a>
+      <a href="#color">색상</a>
+      <a href="#type">타이포</a>
+      <a href="#foundations">파운데이션</a>
+      <a href="#components">컴포넌트</a>
+      <a href="#domain">도메인</a>
+      <a href="#screens">적용 화면</a>
+      <a href="#gov">거버넌스</a>
+    </nav>
+    <button class="theme-toggle" id="themeBtn" aria-label="테마 전환">🌙 <span>다크</span></button>
+  </div>
+</header>
+
+<!-- 1. 개요 -->
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Mongle Design Language</span>
+    <h1>종이의 결,<br />관계의 결, 감정의 결.</h1>
+    <p>Airtable의 편집적 절제 — 흰 캔버스, 먹색 타입, 여백, 따뜻한 시그니처 표면 — 를
+       일기 · 감정 기록 도메인으로 번역했다. Airtable이 코랄 · 크림 · 민트 카드로 긴 스크롤에
+       전압을 주듯, 우리는 그 따뜻한 팔레트를 <strong>감정</strong>에 실어 기록의 순간마다 찍는다.
+       색은 감정에 살고, 크롬은 조용하다.</p>
+    <div class="moods">
+      <span class="emo emo-joy"><span class="dot"></span>기쁨</span>
+      <span class="emo emo-gratitude"><span class="dot"></span>감사</span>
+      <span class="emo emo-love"><span class="dot"></span>사랑</span>
+      <span class="emo emo-calm"><span class="dot"></span>평온</span>
+      <span class="emo emo-sadness"><span class="dot"></span>슬픔</span>
+      <span class="emo emo-hard"><span class="dot"></span>힘듦</span>
+    </div>
+  </div>
+</div>
+
+<!-- 2. 아키텍처 -->
+<section id="arch">
+  <div class="wrap">
+    <h2>3계층 토큰 아키텍처</h2>
+    <p class="lede">값은 한 방향으로만 흐른다. 상위 계층이 바뀌면 하위 전체가 따라간다.
+       정본은 <code>frontend/src/styles.css</code> — 이 페이지에 인라인된 블록과 동일하다.</p>
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="panel">
+        <span class="eyebrow">Tier 1 · Primitives</span>
+        <p style="margin:8px 0 0; font-size:14px;">테마 불변 원시 팔레트. ink 램프 · warm 시그니처 램프 ·
+           의미색 · warm dark 램프. 리터럴만, 테마가 바뀌어도 값 불변.</p>
+      </div>
+      <div class="panel">
+        <span class="eyebrow">Tier 2 · Semantic</span>
+        <p style="margin:8px 0 0; font-size:14px;">역할 토큰. 전부 <code>var(--tier1)</code> 참조.
+           <strong>dark/light 재매핑의 유일한 소유지.</strong> 감정 표면 쌍(<code>--emotion-*</code>)도 여기.</p>
+      </div>
+      <div class="panel">
+        <span class="eyebrow">Tier 3 · Component</span>
+        <p style="margin:8px 0 0; font-size:14px;">별도 계층 없음. CVA variant와 컴포넌트 클래스가
+           Tier 2를 직접 소비 (shadcn 방식, 우리 규모에 component 토큰 계층은 과잉).</p>
+      </div>
+    </div>
+    <h3 class="sub">계층 계약</h3>
+    <ul style="font-size:14px; color:var(--muted-foreground); margin:0; padding-left:18px;">
+      <li>하향 참조만 허용. 상향 참조 금지.</li>
+      <li>테마 분기는 오직 Tier 2에서만. Tier 3·컴포넌트 클래스에 테마 코드 0줄.</li>
+      <li>fg/bg 쌍을 반드시 함께 정의 — 대비를 토큰 수준에서 보증 (Polaris · shadcn 교훈).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 3. 색상 -->
+<section id="color">
+  <div class="wrap">
+    <h2>색상</h2>
+    <p class="lede">잉크-종이 무채가 토대, 따뜻한 시그니처 팔레트는 감정의 원색, 의미색은 상태 전용.
+       Airtable의 "color-block first, shadow second"를 따른다.</p>
+
+    <h3 class="sub">잉크 램프 (편집적 뉴트럴)</h3>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:var(--ink-0);border-bottom:1px solid var(--border)"></div><div class="meta"><div class="name">canvas</div><div class="val">#ffffff</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-50)"></div><div class="meta"><div class="name">surface-soft</div><div class="val">#f8fafc</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-100)"></div><div class="meta"><div class="name">surface-strong</div><div class="val">#e0e2e6</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-200)"></div><div class="meta"><div class="name">hairline</div><div class="val">#dddddd</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-400)"></div><div class="meta"><div class="name">border-strong</div><div class="val">#9297a0</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-600)"></div><div class="meta"><div class="name">muted</div><div class="val">#41454d</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-700)"></div><div class="meta"><div class="name">body</div><div class="val">#333840</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-900)"></div><div class="meta"><div class="name">ink · primary</div><div class="val">#181d26</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-950)"></div><div class="meta"><div class="name">primary-active</div><div class="val">#0d1218</div></div></div>
+    </div>
+
+    <h3 class="sub">따뜻한 시그니처 램프 → 감정의 원색</h3>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:var(--coral-700)"></div><div class="meta"><div class="name">coral · 사랑</div><div class="val">#aa2d00</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--peach-500)"></div><div class="meta"><div class="name">peach · 기쁨</div><div class="val">#fcab79</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--cream-300)"></div><div class="meta"><div class="name">cream · 감사</div><div class="val">#f5e9d4</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--mustard-600)"></div><div class="meta"><div class="name">mustard</div><div class="val">#d9a441</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--mint-500)"></div><div class="meta"><div class="name">mint · 평온</div><div class="val">#a8d8c4</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--forest-800)"></div><div class="meta"><div class="name">forest</div><div class="val">#0a2e0e</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--yellow-500)"></div><div class="meta"><div class="name">yellow</div><div class="val">#f4d35e</div></div></div>
+    </div>
+
+    <h3 class="sub">감정 표면 쌍 (도메인 확장 · 현재 테마)</h3>
+    <p style="font-size:13px;color:var(--muted-foreground);margin:0 0 12px;">배경은 카드 위에 원색을 낮게 섞은 종이 염색, 잉크는 그 위. 항상 쌍으로 정의.</p>
+    <div class="row">
+      <span class="emo emo-joy"><span class="dot"></span>기쁨 joy</span>
+      <span class="emo emo-gratitude"><span class="dot"></span>감사 gratitude</span>
+      <span class="emo emo-love"><span class="dot"></span>사랑 love</span>
+      <span class="emo emo-calm"><span class="dot"></span>평온 calm</span>
+      <span class="emo emo-sadness"><span class="dot"></span>슬픔 sadness</span>
+      <span class="emo emo-hard"><span class="dot"></span>힘듦 hard</span>
+    </div>
+
+    <h3 class="sub">의미색 (상태)</h3>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:var(--link)"></div><div class="meta"><div class="name">link</div><div class="val">#1b61c9</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--info)"></div><div class="meta"><div class="name">info</div><div class="val">#254fad</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--success)"></div><div class="meta"><div class="name">success</div><div class="val">#006400</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--warning)"></div><div class="meta"><div class="name">warning</div><div class="val">#b45309</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--destructive)"></div><div class="meta"><div class="name">destructive</div><div class="val">#b42318</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 타이포 -->
+<section id="type">
+  <div class="wrap">
+    <h2>타이포그래피</h2>
+    <p class="lede">강조는 크기와 색으로 하지 굵기로 하지 않는다 — display는 500을 넘지 않는다(Airtable 규율).
+       본문은 Pretendard, 기록 본문 · 감성 화면은 손글씨(Onglip Eunbyeol / 여기선 Nanum Pen Script 대역).</p>
+    <div class="type-row"><span class="spec">display / 40·500</span><span style="font-size:40px;font-weight:500;line-height:1.15;letter-spacing:-.02em;">오늘의 기록</span></div>
+    <div class="type-row"><span class="spec">title / 24·400</span><span style="font-size:24px;font-weight:400;">사람과 관계</span></div>
+    <div class="type-row"><span class="spec">title-sm / 18·500</span><span style="font-size:18px;font-weight:500;">서연과의 시간</span></div>
+    <div class="type-row"><span class="spec">label / 16·500</span><span style="font-size:16px;font-weight:500;">감정 선택</span></div>
+    <div class="type-row"><span class="spec">body / 15·400</span><span style="font-size:15px;">함께한 사람, 감정, 내용, 날짜와 날씨를 나눠 입력한다.</span></div>
+    <div class="type-row"><span class="spec">caption / 14·500</span><span style="font-size:14px;font-weight:500;letter-spacing:.01em;">2026년 7월 28일 화요일</span></div>
+    <div class="type-row"><span class="spec">hand / 기록 본문</span><span class="font-hand" style="font-size:24px;line-height:1.5;">할머니가 환하게 웃으셨다. 그 웃음이 오래 기억에 남을 것 같다.</span></div>
+  </div>
+</section>
+
+<!-- 5. 파운데이션 -->
+<section id="foundations">
+  <div class="wrap">
+    <h2>간격 · 도형 · Elevation · 모션</h2>
+    <p class="lede">4-베이스 간격, 위계적 반경, 최소 그림자. 구획은 그림자가 아니라 hairline 테두리와 명도 차이로.</p>
+    <div class="grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="panel">
+        <h3 class="sub" style="margin-top:0;">반경 (위계적)</h3>
+        <div class="row">
+          <div style="text-align:center"><div style="width:56px;height:56px;background:var(--muted);border:1px solid var(--border);border-radius:2px"></div><small>xs 2</small></div>
+          <div style="text-align:center"><div style="width:56px;height:56px;background:var(--muted);border:1px solid var(--border);border-radius:6px"></div><small>sm 6</small></div>
+          <div style="text-align:center"><div style="width:56px;height:56px;background:var(--muted);border:1px solid var(--border);border-radius:10px"></div><small>md 10</small></div>
+          <div style="text-align:center"><div style="width:56px;height:56px;background:var(--muted);border:1px solid var(--border);border-radius:12px"></div><small>lg 12</small></div>
+          <div style="text-align:center"><div style="width:80px;height:56px;background:var(--muted);border:1px solid var(--border);border-radius:9999px"></div><small>pill</small></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 class="sub" style="margin-top:0;">Elevation (color-block first)</h3>
+        <div class="row">
+          <div style="text-align:center"><div style="width:64px;height:48px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--elevation-1)"></div><small>e1</small></div>
+          <div style="text-align:center"><div style="width:64px;height:48px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--elevation-2)"></div><small>e2</small></div>
+          <div style="text-align:center"><div style="width:64px;height:48px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--elevation-3)"></div><small>e3</small></div>
+          <div style="text-align:center"><div style="width:64px;height:48px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--elevation-4)"></div><small>e4</small></div>
+        </div>
+      </div>
+    </div>
+    <h3 class="sub">간격 리듬</h3>
+    <div class="row" style="align-items:flex-end;">
+      <div style="text-align:center"><div style="width:4px;height:24px;background:var(--border-strong)"></div><small>4</small></div>
+      <div style="text-align:center"><div style="width:8px;height:24px;background:var(--border-strong)"></div><small>8</small></div>
+      <div style="text-align:center"><div style="width:12px;height:24px;background:var(--border-strong)"></div><small>12</small></div>
+      <div style="text-align:center"><div style="width:16px;height:24px;background:var(--border-strong)"></div><small>16</small></div>
+      <div style="text-align:center"><div style="width:24px;height:24px;background:var(--border-strong)"></div><small>24</small></div>
+      <div style="text-align:center"><div style="width:32px;height:24px;background:var(--border-strong)"></div><small>32</small></div>
+      <div style="text-align:center"><div style="width:48px;height:24px;background:var(--border-strong)"></div><small>48</small></div>
+      <div style="text-align:center"><div style="width:96px;height:24px;background:var(--border-strong)"></div><small>96 (섹션)</small></div>
+    </div>
+    <h3 class="sub">모션</h3>
+    <p style="font-size:14px;color:var(--muted-foreground);margin:0;">전이 120~200ms의 색 · opacity · transform만.
+       <code>prefers-reduced-motion</code>에서 이동 애니메이션 제거. 반복 장식 애니메이션 금지.</p>
+  </div>
+</section>
+
+<!-- 6. 컴포넌트 -->
+<section id="components">
+  <div class="wrap">
+    <h2>컴포넌트 라이브러리</h2>
+    <p class="lede">소유형 소스(shadcn 구조) + headless 프리미티브(radix) + CVA variant.
+       모든 요소에 <code>data-slot</code>. Storybook 56 story로 검증.</p>
+
+    <h3 class="sub">Button</h3>
+    <div class="panel"><div class="row">
+      <button class="btn btn-default">기본</button>
+      <button class="btn btn-outline">테두리</button>
+      <button class="btn btn-secondary">보조</button>
+      <button class="btn btn-ghost">고스트</button>
+      <button class="btn btn-destructive">파괴</button>
+      <button class="btn btn-link">링크</button>
+      <button class="btn btn-default btn-cta">기록 저장</button>
+    </div></div>
+
+    <h3 class="sub">Badge · 감정 배지</h3>
+    <div class="panel"><div class="row">
+      <span class="badge badge-default">기본</span>
+      <span class="badge badge-secondary">보조</span>
+      <span class="badge badge-outline">테두리</span>
+      <span class="emo emo-love"><span class="dot"></span>사랑</span>
+      <span class="emo emo-calm"><span class="dot"></span>평온</span>
+    </div></div>
+
+    <h3 class="sub">Input · Textarea (손글씨)</h3>
+    <div class="panel"><div class="grid" style="gap:16px;">
+      <div class="field"><label for="i1">사람 이름</label><input id="i1" class="input" placeholder="서연" /></div>
+      <div class="field" style="max-width:480px;"><label for="t1">오늘의 기록</label><textarea id="t1" class="textarea hand" placeholder="오늘은 공원에서 산책을 했다…"></textarea></div>
+    </div></div>
+
+    <h3 class="sub">Card · Tabs · Avatar</h3>
+    <div class="grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="card">
+        <div class="c-head"><div class="c-title">서연</div><div class="c-desc">대학 동기 · 12회 기록</div></div>
+        <div class="c-body">마지막 기록 3일 전. 함께한 감정: 기쁨 · 감사.</div>
+        <div class="c-foot"><button class="btn btn-secondary btn-sm">타임라인</button></div>
+      </div>
+      <div class="panel">
+        <div class="tabs-list" role="tablist">
+          <button role="tab" aria-selected="true">전체</button>
+          <button role="tab" aria-selected="false">사람</button>
+          <button role="tab" aria-selected="false">감정</button>
+        </div>
+        <div class="row" style="margin-top:16px;">
+          <span class="avatar">연</span>
+          <span class="avatar">훈</span>
+          <span class="avatar">할</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub">Checkbox · Switch · Skeleton · Empty</h3>
+    <div class="panel"><div class="row" style="gap:24px;">
+      <label class="check"><span class="box on">✓</span> 즐겨찾기</label>
+      <label class="check"><span class="box"></span> 알림</label>
+      <span class="switch on"><span class="knob"></span></span>
+      <span class="switch"><span class="knob"></span></span>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 1fr; margin-top:20px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="skeleton" style="height:14px;width:60%;"></div>
+        <div class="skeleton" style="height:14px;width:90%;"></div>
+        <div class="skeleton" style="height:14px;width:75%;"></div>
+      </div>
+      <div class="empty"><div class="ic">📖</div><div style="font-weight:600;color:var(--foreground);margin:4px 0;">아직 기록이 없어요</div>오늘의 첫 순간을 남겨보세요.</div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 7. 도메인 -->
+<section id="domain">
+  <div class="wrap">
+    <h2>도메인 패턴</h2>
+    <p class="lede">Airtable에 없는 우리 문법. Airtable의 시그니처 카드 문법 <em>안에서</em> 정의한다 —
+       감정 표면, 감정 점, 편지지, 손글씨, 1년 전 오늘.</p>
+
+    <h3 class="sub">MoodPicker — 감정을 골라 찍는 순간</h3>
+    <div class="panel">
+      <div class="mood-picker" role="radiogroup" aria-label="오늘의 감정">
+        <button role="radio" aria-checked="false"><span class="dot" style="background:var(--emotion-joy)"></span>기쁨</button>
+        <button role="radio" aria-checked="true" class="on-gratitude"><span class="dot" style="background:var(--emotion-gratitude)"></span>감사</button>
+        <button role="radio" aria-checked="false"><span class="dot" style="background:var(--emotion-love)"></span>사랑</button>
+        <button role="radio" aria-checked="false"><span class="dot" style="background:var(--emotion-calm)"></span>평온</button>
+        <button role="radio" aria-checked="false"><span class="dot" style="background:var(--emotion-sadness)"></span>슬픔</button>
+        <button role="radio" aria-checked="false"><span class="dot" style="background:var(--emotion-hard)"></span>힘듦</button>
+      </div>
+    </div>
+
+    <h3 class="sub">DiaryEntry — 편지지 + 손글씨 본문</h3>
+    <div class="grid" style="grid-template-columns:1fr 1fr;">
+      <div class="diary">
+        <div class="d-head"><span class="d-date">2026년 7월 28일 화요일</span><span class="emo emo-joy"><span class="dot"></span>기쁨</span></div>
+        <div class="d-body">오늘은 공원에서 산책을 했다. 벤치에 앉아 책을 읽다가 옆에 앉은 할머니와 대화를 나눴다. 할머니는 손주 이야기를 하며 환하게 웃으셨다.</div>
+        <div class="d-foot"><span class="emo emo-gratitude"><span class="dot"></span>감사</span><span class="emo emo-calm"><span class="dot"></span>평온</span></div>
+      </div>
+      <div class="diary">
+        <div class="d-head"><span class="d-date">2026년 7월 20일 월요일</span><span class="emo emo-hard"><span class="dot"></span>힘듦</span></div>
+        <div class="d-body">유난히 긴 하루였다. 퇴근길에 오랜 친구에게서 연락이 왔다. 별것 아닌 안부였는데 그 한마디에 하루의 무게가 조금은 가벼워졌다.</div>
+        <div class="d-foot"><span class="emo emo-gratitude"><span class="dot"></span>감사</span></div>
+      </div>
+    </div>
+
+    <h3 class="sub">PersonChip · ThrowbackCard(회고)</h3>
+    <div class="grid" style="grid-template-columns:1fr 1fr;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="person"><span class="avatar">연</span><div><div class="p-name">서연</div><div class="p-rel">대학 동기 · 12회 기록</div></div></div>
+        <div class="person"><span class="avatar">할</span><div><div class="p-name">할머니</div><div class="p-rel">가족 · 3회 기록</div></div></div>
+      </div>
+      <div class="otd">
+        <div class="o-head"><span class="o-eyebrow">1년 전 오늘</span><span class="emo emo-gratitude"><span class="dot"></span>감사</span></div>
+        <p class="o-excerpt">할머니와 공원을 걸었다. 손주 이야기를 하며 환하게 웃으셨다. 그 웃음을 오래 기억하고 싶다.</p>
+        <div class="o-foot"><span>2025년 7월 28일</span><span>·</span><span>함께한 사람: 할머니</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. 적용 화면 -->
+<section id="screens">
+  <div class="wrap">
+    <h2>적용 화면 — 6개</h2>
+    <p class="lede">컴포넌트 나열이 아니라 실제 화면을 감당하는지 증명하는 섹션.
+       모든 화면이 동일한 토큰 · 동일한 감정 색 규율로 선다.</p>
+    <div class="screens">
+
+      <!-- 홈 / 관계 지도 -->
+      <div class="phone">
+        <div class="p-bar"><span class="t">몽글</span><span class="emo emo-calm" style="font-size:11px;"><span class="dot"></span>평온한 하루</span></div>
+        <div class="p-body">
+          <span class="eyebrow">관계 지도</span>
+          <div class="map-ph">나를 중심으로 사람과 관계 태그</div>
+          <div class="row" style="justify-content:space-between;">
+            <span class="node"><span class="avatar" style="width:32px;height:32px;font-size:12px;">연</span> 서연</span>
+            <span class="node"><span class="avatar" style="width:32px;height:32px;font-size:12px;">할</span> 할머니</span>
+            <span class="node"><span class="avatar" style="width:32px;height:32px;font-size:12px;">훈</span> 지훈</span>
+          </div>
+        </div>
+        <div class="p-tabbar"><span class="on">홈</span><span>라인</span><span>사람</span><span>설정</span></div>
+      </div>
+
+      <!-- 기록 작성 -->
+      <div class="phone">
+        <div class="p-bar"><span class="t">기록 작성</span><button class="btn btn-default btn-sm">저장</button></div>
+        <div class="p-body">
+          <div class="field" style="max-width:none;"><label>오늘의 감정</label>
+            <div class="mood-picker">
+              <button role="radio" aria-checked="true" class="on-joy"><span class="dot" style="background:var(--emotion-joy)"></span>기쁨</button>
+              <button role="radio" aria-checked="false"><span class="dot" style="background:var(--emotion-gratitude)"></span>감사</button>
+              <button role="radio" aria-checked="false"><span class="dot" style="background:var(--emotion-calm)"></span>평온</button>
+            </div>
+          </div>
+          <div class="field" style="max-width:none;"><label>함께한 사람</label><input class="input" value="할머니" /></div>
+          <div class="field" style="max-width:none;"><label>내용</label><textarea class="textarea hand">할머니와 공원을 걸었다. 환하게 웃으셨다.</textarea></div>
+        </div>
+      </div>
+
+      <!-- 몽글라인 (피드) -->
+      <div class="phone">
+        <div class="p-bar"><span class="t">몽글라인</span></div>
+        <div class="p-body">
+          <div class="diary" style="border-radius:12px;">
+            <div class="d-head"><span class="d-date">7월 28일</span><span class="emo emo-joy" style="font-size:11px;"><span class="dot"></span>기쁨</span></div>
+            <div class="d-body" style="font-size:16px;line-height:26px;">공원 산책. 할머니의 웃음.</div>
+          </div>
+          <div class="diary" style="border-radius:12px;">
+            <div class="d-head"><span class="d-date">7월 26일</span><span class="emo emo-calm" style="font-size:11px;"><span class="dot"></span>평온</span></div>
+            <div class="d-body" style="font-size:16px;line-height:26px;">조용한 하루. 비가 왔다.</div>
+          </div>
+        </div>
+        <div class="p-tabbar"><span>홈</span><span class="on">라인</span><span>사람</span><span>설정</span></div>
+      </div>
+
+      <!-- 사람 타임라인 -->
+      <div class="phone">
+        <div class="p-bar"><span class="t">서연</span></div>
+        <div class="p-body">
+          <div class="person" style="border:0;padding:0;"><span class="avatar" style="width:52px;height:52px;">연</span><div><div class="p-name" style="font-size:16px;">서연</div><div class="p-rel">대학 동기 · 12회 기록</div></div></div>
+          <div class="row"><span class="emo emo-joy" style="font-size:11px;"><span class="dot"></span>기쁨 7</span><span class="emo emo-gratitude" style="font-size:11px;"><span class="dot"></span>감사 5</span></div>
+          <div class="diary" style="border-radius:12px;">
+            <div class="d-head"><span class="d-date">7월 10일</span></div>
+            <div class="d-body" style="font-size:16px;line-height:26px;">즉흥으로 바다를 갔다.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1년 전 오늘 -->
+      <div class="phone">
+        <div class="p-bar"><span class="t">회고</span></div>
+        <div class="p-body">
+          <span class="eyebrow">1년 전 오늘</span>
+          <div class="otd">
+            <div class="o-head"><span class="o-eyebrow">2025.07.28</span><span class="emo emo-gratitude" style="font-size:11px;"><span class="dot"></span>감사</span></div>
+            <p class="o-excerpt" style="font-size:17px;">할머니와 공원을 걸었다. 그 웃음을 오래 기억하고 싶다.</p>
+          </div>
+          <button class="btn btn-outline" style="width:100%;">그 사람 보러 가기</button>
+        </div>
+      </div>
+
+      <!-- 감정 통계 -->
+      <div class="phone">
+        <div class="p-bar"><span class="t">감정 흐름</span></div>
+        <div class="p-body">
+          <span class="eyebrow">이번 달</span>
+          <div class="statbar">
+            <i style="width:34%;background:var(--emotion-joy)"></i>
+            <i style="width:24%;background:var(--emotion-gratitude)"></i>
+            <i style="width:18%;background:var(--emotion-calm)"></i>
+            <i style="width:12%;background:var(--emotion-love)"></i>
+            <i style="width:8%;background:var(--emotion-sadness)"></i>
+            <i style="width:4%;background:var(--emotion-hard)"></i>
+          </div>
+          <div class="row" style="gap:8px;flex-wrap:wrap;">
+            <span class="emo emo-joy" style="font-size:11px;"><span class="dot"></span>기쁨 17</span>
+            <span class="emo emo-gratitude" style="font-size:11px;"><span class="dot"></span>감사 12</span>
+            <span class="emo emo-calm" style="font-size:11px;"><span class="dot"></span>평온 9</span>
+            <span class="emo emo-love" style="font-size:11px;"><span class="dot"></span>사랑 6</span>
+          </div>
+          <div class="empty" style="padding:16px;"><div style="font-weight:600;color:var(--foreground);">이번 달은 따뜻한 날이 많았어요</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 9. 테마 -->
+<section id="theme">
+  <div class="wrap">
+    <h2>테마 — 역할 반전</h2>
+    <p class="lede">다크/라이트 재매핑은 Tier 2 semantic에서만 일어난다. 라이트가 종이(밝은 캔버스)라면
+       다크는 그 종이의 어두운 면(따뜻한 차콜). 우측 위 토글로 전환해 확인한다.</p>
+    <div class="grid" style="grid-template-columns:1fr 1fr;">
+      <div class="panel">
+        <span class="eyebrow">반전 규칙</span>
+        <ul style="font-size:14px;color:var(--muted-foreground);margin:12px 0 0;padding-left:18px;">
+          <li>낮은 잉크 칸 ↔ 높은 표면 칸의 역할을 뒤집는다 (값이 아니라 역할).</li>
+          <li>근검정 CTA → 다크에선 밝은 종이 잉크 CTA로.</li>
+          <li>감정 표면은 어두운 카드 위 낮은 채도 염색으로, 잉크는 밝게.</li>
+          <li>컴포넌트 클래스에는 테마 코드 0줄 — 전부 <code>var()</code> 전환.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <span class="eyebrow">live</span>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn btn-default">주요 액션</button>
+          <span class="emo emo-love"><span class="dot"></span>사랑</span>
+          <span class="emo emo-calm"><span class="dot"></span>평온</span>
+        </div>
+        <p class="font-hand" style="font-size:20px;margin:16px 0 0;">현재 테마에서 이 손글씨가 어떻게 읽히는지 본다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. 거버넌스 -->
+<section id="gov" style="border-bottom:0;">
+  <div class="wrap">
+    <h2>거버넌스</h2>
+    <p class="lede">어디서 가져왔고(벤치마크 교훈), 무엇을 복제하지 않으며, 다음에 무엇을 할지.
+       이 파일 하나가 의사결정 기록이다.</p>
+
+    <h3 class="sub">법적 · 윤리적 경계</h3>
+    <p style="font-size:14px;margin:0 0 8px;"><strong>Airtable의 로고 · 상표 · 전용 서체(Haas Grotesk) · 웹사이트 화면 구조(IA)는 복제하지 않는다.</strong>
+       가져간 것은 색 관계 · 밀도 · 위계 · 여백의 원리다. 서체는 Pretendard + 손글씨로 대체.</p>
+
+    <h3 class="sub">벤치마크 교훈 → 적용</h3>
+    <table class="gov">
+      <thead><tr><th>교훈</th><th>출처</th><th>적용</th></tr></thead>
+      <tbody>
+        <tr><td>primitive → semantic 2(→3)계층</td><td>Spectrum · Material · Carbon</td><td>frontend/src/styles.css Tier 1/2 분리</td></tr>
+        <tr><td>fg/bg 쌍</td><td>Polaris · shadcn</td><td>칩 색 염색(<code>coloredTagStyle</code>) · 따뜻한 표면 <code>--surface-warm</code></td></tr>
+        <tr><td>테마 = 앨리어스 계층에서만</td><td>전 시스템</td><td>Tier 2에서만 dark/light, 컴포넌트 테마 코드 0줄</td></tr>
+        <tr><td>"토큰 수 ≠ 품질"</td><td>Material (1,700개)</td><td>~90개로 절제</td></tr>
+        <tr><td>code-first · 소유형 컴포넌트</td><td>shadcn</td><td>소스 배포, CVA variant, radix headless</td></tr>
+        <tr><td>color-block first, shadow second</td><td>Airtable 실측</td><td>hairline 구획, 최소 elevation</td></tr>
+        <tr><td>따뜻한 시그니처 표면 = 전압</td><td>Airtable 실측</td><td>감정 색으로 재배치 (도메인 확장)</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub">앱 적용 현황</h3>
+    <ul style="font-size:14px;color:var(--muted-foreground);margin:0 0 18px;padding-left:18px;">
+      <li>✅ 전역 토큰 교체 — <code>frontend/src/styles.css</code> 가 결 정본(앱은 토큰 정의 0, 이 페이지 인라인 블록과 동일 소스).
+          값은 Airtable: 잉크 중성, 따뜻한 시그니처=감정 표면, 산스 디스플레이(세리프 미사용).</li>
+      <li>✅ 형태·타이포·레이아웃 전역 정리 — 버튼 전 형태 pill + weight 500, 입력 44px + 2px 잉크 포커스,
+          <code>font-extrabold</code>/<code>font-black</code> 을 500/600 으로 감량(로고 워드마크만 예외),
+          화면 헤드라인 산스 디스플레이 400, hairline/elevation/반경 위계, 탭바·헤더·펀널 셸 정돈.</li>
+      <li>✅ 공통 부품 확충 — <code>ChipBadge</code>, <code>ChipPicker</code>, <code>EmotionStatBar</code>,
+          <code>Skeleton</code>, <code>Separator</code>, <code>ThrowbackCard</code>, <code>PersonChip</code>, <code>Orb</code>.</li>
+      <li>✅ 칩 색상 복원 — 타임라인·상세·프로필의 카테고리·감정·관계태그를 색상 <code>ChipBadge</code>/<code>TagChip</code> 로 통일(무색 <code>Badge</code> 해소).</li>
+      <li>✅ 회고 연결 — 홈 1년 전 오늘을 <code>ThrowbackCard</code> 로 연결, 표면/여백은 결 토큰 적용.</li>
+      <li>📌 데이터 모델 메모 — Mongle의 감정은 고정 enum이 아니라 <strong>per-chip hex color 를 가진 동적 칩</strong>이다.
+          따라서 이 페이지의 6가지 감정 색은 디자인 언어의 <em>권장 어휘·시드 팔레트</em>(<code>GYEOL_CHIP_PALETTE</code>)이며,
+          실제 렌더는 칩 색을 그대로 쓰는 <code>ChipBadge</code>/<code>TagChip</code> 이 담당한다.</li>
+      <li>📌 시각 확인 — Storybook 빌드 산출을 헤드리스로 칩·모달·몽글라인·헤드라인·회고·orb 캡처 확인.
+          앱 전 화면 눈 확인은 백엔드가 필요해 로컬 실행으로 요청.</li>
+    </ul>
+
+    <h3 class="sub">다음에 할 것</h3>
+    <ul style="font-size:14px;color:var(--muted-foreground);margin:0;padding-left:18px;">
+      <li>lint 강제 — <code>no-unknown-classes</code> + 하드코딩 컬러 차단 (현재 미구성, design.md 원칙이 방어선).</li>
+      <li>전량 캡처 갤러리 — Playwright story-shots × 뷰포트 × 테마.</li>
+      <li>레퍼런스 픽셀 QA — Airtable 라이브 실측과 나란히 대조 (이번엔 명세 기반이라 미실행).</li>
+      <li><code>EmotionStatBar</code> 를 감정 통계 화면에 연결, <code>relation-force-map</code> 색을 칩 단일 출처로 흡수.</li>
+      <li>성장이 필요해지면 Tier 3 component 토큰 분리 (변수 전수 대조로 계산값 보존 증명).</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    결 (Gyeol) · Mongle Design System · Airtable 편집 언어에서 추출 · 2026-07-28 ·
+    토큰 정본 <code>frontend/src/styles.css</code>와 이 페이지의 인라인 블록은 동일 소스.
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('themeBtn');
+  function set(theme) {
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+    btn.innerHTML = theme === 'dark' ? '☀️ <span>라이트</span>' : '🌙 <span>다크</span>';
+  }
+  btn.addEventListener('click', function () {
+    set(root.classList.contains('dark') ? 'light' : 'dark');
+  });
+})();
+</script>
+</body>
+</html>

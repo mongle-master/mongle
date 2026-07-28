@@ -12,6 +12,7 @@ import type { PersonFormValues } from '@/components/person/person-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { TagChip } from '@/components/ui/tag-chip'
+import { ChipPicker } from '@/components/ui/chip-picker'
 import { uploadImage } from '@/lib/api/images'
 import { featureEvents, trackFeature } from '@/lib/analytics'
 import type { PersonRequest } from '@/apis/generated/mongle-api.schemas'
@@ -43,15 +44,6 @@ export function PersonEditForm({
   ) => {
     setValues((previous) => ({ ...previous, [key]: value }))
     setError(null)
-  }
-
-  const toggleTag = (id: number) => {
-    patch(
-      'relationTagChipIds',
-      values.relationTagChipIds.includes(id)
-        ? values.relationTagChipIds.filter((tagId) => tagId !== id)
-        : [...values.relationTagChipIds, id].slice(0, 10),
-    )
   }
 
   const handlePhoto = async (file: File | null) => {
@@ -116,7 +108,7 @@ export function PersonEditForm({
       {error ? (
         <p
           role="alert"
-          className="rounded-xl bg-destructive/10 px-4 py-3 text-sm font-bold text-destructive"
+          className="rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive"
         >
           {error}
         </p>
@@ -125,27 +117,27 @@ export function PersonEditForm({
       <section aria-labelledby="person-basic-heading">
         <h2
           id="person-basic-heading"
-          className="mb-6 text-xl font-extrabold tracking-tight"
+          className="mb-6 text-xl font-medium tracking-tight"
         >
           기본 정보
         </h2>
         <div className="flex flex-col gap-6">
           <div>
-            <label htmlFor="name" className="text-xs font-extrabold">
+            <label htmlFor="name" className="text-xs font-semibold">
               이름
             </label>
             <Input
               id="name"
               value={values.name}
               onChange={(event) => patch('name', event.target.value)}
-              className="mt-2 h-11 bg-background px-3 text-base font-bold"
+              className="mt-2 h-11 bg-background px-3 text-base font-medium"
               placeholder="이름을 입력해 주세요"
               maxLength={20}
               enterKeyHint="done"
             />
           </div>
           <div>
-            <p className="mb-3 text-xs font-extrabold">성별</p>
+            <p className="mb-3 text-xs font-semibold">성별</p>
             <div className="flex flex-wrap gap-2">
               {GENDER_OPTIONS.map((option) => {
                 const active = values.gender === option.value
@@ -165,7 +157,7 @@ export function PersonEditForm({
             </div>
           </div>
           <div>
-            <p className="text-xs font-extrabold">생일</p>
+            <p className="text-xs font-semibold">생일</p>
             <div className="mt-3">
               <DateWheel
                 yearOptional
@@ -190,13 +182,13 @@ export function PersonEditForm({
       <section aria-labelledby="person-relation-heading">
         <h2
           id="person-relation-heading"
-          className="mb-6 text-xl font-extrabold tracking-tight"
+          className="mb-6 text-xl font-medium tracking-tight"
         >
           관계
         </h2>
         <div className="flex flex-col gap-6">
           <div>
-            <p className="mb-3 text-xs font-extrabold">한마디로</p>
+            <p className="mb-3 text-xs font-semibold">한마디로</p>
             <RelationTypeField
               value={values.relationType}
               onChange={(value) => patch('relationType', value)}
@@ -205,26 +197,17 @@ export function PersonEditForm({
           </div>
           {relationTags.length > 0 ? (
             <div>
-              <p className="mb-3 text-xs font-extrabold">관계 태그</p>
-              <div className="flex flex-wrap gap-2">
-                {relationTags.map((tag) => {
-                  const active = values.relationTagChipIds.includes(tag.id)
-                  return (
-                    <TagChip
-                      key={tag.id}
-                      tone="foreground"
-                      surface="background"
-                      hover
-                      selected={active}
-                      color={tag.color}
-                      onClick={() => toggleTag(tag.id)}
-                      data-amp-mask
-                    >
-                      {tag.label}
-                    </TagChip>
-                  )
-                })}
-              </div>
+              <p className="mb-3 text-xs font-semibold">관계 태그</p>
+              <ChipPicker
+                chips={relationTags}
+                multiple
+                maskAll
+                value={values.relationTagChipIds}
+                onValueChange={(value) =>
+                  patch('relationTagChipIds', (value as number[]).slice(0, 10))
+                }
+                ariaLabel="관계 태그"
+              />
             </div>
           ) : null}
         </div>
@@ -233,13 +216,13 @@ export function PersonEditForm({
       <section aria-labelledby="person-dates-heading">
         <h2
           id="person-dates-heading"
-          className="mb-6 text-xl font-extrabold tracking-tight"
+          className="mb-6 text-xl font-medium tracking-tight"
         >
           함께한 날짜
         </h2>
         <div className="flex flex-col gap-6">
           <div>
-            <p className="text-xs font-extrabold">처음 만난 날</p>
+            <p className="text-xs font-semibold">처음 만난 날</p>
             <div className="mt-3">
               <DateWheel
                 year={values.firstMetYear}
@@ -258,7 +241,7 @@ export function PersonEditForm({
             </div>
           </div>
           <div>
-            <label htmlFor="lastMetDate" className="text-xs font-extrabold">
+            <label htmlFor="lastMetDate" className="text-xs font-semibold">
               마지막으로 만난 날
             </label>
             <Input
@@ -275,7 +258,7 @@ export function PersonEditForm({
       <section aria-labelledby="person-memory-heading">
         <h2
           id="person-memory-heading"
-          className="mb-6 text-xl font-extrabold tracking-tight"
+          className="mb-6 text-xl font-medium tracking-tight"
         >
           기억 메모
         </h2>

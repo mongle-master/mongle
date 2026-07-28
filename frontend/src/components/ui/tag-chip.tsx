@@ -10,7 +10,7 @@ import { coloredTagStyle } from '@/lib/relation-tag-colors'
 // 고정하는 계약이라 값을 바꾸지 않는다. TagChip 자체는 아래 cva에서 높이·표면·
 // 채움색을 축으로 분해해 재조립한다.
 export const tagChipBaseClass =
-  'inline-flex h-7 w-fit shrink-0 items-center justify-center gap-1.5 rounded-full border border-transparent px-3.5 text-label leading-none font-bold whitespace-nowrap transition-colors'
+  'inline-flex h-7 w-fit shrink-0 items-center justify-center gap-1.5 rounded-full border border-transparent px-3.5 text-label leading-none font-semibold whitespace-nowrap transition-colors'
 
 const tagChipVariants = cva(
   'group/tag-chip inline-flex w-fit shrink-0 items-center justify-center gap-1.5 rounded-full border border-transparent leading-none whitespace-nowrap transition-colors',
@@ -18,12 +18,13 @@ const tagChipVariants = cva(
     variants: {
       // 실측된 높이 4단계 + 아바타 필터 pill(xl). 높이에 딸린 패딩·글자 크기·굵기가
       // 함께 움직여 한 축으로 묶는다.
+      // 디자인 언어: 칩 무게는 600(semibold)으로 통일 — 800/900은 언어에 없다.
       size: {
-        xs: 'h-5 px-2 text-[10px] font-bold',
-        sm: 'h-6 px-2 text-caption font-bold',
-        default: 'h-7 px-3.5 text-label font-bold',
-        lg: 'h-8 px-2.5 text-label font-bold',
-        xl: 'h-9 w-auto max-w-full shrink justify-start px-1.5 pr-3 text-label font-extrabold',
+        xs: 'h-5 px-2 text-micro font-semibold',
+        sm: 'h-6 px-2 text-caption font-semibold',
+        default: 'h-7 px-3.5 text-label font-semibold',
+        lg: 'h-8 px-2.5 text-label font-semibold',
+        xl: 'h-9 w-auto max-w-full shrink justify-start px-1.5 pr-3 text-label font-semibold',
       },
       // 쉬는 상태(비선택)의 표면색. selected면 tone이 이 색을 덮는다.
       surface: {

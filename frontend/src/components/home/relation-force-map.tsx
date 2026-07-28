@@ -36,7 +36,7 @@ const MAX_ZOOM = 2.2
 const ZOOM_STEP = 0.18
 const MIN_ZOOMED_OUT_NODE_SCALE = 0.9
 const ORBIT_CENTER = { x: 50, y: 50 }
-const CATEGORY_COLORS = ['#2f6eea', '#28b945', '#ff8a00', '#e11d48']
+const CATEGORY_COLORS = ['#52739c', '#187a63', '#a06a3f', '#755da0'] // 결 감정 가족 strong 변형 (clear, calm, warm, muse)
 const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i
 const CATEGORY_PERSON_OFFSETS = [
   { x: 0, y: -7 },
@@ -324,8 +324,7 @@ export function RelationForceMap({
             <span
               key={category.label}
               data-amp-mask
-              // text-zinc-700/200은 foreground와 muted-foreground 사이 값이라 전용 토큰 나오기 전까지 손튜닝 값으로 둔다
-              className="inline-flex min-w-0 items-center gap-1 text-[10px] font-bold text-zinc-700 dark:text-zinc-200"
+              className="inline-flex min-w-0 items-center gap-1 text-micro font-semibold text-muted-foreground"
             >
               <span
                 className="size-2 shrink-0 rounded-full"
@@ -388,12 +387,11 @@ export function RelationForceMap({
               onClick={() => setActiveGraphIndex(index)}
               aria-label={`그래프 ${index + 1}`}
             >
-              {/* 비활성 도트 bg-zinc-300/700은 전용 토큰 나오기 전까지 손튜닝 값으로 둔다 */}
               <span
                 className={`block size-2.5 rounded-full transition-colors ${
                   activeGraphIndex === index
                     ? 'bg-foreground'
-                    : 'bg-zinc-300 dark:bg-zinc-700'
+                    : 'bg-border-strong'
                 }`}
               />
             </button>
@@ -423,7 +421,7 @@ function OrbitGraph({
     <>
       <OrbitBackground />
       <div className="absolute top-1/2 left-1/2 z-20 flex -translate-x-1/2 -translate-y-[38px] flex-col items-center">
-        <div className="grid size-[76px] place-items-center rounded-full bg-background shadow-[0_0_0_1px_rgba(24,24,27,0.04),0_0_44px_rgba(255,198,109,0.58),0_0_82px_rgba(255,220,156,0.32)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_46px_rgba(255,198,109,0.34),0_0_84px_rgba(255,220,156,0.18)]">
+        <div className="grid size-[76px] place-items-center rounded-full bg-background shadow-[var(--glow-center)]">
           <img
             src={imageSrc}
             alt={`${me.name} 프로필`}
@@ -443,7 +441,7 @@ function OrbitGraph({
         </div>
         <span
           data-amp-mask
-          className="mt-1.5 max-w-24 truncate rounded-full bg-background/88 px-2 py-1 text-[12px] leading-none font-black text-foreground shadow-e1 backdrop-blur-sm"
+          className="mt-1.5 max-w-24 truncate rounded-full bg-background/88 px-2 py-1 text-label leading-none font-semibold text-foreground shadow-e1 backdrop-blur-sm"
         >
           {me.name}
         </span>
@@ -513,8 +511,7 @@ function CategoryClusterGraph({
           <span
             key={category.label}
             data-amp-mask
-            // text-zinc-700/200은 foreground와 muted-foreground 사이 값이라 전용 토큰 나오기 전까지 손튜닝 값으로 둔다
-            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/80 px-2 py-1 text-caption font-black text-zinc-700 shadow-e2 dark:text-zinc-200"
+            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/80 px-2 py-1 text-caption font-semibold text-foreground/80 shadow-e2"
             style={{
               left: `${position.x}%`,
               top: `${position.y + radius.labelOffset}%`,
@@ -557,18 +554,17 @@ function RecentFlowGraph({
         preserveAspectRatio="none"
         aria-hidden
       >
-        {/* flow-path stroke는 모드별 알파를 손으로 맞춘 값이라 전용 토큰 나오기 전까지 유지한다 */}
         <path
           d={path}
           fill="none"
-          className="stroke-zinc-950/25 dark:stroke-zinc-100/30"
+          className="stroke-foreground/25"
           strokeWidth="0.38"
           strokeLinecap="round"
         />
         <path
           d={path}
           fill="none"
-          className="stroke-zinc-950/12 dark:stroke-zinc-100/16"
+          className="stroke-foreground/12"
           strokeDasharray="1.6 2.2"
           strokeWidth="1.1"
           strokeLinecap="round"
@@ -597,25 +593,33 @@ function OrbitBackground() {
     >
       <defs>
         <radialGradient id="relationCoreGlow" cx="50%" cy="50%" r="38%">
-          <stop offset="0%" stopColor="rgba(255,211,144,0.78)" />
-          <stop offset="48%" stopColor="rgba(255,211,144,0.3)" />
-          <stop offset="100%" stopColor="rgba(255,211,144,0)" />
+          <stop
+            offset="0%"
+            stopColor="color-mix(in oklab, var(--emotion-warm) 78%, transparent)"
+          />
+          <stop
+            offset="48%"
+            stopColor="color-mix(in oklab, var(--emotion-warm) 30%, transparent)"
+          />
+          <stop
+            offset="100%"
+            stopColor="color-mix(in oklab, var(--emotion-warm) 0%, transparent)"
+          />
         </radialGradient>
         <radialGradient id="relationPlanet" cx="36%" cy="28%" r="62%">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="55%" stopColor="#e8e1d6" />
-          <stop offset="100%" stopColor="#b7aa97" />
+          <stop offset="0%" stopColor="var(--card)" />
+          <stop offset="55%" stopColor="var(--secondary)" />
+          <stop offset="100%" stopColor="var(--border-strong)" />
         </radialGradient>
       </defs>
       <ellipse cx="50" cy="50" rx="34" ry="23" fill="url(#relationCoreGlow)" />
-      {/* 궤도선 stroke-stone은 따뜻한 색감으로 손튜닝한 값이라 무채색 토큰으로 치환하지 않는다 */}
       <ellipse
         cx="50"
         cy="50"
         rx="18"
         ry="12"
         fill="none"
-        className="stroke-stone-300/32 dark:stroke-stone-100/14"
+        className="stroke-foreground/25"
         strokeWidth="0.35"
       />
       <ellipse
@@ -624,7 +628,7 @@ function OrbitBackground() {
         rx="38"
         ry="21"
         fill="none"
-        className="stroke-stone-700/24 dark:stroke-stone-100/22"
+        className="stroke-foreground/20"
         strokeWidth="0.34"
         transform="rotate(-16 50 50)"
       />
@@ -634,7 +638,7 @@ function OrbitBackground() {
         rx="42"
         ry="27"
         fill="none"
-        className="stroke-stone-700/14 dark:stroke-stone-100/14"
+        className="stroke-foreground/12"
         strokeDasharray="1.4 1.8"
         strokeWidth="0.32"
         transform="rotate(13 50 50)"
@@ -645,7 +649,7 @@ function OrbitBackground() {
         rx="47"
         ry="32"
         fill="none"
-        className="stroke-stone-700/20 dark:stroke-stone-100/18"
+        className="stroke-foreground/16"
         strokeWidth="0.32"
         transform="rotate(-28 50 50)"
       />
@@ -655,7 +659,7 @@ function OrbitBackground() {
         rx="50"
         ry="26"
         fill="none"
-        className="stroke-stone-700/14 dark:stroke-stone-100/12"
+        className="stroke-foreground/12"
         strokeDasharray="1.3 2"
         strokeWidth="0.3"
         transform="rotate(34 50 50)"
@@ -728,11 +732,11 @@ function PersonNode({
       {showText ? (
         <span
           data-amp-mask
-          className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-black text-foreground shadow-e1 backdrop-blur-sm"
+          className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-label leading-none font-semibold text-foreground shadow-e1 backdrop-blur-sm"
         >
           <span className="min-w-0 truncate">{displayName}</span>
           <span
-            className="max-w-[3.4rem] shrink-0 truncate rounded-full px-1 py-0.5 text-[9px] font-extrabold text-white"
+            className="max-w-[3.4rem] shrink-0 truncate rounded-full px-1 py-0.5 text-[9px] font-semibold text-white"
             style={{ backgroundColor: person.color }}
           >
             {person.categoryLabel}

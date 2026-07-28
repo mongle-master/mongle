@@ -36,17 +36,17 @@ export function MonogramAvatar({
     <div data-amp-mask className="relative inline-flex shrink-0">
       <Avatar className={cn('border border-border bg-card', className)}>
         <AvatarImage src={src} alt={name} className="object-cover" />
-        <AvatarFallback className="bg-muted font-bold text-foreground">
+        <AvatarFallback className="bg-muted font-semibold text-foreground">
           {monogram(name)}
         </AvatarFallback>
       </Avatar>
       {favorite ? (
         favoriteBadge === 'prominent' ? (
-          <span className="absolute -top-1 -right-1 z-10 flex size-9 items-center justify-center rounded-full border border-border bg-background text-amber-500 shadow-sm">
+          <span className="absolute -top-1 -right-1 z-10 flex size-9 items-center justify-center rounded-full border border-border bg-background text-favorite shadow-sm">
             <Star className="size-5 fill-current" />
           </span>
         ) : (
-          <span className="absolute -top-1 -right-1 text-xs text-amber-500">
+          <span className="absolute -top-1 -right-1 text-xs text-favorite">
             ★
           </span>
         )

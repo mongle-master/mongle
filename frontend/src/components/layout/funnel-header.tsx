@@ -24,7 +24,7 @@ export function FunnelHeader({
       >
         <ChevronLeft className="size-6" />
       </button>
-      <span data-amp-mask className="text-base font-bold">
+      <span data-amp-mask className="font-display text-base font-normal">
         {centerLabel}
       </span>
       {onSave ? (

@@ -1,6 +1,6 @@
-import { Badge } from '@/components/ui/badge'
+import { ChipBadge } from '@/components/ui/chip-badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { PersonChip } from '@/components/person/person-chip'
 import type {
   ChipRef,
   EventResponse,
@@ -75,7 +75,7 @@ function TimelinePhotoPreview({ photoUrls }: { photoUrls: string[] }) {
         loading="lazy"
       />
       {photoUrls.length > 1 ? (
-        <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1.5 py-0.5 text-[10px] font-extrabold text-background">
+        <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1.5 py-0.5 text-micro font-semibold text-background">
           +{photoUrls.length - 1}
         </span>
       ) : null}
@@ -105,43 +105,33 @@ export function TimelineEventCard({
           <div className="flex items-start gap-2">
             <h3
               data-amp-mask
-              className="min-w-0 flex-1 text-[17px] leading-snug font-extrabold tracking-tight"
+              className="min-w-0 flex-1 text-title-sm leading-snug font-medium tracking-tight"
             >
               {item.title}
             </h3>
             {item.category ? (
-              <Badge
+              <ChipBadge
                 data-amp-mask
-                variant="secondary"
-                className="h-7 shrink-0 rounded-full px-3 font-extrabold"
-              >
-                {item.category.label}
-              </Badge>
+                chip={item.category}
+                className="shrink-0 font-semibold"
+              />
             ) : null}
           </div>
           <div className="mt-2 flex items-start gap-3">
             <div className="min-w-0 flex-1">
               {persons.length > 0 ? (
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 py-1 pr-2 pl-1">
-                  <MonogramAvatar
-                    name={persons[0].name}
-                    imageUrl={persons[0].profileImageUrl}
-                    personId={persons[0].id}
-                    favorite={persons[0].favorite}
-                    className="size-6"
-                  />
-                  <span
-                    data-amp-mask
-                    className="text-xs font-extrabold text-foreground"
-                  >
-                    {linkedPersonsLabel(persons)}
-                  </span>
-                </div>
+                <PersonChip
+                  name={persons[0].name}
+                  imageUrl={persons[0].profileImageUrl}
+                  personId={persons[0].id}
+                  favorite={persons[0].favorite}
+                  label={linkedPersonsLabel(persons)}
+                />
               ) : null}
               {memo ? (
                 <p
                   data-amp-mask
-                  className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground"
+                  className="mt-2 line-clamp-2 text-label leading-relaxed text-muted-foreground"
                 >
                   {memo}
                 </p>
@@ -149,9 +139,12 @@ export function TimelineEventCard({
               {item.emotions && item.emotions.length > 0 ? (
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {item.emotions.map((emotion) => (
-                    <Badge key={emotion.id} data-amp-mask variant="outline">
-                      {emotion.label}
-                    </Badge>
+                    <ChipBadge
+                      key={emotion.id}
+                      data-amp-mask
+                      chip={emotion}
+                      size="sm"
+                    />
                   ))}
                 </div>
               ) : null}

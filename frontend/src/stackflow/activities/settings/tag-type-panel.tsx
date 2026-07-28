@@ -127,14 +127,14 @@ export function TagTypePanel({
     <section>
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-[17px] font-black tracking-tight text-foreground">
+          <h2 className="text-title-sm font-medium tracking-tight text-foreground">
             {label}
           </h2>
           <p className="mt-1 text-xs font-medium text-muted-foreground">
             {description}
           </p>
         </div>
-        <span className="shrink-0 text-caption font-bold text-muted-foreground">
+        <span className="shrink-0 text-caption font-semibold text-muted-foreground">
           {chips.length}개
         </span>
       </div>
@@ -158,7 +158,7 @@ export function TagTypePanel({
                         maxLength={10}
                         autoFocus
                         disabled={renameMutation.isPending}
-                        className="h-7 min-w-0 border-0 bg-transparent px-0 text-[14px] font-extrabold shadow-none focus-visible:ring-0 md:text-[14px]"
+                        className="h-7 min-w-0 border-0 bg-transparent px-0 text-body font-medium shadow-none focus-visible:ring-0 md:text-body"
                       />
                       <button
                         type="button"
@@ -222,7 +222,7 @@ export function TagTypePanel({
               if (isImeComposing(event)) return
               if (event.key === 'Enter') createTag()
             }}
-            className="h-9 border-0 bg-transparent text-[14px] shadow-none focus-visible:ring-0"
+            className="h-9 border-0 bg-transparent text-body shadow-none focus-visible:ring-0"
           />
           <Button
             variant="outline"
@@ -243,7 +243,7 @@ export function TagTypePanel({
           />
         ) : null}
         {createMutation.isError || renameMutation.isError ? (
-          <p className="mt-3 text-xs font-bold text-destructive">
+          <p className="mt-3 text-xs font-medium text-destructive">
             태그를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.
           </p>
         ) : null}

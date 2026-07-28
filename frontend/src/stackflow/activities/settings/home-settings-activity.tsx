@@ -26,7 +26,7 @@ export const HomeSettingsActivity: ActivityComponentType<
     <ActivityShell layout="fixed">
       <SettingsPageHeader title="홈 설정" onBack={() => pop()} />
       <ScrollBody pad="screen">
-        <p className="mb-1 text-body font-extrabold text-foreground">
+        <p className="mb-1 text-body font-medium text-foreground">
           기본으로 보여줄 기간
         </p>
         <p className="mb-4 text-xs font-medium text-muted-foreground">

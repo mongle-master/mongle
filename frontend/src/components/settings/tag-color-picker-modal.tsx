@@ -32,7 +32,7 @@ export function TagColorPickerModal({
       <div className="pr-9">
         <h2
           id="tag-color-picker-title"
-          className="text-base font-extrabold tracking-tight text-foreground"
+          className="text-base font-medium tracking-tight text-foreground"
         >
           태그 색상
         </h2>
@@ -42,7 +42,7 @@ export function TagColorPickerModal({
             style={{ backgroundColor: normalized }}
             aria-hidden
           />
-          <span className="text-sm font-extrabold text-foreground">
+          <span className="text-sm font-semibold text-foreground">
             {selectedOption?.label ?? normalized}
           </span>
         </div>
@@ -68,7 +68,7 @@ export function TagColorPickerModal({
               aria-pressed={active}
             >
               <span
-                className="grid size-7 shrink-0 place-items-center rounded-full border border-background shadow-sm ring-1 ring-black/10"
+                className="grid size-7 shrink-0 place-items-center rounded-full border border-background shadow-sm ring-1 ring-foreground/10"
                 style={{ backgroundColor: option.value }}
               >
                 {active ? (
@@ -82,7 +82,7 @@ export function TagColorPickerModal({
                   />
                 ) : null}
               </span>
-              <span className="min-w-0 truncate text-xs font-extrabold text-foreground">
+              <span className="min-w-0 truncate text-xs font-semibold text-foreground">
                 {option.label}
               </span>
             </button>

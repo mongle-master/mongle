@@ -43,7 +43,7 @@ export function TimelineFilterDrawer({
       <DrawerTrigger asChild>
         <Button type="button" variant="outline" size="pill-sm">
           {hasFilter ? (
-            <span className="rounded-full bg-foreground px-1.5 py-0.5 text-[10px] leading-none text-background">
+            <span className="rounded-full bg-foreground px-1.5 py-0.5 text-micro leading-none text-background">
               {activeFilterCount}
             </span>
           ) : (
@@ -58,7 +58,7 @@ export function TimelineFilterDrawer({
         className="mx-auto w-full max-w-md overflow-hidden border-x border-border bg-background shadow-2xl data-[vaul-drawer-direction=bottom]:rounded-t-[5rem]"
       >
         <DrawerHeader className="px-5 pt-5 text-left">
-          <DrawerTitle className="text-lg font-extrabold tracking-tight">
+          <DrawerTitle className="text-lg font-medium tracking-tight">
             필터 설정
           </DrawerTitle>
         </DrawerHeader>

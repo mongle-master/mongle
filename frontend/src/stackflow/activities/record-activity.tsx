@@ -24,10 +24,11 @@ import {
 } from '@/components/ui/empty-state'
 import { Field } from '@/components/ui/field'
 import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { Orb } from '@/components/ui/orb'
 import { NextBar } from '@/components/ui/next-bar'
 import { StatusMessage } from '@/components/ui/status-message'
 import { Textarea } from '@/components/ui/textarea'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { ChipPicker } from '@/components/ui/chip-picker'
 import { DateStrip } from '@/components/record/date-strip'
 import { TimeWheel } from '@/components/record/time-wheel'
 import { AppScreen } from '@/stackflow/components/app-screen'
@@ -79,23 +80,16 @@ const emotionWord = (label: string) => {
   return past ? `${past}다` : label
 }
 
-// 감정은 칩(테두리) 대신 색상 있는 글자만. 리터럴이라 Tailwind JIT가 스캔한다.
+// 감정은 칩(테두리) 대신 색상 있는 글자만. 디자인 시스템(결) 감정 5가족의
+// "읽기" 계층 토큰을 쓴다 — 라이트에서 AA, 다크에서 파스텔로 자동 반전.
+// 리터럴이라 Tailwind JIT가 스캔한다.
 const EMOTION_TEXT = [
-  'text-rose-500',
-  'text-amber-500',
-  'text-sky-500',
-  'text-violet-500',
-  'text-emerald-500',
-  'text-orange-500',
+  'text-emotion-dear-text',
+  'text-emotion-warm-text',
+  'text-emotion-clear-text',
+  'text-emotion-muse-text',
+  'text-emotion-calm-text',
 ]
-
-const bigChipBase =
-  'inline-flex h-11 items-center justify-center rounded-full border px-5 text-body whitespace-nowrap transition-colors'
-// 선택 채움은 순검정 대신 살짝 연한 잉크(눈부심 완화).
-const neutralChipClass = cn(
-  bigChipBase,
-  'border-border bg-card text-foreground/80 data-[state=on]:border-transparent data-[state=on]:bg-foreground/85 data-[state=on]:text-background',
-)
 
 // 편지지: 흑백 톤 + 손그림 느낌 옅은 괘선. 줄 높이 28px에 맞춘다.
 // 괘선 SVG는 배경 이미지라 currentColor를 못 받으므로 styles.css의
@@ -447,7 +441,9 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             />
           }
         >
-          <h2 className="text-2xl font-bold">누구와의 기록이에요?</h2>
+          <h2 className="font-display text-2xl font-light">
+            누구와의 기록이에요?
+          </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             함께한 사람을 모두 골라주세요. {selectedPersonIds.length}명 선택
           </p>
@@ -506,13 +502,20 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
             />
           }
         >
-          <div className="flex justify-center">
+          <div className="relative flex justify-center">
+            {/* 디자인 언어: 감정 순간의 대기 orb — 아바타 뒤에서 따뜻하게 빛난다 */}
+            <Orb
+              emotion="warm"
+              animated
+              size={340}
+              className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40"
+            />
             <MonogramAvatar
               name={primaryPerson?.name ?? ''}
               imageUrl={primaryPerson?.profileImageUrl}
               // size-[62vw]는 뷰포트 기준이라 데스크톱에서 폭 상한(max-w)만 걸면
               // 높이가 그대로 남아 화면을 채우는 세로 알약이 된다 — 양축 모두 상한.
-              className="size-[62vw] max-h-72 max-w-72"
+              className="relative size-[62vw] max-h-72 max-w-72"
             />
           </div>
 
@@ -600,7 +603,7 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
                         className="size-20 rounded-xl object-cover"
                       />
                     ) : (
-                      <div className="flex size-20 items-center justify-center rounded-xl bg-muted text-[10px] font-bold text-muted-foreground">
+                      <div className="flex size-20 items-center justify-center rounded-xl bg-muted text-micro font-semibold text-muted-foreground">
                         PHOTO
                       </div>
                     )}
@@ -662,23 +665,12 @@ export const RecordActivity: ActivityComponentType<'Record'> = ({ params }) => {
         >
           <div className="flex flex-col gap-7">
             <Field label="종류">
-              <ToggleGroup
-                type="single"
-                value={categoryChipId ? String(categoryChipId) : undefined}
-                onValueChange={(v) => setCategoryChipId(v ? Number(v) : null)}
-                className="flex flex-wrap justify-start gap-2.5"
-              >
-                {categoryChips.map((chip) => (
-                  <ToggleGroupItem
-                    key={chip.id}
-                    value={String(chip.id)}
-                    data-amp-mask={chip.personal || undefined}
-                    className={neutralChipClass}
-                  >
-                    {chip.label}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
+              <ChipPicker
+                chips={categoryChips}
+                value={categoryChipId ?? undefined}
+                onValueChange={(value) => setCategoryChipId(value as number)}
+                ariaLabel="종류"
+              />
             </Field>
 
             <Field label="언제">

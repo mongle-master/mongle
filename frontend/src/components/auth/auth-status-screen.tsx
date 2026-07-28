@@ -15,7 +15,7 @@ export function AuthStatusScreen({
       <MongleLogo className="text-foreground" />
       <div className="my-auto text-center">
         <div
-          className="mx-auto mb-7 flex size-20 items-center justify-center rounded-[2rem] bg-primary/10"
+          className="mx-auto mb-7 flex size-20 items-center justify-center rounded-2xl bg-primary/10"
           aria-hidden
         >
           <span
@@ -28,7 +28,7 @@ export function AuthStatusScreen({
             {error ? '!' : null}
           </span>
         </div>
-        <h1 className="text-2xl font-black tracking-tight text-foreground">
+        <h1 className="font-display text-2xl font-light tracking-tight text-foreground">
           {error ? (
             '공간을 열지 못했어요'
           ) : (

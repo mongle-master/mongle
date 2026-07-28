@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import '@fontsource/pretendard/400.css';
+@import '@fontsource/pretendard/500.css';
 @import '@fontsource/pretendard/700.css';
 @import '@fontsource/pretendard/800.css';
 
@@ -14,107 +15,337 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * 결 (Gyeol) — Mongle 디자인 토큰 정본 (전역 적용, 인라인).
+ * Airtable 의 편집적 절제(흰 종이 · 먹색 타입 · 여백 · 따뜻한 시그니처 표면 ·
+ * color-block first)를 일기 · 감정 기록 도메인으로 번역. 색은 감정에 살고 크롬은 조용하다.
+ *
+ *   TIER 1 · PRIMITIVES (`:root`) — 테마 불변 원시 팔레트.
+ *     잉크 중성 램프(라이트·다크 공용) · 따뜻한 시그니처(감정 5가족 + 전면 변형) · 상태색.
+ *   TIER 2 · SEMANTIC (`:root, .light` / `.dark`) — 역할 토큰, 전부 var() 참조.
+ *     dark/light 재매핑의 유일한 장소.
+ *   TIER 3 · COMPONENT — 별도 계층 없음. CVA variant + data-slot + @layer components.
+ *
+ * 토 이름 표면은 공통 컴포넌트 언어(button/input/card/orb/타이포 스케일 등)가 참조하는
+ * 유리티를 모두 노출한다. 값은 Airtable 로 주어 공통 코드가 Airtable 모양으로 렌더된다.
+ * 디스플레이 서체는 Airtable 에 맞춰 산스(Pretendard) — 세리프를 쓰지 않는다.
+ */
+
+/* ---------- TIER 1 · PRIMITIVES ---------- */
 :root {
-  --radius: 0.475rem;
-  /* 오버레이 레이어: 앱 콘텐츠 위에 뜨는 것들의 쌓임 순서를 한 곳에서 정한다.
-     확인팝업·다이얼로그는 #stack-overlay-root 포탈(--z-overlay)에 모여 같은
-     쌓임 맥락에서 DOM 순서로 겹친다. 바텀시트(vaul)·팝오버(radix)·탭바는 그
-     아래 레이어(z-50)로 라이브러리·레이아웃이 관할한다. */
+  /* 잉크 중성 램프 — Airtable 편집 먹색. 라이트·다크 공용(다크는 어두운 쪽을 선택). */
+  --neutral-0: #ffffff;
+  --neutral-25: #f8fafc;
+  --neutral-50: #f8fafc;
+  --neutral-75: #f1f2f4;
+  --neutral-100: #e0e2e6;
+  --neutral-150: #dddddd;
+  --neutral-300: #9297a0;
+  --neutral-500: #5b616a;
+  --neutral-600: #41454d;
+  --neutral-700: #333840;
+  --neutral-750: #262a31;
+  --neutral-800: #1d1f25;
+  --neutral-850: #181d26;
+  --neutral-950: #0d1218;
+
+  /* 따뜻한 시그니처 — Airtable 의 브랜드 전압을 감정 5가족의 "대기"로 재배치. */
+  --orb-mint: #a8d8c4;
+  --orb-peach: #fcab79;
+  --orb-cream: #f0d9a8;
+  --orb-sky: #a8c8e8;
+  --orb-coral: #e08a64;
+
+  /* 감정 전면 변형 — 표면 위 글자·점용(흰 카드 위 AA). */
+  --orb-mint-strong: #3f7a44;
+  --orb-peach-strong: #aa2d00;
+  --orb-cream-strong: #b45309;
+  --orb-sky-strong: #1b61c9;
+  --orb-coral-strong: #aa2d00;
+
+  /* 상태색 */
+  --red-400: #f87171;
+  --red-600: #dc2626;
+  --green-400: #4ade80;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+  --amber-700: #b45309;
+
+  /* 앱 전용: 오버레이 쌓임 순서. */
   --z-overlay: 70;
-  /* 기록 편지지 괘선. 배경 이미지라 currentColor를 못 받으므로 라이트/다크 각각 정의한다.
-     다크에선 검정 괘선이 어두운 카드에 묻혀 안 보여서 흰색 저투명으로 뒤집는다. */
-  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(0%2C0%2C0%2C0.07)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  /* elevation 단계 토큰, 라이트/다크 각각 정의해 dark:shadow 중복을 없앤다. */
-  --elevation-1: 0 4px 12px rgba(24, 24, 27, 0.07);
-  --elevation-2: 0 8px 18px rgba(24, 24, 27, 0.06);
-  --elevation-3: 0 10px 24px rgba(24, 24, 27, 0.08);
-  --elevation-4: 0 18px 42px rgba(24, 24, 27, 0.12);
-  --font-sans: 'Pretendard', ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ---------- TIER 2 · SEMANTIC (light — Paper) ---------- */
+:root,
+.light {
+  color-scheme: light;
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-950);
+  --body: var(--neutral-700);
+  --card: var(--neutral-0);
+  --card-foreground: var(--neutral-950);
+  --popover: var(--neutral-0);
+  --popover-foreground: var(--neutral-950);
+  --primary: var(--neutral-850);
+  --primary-foreground: var(--neutral-0);
+  --primary-hover: var(--neutral-950);
+  --secondary: var(--neutral-75);
+  --secondary-foreground: var(--neutral-950);
+  --secondary-hover: var(--neutral-100);
+  --muted: var(--neutral-75);
+  --muted-foreground: var(--neutral-500);
+  --accent: var(--neutral-100);
+  --accent-foreground: var(--neutral-950);
+  --destructive: var(--red-600);
+  --destructive-foreground: var(--neutral-0);
+  --warning: var(--amber-700);
+  --warning-foreground: var(--neutral-0);
+  --success: var(--green-700);
+  --success-foreground: var(--neutral-0);
+  --border: var(--neutral-100);
+  --border-strong: var(--neutral-150);
+  --input: var(--neutral-0);
+  --input-border: var(--neutral-150);
+  --ring: var(--neutral-850);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+
+  --emotion-calm: var(--orb-mint);
+  --emotion-warm: var(--orb-peach);
+  --emotion-muse: var(--orb-cream);
+  --emotion-clear: var(--orb-sky);
+  --emotion-dear: var(--orb-coral);
+  --emotion-calm-text: var(--orb-mint-strong);
+  --emotion-warm-text: var(--orb-peach-strong);
+  --emotion-muse-text: var(--orb-cream-strong);
+  --emotion-clear-text: var(--orb-sky-strong);
+  --emotion-dear-text: var(--orb-coral-strong);
+
+  --favorite: var(--amber-600);
+
+  /* 관계 지도 중심 노드 후광 — Airtable 의 color-block 에 맞춰 절제(흐림·투명도 낮춤). */
+  --glow-center:
+    0 0 0 1px rgb(24 29 38 / 0.04),
+    0 0 28px color-mix(in oklab, var(--emotion-warm) 30%, transparent),
+    0 0 56px color-mix(in oklab, var(--emotion-warm) 16%, transparent);
+
+  --hairline-soft: var(--neutral-75);
+  --hairline: var(--neutral-100);
+  --hairline-strong: var(--neutral-150);
+
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-pill: 9999px;
+
+  --elevation-1: 0 1px 2px rgb(24 29 38 / 0.06);
+  --elevation-2: 0 2px 8px rgb(24 29 38 / 0.08);
+  --elevation-3: 0 8px 24px rgb(24 29 38 / 0.1);
+  --elevation-4: 0 16px 48px rgb(24 29 38 / 0.14);
+
+  --letter-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(13,18,24,0.06)' stroke-width='1'/%3E%3C/svg%3E");
+
+  --section-gap: 96px;
+}
+
+/* ---------- TIER 2 · SEMANTIC (dark — Night) ---------- */
 .dark {
-  --letter-paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'90'%20height%3D'28'%3E%3Cpath%20d%3D'M0%2025%20Q%2022%2021%2045%2025%20T%2090%2025'%20fill%3D'none'%20stroke%3D'rgba(255%2C255%2C255%2C0.10)'%20stroke-width%3D'1'%2F%3E%3C%2Fsvg%3E");
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --elevation-1: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --elevation-2: 0 8px 18px rgba(0, 0, 0, 0.26);
-  --elevation-3: 0 10px 24px rgba(0, 0, 0, 0.32);
-  --elevation-4: 0 18px 42px rgba(0, 0, 0, 0.38);
+  color-scheme: dark;
+  --background: var(--neutral-950);
+  --foreground: var(--neutral-25);
+  --body: var(--neutral-150);
+  --card: var(--neutral-850);
+  --card-foreground: var(--neutral-25);
+  --popover: var(--neutral-800);
+  --popover-foreground: var(--neutral-25);
+  --primary: var(--neutral-25);
+  --primary-foreground: var(--neutral-950);
+  --primary-hover: var(--neutral-0);
+  --secondary: var(--neutral-800);
+  --secondary-foreground: var(--neutral-25);
+  --secondary-hover: var(--neutral-700);
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-300);
+  --accent: var(--neutral-700);
+  --accent-foreground: var(--neutral-25);
+  --destructive: var(--red-400);
+  --destructive-foreground: var(--neutral-950);
+  --warning: var(--amber-400);
+  --warning-foreground: var(--neutral-950);
+  --success: var(--green-400);
+  --success-foreground: var(--neutral-950);
+  --border: rgb(255 255 255 / 10%);
+  --border-strong: rgb(255 255 255 / 16%);
+  --input: var(--neutral-850);
+  --input-border: var(--neutral-600);
+  --ring: var(--neutral-25);
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+
+  --emotion-calm: var(--orb-mint);
+  --emotion-warm: var(--orb-peach);
+  --emotion-muse: var(--orb-cream);
+  --emotion-clear: var(--orb-sky);
+  --emotion-dear: var(--orb-coral);
+  --emotion-calm-text: var(--orb-mint);
+  --emotion-warm-text: var(--orb-peach);
+  --emotion-muse-text: var(--orb-cream);
+  --emotion-clear-text: var(--orb-sky);
+  --emotion-dear-text: var(--orb-coral);
+
+  --favorite: var(--amber-400);
+
+  --glow-center:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 0 30px color-mix(in oklab, var(--emotion-warm) 22%, transparent),
+    0 0 60px color-mix(in oklab, var(--emotion-warm) 12%, transparent);
+
+  --hairline-soft: rgb(255 255 255 / 6%);
+  --hairline: rgb(255 255 255 / 10%);
+  --hairline-strong: rgb(255 255 255 / 16%);
+
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-pill: 9999px;
+
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.3);
+  --elevation-2: 0 2px 8px rgb(0 0 0 / 0.34);
+  --elevation-3: 0 8px 24px rgb(0 0 0 / 0.4);
+  --elevation-4: 0 16px 48px rgb(0 0 0 / 0.5);
+
+  --letter-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='28'%3E%3Cpath d='M0 25 Q 22 21 45 25 T 90 25' fill='none' stroke='rgba(255,255,255,0.10)' stroke-width='1'/%3E%3C/svg%3E");
+
+  --section-gap: 96px;
 }
 
+/* ---------- Tailwind v4 유틸리티 매핑 ---------- */
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans:
+    'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system,
+    'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  /* Airtable 은 디스플레이 세리프를 쓰지 않는다 — 산스 디스플레이로 규칙만 승계. */
+  --font-display:
+    'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-body: var(--body);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-hairline: var(--hairline);
+  --color-hairline-soft: var(--hairline-soft);
+  --color-hairline-strong: var(--hairline-strong);
   --color-input: var(--input);
+  --color-input-border: var(--input-border);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-emotion-calm: var(--emotion-calm);
+  --color-emotion-warm: var(--emotion-warm);
+  --color-emotion-muse: var(--emotion-muse);
+  --color-emotion-clear: var(--emotion-clear);
+  --color-emotion-dear: var(--emotion-dear);
+  --color-emotion-calm-text: var(--emotion-calm-text);
+  --color-emotion-warm-text: var(--emotion-warm-text);
+  --color-emotion-muse-text: var(--emotion-muse-text);
+  --color-emotion-clear-text: var(--emotion-clear-text);
+  --color-emotion-dear-text: var(--emotion-dear-text);
+  --color-favorite: var(--favorite);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-pill: var(--radius-pill);
+
   --shadow-e1: var(--elevation-1);
   --shadow-e2: var(--elevation-2);
   --shadow-e3: var(--elevation-3);
   --shadow-e4: var(--elevation-4);
-  --font-sans: var(--font-sans);
-  --font-hand: 'Onglip Eunbyeol', var(--font-sans);
-  /* 앱 고유 타이포 스케일. font-size만 지정해 기존 text-[Npx] 임의값과 렌더가 동일하다
-     (line-height는 각 사용처의 leading 클래스가 계속 결정한다). */
+
+  /* 타이포 스케일 — 디스플레이 5 + 제목/본문/캡션/eyebrow. */
+  --text-display-mega: 4rem;
+  --text-display-mega--line-height: 1.05;
+  --text-display-mega--letter-spacing: -1.92px;
+  --text-display-xl: 3rem;
+  --text-display-xl--line-height: 1.08;
+  --text-display-xl--letter-spacing: -0.96px;
+  --text-display-lg: 2.25rem;
+  --text-display-lg--line-height: 1.17;
+  --text-display-lg--letter-spacing: -0.36px;
+  --text-display-md: 2rem;
+  --text-display-md--line-height: 1.13;
+  --text-display-md--letter-spacing: -0.32px;
+  --text-display-sm: 1.5rem;
+  --text-display-sm--line-height: 1.2;
+  --text-display-sm--letter-spacing: 0;
+  --text-title-md: 1.25rem;
+  --text-title-md--line-height: 1.35;
+  --text-title-sm: 1.125rem;
+  --text-title-sm--line-height: 1.44;
+  --text-body-md: 1rem;
+  --text-body-md--line-height: 1.5;
+  --text-body-md--letter-spacing: 0.16px;
+  --text-body-sm: 0.9375rem;
+  --text-body-sm--line-height: 1.47;
+  --text-body-sm--letter-spacing: 0.15px;
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.96px;
+
+  /* 앱 레거시 스케일 — 기존 text-[Npx]+leading 조합 보존(#117 계약).
+     line-height 를 initial 로 지워 leading 클래스가 계속 결정하게 한다. */
   --text-caption: 11px;
+  --text-caption--line-height: initial;
   --text-label: 13px;
+  --text-label--line-height: initial;
   --text-body: 15px;
+  --text-body--line-height: initial;
+  --text-micro: 10px;
+  --text-micro--line-height: initial;
+
+  --font-hand: 'Onglip Eunbyeol', var(--font-sans);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  html {
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
   }
   html,
   body,
@@ -122,62 +353,120 @@
     min-height: 100%;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     margin: 0;
-    font-family: var(--font-sans);
+    min-width: 320px;
+    font-size: 1rem;
     scrollbar-width: thin;
     scrollbar-color: oklch(0.78 0 0 / 0.45) transparent;
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--foreground) 16%, transparent);
   }
 
   * {
     scrollbar-width: thin;
     scrollbar-color: oklch(0.78 0 0 / 0.4) transparent;
   }
-
   *::-webkit-scrollbar {
     width: 4px;
     height: 4px;
   }
-
   *::-webkit-scrollbar-track {
     background: transparent;
   }
-
   *::-webkit-scrollbar-thumb {
     background: oklch(0.78 0 0 / 0.38);
     border-radius: 9999px;
   }
-
   *::-webkit-scrollbar-thumb:hover {
     background: oklch(0.68 0 0 / 0.52);
   }
-
   .dark * {
     scrollbar-color: oklch(0.5 0 0 / 0.45) transparent;
   }
-
   .dark *::-webkit-scrollbar-thumb {
     background: oklch(0.5 0 0 / 0.42);
   }
-
   .dark *::-webkit-scrollbar-thumb:hover {
     background: oklch(0.58 0 0 / 0.55);
   }
-
-  /* stackflow AppScreen의 paper 스크롤 레이어(overflow-y: scroll 고정)는
-     ::-webkit-scrollbar { display: none }으로 스크롤바를 숨기는 설계인데,
-     위의 전역 scrollbar-width: thin이 표준 속성이라 webkit 숨김을 무효화함
-     (Chrome 121+는 scrollbar-width가 있으면 ::-webkit-scrollbar를 무시).
-     paper에 상시 스크롤바 gutter가 생기지 않도록 숨김 의도를 복원한다.
-     실제 콘텐츠 스크롤바는 activity 내부 컨테이너가 표시한다. */
   [data-part='paper'] > div {
     scrollbar-width: none;
   }
 }
 
-/* iOS Safari 네이티브 뒤로가기 제스처와 stackflow 전환의 이중 재생 방지.
-   popstate 직후 stackflow/browser-nav-transition.ts가 이 속성을 잠깐 붙인다. */
+@layer components {
+  .eyebrow {
+    font-size: var(--text-eyebrow);
+    line-height: 1.4;
+    letter-spacing: 0.96px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .font-hand {
+    font-family: 'Onglip Eunbyeol', var(--font-sans);
+  }
+  /* 대기 orb — 감정 5가족의 시각 표현. Airtable 의 color-block 에 맞춰 절제. */
+  .orb {
+    pointer-events: none;
+    border-radius: 50%;
+    filter: blur(36px);
+    opacity: 0.4;
+    background: var(--orb-color, var(--emotion-calm));
+  }
+  .orb[data-emotion='calm'] {
+    --orb-color: var(--emotion-calm);
+  }
+  .orb[data-emotion='warm'] {
+    --orb-color: var(--emotion-warm);
+  }
+  .orb[data-emotion='muse'] {
+    --orb-color: var(--emotion-muse);
+  }
+  .orb[data-emotion='clear'] {
+    --orb-color: var(--emotion-clear);
+  }
+  .orb[data-emotion='dear'] {
+    --orb-color: var(--emotion-dear);
+  }
+  @keyframes orb-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(0, -10px, 0) scale(1.03);
+    }
+  }
+  .orb[data-animated] {
+    animation: orb-float 9s ease-in-out infinite;
+  }
+  .letter-paper {
+    background-color: var(--card);
+    background-image: var(--letter-paper);
+    background-size: 90px 28px;
+  }
+}
+
+/* iOS Safari 네이티브 뒤로가기 제스처와 stackflow 전환의 이중 재생 방지. */
 html[data-browser-nav-transition-skip] * {
   --stackflow-plugin-basic-ui-transition-duration: 0ms !important;
   --stackflow-plugin-basic-ui-computed-transition-duration: 0ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

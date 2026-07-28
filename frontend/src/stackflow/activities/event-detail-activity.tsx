@@ -3,9 +3,9 @@ import { ChevronLeft } from 'lucide-react'
 import type { ActivityComponentType } from '@stackflow/react'
 import { eventQuery, personQuery } from '@/apis/queries'
 import { ActivityShell } from '@/stackflow/components/activity-shell'
-import { MonogramAvatar } from '@/components/ui/monogram-avatar'
+import { PersonChip } from '@/components/person/person-chip'
 import { ScrollBody } from '@/components/ui/scroll-body'
-import { Badge } from '@/components/ui/badge'
+import { ChipBadge } from '@/components/ui/chip-badge'
 import { StatusMessage } from '@/components/ui/status-message'
 import { EventPhotoGallery } from '@/components/events/event-photo-gallery'
 import { FormPageHeader } from '@/components/layout/form-page-header'
@@ -68,11 +68,11 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         >
           <ChevronLeft className="size-6" />
         </button>
-        <h1 className="text-center text-base font-extrabold">몽글 상세</h1>
+        <h1 className="text-center text-base font-medium">몽글 상세</h1>
         <button
           type="button"
           onClick={() => push('Record', { eventId: String(id) })}
-          className="text-right text-body font-extrabold"
+          className="text-right text-body font-medium"
         >
           수정
         </button>
@@ -82,22 +82,20 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         <div className="flex items-start gap-2">
           <h2
             data-amp-mask
-            className="min-w-0 flex-1 text-[22px] leading-snug font-extrabold tracking-tight"
+            className="min-w-0 flex-1 font-display text-[22px] font-light leading-snug tracking-tight"
           >
             {event.title}
           </h2>
           {event.category ? (
-            <Badge
+            <ChipBadge
               data-amp-mask
-              variant="secondary"
-              className="h-7 shrink-0 rounded-full px-3 font-extrabold"
-            >
-              {event.category.label}
-            </Badge>
+              chip={event.category}
+              className="shrink-0 font-semibold"
+            />
           ) : null}
         </div>
 
-        <p className="mt-2 text-sm font-bold text-muted-foreground">
+        <p className="eyebrow mt-2">
           {formatWhen(event.occurredDate, event.occurredTime)}
         </p>
 
@@ -106,29 +104,17 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
             {event.persons.map((person) => {
               const profile = personById.get(person.id)
               return (
-                <button
+                <PersonChip
                   key={person.id}
-                  type="button"
+                  name={person.name}
+                  imageUrl={profile?.profileImageUrl}
+                  gender={profile?.gender}
+                  personId={person.id}
+                  favorite={profile?.favorite}
                   onClick={() =>
                     push('Person', { personId: String(person.id) })
                   }
-                  className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 py-1 pr-2.5 pl-1 transition-colors hover:bg-muted"
-                >
-                  <MonogramAvatar
-                    name={person.name}
-                    imageUrl={profile?.profileImageUrl}
-                    gender={profile?.gender}
-                    personId={person.id}
-                    favorite={profile?.favorite}
-                    className="size-6"
-                  />
-                  <span
-                    data-amp-mask
-                    className="text-xs font-extrabold text-foreground"
-                  >
-                    {person.name}
-                  </span>
-                </button>
+                />
               )
             })}
           </div>
@@ -146,15 +132,18 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         {event.emotions.length > 0 ? (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {event.emotions.map((emotion) => (
-              <Badge key={emotion.id} data-amp-mask variant="outline">
-                {emotion.label}
-              </Badge>
+              <ChipBadge
+                key={emotion.id}
+                data-amp-mask
+                chip={emotion}
+                size="sm"
+              />
             ))}
           </div>
         ) : null}
 
         {event.weather ? (
-          <p className="mt-3 text-xs font-bold text-muted-foreground">
+          <p className="mt-3 text-xs font-semibold text-muted-foreground">
             날씨 · {event.weather.label}
           </p>
         ) : null}

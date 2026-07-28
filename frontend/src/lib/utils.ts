@@ -8,7 +8,28 @@ import { extendTailwindMerge } from 'tailwind-merge'
 // styles.css 의 --text-* 목록과 동기화해야 한다.
 const twMerge = extendTailwindMerge({
   extend: {
-    classGroups: { 'font-size': [{ text: ['caption', 'label', 'body'] }] },
+    classGroups: {
+      'font-size': [
+        {
+          text: [
+            'caption',
+            'label',
+            'body',
+            'micro',
+            'body-md',
+            'body-sm',
+            'display-mega',
+            'display-xl',
+            'display-lg',
+            'display-md',
+            'display-sm',
+            'title-md',
+            'title-sm',
+            'eyebrow',
+          ],
+        },
+      ],
+    },
   },
 })
 

@@ -65,7 +65,7 @@ export function SettingsTab() {
           <ListGroup>
             <ListGroupItem withDivider={false}>
               <div className="flex min-h-9 items-center justify-between gap-4">
-                <span className="text-body font-extrabold text-foreground">
+                <span className="text-body font-medium text-foreground">
                   다크 모드
                 </span>
                 <Switch
@@ -84,7 +84,7 @@ export function SettingsTab() {
             <ListGroupItem withDivider={false}>
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-body font-extrabold text-foreground">
+                  <p className="text-body font-medium text-foreground">
                     테스트 사용자 초기화
                   </p>
                   <p className="mt-1 text-xs font-medium text-muted-foreground">
@@ -104,7 +104,7 @@ export function SettingsTab() {
                 </Button>
               </div>
               {resetMutation.isError ? (
-                <p className="mt-3 text-xs font-bold text-destructive">
+                <p className="mt-3 text-xs font-medium text-destructive">
                   초기화하지 못했어요. 잠시 후 다시 시도해 주세요.
                 </p>
               ) : null}
@@ -117,10 +117,10 @@ export function SettingsTab() {
           <ListGroup>
             <ListGroupItem withDivider={false}>
               <div className="flex items-center justify-between">
-                <span className="text-body font-extrabold text-foreground">
+                <span className="text-body font-medium text-foreground">
                   Mongle
                 </span>
-                <span className="text-xs font-bold text-muted-foreground">
+                <span className="text-xs font-semibold text-muted-foreground">
                   MVP
                 </span>
               </div>

@@ -143,7 +143,7 @@ export function PersonTimelineView({ personId }: { personId: string }) {
             />
             <div className="flex gap-6">
               <div>
-                <p className="text-base font-extrabold">
+                <p className="text-base font-medium">
                   {person.stats.recordCount}개
                 </p>
                 <p className="text-caption font-medium text-muted-foreground">
@@ -151,7 +151,7 @@ export function PersonTimelineView({ personId }: { personId: string }) {
                 </p>
               </div>
               <div>
-                <p className="text-base font-extrabold">
+                <p className="text-base font-medium">
                   {person.stats.lastMetRelative ?? '기록 없음'}
                 </p>
                 <p className="text-caption font-medium text-muted-foreground">

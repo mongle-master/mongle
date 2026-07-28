@@ -7,6 +7,9 @@ node_modules/
 .pnpm-store/
 .pnpm-debug.log*
 
+# 디자인 시스템 빌드 산출물 (docs/design-system.html은 커밋 대상)
+design-system/storybook-static/
+
 # Backend local Gradle cache
 backend/.gradle-home/
 

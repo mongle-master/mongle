@@ -3,6 +3,7 @@ import { Camera, RefreshCw } from 'lucide-react'
 import { BackButton } from '@/components/layout/back-button'
 import { MongleLogo } from '@/components/brand/mongle-logo'
 import { Button } from '@/components/ui/button'
+import { Orb } from '@/components/ui/orb'
 import { uploadImage } from '@/lib/api/images'
 import {
   DEFAULT_FEMALE_PERSON_IMAGES,
@@ -92,9 +93,10 @@ export function ProfileOnboarding({
         aria-hidden
         className="absolute -top-20 -right-20 size-64 rounded-full bg-primary/8 blur-3xl"
       />
-      <div
-        aria-hidden
-        className="absolute bottom-8 -left-28 size-64 rounded-full bg-amber-200/20 blur-3xl"
+      <Orb
+        emotion="warm"
+        size={256}
+        className="bottom-8 -left-28 opacity-25 blur-3xl"
       />
 
       <div className="relative flex items-center gap-2">
@@ -109,10 +111,8 @@ export function ProfileOnboarding({
       </div>
 
       <section className="relative my-auto py-8 text-center">
-        <p className="text-sm font-extrabold text-primary">
-          2 / 2 · 프로필 설정
-        </p>
-        <h1 className="mt-3 text-[30px] font-black leading-[1.18] tracking-[-0.04em] text-foreground">
+        <p className="text-sm font-medium text-primary">2 / 2 · 프로필 설정</p>
+        <h1 className="mt-3 font-display text-display-md font-light text-foreground">
           <span data-amp-mask>{username}</span>님을 보여줄
           <br />
           사진을 골라 주세요
@@ -123,7 +123,7 @@ export function ProfileOnboarding({
 
         <div className="relative mx-auto mt-8 size-48">
           <div className="absolute inset-2 rounded-full bg-muted/70 blur-xl" />
-          <div className="relative size-full overflow-hidden rounded-full border border-border/70 bg-white shadow-[0_18px_50px_-24px_rgba(0,0,0,0.45)]">
+          <div className="relative size-full overflow-hidden rounded-full border border-border/70 bg-card shadow-e4">
             <img
               key={selectedImageUrl}
               src={previewImageUrl ?? undefined}
@@ -139,7 +139,7 @@ export function ProfileOnboarding({
         </div>
 
         <div
-          className="mx-auto mt-7 grid w-full max-w-[240px] grid-cols-2 rounded-2xl bg-muted/70 p-1"
+          className="mx-auto mt-7 grid w-full max-w-[240px] grid-cols-2 rounded-pill bg-muted/70 p-1"
           aria-label="아바타 성별"
         >
           {GENDER_OPTIONS.map((option) => (
@@ -150,7 +150,7 @@ export function ProfileOnboarding({
               disabled={pending}
               onClick={() => selectGender(option.value)}
               className={cn(
-                'h-10 rounded-xl text-sm font-extrabold transition-all',
+                'h-10 rounded-pill text-sm transition-all',
                 gender === option.value
                   ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground',
@@ -168,7 +168,7 @@ export function ProfileOnboarding({
             size="lg"
             disabled={pending}
             onClick={showNextAvatar}
-            className="h-12 rounded-2xl font-extrabold"
+            className="h-12"
           >
             <RefreshCw />
             다른 사진
@@ -179,7 +179,7 @@ export function ProfileOnboarding({
             size="lg"
             disabled={pending}
             onClick={() => fileRef.current?.click()}
-            className="h-12 rounded-2xl font-extrabold"
+            className="h-12"
           >
             <Camera />
             직접 올리기
@@ -197,7 +197,7 @@ export function ProfileOnboarding({
         />
 
         {error ? (
-          <p className="mt-4 text-xs font-bold text-destructive">{error}</p>
+          <p className="mt-4 text-xs font-medium text-destructive">{error}</p>
         ) : null}
 
         <Button
@@ -207,7 +207,7 @@ export function ProfileOnboarding({
           onClick={() =>
             void finish({ profileImageUrl: selectedImageUrl, gender })
           }
-          className="mt-7 h-14 w-full rounded-2xl text-base font-extrabold"
+          className="mt-7 h-14 w-full text-body"
         >
           {saving ? '저장하는 중...' : '이 사진으로 시작하기'}
         </Button>
@@ -215,7 +215,7 @@ export function ProfileOnboarding({
           type="button"
           disabled={pending}
           onClick={() => void finish({ profileImageUrl: null, gender: null })}
-          className="mt-4 px-4 py-2 text-sm font-bold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline disabled:opacity-50"
+          className="mt-4 px-4 py-2 text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline disabled:opacity-50"
         >
           지금은 건너뛰기
         </button>

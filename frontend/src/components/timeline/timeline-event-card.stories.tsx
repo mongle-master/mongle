@@ -7,14 +7,14 @@ const FULL_ITEM: TimelineEventCardItem = {
   title: '엄마와 봄나들이',
   memo: '오랜만에 벚꽃 구경을 갔다. 김밥을 싸서 한강에서 하루 종일 걸었다.',
   occurredDate: '2026-04-05',
-  category: { id: 10, label: '나들이' },
+  category: { id: 10, label: '나들이', color: '#b45309' },
   persons: [
     { id: 3, name: '엄마', profileImageUrl: undefined, favorite: true },
     { id: 4, name: '이모', profileImageUrl: undefined, favorite: false },
   ],
   emotions: [
-    { id: 20, label: '설렘' },
-    { id: 21, label: '평온' },
+    { id: 20, label: '설렘', color: '#d96a3d' },
+    { id: 21, label: '평온', color: '#3f7a44' },
   ],
   photoUrls: [
     'https://picsum.photos/seed/mongle1/256',

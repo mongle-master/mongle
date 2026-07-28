@@ -12,7 +12,7 @@ import { ListGroupItem } from '@/components/ui/list-group-item'
 import { ListGroupLabel } from '@/components/ui/list-group-label'
 import { NavigationRow } from '@/components/ui/navigation-row'
 import { StatusMessage } from '@/components/ui/status-message'
-import { TagChip } from '@/components/ui/tag-chip'
+import { ChipBadge } from '@/components/ui/chip-badge'
 import { optimizedImageUrl } from '@/lib/image-url'
 import {
   formatAbsoluteDate,
@@ -98,30 +98,28 @@ export function PersonProfileView({
                 <div className="min-w-0 flex-1">
                   <h1
                     data-amp-mask
-                    className="truncate text-2xl font-black tracking-tight"
+                    className="truncate font-display text-2xl font-light tracking-tight"
                   >
                     {displayName}
                   </h1>
                   {person.relationType ? (
                     <p
                       data-amp-mask
-                      className="mt-2 text-sm font-extrabold text-foreground"
+                      className="mt-2 text-sm font-medium text-foreground"
                     >
                       {person.relationType}
                     </p>
                   ) : null}
                   {person.relationTags.length > 0 ? (
-                    <div data-amp-mask className="mt-2 flex flex-wrap gap-1.5">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                       {person.relationTags.map((tag) => (
-                        <TagChip
+                        <ChipBadge
                           key={tag.id}
-                          interactive={false}
-                          surface="soft"
-                          color={tag.color}
+                          data-amp-mask
+                          chip={tag}
+                          showDot={false}
                           className="px-3 text-xs"
-                        >
-                          {tag.label}
-                        </TagChip>
+                        />
                       ))}
                     </div>
                   ) : null}
@@ -173,9 +171,7 @@ export function PersonProfileView({
         {recentEvents.length > 0 ? (
           <section>
             <div className="mb-2 flex items-center justify-between px-3">
-              <p className="text-caption font-extrabold tracking-wide text-muted-foreground uppercase">
-                최근 함께한 일
-              </p>
+              <p className="eyebrow">최근 함께한 일</p>
               <button
                 type="button"
                 onClick={() => onSelectView('timeline')}
@@ -270,13 +266,16 @@ function RecentEventRow({ event }: { event: EventResponse }) {
     >
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
-          <p data-amp-mask className="truncate text-sm font-extrabold">
+          <p data-amp-mask className="truncate text-sm font-medium">
             {event.title}
           </p>
           {event.category ? (
-            <TagChip data-amp-mask interactive={false} size="sm" surface="soft">
-              {event.category.label}
-            </TagChip>
+            <ChipBadge
+              data-amp-mask
+              chip={event.category}
+              showDot={false}
+              size="sm"
+            />
           ) : null}
         </div>
         <p className="mt-0.5 text-xs font-medium text-muted-foreground">
@@ -300,7 +299,7 @@ function RecentEventRow({ event }: { event: EventResponse }) {
             loading="lazy"
           />
           {event.photoUrls.length > 1 ? (
-            <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1 py-0.5 text-[9px] font-extrabold text-background">
+            <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1 py-0.5 text-[9px] font-semibold text-background">
               +{event.photoUrls.length - 1}
             </span>
           ) : null}
@@ -314,7 +313,7 @@ function RecentEventRow({ event }: { event: EventResponse }) {
 function PreferenceBlock({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-bold text-muted-foreground">{label}</p>
+      <p className="text-xs font-semibold text-muted-foreground">{label}</p>
       <p data-amp-mask className="mt-1 text-sm font-medium text-foreground">
         {value}
       </p>
@@ -334,8 +333,8 @@ function InfoRow({
   return (
     <ListGroupItem withDivider={withDivider}>
       <div>
-        <p className="text-xs font-bold text-muted-foreground">{label}</p>
-        <p className="mt-1 text-sm font-extrabold text-foreground">{value}</p>
+        <p className="text-xs font-semibold text-muted-foreground">{label}</p>
+        <p className="mt-1 text-sm font-medium text-foreground">{value}</p>
       </div>
     </ListGroupItem>
   )
@@ -344,8 +343,8 @@ function InfoRow({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-bold text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-body font-extrabold text-foreground">{value}</dd>
+      <dt className="text-xs font-semibold text-muted-foreground">{label}</dt>
+      <dd className="mt-1 text-body font-medium text-foreground">{value}</dd>
     </div>
   )
 }

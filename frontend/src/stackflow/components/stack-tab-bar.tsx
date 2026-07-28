@@ -49,7 +49,7 @@ export function StackTabBar({ activeTab }: { activeTab: MainTab }) {
               type="button"
               onClick={() => replaceStep({ tab: item.tab })}
               className={cn(
-                'flex flex-col items-center gap-1 text-caption font-bold',
+                'flex flex-col items-center gap-1 text-caption font-semibold',
                 activeTab === item.tab
                   ? 'text-foreground'
                   : 'text-muted-foreground',
