@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>몽글 UX 방향 A — 관계 궤도</title>
+<style>
+/* ============================================================
+   몽글 디자인 언어 "결" — 라이트 전용
+   ============================================================ */
+:root{
+  --ink:#26262B;
+  --ink-soft:#4A4A4F;
+  --muted:#8E8E93;
+  --muted-soft:#B0B0B5;
+  --surface:#F7F7F8;
+  --line:#EBEBEC;
+  --line-strong:#DDDDDF;
+  --paper:#FFFFFF;
+  --warm:#E06A2B;
+  --shadow-card:0 4px 12px rgba(24,24,27,.07);
+  --shadow-phone:0 32px 80px rgba(24,24,27,.18), 0 8px 24px rgba(24,24,27,.10);
+  --font:-apple-system,'Apple SD Gothic Neo','Pretendard','Noto Sans KR',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font);
+  color:var(--ink);
+  background-color:#F4F4F5;
+  background-image:radial-gradient(rgba(38,38,43,.055) 1px, transparent 1.2px);
+  background-size:22px 22px;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,li:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* ============================================================
+   페이지 셸
+   ============================================================ */
+.page{max-width:1200px;margin:0 auto;padding:32px 32px 72px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:44px;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.brand-mark{width:24px;height:24px;border-radius:50%;background:var(--ink);display:grid;place-items:center;flex:none}
+.brand .dim{color:var(--muted);font-weight:500}
+.top-meta{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.top-meta .sep{width:3px;height:3px;border-radius:50%;background:var(--muted-soft)}
+
+.layout{display:grid;grid-template-columns:minmax(360px,440px) 1fr;gap:64px;align-items:start}
+@media (max-width:1080px){
+  .layout{grid-template-columns:1fr;gap:48px}
+  .panel{max-width:640px}
+}
+
+/* ============================================================
+   설명 패널
+   ============================================================ */
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--warm)}
+.panel h1{font-size:36px;line-height:1.24;letter-spacing:-.02em;font-weight:600;margin:14px 0 14px}
+.lead{font-size:15px;line-height:1.7;color:var(--muted)}
+.block{border-top:1px solid var(--line);padding-top:22px;margin-top:26px}
+.block-label{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--muted-soft);margin-bottom:12px}
+.block-text{font-size:14.5px;line-height:1.8;color:var(--ink-soft)}
+.block-text b{color:var(--ink);font-weight:600}
+.idea-row{display:flex;gap:24px;align-items:flex-start}
+.idea-fig{flex:none;margin-top:6px}
+.gains{list-style:none}
+.gains li{position:relative;padding-left:16px;font-size:14px;line-height:1.75;color:var(--ink-soft)}
+.gains li b{color:var(--ink);font-weight:600}
+.gains li + li{margin-top:12px}
+.gains li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--ink)}
+.states{list-style:none;display:flex;flex-direction:column;gap:8px}
+.states li{display:flex;gap:14px;align-items:flex-start;padding:12px 14px;background:var(--paper);border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease}
+.states li:hover{border-color:#D0D0D4;box-shadow:var(--shadow-card)}
+.states li:active{transform:scale(.99)}
+.states li.active{border-color:var(--ink)}
+.st-num{font-size:11px;font-weight:700;color:var(--muted-soft);padding-top:2px;flex:none;width:22px;transition:color .18s ease}
+.states li.active .st-num{color:var(--ink)}
+.st-body b{display:block;font-size:13.5px;font-weight:600}
+.st-body span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.55}
+
+/* ============================================================
+   스테이지 — 상태 스위처 + 폰 목업
+   ============================================================ */
+.stage{display:flex;flex-direction:column;align-items:center;gap:24px;position:relative}
+.stage::before{content:"";position:absolute;top:60px;left:50%;transform:translateX(-50%);width:640px;height:640px;background:radial-gradient(closest-side, rgba(224,106,43,.06), transparent 70%);pointer-events:none;z-index:0}
+.switcher{position:relative;z-index:1;display:flex;gap:4px;background:var(--paper);padding:5px;border-radius:999px;border:1px solid var(--line);box-shadow:var(--shadow-card)}
+.switcher button{border:0;background:transparent;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:var(--muted);transition:background .18s ease,color .18s ease,transform .12s ease}
+.switcher button:active{transform:scale(.95)}
+.switcher button.active{background:var(--ink);color:#fff;font-weight:600}
+.stage-note{font-size:12px;color:var(--muted);position:relative;z-index:1}
+.stage-note kbd{font-family:inherit;font-size:11px;background:var(--paper);border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--ink-soft)}
+
+.phone{position:relative;z-index:1;width:406px;padding:8px;background:#141417;border-radius:52px;box-shadow:var(--shadow-phone)}
+.phone::before{content:"";position:absolute;left:-2.5px;top:150px;width:3px;height:38px;background:#141417;border-radius:2px;box-shadow:0 52px 0 #141417}
+.phone::after{content:"";position:absolute;right:-2.5px;top:196px;width:3px;height:76px;background:#141417;border-radius:2px}
+.screen{width:390px;height:844px;background:var(--paper);border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column;touch-action:manipulation}
+
+/* ---------- 상태바 ---------- */
+.statusbar{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:relative}
+.sb-time{font-size:15px;font-weight:600;letter-spacing:.01em}
+.sb-island{position:absolute;left:50%;top:14px;transform:translateX(-50%);width:92px;height:26px;background:#141417;border-radius:20px}
+
+/* ---------- 앱 헤더 ---------- */
+.apphead{flex:none;padding:6px 20px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.apphead h2{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.apphead .sub{font-size:12px;color:var(--muted);margin-top:3px}
+.apphead .sub b{color:var(--ink);font-weight:600}
+.icon-btn{width:36px;height:36px;flex:none;border:1px solid var(--line);background:var(--paper);border-radius:50%;display:grid;place-items:center;color:var(--ink);transition:background .15s ease,transform .12s ease}
+.icon-btn:hover{background:var(--surface)}
+.icon-btn:active{transform:scale(.9)}
+
+/* ---------- 태그 칩 ---------- */
+.chips{flex:none;display:flex;gap:8px;padding:2px 20px 14px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips.hide{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-size:12.5px;font-weight:500;color:#3F3F44;transition:transform .12s ease, background .18s ease, border-color .18s ease, color .18s ease}
+.chip:active{transform:scale(.94)}
+.chip i{width:7px;height:7px;border-radius:50%;flex:none}
+
+/* ---------- 궤도 영역 ---------- */
+.orbit-wrap{flex:1;min-height:0;position:relative}
+.orbit-wrap svg{width:100%;height:100%;display:block;animation:orbitIn .3s ease both}
+@keyframes orbitIn{from{opacity:.35}to{opacity:1}}
+.ring{fill:none;stroke:var(--line);stroke-width:1;transform-box:fill-box;transform-origin:center;animation:ringIn .45s ease both}
+@keyframes ringIn{from{opacity:0;transform:scale(.965)}to{opacity:1;transform:scale(1)}}
+.ring-label{font-size:10px;font-weight:500;fill:var(--muted-soft);text-anchor:middle;letter-spacing:.05em}
+.quiet-arc{fill:none;stroke:#C9C9CD;stroke-width:1.4;stroke-dasharray:2.5 5.5;stroke-linecap:round}
+.me-node{cursor:pointer}
+.me-t{fill:#fff;font-size:13px;font-weight:600;text-anchor:middle}
+.node{cursor:pointer;transition:opacity .22s ease}
+.node.is-faded{opacity:.4}
+.node.is-dim{opacity:.18}
+.node.is-faded.is-dim{opacity:.12}
+.node .bob{animation:bob 6.5s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(-2.5px)}to{transform:translateY(2.5px)}}
+.node .hit{fill:transparent;pointer-events:all}
+.node .avatar-g{transition:transform .18s ease;transform-box:fill-box;transform-origin:center}
+.node:hover .avatar-g{transform:scale(1.08)}
+.node:active .avatar-g{transform:scale(.92)}
+.node .init{font-size:13px;font-weight:600;text-anchor:middle}
+.node .nname{font-size:11px;font-weight:500;fill:var(--ink);text-anchor:middle}
+.node.is-faded .nname{fill:var(--muted)}
+
+/* 빈 상태 오버레이 */
+.empty-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:352px;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.empty-ov.show{opacity:1;pointer-events:auto}
+.empty-ov h3{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.empty-ov p{font-size:13px;line-height:1.7;color:var(--muted);margin-top:8px}
+.empty-ov .btn{margin-top:20px}
+
+/* 멀어진 관계 힌트 */
+.quiet-hint{position:absolute;top:10px;left:50%;transform:translate(-50%,-6px);display:flex;align-items:center;gap:7px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:11.5px;color:var(--muted);box-shadow:var(--shadow-card);opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;white-space:nowrap}
+.orbit-wrap.hint .quiet-hint{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- 하단 내비 ---------- */
+.nav{flex:none;height:72px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr 1fr;align-items:end;padding:0 16px 8px;background:var(--paper)}
+.nav-item{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10px;font-weight:500;padding:6px 0;transition:color .15s ease}
+.nav-item svg{transition:transform .12s ease}
+.nav-item:active svg{transform:scale(.86)}
+.nav-item.on{color:var(--ink)}
+.fab{width:52px;height:52px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;transform:translateY(-16px);box-shadow:0 8px 20px rgba(38,38,43,.30);transition:transform .15s ease, box-shadow .15s ease}
+.nav-item:active .fab{transform:translateY(-13px) scale(.94);box-shadow:0 4px 12px rgba(38,38,43,.26)}
+.home-ind{flex:none;width:128px;height:5px;border-radius:3px;background:rgba(38,38,43,.85);margin:2px auto 9px}
+
+/* ---------- 시트 ---------- */
+.backdrop{position:absolute;inset:0;background:rgba(24,24,27,.34);opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:40}
+.backdrop.open{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-radius:22px 22px 0 0;padding:10px 20px 18px;transform:translateY(105%);transition:transform .28s cubic-bezier(.32,.72,.25,1);z-index:50;user-select:none;-webkit-user-select:none;box-shadow:0 -12px 40px rgba(24,24,27,.12);max-height:82%;overflow-y:auto;touch-action:none}
+.sheet.open{transform:translateY(0)}
+.grabber{width:38px;height:4px;border-radius:99px;background:var(--line-strong);margin:2px auto 14px}
+.sh-head{display:flex;align-items:center;gap:14px}
+.sh-avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:600;flex:none}
+.sh-id{flex:1;min-width:0}
+.sh-name{font-size:17px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.sh-tagchip{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:999px;flex:none}
+.sh-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.sh-close{width:32px;height:32px;flex:none;border:0;background:var(--surface);border-radius:50%;display:grid;place-items:center;color:var(--muted);transition:transform .12s ease, background .15s ease}
+.sh-close:hover{background:var(--line)}
+.sh-close:active{transform:scale(.88)}
+
+.quiet-note{display:flex;gap:11px;align-items:flex-start;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.20);border-radius:12px;padding:12px 14px;margin-top:16px}
+.quiet-note svg{flex:none;margin-top:1px;color:#C2410C}
+.quiet-note b{display:block;font-size:13px;font-weight:600}
+.quiet-note span{display:block;font-size:12px;line-height:1.6;color:var(--muted);margin-top:3px}
+
+.sh-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}
+.stat{background:var(--surface);border-radius:12px;padding:11px 12px}
+.stat-k{display:block;font-size:11px;color:var(--muted)}
+.stat-v{display:block;font-size:14px;font-weight:600;margin-top:4px;letter-spacing:-.01em}
+
+.sh-sec{margin-top:18px}
+.sh-sec-label{font-size:11.5px;font-weight:600;color:var(--muted);margin-bottom:9px;letter-spacing:.02em}
+.rhythm{display:flex;align-items:center;gap:7px;background:var(--surface);border-radius:12px;padding:14px 15px}
+.rh{display:block;width:9px;height:9px;border-radius:50%;flex:none}
+.rh.off{width:5px;height:5px;background:var(--line-strong)}
+.rhythm-cap{display:flex;justify-content:space-between;font-size:10px;color:var(--muted-soft);margin-top:7px;padding:0 2px}
+.emo-row{display:flex;gap:8px;flex-wrap:wrap}
+.emo{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-size:12px;font-weight:500;color:var(--ink-soft)}
+.emo i{width:8px;height:8px;border-radius:50%}
+
+.sh-actions{display:flex;gap:10px;margin-top:22px}
+.btn{height:48px;border-radius:999px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:transform .13s ease, opacity .13s ease, background .15s ease;border:0}
+.btn:active{transform:scale(.97)}
+.btn-ink{background:var(--ink);color:#fff;flex:1}
+.btn-ink:active{opacity:.85}
+.btn-line{background:var(--paper);border:1px solid var(--line-strong);color:var(--ink);flex:1}
+.btn-line:hover{background:var(--surface)}
+.btn-sm{height:40px;padding:0 20px;font-size:13px}
+
+/* ---------- 토스트 ---------- */
+.toast{position:absolute;left:50%;bottom:112px;transform:translate(-50%,10px);background:rgba(38,38,43,.92);color:#fff;font-size:13px;font-weight:500;padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;z-index:60;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<!-- [draft-nav] 시안 간 이동 — 자족 스니펫. xdn- 접두어로 페이지 스타일과 격리 -->
+<nav class="xdn" data-draft="A" aria-label="시안 간 이동">
+  <a class="xdn-brand" href="./index.html">
+    <span class="xdn-dots" aria-hidden="true"><i style="background:#e85d75"></i><i style="background:#f97316"></i><i style="background:#22a06b"></i></span>
+    몽글 UX 시안
+  </a>
+  <div class="xdn-items">
+    <a class="xdn-item" href="./index.html" data-key="index">개요</a>
+    <a class="xdn-item" href="./A-relation-orbit.html" data-key="A"><i style="--c:#f97316">A</i>궤도</a>
+    <a class="xdn-item" href="./B-quick-capture.html" data-key="B"><i style="--c:#e85d75">B</i>터치 일기</a>
+    <a class="xdn-item" href="./C-density-modes.html" data-key="C"><i style="--c:#22a06b">C</i>세 가지 방법</a>
+    <a class="xdn-item" href="./D-rhythm-quant.html" data-key="D"><i style="--c:#8b5cf6">D</i>리듬</a>
+  </div>
+  <span class="xdn-hint">← → 시안 이동</span>
+</nav>
+<style>
+  /* draft-nav 전용. 페이지마다 다른 상단 여백과 무관하게 항상 공간을 확보한다 */
+  body { padding-top: 56px; }
+  .xdn {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: 4px;
+    max-width: calc(100vw - 20px);
+    background: #ffffff; border: 1px solid #ebebec; border-radius: 999px;
+    padding: 5px 8px 5px 12px;
+    box-shadow: 0 4px 12px rgba(24, 24, 27, 0.07);
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR', system-ui, sans-serif;
+    animation: xdn-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
+    transition: box-shadow 0.25s ease;
+  }
+  .xdn.xdn-raised { box-shadow: 0 8px 18px rgba(24, 24, 27, 0.11); }
+  @keyframes xdn-in {
+    from { opacity: 0; transform: translate(-50%, -10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  .xdn-brand {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; letter-spacing: -0.01em;
+    color: #26262b; text-decoration: none; white-space: nowrap;
+    padding-right: 10px; border-right: 1px solid #ebebec; margin-right: 4px;
+  }
+  .xdn-dots { display: inline-flex; }
+  .xdn-dots i {
+    width: 8px; height: 8px; border-radius: 999px;
+    display: inline-block; margin-right: -3px; border: 1.5px solid #ffffff;
+  }
+  .xdn-items { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  .xdn-items::-webkit-scrollbar { display: none; }
+  .xdn-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; white-space: nowrap;
+    color: #26262b; text-decoration: none;
+    padding: 6px 11px; border-radius: 999px;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  }
+  .xdn-item:hover { background: #f7f7f8; }
+  .xdn-item:active { transform: scale(0.97); }
+  .xdn-item i {
+    font-style: normal; font-size: 10px; font-weight: 600;
+    width: 16px; height: 16px; border-radius: 6px;
+    display: inline-grid; place-items: center;
+    color: var(--c, #8e8e93);
+    background: #f2f2f3;
+    background: color-mix(in srgb, var(--c, #8e8e93) 13%, #ffffff);
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+  .xdn-item[aria-current] { background: #26262b; color: #ffffff; }
+  .xdn-item[aria-current]:hover { background: #26262b; }
+  .xdn-item[aria-current] i { background: #ffffff; color: #26262b; }
+  .xdn-hint {
+    font-size: 11px; color: #8e8e93; white-space: nowrap;
+    padding-left: 10px; border-left: 1px solid #ebebec; margin-left: 4px;
+  }
+  @media (max-width: 900px) { .xdn-hint { display: none; } }
+  @media (max-width: 640px) { .xdn-brand { display: none; } .xdn { padding-left: 6px; } }
+</style>
+<script>
+  (function () {
+    var ORDER = ['index', 'A', 'B', 'C', 'D'];
+    var nav = document.currentScript.closest('.xdn') || document.querySelector('nav.xdn');
+    if (!nav) return;
+    var current = nav.getAttribute('data-draft');
+    nav.querySelectorAll('.xdn-item').forEach(function (a) {
+      if (a.getAttribute('data-key') === current) a.setAttribute('aria-current', 'page');
+    });
+    addEventListener('scroll', function () {
+      nav.classList.toggle('xdn-raised', scrollY > 8);
+    }, { passive: true });
+    addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      var el = document.activeElement;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      var i = ORDER.indexOf(current);
+      if (i < 0) return;
+      var next = e.key === 'ArrowRight' ? (i + 1) % ORDER.length : (i - 1 + ORDER.length) % ORDER.length;
+      var link = nav.querySelector('.xdn-item[data-key="' + ORDER[next] + '"]');
+      if (link) link.click();
+    });
+  })();
+</script>
+
+<div class="page">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.4" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" fill="#fff"/></svg>
+      </span>
+      몽글 <span class="dim">· UI 방향성 프로토타입</span>
+    </div>
+    <div class="top-meta">방향 A — 관계 궤도 <span class="sep"></span> 2026-07-29</div>
+  </header>
+
+  <main class="layout">
+
+    <!-- ==================== 설명 패널 ==================== -->
+    <aside class="panel">
+      <p class="eyebrow">방향 A — 관계 시각화 (거시 + 미시)</p>
+      <h1>사람을 시간의 궤도 위에<br>배치합니다</h1>
+      <p class="lead">관계 지도가 "누가 가깝고 누가 멀어졌는지"를 한눈에 말해줄 수 있을지 검증하는 인터랙티브 프로토타입이에요.</p>
+
+      <section class="block">
+        <h2 class="block-label">문제 정의</h2>
+        <p class="block-text">기존 오가닉 그래프는 <b>예쁘지만 의미가 없어요.</b> 누가 가깝고 누가 멀어졌는지 확인하려면 매번 줌과 팬을 해야 하고, 사람이 많아질수록 노드가 겹치고 묻혀서 기록을 남기기도 전에 사람부터 찾아야 합니다.</p>
+      </section>
+
+      <section class="block">
+        <h2 class="block-label">핵심 아이디어</h2>
+        <div class="idea-row">
+          <p class="block-text">'나'를 중심에 두고, 사람을 <b>최근 만남 시기에 맞는 동심원 링</b> 위에 놓아요. 링은 이번 달 · 이번 계절 · 올해 · 그 이전을 뜻하고, 위치 자체가 의미라 범례 없이 1초 만에 읽힙니다. 멀어진 관계는 사라지지 않고 <b>제 자리에서 옅게 쉬고</b>, 태그 필터는 숨기지 않고 흐려서 관계의 맥락을 지킵니다.</p>
+          <svg class="idea-fig" width="118" height="118" viewBox="0 0 118 118" fill="none" aria-hidden="true">
+            <circle cx="59" cy="59" r="20" stroke="#DDDDDF" stroke-width="1"/>
+            <circle cx="59" cy="59" r="37" stroke="#DDDDDF" stroke-width="1"/>
+            <circle cx="59" cy="59" r="54" stroke="#DDDDDF" stroke-width="1"/>
+            <path d="M 21.5 27 A 54 54 0 0 1 52 5.4" stroke="#C9C9CD" stroke-width="1.4" stroke-dasharray="2.5 5" stroke-linecap="round"/>
+            <circle cx="59" cy="59" r="7" fill="#26262B"/>
+            <circle cx="73" cy="45" r="5.5" fill="#F97316" opacity=".85"/>
+            <circle cx="38" cy="88" r="5.5" fill="#E85D75" opacity=".85"/>
+            <circle cx="96" cy="66" r="5.5" fill="#2563EB" opacity=".85"/>
+            <circle cx="24" cy="24" r="5.5" fill="#B0B0B5" opacity=".45"/>
+          </svg>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2 class="block-label">기대 개선</h2>
+        <ul class="gains">
+          <li><b>거시 — 줌 없이 1초 만에 읽히는 최근성.</b> 위치가 곧 정보가 되어 과밀 문제도 구조적으로 분산해요.</li>
+          <li><b>미시 — 지도에서 기록으로 한 번에.</b> 만남의 리듬, 함께한 감정, 액션 버튼이 관계 카드 한 장에 담겨요.</li>
+          <li><b>따뜻한 정책 — 지우지 않고 흐리기.</b> "조금 조용해진 관계예요"라는 서비스의 말투가 시각화에서도 그대로 이어져요.</li>
+        </ul>
+      </section>
+
+      <section class="block">
+        <h2 class="block-label">확인할 상태</h2>
+        <ol class="states" id="stateList">
+          <li data-state="empty"><span class="st-num">01</span><span class="st-body"><b>빈 상태</b><span>'나' 노드와 첫 사람 추가 CTA만 남아요</span></span></li>
+          <li data-state="normal"><span class="st-num">02</span><span class="st-body"><b>일반</b><span>15명이 4개의 최근성 링에 분포해요</span></span></li>
+          <li data-state="distant"><span class="st-num">03</span><span class="st-body"><b>멀어진 관계</b><span>조용해진 관계가 제 자리에서 옅게 쉬어요</span></span></li>
+          <li data-state="filter"><span class="st-num">04</span><span class="st-body"><b>태그 필터</b><span>선택한 태그만 또렷해지고 나머지는 흐려져요</span></span></li>
+        </ol>
+      </section>
+    </aside>
+
+    <!-- ==================== 스테이지 ==================== -->
+    <section class="stage">
+      <div class="switcher" id="switcher" role="group" aria-label="프로토타입 상태 전환">
+        <button data-state="empty">빈 상태</button>
+        <button data-state="normal" class="active">일반</button>
+        <button data-state="distant">멀어진 관계</button>
+        <button data-state="filter">태그 필터</button>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+
+          <!-- 상태바 -->
+          <div class="statusbar">
+            <span class="sb-time">9:41</span>
+            <span class="sb-island" aria-hidden="true"></span>
+            <svg width="50" height="14" viewBox="0 0 50 14" fill="none" aria-hidden="true">
+              <path d="M1.5 12.5v-3M6 12.5V7.5M10.5 12.5V5M15 12.5V2.5" stroke="#26262B" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M21.5 8.2a8.6 8.6 0 0 1 11 0M24.2 10.8a4.8 4.8 0 0 1 5.6 0" stroke="#26262B" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="27" cy="12.9" r="1.2" fill="#26262B"/>
+              <rect x="36.5" y="3" width="10.5" height="8.5" rx="2.4" stroke="#26262B" stroke-width="1.1" opacity=".45"/>
+              <rect x="38" y="4.5" width="6.2" height="5.5" rx="1.2" fill="#26262B"/>
+              <path d="M48.6 6.2v2.2" stroke="#26262B" stroke-width="1.4" stroke-linecap="round" opacity=".45"/>
+            </svg>
+          </div>
+
+          <!-- 앱 헤더 -->
+          <div class="apphead">
+            <div>
+              <h2>관계 지도</h2>
+              <p class="sub" id="headSub"><b>15명</b> · 최근 만남 기준</p>
+            </div>
+            <button class="icon-btn" id="btnList" aria-label="리스트뷰로 전환">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg>
+            </button>
+          </div>
+
+          <!-- 태그 칩 -->
+          <div class="chips" id="chips"></div>
+
+          <!-- 궤도 -->
+          <div class="orbit-wrap" id="orbitWrap">
+            <svg id="orbitSvg" viewBox="0 0 390 560" preserveAspectRatio="xMidYMid meet" aria-label="관계 궤도 그래프">
+              <g id="orbitRoot"></g>
+            </svg>
+            <div class="quiet-hint" id="quietHint">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.1 8.1 0 1 1 9.5 4a6.6 6.6 0 0 0 10.5 10.5z"/></svg>
+              옅어진 관계는 지금 조용한 자리에 쉬고 있어요
+            </div>
+            <div class="empty-ov" id="emptyOv">
+              <h3>첫 사람을 추가해 관계를 남겨보세요</h3>
+              <p>함께한 따뜻한 순간을 기록하면<br>관계 지도가 조금씩 채워져요</p>
+              <button class="btn btn-ink btn-sm" id="btnAddPerson">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                사람 추가하기
+              </button>
+            </div>
+          </div>
+
+          <!-- 하단 내비 -->
+          <nav class="nav">
+            <button class="nav-item on" id="navHome">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg>
+              <span>홈</span>
+            </button>
+            <button class="nav-item" id="navRecord">
+              <span class="fab">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              </span>
+              <span>기록</span>
+            </button>
+            <button class="nav-item" id="navMy">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c1.5-3.6 4-5.2 7-5.2s5.5 1.6 7 5.2"/></svg>
+              <span>마이</span>
+            </button>
+          </nav>
+          <div class="home-ind"></div>
+
+          <!-- 관계 카드 시트 -->
+          <div class="backdrop" id="backdrop"></div>
+          <section class="sheet" id="sheet" aria-label="관계 카드">
+            <div class="grabber"></div>
+            <div id="sheetBody"></div>
+          </section>
+
+          <div class="toast" id="toast"></div>
+        </div>
+      </div>
+
+      <p class="stage-note">화면의 데이터는 모두 예시입니다 · <kbd>1</kbd>–<kbd>4</kbd> 키로도 상태를 바꿀 수 있어요</p>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= 데이터 ================= */
+var TAGS = {
+  family:  {label:'가족',    c:'#E85D75', d:'#C73A57'},
+  friend:  {label:'친구',    c:'#F97316', d:'#C2410C'},
+  work:    {label:'회사 동료', c:'#2563EB', d:'#1D4ED8'},
+  study:   {label:'스터디',  c:'#22A06B', d:'#15803D'},
+  neighbor:{label:'이웃',    c:'#8B5CF6', d:'#6D28D9'}
+};
+var EMOTIONS = {
+  joy:      {label:'기쁨',  c:'#F59E0B'},
+  warmth:   {label:'따뜻함', c:'#E85D75'},
+  gratitude:{label:'고마움', c:'#22A06B'},
+  excitement:{label:'설렘',  c:'#2563EB'},
+  comfort:  {label:'편안함', c:'#14B8A6'},
+  pride:    {label:'자랑스러움', c:'#8B5CF6'}
+};
+/* rhythm: 지난 12개월 (인덱스 11 = 이번 달, 1 = 만난 달) */
+var PEOPLE = [
+  {id:'p1', name:'김도윤', tag:'friend',  ring:1, ang:32,  last:3,   rec:24, since:'3년',  emo:['joy','excitement'],        rhy:[0,1,1,0,1,1,1,0,1,1,1,1]},
+  {id:'p2', name:'이서연', tag:'family',  ring:1, ang:155, last:6,   rec:41, since:'29년', emo:['warmth','gratitude'],      rhy:[1,1,1,1,0,1,1,1,1,1,1,1]},
+  {id:'p3', name:'정해인', tag:'friend',  ring:1, ang:268, last:11,  rec:18, since:'5년',  emo:['joy','comfort'],           rhy:[0,0,1,1,1,0,1,1,0,1,1,1]},
+  {id:'p4', name:'박민준', tag:'work',    ring:2, ang:18,  last:26,  rec:12, since:'2년',  emo:['gratitude','pride'],       rhy:[1,1,1,1,1,1,0,1,1,1,1,0]},
+  {id:'p5', name:'한지아', tag:'study',   ring:2, ang:105, last:33,  rec:15, since:'1년',  emo:['excitement','pride'],      rhy:[1,1,1,0,1,1,1,1,0,1,1,0]},
+  {id:'p6', name:'윤재원', tag:'friend',  ring:2, ang:198, last:41,  rec:27, since:'8년',  emo:['joy','gratitude'],         rhy:[1,0,1,1,0,1,1,1,1,0,1,0]},
+  {id:'p7', name:'최수현', tag:'work',    ring:2, ang:292, last:52,  rec:9,  since:'2년',  emo:['comfort','pride'],         rhy:[0,1,1,1,1,1,0,1,0,1,0,0]},
+  {id:'p8', name:'임나래', tag:'neighbor',ring:3, ang:62,  last:96,  rec:7,  since:'4년',  emo:['warmth','comfort'],        rhy:[1,0,1,1,0,1,0,0,1,0,0,0]},
+  {id:'p9', name:'오세훈', tag:'friend',  ring:3, ang:148, last:124, rec:33, since:'12년', emo:['joy','excitement'],        rhy:[1,1,0,1,0,1,0,1,0,0,0,0]},
+  {id:'p10',name:'강다희', tag:'study',   ring:3, ang:236, last:151, rec:11, since:'1년',  emo:['pride','gratitude'],       rhy:[0,1,1,0,1,0,1,0,0,0,0,0]},
+  {id:'p11',name:'문가영', tag:'family',  ring:3, ang:322, last:178, rec:22, since:'21년', emo:['warmth','gratitude'],      rhy:[1,1,0,1,1,0,1,0,0,0,0,0]},
+  {id:'p12',name:'류진우', tag:'work',    ring:4, ang:22,  last:262, rec:6,  since:'3년',  emo:['comfort'],                 rhy:[0,1,1,1,0,0,0,0,0,0,0,0]},
+  {id:'p13',name:'황지민', tag:'friend',  ring:4, ang:138, last:305, rec:19, since:'10년', emo:['joy','warmth'],            rhy:[1,1,1,0,0,0,0,0,0,0,0,0], distant:true},
+  {id:'p14',name:'신동엽', tag:'neighbor',ring:4, ang:222, last:342, rec:4,  since:'6년',  emo:['comfort'],                 rhy:[1,1,0,0,0,0,0,0,0,0,0,0], distant:true},
+  {id:'p15',name:'홍예지', tag:'study',   ring:4, ang:318, last:398, rec:14, since:'2년',  emo:['excitement','pride'],      rhy:[1,0,0,0,0,0,0,0,0,0,0,0], distant:true}
+];
+var RINGS = [
+  {r:58,  label:'이번 달'},
+  {r:112, label:'이번 계절'},
+  {r:166, label:'올해'},
+  {r:220, label:'그 이전'}
+];
+var CX = 195, CY = 285;
+
+/* ================= 유틸 ================= */
+function rgba(hex, a){
+  var n = parseInt(hex.slice(1), 16);
+  return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
+}
+function polar(r, deg){
+  var a = (deg - 90) * Math.PI / 180;
+  return [CX + r * Math.cos(a), CY + r * Math.sin(a)];
+}
+function arcPath(r, a1, a2){
+  var p1 = polar(r, a1), p2 = polar(r, a2);
+  return 'M' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1) +
+         ' A' + r + ' ' + r + ' 0 0 1 ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+}
+function lastText(d){
+  if (d <= 60) return d + '일 전';
+  if (d < 365) return Math.round(d / 30.4) + '개월 전';
+  var y = Math.round(d / 365);
+  return '약 ' + y + '년 전';
+}
+function byId(id){
+  for (var i = 0; i < PEOPLE.length; i++) if (PEOPLE[i].id === id) return PEOPLE[i];
+  return null;
+}
+function $(s){ return document.querySelector(s); }
+
+/* ================= 상태 ================= */
+var ui = { state:'normal', tag:null };
+var toastTimer = null;
+var suppressClick = false;
+
+var orbitRoot = $('#orbitRoot'),
+    orbitSvg  = $('#orbitSvg'),
+    orbitWrap = $('#orbitWrap'),
+    chipsRow  = $('#chips'),
+    headSub   = $('#headSub'),
+    emptyOv   = $('#emptyOv'),
+    sheet     = $('#sheet'),
+    sheetBody = $('#sheetBody'),
+    backdrop  = $('#backdrop'),
+    toastEl   = $('#toast');
+
+/* ================= 토스트 ================= */
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 1900);
+}
+
+/* ================= 칩 ================= */
+function buildChips(){
+  var html = '<button class="chip" data-tag="all">전체</button>';
+  Object.keys(TAGS).forEach(function(k){
+    html += '<button class="chip" data-tag="' + k + '"><i style="background:' + TAGS[k].c + '"></i>' + TAGS[k].label + '</button>';
+  });
+  chipsRow.innerHTML = html;
+}
+function updateChips(){
+  var btns = chipsRow.querySelectorAll('.chip');
+  for (var i = 0; i < btns.length; i++){
+    var b = btns[i], k = b.getAttribute('data-tag');
+    b.style.background = ''; b.style.color = ''; b.style.borderColor = '';
+    if (k === 'all'){
+      if (!ui.tag){ b.style.background = 'var(--ink)'; b.style.color = '#fff'; b.style.borderColor = 'var(--ink)'; }
+    } else if (ui.tag === k){
+      var t = TAGS[k];
+      b.style.background = rgba(t.c, .12);
+      b.style.color = t.d;
+      b.style.borderColor = rgba(t.c, .35);
+    }
+  }
+}
+chipsRow.addEventListener('click', function(e){
+  var b = e.target.closest('.chip');
+  if (!b) return;
+  var k = b.getAttribute('data-tag');
+  ui.tag = (k === 'all' || ui.tag === k) ? null : k;
+  updateChips();
+  renderOrbit();
+});
+
+/* ================= 궤도 렌더 ================= */
+function renderOrbit(){
+  var parts = [];
+
+  /* 링 + 라벨 */
+  RINGS.forEach(function(rg, i){
+    parts.push('<circle class="ring" cx="' + CX + '" cy="' + CY + '" r="' + rg.r + '" style="animation-delay:' + (i * 55) + 'ms"/>');
+    parts.push('<text class="ring-label" x="' + CX + '" y="' + (CY - rg.r - 8) + '">' + rg.label + '</text>');
+  });
+
+  /* 멀어진 관계 — 점선 링 세그먼트 */
+  if (ui.state === 'distant'){
+    PEOPLE.forEach(function(p){
+      if (!p.distant) return;
+      var r = RINGS[p.ring - 1].r;
+      parts.push('<path class="quiet-arc" d="' + arcPath(r, p.ang - 16, p.ang + 16) + '"/>');
+    });
+  }
+
+  /* 나 노드 */
+  parts.push(
+    '<g class="me-node" transform="translate(' + CX + ' ' + CY + ')">' +
+      '<circle r="30" fill="#F7F7F8"/>' +
+      '<circle r="21" fill="#26262B"/>' +
+      '<text class="me-t" dy=".36em">나</text>' +
+    '</g>'
+  );
+
+  /* 사람 노드 */
+  if (ui.state !== 'empty'){
+    PEOPLE.forEach(function(p, i){
+      var pos = polar(RINGS[p.ring - 1].r, p.ang);
+      var t = TAGS[p.tag];
+      var cls = 'node';
+      if (ui.state === 'distant' && p.distant) cls += ' is-faded';
+      if (ui.tag && p.tag !== ui.tag) cls += ' is-dim';
+      var dur = (5.6 + (i % 5) * 0.8).toFixed(1);
+      var del = (-(i * 1.1) % 6).toFixed(1);
+      parts.push(
+        '<g class="' + cls + '" data-id="' + p.id + '" transform="translate(' + pos[0].toFixed(1) + ' ' + pos[1].toFixed(1) + ')">' +
+          '<g class="bob" style="animation-duration:' + dur + 's;animation-delay:' + del + 's">' +
+            '<circle class="hit" r="27"/>' +
+            '<g class="avatar-g">' +
+              '<circle r="18" fill="' + rgba(t.c, .13) + '"/>' +
+              '<text class="init" dy=".36em" fill="' + t.d + '">' + p.name.charAt(0) + '</text>' +
+            '</g>' +
+            '<text class="nname" y="34">' + p.name + '</text>' +
+          '</g>' +
+        '</g>'
+      );
+    });
+  }
+
+  orbitRoot.innerHTML = parts.join('');
+
+  /* 상태 전환 피드백: 살짝 페이드 */
+  orbitSvg.style.animation = 'none';
+  void orbitSvg.getBoundingClientRect();
+  orbitSvg.style.animation = '';
+}
+
+orbitSvg.addEventListener('click', function(e){
+  var n = e.target.closest('.node');
+  if (n){ openSheet(byId(n.getAttribute('data-id'))); return; }
+  if (e.target.closest('.me-node')) toast('관계 지도의 중심은 언제나 나예요');
+});
+
+/* ================= 관계 카드 시트 ================= */
+function openSheet(p){
+  if (!p) return;
+  var t = TAGS[p.tag];
+  var h = '';
+
+  h += '<div class="sh-head">' +
+         '<span class="sh-avatar" style="background:' + rgba(t.c, .13) + ';color:' + t.d + '">' + p.name.charAt(0) + '</span>' +
+         '<div class="sh-id">' +
+           '<div class="sh-name">' + p.name +
+             '<span class="sh-tagchip" style="background:' + rgba(t.c, .12) + ';color:' + t.d + '">' + t.label + '</span>' +
+           '</div>' +
+           '<div class="sh-sub">알고 지낸 ' + p.since + ' · 올해 ' + Math.max(1, Math.round(p.rec / 4)) + '번 만남</div>' +
+         '</div>' +
+         '<button class="sh-close" id="shClose" aria-label="닫기">' +
+           '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+         '</button>' +
+       '</div>';
+
+  if (ui.state === 'distant' && p.distant){
+    h += '<div class="quiet-note">' +
+           '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.1 8.1 0 1 1 9.5 4a6.6 6.6 0 0 0 10.5 10.5z"/></svg>' +
+           '<div><b>조금 조용해진 관계예요</b>' +
+           '<span>가벼운 안부 대신, 오늘의 마음을 기록으로 남겨보는 건 어떨까요?</span></div>' +
+         '</div>';
+  }
+
+  h += '<div class="sh-stats">' +
+         '<div class="stat"><span class="stat-k">마지막 만남</span><span class="stat-v">' + lastText(p.last) + '</span></div>' +
+         '<div class="stat"><span class="stat-k">함께한 기록</span><span class="stat-v">' + p.rec + '개</span></div>' +
+         '<div class="stat"><span class="stat-k">알고 지낸 시간</span><span class="stat-v">' + p.since + '</span></div>' +
+       '</div>';
+
+  var rhy = p.rhy.map(function(m, i){
+    if (!m) return '<span class="rh off"></span>';
+    var style = 'background:' + t.c + ';';
+    if (i === 11) style += 'box-shadow:0 0 0 3px ' + rgba(t.c, .16) + ';';
+    return '<span class="rh" style="' + style + '"></span>';
+  }).join('');
+  h += '<div class="sh-sec">' +
+         '<div class="sh-sec-label">최근 12개월 만남 리듬</div>' +
+         '<div class="rhythm">' + rhy + '</div>' +
+         '<div class="rhythm-cap"><span>12개월 전</span><span>이번 달</span></div>' +
+       '</div>';
+
+  var emos = p.emo.map(function(k){
+    var em = EMOTIONS[k];
+    return '<span class="emo"><i style="background:' + em.c + '"></i>' + em.label + '</span>';
+  }).join('');
+  h += '<div class="sh-sec">' +
+         '<div class="sh-sec-label">함께 나눈 감정</div>' +
+         '<div class="emo-row">' + emos + '</div>' +
+       '</div>';
+
+  h += '<div class="sh-actions">' +
+         '<button class="btn btn-ink" id="actRecord">기록 남기기</button>' +
+         '<button class="btn btn-line" id="actProfile">프로필 보기</button>' +
+       '</div>';
+
+  sheetBody.innerHTML = h;
+  sheet.scrollTop = 0;
+  sheet.classList.add('open');
+  backdrop.classList.add('open');
+
+  $('#shClose').addEventListener('click', closeSheet);
+  $('#actRecord').addEventListener('click', function(){ toast('기록 화면으로 이동해요 (데모)'); });
+  $('#actProfile').addEventListener('click', function(){ toast(p.name + '님의 프로필로 이동해요 (데모)'); });
+}
+function closeSheet(){
+  sheet.classList.remove('open');
+  backdrop.classList.remove('open');
+}
+backdrop.addEventListener('click', closeSheet);
+
+/* 시트 스와이프다운으로 닫기 */
+var dragging = false, startY = 0, dragY = 0;
+sheet.addEventListener('pointerdown', function(e){
+  if (!sheet.classList.contains('open')) return;
+  dragging = true; startY = e.clientY; dragY = 0;
+  sheet.style.transition = 'none';
+  try { sheet.setPointerCapture(e.pointerId); } catch(_) {}
+});
+sheet.addEventListener('pointermove', function(e){
+  if (!dragging) return;
+  dragY = Math.max(0, e.clientY - startY);
+  sheet.style.transform = 'translateY(' + dragY + 'px)';
+});
+function endDrag(){
+  if (!dragging) return;
+  dragging = false;
+  sheet.style.transition = '';
+  if (dragY > 90){
+    suppressClick = true;
+    closeSheet();
+  }
+  sheet.style.transform = '';
+  dragY = 0;
+}
+sheet.addEventListener('pointerup', endDrag);
+sheet.addEventListener('pointercancel', endDrag);
+sheet.addEventListener('click', function(e){
+  if (suppressClick){ e.stopPropagation(); suppressClick = false; }
+}, true);
+
+/* ================= 상태 스위처 ================= */
+function applyState(s){
+  ui.state = s;
+  ui.tag = (s === 'filter') ? 'family' : null;
+  closeSheet();
+
+  var sw = document.querySelectorAll('#switcher button');
+  for (var i = 0; i < sw.length; i++) sw[i].classList.toggle('active', sw[i].getAttribute('data-state') === s);
+  var sl = document.querySelectorAll('#stateList li');
+  for (var j = 0; j < sl.length; j++) sl[j].classList.toggle('active', sl[j].getAttribute('data-state') === s);
+
+  chipsRow.classList.toggle('hide', s === 'empty');
+  updateChips();
+  headSub.innerHTML = (s === 'empty')
+    ? '기록을 남길수록 지도가 채워져요'
+    : '<b>' + PEOPLE.length + '명</b> · 최근 만남 기준';
+  orbitWrap.classList.toggle('hint', s === 'distant');
+  emptyOv.classList.toggle('show', s === 'empty');
+  renderOrbit();
+}
+$('#switcher').addEventListener('click', function(e){
+  var b = e.target.closest('button');
+  if (b) applyState(b.getAttribute('data-state'));
+});
+$('#stateList').addEventListener('click', function(e){
+  var li = e.target.closest('li');
+  if (li) applyState(li.getAttribute('data-state'));
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape'){ closeSheet(); return; }
+  var map = {'1':'empty','2':'normal','3':'distant','4':'filter'};
+  if (map[e.key]) applyState(map[e.key]);
+});
+
+/* ================= 나머지 배선 ================= */
+$('#btnAddPerson').addEventListener('click', function(){ toast('사람 추가 화면으로 이동해요 (데모)'); });
+$('#btnList').addEventListener('click', function(){ toast('리스트뷰로 전환해요 (데모)'); });
+$('#navRecord').addEventListener('click', function(){ toast('새 기록을 시작해요 (데모)'); });
+$('#navMy').addEventListener('click', function(){ toast('마이페이지로 이동해요 (데모)'); });
+
+/* ================= 초기화 ================= */
+buildChips();
+applyState('normal');
+})();
+</script>
+</body>
+</html>

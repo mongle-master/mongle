@@ -1,0 +1,1198 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>몽글 — 방향 B · 터치 일기 (빠른 기록 프로토타입)</title>
+<style>
+  /* ─────────────────────────────  결 디자인 토큰  ───────────────────────────── */
+  :root {
+    --paper: #ffffff;
+    --ink: #26262b;
+    --ink-2: #4b4b50;
+    --muted-surface: #f7f7f8;
+    --muted-text: #8e8e93;
+    --hairline: #ebebec;
+    --page-bg: #f4f4f5;
+    --sans: -apple-system, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR', system-ui, sans-serif;
+    --shadow-e1: 0 1px 2px rgba(38, 38, 43, 0.05), 0 6px 20px rgba(38, 38, 43, 0.06);
+    --shadow-phone: 0 2px 8px rgba(38, 38, 43, 0.10), 0 32px 80px rgba(38, 38, 43, 0.18);
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--page-bg);
+    color: var(--ink);
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    min-height: 100vh;
+    padding: 48px 32px 96px;
+  }
+  button { font-family: inherit; border: 0; background: none; cursor: pointer; color: inherit; }
+  input { font-family: inherit; border: 0; outline: none; background: none; color: inherit; }
+  svg { display: block; }
+
+  .stage {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 56px;
+  }
+
+  /* ─────────────────────────────  설명 패널  ───────────────────────────── */
+  .panel { width: 420px; flex: none; position: sticky; top: 48px; }
+  .panel .eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.10em;
+    color: var(--muted-text); margin-bottom: 12px;
+  }
+  .panel h1 {
+    font-size: 28px; font-weight: 600; line-height: 1.35; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .panel .lede { font-size: 15px; color: var(--muted-text); margin-bottom: 8px; }
+  .panel .lede strong { color: var(--ink); font-weight: 600; }
+
+  .panel section { border-top: 1px solid var(--hairline); padding: 20px 0; }
+  .panel h2 {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    color: var(--muted-text); margin-bottom: 12px;
+  }
+  .panel p { font-size: 14px; color: var(--ink-2); }
+  .panel p + p { margin-top: 8px; }
+  .panel em { font-style: normal; font-weight: 600; color: var(--ink); }
+
+  .path { display: flex; gap: 12px; padding: 12px 0; }
+  .path + .path { border-top: 1px solid var(--hairline); }
+  .path-num {
+    flex: none; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--ink); color: #fff;
+    font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .path-body { font-size: 14px; color: var(--ink-2); }
+  .path-body strong { display: block; font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+
+  .gains { list-style: none; }
+  .gains li {
+    font-size: 14px; color: var(--ink-2);
+    padding: 7px 0 7px 20px; position: relative;
+  }
+  .gains li::before {
+    content: ''; position: absolute; left: 2px; top: 15px;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--ink);
+  }
+  .gains li strong { font-weight: 600; color: var(--ink); }
+
+  /* 밀도 범례 */
+  .legend { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .legend-row { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-2); }
+  .legend-sample { flex: none; width: 132px; display: flex; align-items: center; gap: 8px; }
+  .lg-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(38,38,43,0.35); flex: none; }
+  .lg-dot.emo { width: 8px; height: 8px; background: #f97316; }
+  .lg-card {
+    flex: none; width: 132px; border: 1px solid var(--hairline); border-radius: 8px;
+    background: #fff; padding: 6px 8px; font-size: 10px; line-height: 1.4; color: var(--muted-text);
+  }
+  .lg-card strong { display: block; font-size: 11px; font-weight: 600; color: var(--ink); }
+
+  /* 상태 목록(클릭 가능한 스위처) */
+  .states { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .state-btn {
+    width: 100%; text-align: left;
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 10px 14px; border-radius: 12px;
+    border: 1px solid var(--hairline); background: #fff;
+    transition: border-color 150ms var(--ease), background 150ms var(--ease);
+  }
+  .state-btn:hover { border-color: #d9d9db; }
+  .state-btn:active { transform: scale(0.99); }
+  .state-btn .n {
+    flex: none; font-size: 11px; font-weight: 600; color: var(--muted-text);
+    width: 14px;
+  }
+  .state-btn .t { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .state-btn .d { font-size: 12px; color: var(--muted-text); margin-left: auto; }
+  .state-btn.active { border-color: var(--ink); background: var(--muted-surface); }
+  .state-btn.active .n { color: var(--ink); }
+
+  .panel .foot {
+    border-top: 1px solid var(--hairline); padding-top: 16px;
+    font-size: 12px; color: var(--muted-text);
+  }
+
+  /* ─────────────────────────────  폰 스테이지  ───────────────────────────── */
+  .phone-col { flex: none; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+  .phone {
+    width: 390px; height: 844px;
+    border-radius: 56px; background: #17171a; padding: 10px;
+    box-shadow: var(--shadow-phone);
+    flex: none;
+  }
+  .screen {
+    position: relative; width: 100%; height: 100%;
+    border-radius: 46px; background: var(--paper);
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+
+  /* 상태바 + 다이나믹 아일랜드 */
+  .statusbar {
+    flex: none; height: 56px; position: relative;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 0 30px 8px;
+    font-size: 14px; font-weight: 600;
+  }
+  .island {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 122px; height: 34px; border-radius: 20px; background: #17171a;
+  }
+  .sb-right { display: flex; align-items: center; gap: 6px; color: var(--ink); }
+
+  /* 콘텐츠 */
+  .content {
+    flex: 1; overflow-y: auto; padding: 8px 16px 24px;
+    scrollbar-width: none;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  .view { display: none; }
+  .view.on { display: block; animation: viewIn 200ms var(--ease); }
+  @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* 홈 헤더 */
+  .greet { padding: 12px 4px 4px; }
+  .greet .date { font-size: 12px; color: var(--muted-text); margin-bottom: 4px; }
+  .greet h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.35; }
+  .greet h1 + p { font-size: 13px; color: var(--muted-text); margin-top: 2px; }
+
+  .sect-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 0 4px; margin: 24px 0 12px;
+  }
+  .sect-head h2 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .sect-head .hint { font-size: 12px; color: var(--muted-text); }
+  .sect-head .more { font-size: 13px; font-weight: 500; color: var(--ink); padding: 4px; margin-right: -4px; border-radius: 8px; }
+  .sect-head .more:active { background: var(--muted-surface); }
+
+  /* 최근 사람들 스트립 */
+  .strip {
+    display: flex; gap: 12px; overflow-x: auto; padding: 4px 4px 8px;
+    scrollbar-width: none; touch-action: pan-x;
+  }
+  .strip::-webkit-scrollbar { display: none; }
+  .person {
+    flex: none; width: 76px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  }
+  .avatar {
+    position: relative;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--muted-surface); border: 1px solid var(--hairline);
+    font-size: 17px; font-weight: 600; color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 150ms var(--ease), box-shadow 150ms var(--ease);
+  }
+  .avatar:active { transform: scale(0.93); }
+  .avatar.bump { animation: bump 300ms var(--ease); }
+  @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(0.9); } 100% { transform: scale(1); } }
+  .today-dot {
+    position: absolute; right: 1px; bottom: 1px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--ink); border: 2px solid #fff;
+  }
+  .person .name { font-size: 13px; color: var(--ink); line-height: 1.3; }
+  .write-btn {
+    font-size: 11px; font-weight: 500; color: var(--muted-text);
+    border: 1px solid var(--hairline); background: #fff;
+    border-radius: 999px; padding: 3px 10px;
+    transition: color 150ms var(--ease), border-color 150ms var(--ease), transform 150ms var(--ease);
+  }
+  .write-btn:active { transform: scale(0.94); color: var(--ink); border-color: #d9d9db; }
+
+  /* 빈 상태 */
+  .empty {
+    border: 1.5px dashed #dddde0; border-radius: 16px;
+    padding: 28px 16px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--muted-text);
+  }
+  .empty .ghosts { display: flex; gap: 8px; margin-bottom: 4px; }
+  .empty .ghost {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--muted-surface); border: 1px solid var(--hairline);
+  }
+  .empty .ghost:nth-child(2) { opacity: 0.65; }
+  .empty .ghost:nth-child(3) { opacity: 0.4; }
+  .empty strong { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+  .empty span { font-size: 12px; }
+
+  /* 기록 카드 — 세 밀도 */
+  .feed { display: flex; flex-direction: column; gap: 8px; }
+
+  .rec-stamp {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 6px;
+  }
+  .rec-stamp .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(38,38,43,0.32); flex: none; }
+  .rec-stamp .txt { font-size: 13px; color: var(--muted-text); }
+  .rec-stamp .txt strong { font-weight: 600; color: var(--ink-2); }
+  .rec-stamp .time { margin-left: auto; font-size: 11px; color: #b9b9bd; flex: none; }
+  .rec-stamp.fresh { animation: recIn 250ms var(--ease); }
+  @keyframes recIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+  .rec-sheet {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: #fff; border: 1px solid var(--hairline); border-radius: 12px;
+    padding: 12px 14px; box-shadow: var(--shadow-e1);
+  }
+  .rec-sheet .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; margin-top: 5px; }
+  .rec-sheet .line { font-size: 15px; line-height: 1.5; }
+  .rec-sheet .meta { font-size: 12px; color: var(--muted-text); margin-top: 2px; }
+
+  .rec-full {
+    background: #fff; border: 1px solid var(--hairline); border-radius: 16px;
+    padding: 16px; box-shadow: var(--shadow-e1);
+  }
+  .rec-full .title { font-size: 15px; font-weight: 600; line-height: 1.45; }
+  .rec-full .meta { font-size: 12px; color: var(--muted-text); margin-top: 3px; }
+  .rec-full .chips { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; font-weight: 500; border-radius: 999px; padding: 4px 10px;
+  }
+  .rec-full .photos { display: flex; gap: 8px; margin-top: 12px; }
+  .ph {
+    width: 64px; height: 64px; border-radius: 10px; background: var(--muted-surface);
+    border: 1px solid var(--hairline);
+    display: flex; align-items: center; justify-content: center; color: #c9c9cd;
+  }
+
+  .feed-empty {
+    text-align: center; padding: 32px 16px;
+    font-size: 13px; color: var(--muted-text);
+  }
+
+  /* 타임라인 탭 그룹 */
+  .group-head { font-size: 12px; font-weight: 600; color: var(--muted-text); padding: 16px 6px 8px; }
+  .group-head:first-child { padding-top: 8px; }
+
+  /* 하단 내비 */
+  .nav {
+    flex: none; position: relative;
+    border-top: 1px solid var(--hairline); background: #fff;
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    padding: 8px 8px 0; height: 86px;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    font-size: 11px; color: var(--muted-text); border-radius: 12px;
+    transition: color 150ms var(--ease);
+  }
+  .nav-item.on { color: var(--ink); }
+  .nav-item:active { transform: scale(0.94); }
+  .nav-plus { display: flex; align-items: flex-start; justify-content: center; padding-top: 2px; }
+  .nav-plus .fab {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--ink); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 16px rgba(38,38,43,0.28);
+    transform: translateY(-14px);
+    transition: transform 150ms var(--ease);
+  }
+  .nav-plus .fab:active { transform: translateY(-14px) scale(0.92); }
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px; background: var(--ink); opacity: 0.9;
+  }
+
+  /* ── 바텀시트 ── */
+  .backdrop {
+    position: absolute; inset: 0; z-index: 30;
+    background: rgba(38,38,43,0.34);
+    opacity: 0; pointer-events: none;
+    transition: opacity 200ms var(--ease);
+  }
+  .backdrop.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: #fff; border-radius: 24px 24px 0 0;
+    padding: 10px 20px 20px;
+    transform: translateY(105%);
+    transition: transform 250ms var(--ease);
+    max-height: 88%; overflow-y: auto; scrollbar-width: none;
+  }
+  .sheet::-webkit-scrollbar { display: none; }
+  .sheet.open { transform: translateY(0); }
+  .grabber { width: 36px; height: 4px; border-radius: 2px; background: #e2e2e4; margin: 2px auto 16px; }
+
+  .sheet-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .sheet-head .av {
+    width: 44px; height: 44px; border-radius: 50%; flex: none;
+    background: var(--muted-surface); border: 1px solid var(--hairline);
+    font-size: 15px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sheet-head .who { font-size: 16px; font-weight: 600; line-height: 1.3; }
+  .sheet-head .sub { font-size: 12px; color: var(--muted-text); }
+  .sheet-x {
+    margin-left: auto; width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted-text); transition: background 150ms var(--ease);
+  }
+  .sheet-x:active { background: var(--muted-surface); }
+
+  .sheet-label { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+  .sheet-label .opt { font-weight: 400; color: var(--muted-text); }
+
+  .emo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+  .emo {
+    height: 48px; border-radius: 999px;
+    font-size: 15px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: transform 150ms var(--ease), background 150ms var(--ease), box-shadow 150ms var(--ease);
+  }
+  .emo:active { transform: scale(0.95); }
+  .emo .sel-dot { width: 6px; height: 6px; border-radius: 50%; display: none; }
+  .emo.sel { font-weight: 600; }
+  .emo.sel .sel-dot { display: block; }
+
+  .line-input {
+    width: 100%; height: 44px; border-radius: 12px;
+    background: var(--muted-surface); padding: 0 14px;
+    font-size: 15px;
+    transition: box-shadow 150ms var(--ease);
+    margin-bottom: 16px;
+  }
+  .line-input::placeholder { color: #b9b9bd; }
+  .line-input:focus { box-shadow: inset 0 0 0 1px var(--ink); }
+
+  .expand-link {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; font-weight: 500; color: var(--muted-text);
+    padding: 6px 2px; margin-bottom: 12px;
+    transition: color 150ms var(--ease);
+  }
+  .expand-link:active { color: var(--ink); }
+  .expand-link svg { transition: transform 200ms var(--ease); }
+  .expand-link.open svg { transform: rotate(180deg); }
+
+  .form-hint {
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: max-height 250ms var(--ease), opacity 200ms var(--ease), margin 250ms var(--ease);
+    margin-bottom: 0;
+  }
+  .form-hint.open { max-height: 340px; opacity: 1; margin-bottom: 16px; }
+  .form-hint-card {
+    border: 1px solid var(--hairline); border-radius: 12px; background: var(--muted-surface);
+    padding: 4px 14px;
+  }
+  .fh-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 9px 0; font-size: 13px; color: var(--ink-2);
+  }
+  .fh-row + .fh-row { border-top: 1px solid var(--hairline); }
+  .fh-row span { font-size: 12px; color: var(--muted-text); }
+  .fh-note { font-size: 12px; color: var(--muted-text); padding: 10px 0; border-top: 1px solid var(--hairline); }
+
+  .save-btn {
+    width: 100%; height: 50px; border-radius: 999px;
+    background: var(--ink); color: #fff;
+    font-size: 16px; font-weight: 600;
+    transition: transform 150ms var(--ease), background 150ms var(--ease), color 150ms var(--ease);
+  }
+  .save-btn:active { transform: scale(0.98); }
+  .save-btn.off { background: var(--muted-surface); color: #b9b9bd; pointer-events: none; }
+
+  /* ── 토스트 ── */
+  .toast {
+    position: absolute; left: 16px; right: 16px; bottom: 100px; z-index: 50;
+    background: var(--ink); color: #fff; border-radius: 16px;
+    padding: 14px 16px 16px;
+    box-shadow: 0 12px 32px rgba(38,38,43,0.30);
+    opacity: 0; transform: translateY(12px); pointer-events: none;
+    transition: opacity 200ms var(--ease), transform 200ms var(--ease);
+  }
+  .toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .toast-body { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .toast-msg { font-size: 14px; font-weight: 500; }
+  .toast-undo {
+    flex: none; font-size: 14px; font-weight: 600; color: #fff;
+    background: rgba(255,255,255,0.16); border-radius: 999px; padding: 5px 12px;
+    transition: background 150ms var(--ease), transform 150ms var(--ease);
+  }
+  .toast-undo:active { transform: scale(0.94); background: rgba(255,255,255,0.28); }
+  .toast-bar { height: 2px; border-radius: 1px; background: rgba(255,255,255,0.22); margin-top: 12px; overflow: hidden; }
+  .toast-bar i { display: block; height: 100%; background: #fff; width: 100%; }
+  .toast-bar i.run { animation: shrink 5s linear forwards; }
+  @keyframes shrink { from { width: 100%; } to { width: 0%; } }
+
+  /* ── 폰 밖 스위처/힌트 ── */
+  .under {
+    width: 390px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .under .label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted-text); }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    font-size: 12px; font-weight: 500; color: var(--ink-2);
+    border: 1px solid var(--hairline); background: #fff; border-radius: 999px;
+    padding: 7px 12px;
+    transition: all 150ms var(--ease);
+  }
+  .pill:hover { border-color: #d9d9db; }
+  .pill:active { transform: scale(0.96); }
+  .pill.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .tip { font-size: 12px; color: var(--muted-text); }
+  .tip strong { font-weight: 600; color: var(--ink-2); }
+
+  @media (max-width: 1160px) {
+    .stage { flex-direction: column; align-items: center; gap: 40px; }
+    .panel { position: static; width: min(680px, 100%); }
+  }
+</style>
+</head>
+<body>
+<!-- [draft-nav] 시안 간 이동 — 자족 스니펫. xdn- 접두어로 페이지 스타일과 격리 -->
+<nav class="xdn" data-draft="B" aria-label="시안 간 이동">
+  <a class="xdn-brand" href="./index.html">
+    <span class="xdn-dots" aria-hidden="true"><i style="background:#e85d75"></i><i style="background:#f97316"></i><i style="background:#22a06b"></i></span>
+    몽글 UX 시안
+  </a>
+  <div class="xdn-items">
+    <a class="xdn-item" href="./index.html" data-key="index">개요</a>
+    <a class="xdn-item" href="./A-relation-orbit.html" data-key="A"><i style="--c:#f97316">A</i>궤도</a>
+    <a class="xdn-item" href="./B-quick-capture.html" data-key="B"><i style="--c:#e85d75">B</i>터치 일기</a>
+    <a class="xdn-item" href="./C-density-modes.html" data-key="C"><i style="--c:#22a06b">C</i>세 가지 방법</a>
+    <a class="xdn-item" href="./D-rhythm-quant.html" data-key="D"><i style="--c:#8b5cf6">D</i>리듬</a>
+  </div>
+  <span class="xdn-hint">← → 시안 이동</span>
+</nav>
+<style>
+  /* draft-nav 전용. 페이지마다 다른 상단 여백과 무관하게 항상 공간을 확보한다 */
+  body { padding-top: 56px; }
+  .xdn {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: 4px;
+    max-width: calc(100vw - 20px);
+    background: #ffffff; border: 1px solid #ebebec; border-radius: 999px;
+    padding: 5px 8px 5px 12px;
+    box-shadow: 0 4px 12px rgba(24, 24, 27, 0.07);
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR', system-ui, sans-serif;
+    animation: xdn-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
+    transition: box-shadow 0.25s ease;
+  }
+  .xdn.xdn-raised { box-shadow: 0 8px 18px rgba(24, 24, 27, 0.11); }
+  @keyframes xdn-in {
+    from { opacity: 0; transform: translate(-50%, -10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  .xdn-brand {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; letter-spacing: -0.01em;
+    color: #26262b; text-decoration: none; white-space: nowrap;
+    padding-right: 10px; border-right: 1px solid #ebebec; margin-right: 4px;
+  }
+  .xdn-dots { display: inline-flex; }
+  .xdn-dots i {
+    width: 8px; height: 8px; border-radius: 999px;
+    display: inline-block; margin-right: -3px; border: 1.5px solid #ffffff;
+  }
+  .xdn-items { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  .xdn-items::-webkit-scrollbar { display: none; }
+  .xdn-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; white-space: nowrap;
+    color: #26262b; text-decoration: none;
+    padding: 6px 11px; border-radius: 999px;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  }
+  .xdn-item:hover { background: #f7f7f8; }
+  .xdn-item:active { transform: scale(0.97); }
+  .xdn-item i {
+    font-style: normal; font-size: 10px; font-weight: 600;
+    width: 16px; height: 16px; border-radius: 6px;
+    display: inline-grid; place-items: center;
+    color: var(--c, #8e8e93);
+    background: #f2f2f3;
+    background: color-mix(in srgb, var(--c, #8e8e93) 13%, #ffffff);
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+  .xdn-item[aria-current] { background: #26262b; color: #ffffff; }
+  .xdn-item[aria-current]:hover { background: #26262b; }
+  .xdn-item[aria-current] i { background: #ffffff; color: #26262b; }
+  .xdn-hint {
+    font-size: 11px; color: #8e8e93; white-space: nowrap;
+    padding-left: 10px; border-left: 1px solid #ebebec; margin-left: 4px;
+  }
+  @media (max-width: 900px) { .xdn-hint { display: none; } }
+  @media (max-width: 640px) { .xdn-brand { display: none; } .xdn { padding-left: 6px; } }
+</style>
+<script>
+  (function () {
+    var ORDER = ['index', 'A', 'B', 'C', 'D'];
+    var nav = document.currentScript.closest('.xdn') || document.querySelector('nav.xdn');
+    if (!nav) return;
+    var current = nav.getAttribute('data-draft');
+    nav.querySelectorAll('.xdn-item').forEach(function (a) {
+      if (a.getAttribute('data-key') === current) a.setAttribute('aria-current', 'page');
+    });
+    addEventListener('scroll', function () {
+      nav.classList.toggle('xdn-raised', scrollY > 8);
+    }, { passive: true });
+    addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      var el = document.activeElement;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      var i = ORDER.indexOf(current);
+      if (i < 0) return;
+      var next = e.key === 'ArrowRight' ? (i + 1) % ORDER.length : (i - 1 + ORDER.length) % ORDER.length;
+      var link = nav.querySelector('.xdn-item[data-key="' + ORDER[next] + '"]');
+      if (link) link.click();
+    });
+  })();
+</script>
+
+
+<div class="stage">
+
+  <!-- ═══════════════ 설명 패널 ═══════════════ -->
+  <aside class="panel">
+    <div class="eyebrow">인터페이스 개선 방향 B · 빠른 기록</div>
+    <h1>터치 일기</h1>
+    <p class="lede">기록의 최소 단위를 <strong>'폼 채우기'에서 '얼굴 한 번 탭'</strong>으로 내린다. 폼은 확장의 자리지, 진입점이 아니다.</p>
+
+    <section>
+      <h2>문제 정의</h2>
+      <p>현재 기록 폼은 전 필드가 선택이어도 여섯 개 섹션의 <em>'폼'</em>이다. "방금 서연이랑 커피 마셨다"를 남기고 싶은 순간에 폼을 여는 사이, 그 순간은 지나간다. 최소 기록 단위가 너무 크다.</p>
+    </section>
+
+    <section>
+      <h2>핵심 아이디어 — 캡처 경로 두 갈래</h2>
+      <div class="path">
+        <div class="path-num">1</div>
+        <div class="path-body">
+          <strong>제로 입력 스탬프</strong>
+          홈의 '최근 사람들' 스트립에서 얼굴을 한 번 탭하면 즉시 "오늘 만났어요" 스탬프가 남는다. 시트조차 뜨지 않는다. 이미 남긴 날에는 "오늘 이미 남겼어요"로 응답한다.
+        </div>
+      </div>
+      <div class="path">
+        <div class="path-num">2</div>
+        <div class="path-body">
+          <strong>10초 시트</strong>
+          롱프레스(또는 '쓰기' 버튼)로 미니 시트를 연다. 감정 하나, 한 줄은 선택. 제목·카테고리·날짜 섹션은 없고 오늘과 만남으로 자동 저장된다.
+        </div>
+      </div>
+      <p style="margin-top:12px">'더 쓰고 싶어요' 링크가 기존 전체 폼으로 잇는다. <em>폼은 확장의 자리</em>다.</p>
+    </section>
+
+    <section>
+      <h2>기대 개선</h2>
+      <ul class="gains">
+        <li><strong>최소 기록 단위</strong> — 여섯 섹션 폼 → 얼굴 한 번 탭</li>
+        <li><strong>캡처 시간</strong> — 약 30초 → 1초(스탬프) / 10초(시트)</li>
+        <li><strong>세 기록 밀도</strong> — 점 · 한 줄 카드 · 전체 카드가 타임라인에서 각자의 무게를 갖는다</li>
+        <li><strong>묻지 않는 확인</strong> — 확인 모달 대신 5초 되돌리기. 앱은 질문을 던지지 않는다</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>타임라인 밀도 범례</h2>
+      <div class="legend">
+        <div class="legend-row"><div class="legend-sample"><span class="lg-dot"></span></div> 스탬프 — 작고 조용한 점 행</div>
+        <div class="legend-row"><div class="legend-sample"><span class="lg-dot emo"></span></div> 시트 — 감정 색 점 + 한 줄 카드</div>
+        <div class="legend-row"><div class="lg-card"><strong>제목이 있는 기록</strong>오늘 · 만남</div> 전체 — 기존 카드</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>상태 목록 — 클릭하면 폰에 반영</h2>
+      <ul class="states" id="panelStates"></ul>
+    </section>
+
+    <div class="foot">하드룰 준수 — 관계 점수화·서열화 표현 없음 · 이모지 아이콘 없음 · 디자인 언어 '결' (흰 종이, 먹색 타입, 따뜻한 악센트는 감정 칩으로만)</div>
+  </aside>
+
+  <!-- ═══════════════ 폰 + 스위처 ═══════════════ -->
+  <div class="phone-col">
+    <div class="phone">
+      <div class="screen" id="screen">
+
+        <div class="statusbar">
+          <span>9:41</span>
+          <div class="island"></div>
+          <span class="sb-right">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity="0.35"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><path d="M23 4v4c1.2-.3 2-1 2-2s-.8-1.7-2-2z" fill="currentColor" opacity="0.4"/></svg>
+          </span>
+        </div>
+
+        <div class="content">
+          <!-- 홈 뷰 -->
+          <div class="view on" id="viewHome">
+            <div class="greet">
+              <div class="date">7월 29일 수요일</div>
+              <h1>안녕하세요</h1>
+              <p>오늘은 누구와 함께했나요?</p>
+            </div>
+
+            <div class="sect-head">
+              <h2>최근 사람들</h2>
+              <span class="hint">한 번 탭하면 오늘이 남겨져요</span>
+            </div>
+            <div id="stripZone"></div>
+
+            <div class="sect-head">
+              <h2>최근 순간</h2>
+              <button class="more" data-goto-timeline>전체 보기</button>
+            </div>
+            <div class="feed" id="homeFeed"></div>
+          </div>
+
+          <!-- 타임라인 뷰 -->
+          <div class="view" id="viewTimeline">
+            <div class="greet">
+              <h1>타임라인</h1>
+              <p>남긴 순간들이 여기 쌓여요</p>
+            </div>
+            <div id="timelineFeed"></div>
+          </div>
+        </div>
+
+        <!-- 하단 내비 -->
+        <nav class="nav">
+          <button class="nav-item on" data-tab="home">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/></svg>
+            홈
+          </button>
+          <button class="nav-item" data-tab="timeline">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+            타임라인
+          </button>
+          <div class="nav-plus">
+            <button class="fab" data-fab aria-label="기록하기">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+          <button class="nav-item" data-soon>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.5"/><path d="M3.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><path d="M15.5 5.6a3.5 3.5 0 0 1 0 5.8M17.5 14.7c1.7.6 2.7 2 3 4.3"/></svg>
+            사람
+          </button>
+          <button class="nav-item" data-soon>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M19 7h1M4 12h1M9 12h11M4 17h6M14 17h6"/><circle cx="16" cy="7" r="2"/><circle cx="6.5" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></svg>
+            설정
+          </button>
+          <div class="home-indicator"></div>
+        </nav>
+
+        <!-- 바텀시트 -->
+        <div class="backdrop" id="backdrop"></div>
+        <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+
+        <!-- 토스트 -->
+        <div class="toast" id="toast" aria-live="polite"></div>
+
+      </div>
+    </div>
+
+    <div class="under">
+      <div class="label">상태 스위처</div>
+      <div class="pills" id="pills"></div>
+      <div class="tip"><strong>직접 해보기</strong> — 얼굴 탭 = 스탬프 · 얼굴 롱프레스(또는 '쓰기') = 감정 + 한 줄 시트</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ───────── 데이터 ───────── */
+  var EMOTIONS = [
+    { id: 'good',    name: '기분좋음', color: '#22A06B' },
+    { id: 'thank',   name: '고마움',   color: '#E85D75' },
+    { id: 'flutter', name: '설렘',     color: '#F97316' },
+    { id: 'calm',    name: '편안함',   color: '#0EA5E9' },
+    { id: 'tired',   name: '피곤함',   color: '#8B5CF6' },
+    { id: 'sorry',   name: '아쉬움',   color: '#D97706' }
+  ];
+  var PEOPLE = [
+    { id: 'p1', name: '이서연', initial: '서' },
+    { id: 'p2', name: '김도윤', initial: '도' },
+    { id: 'p3', name: '박민준', initial: '민' },
+    { id: 'p4', name: '한지아', initial: '지' },
+    { id: 'p5', name: '윤재원', initial: '재' }
+  ];
+
+  function seedRecords() {
+    return [
+      { id: 'r1', type: 'full', personId: 'p2', group: 'yesterday', dateLabel: '어제', time: '오후 7:20',
+        title: '성수동 커피 지도를 다 돌았다', emotions: ['good', 'calm'], photos: 2 },
+      { id: 'r2', type: 'sheet', personId: 'p4', group: 'earlier', dateLabel: '월요일', time: '오후 12:40',
+        emotion: 'flutter', line: '갑자기 만난 점심, 웃음이 많았다' },
+      { id: 'r3', type: 'full', personId: 'p5', group: 'earlier', dateLabel: '7월 24일', time: '',
+        title: '한강 러닝, 오랜만에 같이 뛰었다', emotions: ['good', 'tired'], photos: 0 }
+    ];
+  }
+
+  var state = {
+    tab: 'home',
+    empty: false,
+    records: seedRecords(),
+    sheet: { open: false, personId: null, emotion: null, line: '', more: false },
+    activePreset: 1
+  };
+
+  /* ───────── 헬퍼 ───────── */
+  function $(sel) { return document.querySelector(sel); }
+  function uid() { return 'r' + Math.random().toString(36).slice(2, 9); }
+  function person(id) { for (var i = 0; i < PEOPLE.length; i++) if (PEOPLE[i].id === id) return PEOPLE[i]; return null; }
+  function emo(id) { for (var i = 0; i < EMOTIONS.length; i++) if (EMOTIONS[i].id === id) return EMOTIONS[i]; return null; }
+  function alpha(hex, a) {
+    var n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+  function nowTime() {
+    var d = new Date(), h = d.getHours(), m = d.getMinutes();
+    var ap = h < 12 ? '오전' : '오후';
+    h = h % 12 || 12;
+    return ap + ' ' + h + ':' + (m < 10 ? '0' : '') + m;
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function stampedToday(pid) {
+    return state.records.some(function (r) { return r.type === 'stamp' && r.personId === pid; });
+  }
+  function todayDotColor(pid) {
+    for (var i = 0; i < state.records.length; i++) {
+      var r = state.records[i];
+      if (r.personId !== pid || r.group !== 'today') continue;
+      if (r.type === 'sheet') return emo(r.emotion).color;
+      if (r.type === 'stamp') return '#26262b';
+    }
+    return null;
+  }
+
+  /* ───────── 렌더: 스트립 ───────── */
+  function renderStrip() {
+    var zone = $('#stripZone');
+    if (state.empty) {
+      zone.innerHTML =
+        '<div class="empty">' +
+          '<div class="ghosts"><div class="ghost"></div><div class="ghost"></div><div class="ghost"></div></div>' +
+          '<strong>자주 함께하는 사람을 여기에 둘게요</strong>' +
+          '<span>순간을 남기면 사람들이 여기에 나타나요</span>' +
+        '</div>';
+      return;
+    }
+    var html = '<div class="strip" id="strip">';
+    PEOPLE.forEach(function (p) {
+      var dot = todayDotColor(p.id);
+      html +=
+        '<div class="person" data-person="' + p.id + '">' +
+          '<button class="avatar" data-stamp="' + p.id + '" aria-label="' + p.name + ' — 탭하면 오늘 스탬프">' +
+            esc(p.initial) +
+            (dot ? '<span class="today-dot" style="background:' + dot + '"></span>' : '') +
+          '</button>' +
+          '<div class="name">' + esc(p.name) + '</div>' +
+          '<button class="write-btn" data-sheet="' + p.id + '">쓰기</button>' +
+        '</div>';
+    });
+    html += '</div>';
+    zone.innerHTML = html;
+    bindStrip();
+  }
+
+  /* ───────── 렌더: 기록 카드 ───────── */
+  function recCard(r, fresh) {
+    var p = person(r.personId);
+    if (r.type === 'stamp') {
+      return '<div class="rec-stamp' + (fresh ? ' fresh' : '') + '">' +
+        '<span class="dot"></span>' +
+        '<span class="txt"><strong>' + esc(p.name) + '</strong>과 만남</span>' +
+        '<span class="time">' + esc(r.time) + '</span>' +
+      '</div>';
+    }
+    if (r.type === 'sheet') {
+      var e = emo(r.emotion);
+      var line = r.line ? esc(r.line) : e.name + '을 남겼어요';
+      var meta = esc(p.name) + '과 함께 · ' + e.name + ' · ' + esc(r.time);
+      return '<div class="rec-sheet' + (fresh ? ' fresh' : '') + '">' +
+        '<span class="dot" style="background:' + e.color + '"></span>' +
+        '<div><div class="line">' + line + '</div><div class="meta">' + meta + '</div></div>' +
+      '</div>';
+    }
+    var chips = (r.emotions || []).map(function (id) {
+      var em = emo(id);
+      return '<span class="chip" style="background:' + alpha(em.color, 0.12) + ';color:' + em.color + '">' + em.name + '</span>';
+    }).join('');
+    var photos = '';
+    if (r.photos > 0) {
+      var cam = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7.5" width="16" height="12" rx="2.5"/><path d="M9 7.5 10.2 5h3.6L15 7.5"/><circle cx="12" cy="13" r="3"/></svg>';
+      photos = '<div class="photos">';
+      for (var i = 0; i < r.photos; i++) photos += '<div class="ph">' + cam + '</div>';
+      photos += '</div>';
+    }
+    var timeBit = r.time ? ' · ' + esc(r.time) : '';
+    return '<div class="rec-full">' +
+      '<div class="title">' + esc(r.title) + '</div>' +
+      '<div class="meta">' + esc(r.dateLabel) + ' · 만남' + timeBit + '</div>' +
+      '<div class="chips">' + chips + '</div>' + photos +
+    '</div>';
+  }
+
+  function renderHomeFeed() {
+    var feed = $('#homeFeed');
+    if (state.empty || state.records.length === 0) {
+      feed.innerHTML = '<div class="feed-empty">첫 순간을 남기면 여기에 나타나요</div>';
+      return;
+    }
+    feed.innerHTML = state.records.slice(0, 4).map(function (r) {
+      return recCard(r, r.fresh);
+    }).join('');
+    state.records.forEach(function (r) { delete r.fresh; });
+  }
+
+  function renderTimelineFeed() {
+    var wrap = $('#timelineFeed');
+    if (state.empty || state.records.length === 0) {
+      wrap.innerHTML = '<div class="feed-empty">첫 순간을 남기면 여기에 나타나요</div>';
+      return;
+    }
+    var groups = [
+      { key: 'today', label: '오늘', items: [] },
+      { key: 'yesterday', label: '어제', items: [] },
+      { key: 'earlier', label: '이전', items: [] }
+    ];
+    state.records.forEach(function (r) {
+      var g = groups.filter(function (x) { return x.key === r.group; })[0];
+      if (g) g.items.push(r);
+    });
+    var html = '';
+    groups.forEach(function (g) {
+      if (!g.items.length) return;
+      html += '<div class="group-head">' + g.label + '</div><div class="feed">';
+      html += g.items.map(function (r) { return recCard(r, false); }).join('');
+      html += '</div>';
+    });
+    wrap.innerHTML = html;
+  }
+
+  function renderNav() {
+    document.querySelectorAll('.nav-item[data-tab]').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.tab === state.tab);
+    });
+    $('#viewHome').classList.toggle('on', state.tab === 'home');
+    $('#viewTimeline').classList.toggle('on', state.tab === 'timeline');
+  }
+
+  function render() {
+    renderStrip();
+    renderHomeFeed();
+    renderTimelineFeed();
+    renderNav();
+  }
+
+  /* ───────── 토스트 ───────── */
+  var toastTimer = null, countTimer = null;
+  function hideToast() {
+    $('#toast').classList.remove('show');
+    clearTimeout(toastTimer); clearInterval(countTimer);
+  }
+  function showToast(opts) {
+    hideToast();
+    var t = $('#toast');
+    if (opts.undoId) {
+      var left = 5;
+      t.innerHTML =
+        '<div class="toast-body"><span class="toast-msg">' + esc(opts.msg) + '</span>' +
+        '<button class="toast-undo" data-undo="' + opts.undoId + '">되돌리기 ' + left + '</button></div>' +
+        '<div class="toast-bar"><i class="run"></i></div>';
+      t.classList.add('show');
+      countTimer = setInterval(function () {
+        left -= 1;
+        var btn = t.querySelector('.toast-undo');
+        if (btn && left > 0) btn.textContent = '되돌리기 ' + left;
+      }, 1000);
+      toastTimer = setTimeout(hideToast, 5000);
+    } else {
+      t.innerHTML = '<div class="toast-body"><span class="toast-msg">' + esc(opts.msg) + '</span></div>';
+      t.classList.add('show');
+      toastTimer = setTimeout(hideToast, opts.ms || 2400);
+    }
+  }
+
+  /* ───────── 시트 ───────── */
+  function renderSheet() {
+    var s = state.sheet;
+    if (!s.personId) return;
+    var p = person(s.personId);
+    var emoHtml = EMOTIONS.map(function (e) {
+      var sel = s.emotion === e.id;
+      var style = sel
+        ? 'background:' + alpha(e.color, 0.18) + ';color:' + e.color + ';border:1.5px solid ' + alpha(e.color, 0.5) + ';box-shadow:0 2px 8px ' + alpha(e.color, 0.16)
+        : 'background:' + alpha(e.color, 0.09) + ';color:' + e.color + ';border:1px solid ' + alpha(e.color, 0.2);
+      return '<button class="emo' + (sel ? ' sel' : '') + '" data-emo="' + e.id + '" style="' + style + '">' +
+        '<span class="sel-dot" style="background:' + e.color + '"></span>' + e.name + '</button>';
+    }).join('');
+
+    $('#sheet').innerHTML =
+      '<div class="grabber"></div>' +
+      '<div class="sheet-head">' +
+        '<div class="av">' + esc(p.initial) + '</div>' +
+        '<div><div class="who">' + esc(p.name) + '과 함께</div><div class="sub">오늘 · 만남으로 자동 저장돼요</div></div>' +
+        '<button class="sheet-x" data-close aria-label="닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
+      '</div>' +
+      '<div class="sheet-label">어떤 기분이었나요?</div>' +
+      '<div class="emo-grid">' + emoHtml + '</div>' +
+      '<div class="sheet-label">한 줄 <span class="opt">· 선택</span></div>' +
+      '<input class="line-input" id="sheetLine" type="text" maxlength="60" placeholder="한 줄이면 충분해요" value="' + esc(s.line) + '" />' +
+      '<button class="expand-link' + (s.more ? ' open' : '') + '" data-more>' +
+        '더 쓰고 싶어요' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>' +
+      '</button>' +
+      '<div class="form-hint' + (s.more ? ' open' : '') + '">' +
+        '<div class="form-hint-card">' +
+          '<div class="fh-row">제목 <span>40자</span></div>' +
+          '<div class="fh-row">왜 만났나요 <span>100자</span></div>' +
+          '<div class="fh-row">무엇을 했나요 <span>100자</span></div>' +
+          '<div class="fh-row">날짜 · 시간 <span>오늘 자동</span></div>' +
+          '<div class="fh-row">날씨 · 카테고리 <span>선택</span></div>' +
+          '<div class="fh-row">사진 <span>최대 5장</span></div>' +
+          '<div class="fh-note">여기를 누르면 기존 전체 기록 폼이 열려요. (데모에서는 안내로만 표시해요)</div>' +
+        '</div>' +
+      '</div>' +
+      '<button class="save-btn' + (s.emotion ? '' : ' off') + '" data-save>남기기</button>';
+  }
+
+  function openSheet(pid, preset) {
+    state.sheet = {
+      open: true, personId: pid,
+      emotion: preset && preset.emotion ? preset.emotion : null,
+      line: preset && preset.line ? preset.line : '',
+      more: false
+    };
+    renderSheet();
+    $('#backdrop').classList.add('open');
+    $('#sheet').classList.add('open');
+  }
+  function closeSheet() {
+    $('#backdrop').classList.remove('open');
+    $('#sheet').classList.remove('open');
+    setTimeout(function () { if (!$('#sheet').classList.contains('open')) $('#sheet').innerHTML = ''; }, 280);
+    state.sheet.open = false;
+  }
+
+  /* ───────── 액션 ───────── */
+  function doStamp(pid) {
+    if (state.empty) return;
+    var p = person(pid);
+    if (stampedToday(pid)) {
+      showToast({ msg: p.name + '과는 오늘 이미 남겼어요' });
+      var av = document.querySelector('.avatar[data-stamp="' + pid + '"]');
+      if (av) { av.classList.remove('bump'); void av.offsetWidth; av.classList.add('bump'); }
+      return;
+    }
+    var rec = { id: uid(), type: 'stamp', personId: pid, group: 'today', dateLabel: '오늘', time: nowTime(), fresh: true };
+    state.records.unshift(rec);
+    render();
+    showToast({ msg: p.name + '과의 순간을 남겼어요', undoId: rec.id });
+  }
+
+  function saveSheetRecord() {
+    var s = state.sheet;
+    if (!s.emotion) return;
+    var p = person(s.personId);
+    var rec = {
+      id: uid(), type: 'sheet', personId: s.personId,
+      group: 'today', dateLabel: '오늘', time: nowTime(),
+      emotion: s.emotion, line: s.line.trim(), fresh: true
+    };
+    state.records.unshift(rec);
+    closeSheet();
+    if (state.tab !== 'home') setTab('home');
+    render();
+    showToast({ msg: p.name + '과의 순간을 남겼어요', undoId: rec.id });
+  }
+
+  function undo(recId) {
+    hideToast();
+    state.records = state.records.filter(function (r) { return r.id !== recId; });
+    render();
+    showToast({ msg: '방금 기록을 되돌렸어요' });
+  }
+
+  function setTab(tab) {
+    state.tab = tab;
+    renderNav();
+    $('.content').scrollTop = 0;
+  }
+
+  /* ───────── 스트립 이벤트 (탭 + 롱프레스) ───────── */
+  var lpTimer = null, lpFired = false;
+  function bindStrip() {
+    var strip = $('#strip');
+    if (!strip) return;
+
+    strip.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+    strip.addEventListener('pointerdown', function (e) {
+      var cell = e.target.closest('.person');
+      if (!cell) return;
+      lpFired = false;
+      var pid = cell.dataset.person;
+      clearTimeout(lpTimer);
+      lpTimer = setTimeout(function () {
+        lpFired = true;
+        openSheet(pid);
+      }, 500);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) {
+      strip.addEventListener(ev, function () { clearTimeout(lpTimer); });
+    });
+
+    strip.addEventListener('click', function (e) {
+      if (lpFired) { lpFired = false; return; }
+      var sheetBtn = e.target.closest('[data-sheet]');
+      if (sheetBtn) { openSheet(sheetBtn.dataset.sheet); return; }
+      var av = e.target.closest('[data-stamp]');
+      if (av) doStamp(av.dataset.stamp);
+    });
+  }
+
+  /* ───────── 시트/토스트/내비 이벤트 ───────── */
+  $('#sheet').addEventListener('click', function (e) {
+    var em = e.target.closest('[data-emo]');
+    if (em) {
+      state.sheet.emotion = (state.sheet.emotion === em.dataset.emo) ? null : em.dataset.emo;
+      renderSheet();
+      var inp = $('#sheetLine');
+      if (inp) { inp.focus({ preventScroll: true }); }
+      return;
+    }
+    if (e.target.closest('[data-close]')) { closeSheet(); return; }
+    if (e.target.closest('[data-save]')) { saveSheetRecord(); return; }
+    if (e.target.closest('[data-more]')) {
+      state.sheet.more = !state.sheet.more;
+      var link = $('#sheet [data-more]');
+      var hint = $('#sheet .form-hint');
+      link.classList.toggle('open', state.sheet.more);
+      hint.classList.toggle('open', state.sheet.more);
+    }
+  });
+  $('#sheet').addEventListener('input', function (e) {
+    if (e.target.id === 'sheetLine') {
+      state.sheet.line = e.target.value;
+      var btn = $('#sheet [data-save]');
+      if (btn) btn.classList.toggle('off', !state.sheet.emotion);
+    }
+  });
+  $('#backdrop').addEventListener('click', closeSheet);
+
+  $('#toast').addEventListener('click', function (e) {
+    var u = e.target.closest('[data-undo]');
+    if (u) undo(u.dataset.undo);
+  });
+
+  document.querySelector('.nav').addEventListener('click', function (e) {
+    var tab = e.target.closest('[data-tab]');
+    if (tab) { setTab(tab.dataset.tab); return; }
+    if (e.target.closest('[data-fab]')) {
+      showToast({ msg: '전체 기록 폼이 열리는 자리예요 — 데모는 빠른 기록에 집중해요' });
+      return;
+    }
+    if (e.target.closest('[data-soon]')) {
+      showToast({ msg: '이 데모에서는 담지 않은 화면이에요' });
+    }
+  });
+
+  document.querySelector('.content').addEventListener('click', function (e) {
+    if (e.target.closest('[data-goto-timeline]')) setTab('timeline');
+  });
+
+  /* ───────── 상태 스위처 ───────── */
+  var PRESETS = [
+    { n: 1, t: '스트립 일반',   d: '기본 홈' },
+    { n: 2, t: '스탬프 + 되돌리기', d: '얼굴 탭 직후' },
+    { n: 3, t: '시트 · 감정',   d: '고마움 선택' },
+    { n: 4, t: '시트 · 한 줄',  d: '한 줄까지 입력' },
+    { n: 5, t: '저장 후',       d: '세 밀도 타임라인' },
+    { n: 6, t: '빈 상태',       d: '최근 사람 없음' }
+  ];
+
+  function buildSwitchers() {
+    $('#pills').innerHTML = PRESETS.map(function (p) {
+      return '<button class="pill" data-preset="' + p.n + '">' + p.n + ' · ' + p.t + '</button>';
+    }).join('');
+    $('#panelStates').innerHTML = PRESETS.map(function (p) {
+      return '<li><button class="state-btn" data-preset="' + p.n + '">' +
+        '<span class="n">' + p.n + '</span><span class="t">' + p.t + '</span><span class="d">' + p.d + '</span>' +
+      '</button></li>';
+    }).join('');
+  }
+  function markPreset(n) {
+    state.activePreset = n;
+    document.querySelectorAll('[data-preset]').forEach(function (b) {
+      var on = Number(b.dataset.preset) === n;
+      b.classList.toggle('on', on);
+      b.classList.toggle('active', on);
+    });
+  }
+
+  function applyPreset(n) {
+    hideToast();
+    closeSheet();
+    state.empty = false;
+    state.records = seedRecords();
+    setTab('home');
+
+    if (n === 1) {
+      /* 기본 */
+    } else if (n === 2) {
+      var rec = { id: uid(), type: 'stamp', personId: 'p1', group: 'today', dateLabel: '오늘', time: nowTime(), fresh: true };
+      state.records.unshift(rec);
+      render();
+      markPreset(n);
+      showToast({ msg: '이서연과의 순간을 남겼어요', undoId: rec.id });
+      return;
+    } else if (n === 3) {
+      render();
+      markPreset(n);
+      openSheet('p1', { emotion: 'thank' });
+      return;
+    } else if (n === 4) {
+      render();
+      markPreset(n);
+      openSheet('p1', { emotion: 'thank', line: '커피 사줘서 고마웠어요' });
+      return;
+    } else if (n === 5) {
+      state.records.unshift({ id: uid(), type: 'stamp', personId: 'p3', group: 'today', dateLabel: '오늘', time: '오후 1:10' });
+      state.records.unshift({ id: uid(), type: 'sheet', personId: 'p1', group: 'today', dateLabel: '오늘', time: nowTime(), emotion: 'flutter', line: '커피 사줘서 고마웠어요' });
+    } else if (n === 6) {
+      state.empty = true;
+      state.records = [];
+    }
+    render();
+    markPreset(n);
+  }
+
+  document.body.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-preset]');
+    if (b) applyPreset(Number(b.dataset.preset));
+  });
+
+  /* ───────── 부트 ───────── */
+  buildSwitchers();
+  var hashPreset = (/#s([1-6])/.exec(location.hash) || [])[1];
+  applyPreset(hashPreset ? Number(hashPreset) : 1);
+})();
+</script>
+</body>
+</html>
