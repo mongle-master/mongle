@@ -19,6 +19,7 @@ object Messages {
 
     // 중복·개수
     const val DUPLICATE = "이미 있는 항목이에요."
+    const val DUPLICATE_BOND = "이미 이어진 사이예요."
     const val CATEGORY_REQUIRED = "카테고리는 최소 1개가 필요해요."
     const val SELECTION_LIMIT = "선택할 수 있는 최대 개수를 넘었어요."
 

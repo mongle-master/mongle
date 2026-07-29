@@ -32,6 +32,7 @@ class HomeService(
     private val personStatsService: PersonStatsService,
     private val eventRepository: EventRepository,
     private val personService: PersonService,
+    private val personBondService: PersonBondService,
     private val eventService: EventService,
     private val userRepository: UserRepository,
 ) {
@@ -40,6 +41,7 @@ class HomeService(
      * 노드 정렬은 즐겨찾기 먼저 → 이름순(그래프 표시 결정성). 관계 점수화·서열화가 아니다.
      * 친밀도(#41)는 그 인물 만남 고유 날짜(파생 스탯)로 판정하고, 멀어짐이면 엣지를 흐리게 표시하도록 내린다.
      * 관계태그 필터(#42)는 합집합(OR) — 하나라도 가진 인물을 남긴다(넓혀 보기). 빈 필터는 전체. 흐린 표시는 멀어짐 전용이라 섞지 않고, 조건 밖 인물은 아예 뺀다.
+     * 사이(인물↔인물)는 edges 와 다른 축이라 bonds 로 따로 낸다 — 흐린 표시가 없고, 노드로 남은 인물 쌍만 담는다.
      */
     fun relationMap(userId: UUID, filterTagChipIds: List<Long>): RelationMapResponse {
         val user = userRepository.findById(userId)
@@ -71,6 +73,8 @@ class HomeService(
             )
         }
         val edges = nodes.map { RelationEdge(personId = it.id, distant = it.intimacy.status == IntimacyStatus.DISTANT) }
+        // 사이는 노드가 확정된 뒤에 고른다 — 관계태그 필터로 빠진 인물이 한쪽 끝이면 그릴 수 없는 선이라 함께 뺀다.
+        val bonds = personBondService.bondsAmong(userId, nodes.mapTo(mutableSetOf()) { it.id })
         return RelationMapResponse(
             me = MeNode(
                 id = user.id,
@@ -80,6 +84,7 @@ class HomeService(
             ),
             nodes = nodes,
             edges = edges,
+            bonds = bonds,
         )
     }
 

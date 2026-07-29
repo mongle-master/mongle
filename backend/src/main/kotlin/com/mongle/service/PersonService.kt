@@ -34,6 +34,7 @@ class PersonService(
     private val eventRepository: EventRepository,
     private val personRelationTagRepository: PersonRelationTagRepository,
     private val eventPersonRepository: EventPersonRepository,
+    private val personBondService: PersonBondService,
 ) {
     @Transactional
     fun register(userId: UUID, request: PersonRequest): PersonResponse {
@@ -113,6 +114,9 @@ class PersonService(
             eventPersonRepository.deleteByEventIdAndPersonId(eventId, personId)
             if (eventPersonRepository.countByEventId(eventId) == 0L) event.softDelete()
         }
+        // 사이는 관계태그 행과 달리 함께 지운다 — 어떤 기록도 참조하지 않아 남길 이유가 없고,
+        // 한쪽 끝이 사라진 선은 그릴 수 없다(PRD 01 §11.5).
+        personBondService.deleteByPerson(personId)
         person.softDelete()
     }
 
