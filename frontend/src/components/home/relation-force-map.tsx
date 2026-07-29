@@ -790,13 +790,15 @@ function BondLayer({
     >
       {lines.map((line) => (
         <g key={line.id}>
+          {/* 배경 궤도선(가늘고 흐린 회색 점선)과 한눈에 갈리도록 굵고 진한 실선으로 둔다.
+              얇게 두면 장식선과 구분되지 않아 사이가 있는지조차 읽히지 않는다. */}
           <line
             x1={line.ax}
             y1={line.ay}
             x2={line.bx}
             y2={line.by}
-            className="stroke-primary/55"
-            strokeWidth="0.62"
+            className="stroke-primary"
+            strokeWidth="1.1"
             strokeLinecap="round"
           />
           {/* 잡는 동안에는 선을 눌러도 반응하지 않는다 — 놓을 자리를 고르는 중이다. */}
@@ -825,8 +827,8 @@ function BondLayer({
           y1={dragOrigin.y}
           x2={drag.x}
           y2={drag.y}
-          className="stroke-primary/75"
-          strokeWidth="0.62"
+          className="stroke-primary"
+          strokeWidth="1.1"
           strokeDasharray="1.8 1.8"
           strokeLinecap="round"
         />
