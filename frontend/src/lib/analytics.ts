@@ -9,6 +9,8 @@ export const featureEvents = {
   personUpdated: 'person_updated',
   personDeleted: 'person_deleted',
   personFavoriteToggled: 'person_favorite_toggled',
+  personBondConnected: 'person_bond_connected',
+  personBondDisconnected: 'person_bond_disconnected',
   peopleSearchUsed: 'people_search_used',
   peopleSortChanged: 'people_sort_changed',
   eventCreated: 'event_created',

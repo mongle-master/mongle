@@ -21,6 +21,8 @@ import type {
   GetPersonsParams,
   GetRelationMapParams,
   GetTimelineParams,
+  PersonBondRequest,
+  PersonBondResponse,
   PersonDetailResponse,
   PersonRequest,
   PersonResponse,
@@ -130,6 +132,21 @@ export const createPerson = (personRequest: BodyType<PersonRequest>) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: personRequest,
+  })
+}
+
+/**
+ * 서로 아는 두 인물을 잇는다. 방향이 없어 두 id 의 순서는 의미가 없고, 저장은 작은 id 가 앞에 오도록 눕혀진다. 같은 쌍을 반대 방향으로 다시 보내도 새로 만들지 않는다.
+ * @summary 사이 잇기
+ */
+export const createPersonBond = (
+  personBondRequest: BodyType<PersonBondRequest>,
+) => {
+  return kyAxiosAdapter<PersonBondResponse>({
+    url: `/api/v1/person-bonds`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: personBondRequest,
   })
 }
 
@@ -314,6 +331,17 @@ export const deleteCurrentUser = () => {
   return kyAxiosAdapter<void>({ url: `/api/v1/users/me`, method: 'DELETE' })
 }
 
+/**
+ * 사이를 끊는다. 두 사람의 기록은 지워지지 않으며, 다시 이으면 되돌아온다.
+ * @summary 사이 끊기
+ */
+export const deletePersonBond = (id: number) => {
+  return kyAxiosAdapter<void>({
+    url: `/api/v1/person-bonds/${id}`,
+    method: 'DELETE',
+  })
+}
+
 export type GetPersonResult = NonNullable<Awaited<ReturnType<typeof getPerson>>>
 export type UpdatePersonResult = NonNullable<
   Awaited<ReturnType<typeof updatePerson>>
@@ -331,6 +359,9 @@ export type GetPersonsResult = NonNullable<
 >
 export type CreatePersonResult = NonNullable<
   Awaited<ReturnType<typeof createPerson>>
+>
+export type CreatePersonBondResult = NonNullable<
+  Awaited<ReturnType<typeof createPersonBond>>
 >
 export type AuthorizeUploadResult = NonNullable<
   Awaited<ReturnType<typeof authorizeUpload>>
@@ -374,4 +405,7 @@ export type GetRelationMapResult = NonNullable<
 >
 export type DeleteCurrentUserResult = NonNullable<
   Awaited<ReturnType<typeof deleteCurrentUser>>
+>
+export type DeletePersonBondResult = NonNullable<
+  Awaited<ReturnType<typeof deletePersonBond>>
 >

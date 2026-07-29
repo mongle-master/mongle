@@ -253,6 +253,28 @@ export interface PersonRef {
 }
 
 /**
+ * 사이 잇기 요청. 두 id 의 순서는 의미가 없다(방향 없는 관계).
+ */
+export interface PersonBondRequest {
+  /** 이을 인물 id 하나. */
+  personAId: number
+  /** 이을 인물 id 다른 하나. */
+  personBId: number
+}
+
+/**
+ * 만들어진 사이. personAId < personBId 로 눕혀진 값이라 요청과 순서가 다를 수 있다.
+ */
+export interface PersonBondResponse {
+  /** 사이 id. */
+  id: number
+  /** 한쪽 인물 id(작은 쪽). */
+  personAId: number
+  /** 다른 쪽 인물 id(큰 쪽). */
+  personBId: number
+}
+
+/**
  * 칩 종류(카테고리·감정·날씨·관계태그).
  */
 export type ChipCreateRequestType =
@@ -626,6 +648,18 @@ export interface ThrowbackResponse {
 }
 
 /**
+ * 인물↔인물 '사이'. personAId < personBId 로 눕혀 내리며, id 로 끊기를 호출한다.
+ */
+export interface BondEdge {
+  /** 사이 id. 끊기(DELETE /api/v1/person-bonds/{id})에 쓴다. */
+  id: number
+  /** 한쪽 인물 id(작은 쪽). */
+  personAId: number
+  /** 다른 쪽 인물 id(큰 쪽). */
+  personBId: number
+}
+
+/**
  * 친밀도 판정 상태. UNKNOWN=주기를 알 수 없어 판정 보류(멀어짐 아님), NORMAL=정상, DISTANT=멀어짐.
  */
 export type IntimacyStatus =
@@ -747,7 +781,7 @@ export interface RelationEdge {
 }
 
 /**
- * 관계 지도 응답 — 중심 '나' 노드, 인물 노드, 나↔인물 연결선으로 그래프를 그린다.
+ * 관계 지도 응답 — 중심 '나' 노드, 인물 노드, 나↔인물 연결선, 인물↔인물 '사이'로 그래프를 그린다.
  */
 export interface RelationMapResponse {
   me: MeNode
@@ -755,6 +789,8 @@ export interface RelationMapResponse {
   nodes: PersonNode[]
   /** 나↔인물 연결선 목록. */
   edges: RelationEdge[]
+  /** 인물↔인물 '사이' 목록. 양쪽 끝이 모두 nodes 에 있는 것만 담는다. */
+  bonds: BondEdge[]
 }
 
 export type GetPersonsParams = {

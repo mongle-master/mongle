@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { RelationForceMap } from '@/components/home/relation-force-map'
 import type {
+  BondEdge,
   MeNode,
   PersonNode,
   RelationEdge,
@@ -85,6 +86,12 @@ const EDGES: RelationEdge[] = [
   { personId: 4, distant: false },
 ]
 
+// 사이(인물↔인물). personAId < personBId 로 눕혀져 내려온다.
+const BONDS: BondEdge[] = [
+  { id: 1, personAId: 2, personBId: 3 },
+  { id: 2, personAId: 1, personBId: 2 },
+]
+
 const meta = {
   title: 'Home/RelationForceMap',
   component: RelationForceMap,
@@ -93,7 +100,12 @@ const meta = {
     me: ME,
     nodes: NODES,
     edges: EDGES,
+    bonds: [],
     onSelectPerson: () => {},
+    onConnectBond: () => {},
+    onDisconnectBond: () => {},
+    onDuplicateBond: () => {},
+    bondPending: false,
   },
 } satisfies Meta<typeof RelationForceMap>
 
@@ -102,6 +114,13 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
+
+// 사이가 하나라도 있으면 배치가 두 겹으로 갈린다 — 이어진 1·2·3 은 안쪽, 아무와도 안 이어진 4 는 바깥 링.
+export const WithBonds: Story = {
+  args: {
+    bonds: BONDS,
+  },
+}
 
 export const SinglePerson: Story = {
   args: {
