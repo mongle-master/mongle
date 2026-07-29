@@ -9,7 +9,7 @@
 
 | 문서 | 담당 화면 | SSOT 범위 | 백엔드 |
 |---|---|---|---|
-| [01. 홈 · 관계 대시보드](./01-home-dashboard.md) | 7.1 | 그래프/리스트뷰, 태그 필터, 1년 전 오늘 플로팅, 하단 내비 | [home](https://github.com/mongle-master/mongle/labels/home) |
+| [01. 홈 · 관계 대시보드](./01-home-dashboard.md) | 7.1 | 그래프/리스트뷰, 태그 필터, 1년 전 오늘 플로팅, 하단 내비, `사이`(인물↔인물) | [home](https://github.com/mongle-master/mongle/labels/home) |
 | [02. 사람 (등록 · 프로필)](./02-person.md) | 7.2, 7.3 | 인물 등록/수정, 프로필 요약·취향·태그·통계, 즐겨찾기 | [person](https://github.com/mongle-master/mongle/labels/person) |
 | [03. 사람별 타임라인](./03-timeline.md) | 7.4 | 이벤트 타임블록, 활동 흐름 시각화, 카테고리 필터 | [timeline](https://github.com/mongle-master/mongle/labels/timeline) |
 | [04. 상황 기록 작성](./04-record.md) | 7.5 | 제목·왜·무엇을 + 감정·날씨·카테고리 칩, 연결할 사람, 저장→타임라인 반영 | [event](https://github.com/mongle-master/mongle/labels/event) |
@@ -46,6 +46,7 @@
 - 기록 작성은 감정·제목·왜/무엇을 등을 짧게 남기는 통합 입력으로 부담을 낮춘다(30초). → [04](./04-record.md)
 - `1년 전 오늘`에 해당하는 기록이 있을 때만 회고 플로팅을 띄운다. → [01](./01-home-dashboard.md#5-정책)
 - 즐겨찾기한 사람은 관계도 맵에서 시각적으로 구분한다. → [02](./02-person.md#5-즐겨찾기) · [01](./01-home-dashboard.md)
+- 서로 아는 두 사람을 `사이`로 이어, 나를 거치지 않는 관계까지 관계도 한 장에 담는다. → [01 §11](./01-home-dashboard.md#11-사이-인물인물)
 
 ## 4. 핵심 사용자
 
@@ -77,6 +78,7 @@
 - 즐겨찾기
 - 1년 전 오늘 기록 플로팅
 - 하단 내비게이션
+- `사이` — 서로 아는 두 인물 잇기·끊기
 
 ### 제외 또는 확장 후보
 
@@ -132,6 +134,7 @@
 | chip 제거 | 선택된 태그를 제거 | 2 | [01](./01-home-dashboard.md) |
 | 즐겨찾기 | 중요 인물을 저장하고 관계도에서 강조 | 2 | [02](./02-person.md) |
 | 1년 전 오늘 플로팅 | 해당 기록이 있을 때만 회고 카드 노출 | 2 | [01](./01-home-dashboard.md) |
+| 사이 (인물↔인물) | 서로 아는 두 사람을 끌어다 잇고, 선을 눌러 끊는다 | 2 | [01 §11](./01-home-dashboard.md#11-사이-인물인물) |
 | 활동 흐름 시각화 | 사람별 기록 흐름을 차트형 UI로 표시 | 3 | [03](./03-timeline.md) |
 | 프로필 수정 | 등록된 사람 정보 수정 | 3 | [02](./02-person.md) |
 
