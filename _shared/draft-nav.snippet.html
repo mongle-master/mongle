@@ -1,0 +1,101 @@
+<!-- [draft-nav] 시안 간 이동 — 자족 스니펫. xdn- 접두어로 페이지 스타일과 격리 -->
+<nav class="xdn" data-draft="@@KEY@@" aria-label="시안 간 이동">
+  <a class="xdn-brand" href="./index.html">
+    <span class="xdn-dots" aria-hidden="true"><i style="background:#e85d75"></i><i style="background:#f97316"></i><i style="background:#22a06b"></i></span>
+    몽글 UX 시안
+  </a>
+  <div class="xdn-items">
+    <a class="xdn-item" href="./index.html" data-key="index">개요</a>
+    <a class="xdn-item" href="./A-relation-orbit.html" data-key="A"><i style="--c:#f97316">A</i>궤도</a>
+    <a class="xdn-item" href="./B-quick-capture.html" data-key="B"><i style="--c:#e85d75">B</i>터치 일기</a>
+    <a class="xdn-item" href="./C-density-modes.html" data-key="C"><i style="--c:#22a06b">C</i>세 가지 방법</a>
+    <a class="xdn-item" href="./D-rhythm-quant.html" data-key="D"><i style="--c:#8b5cf6">D</i>리듬</a>
+  </div>
+  <span class="xdn-hint">← → 시안 이동</span>
+</nav>
+<style>
+  /* draft-nav 전용. 페이지마다 다른 상단 여백과 무관하게 항상 공간을 확보한다 */
+  body { padding-top: 56px; }
+  .xdn {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: 4px;
+    max-width: calc(100vw - 20px);
+    background: #ffffff; border: 1px solid #ebebec; border-radius: 999px;
+    padding: 5px 8px 5px 12px;
+    box-shadow: 0 4px 12px rgba(24, 24, 27, 0.07);
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR', system-ui, sans-serif;
+    animation: xdn-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
+    transition: box-shadow 0.25s ease;
+  }
+  .xdn.xdn-raised { box-shadow: 0 8px 18px rgba(24, 24, 27, 0.11); }
+  @keyframes xdn-in {
+    from { opacity: 0; transform: translate(-50%, -10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  .xdn-brand {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; letter-spacing: -0.01em;
+    color: #26262b; text-decoration: none; white-space: nowrap;
+    padding-right: 10px; border-right: 1px solid #ebebec; margin-right: 4px;
+  }
+  .xdn-dots { display: inline-flex; }
+  .xdn-dots i {
+    width: 8px; height: 8px; border-radius: 999px;
+    display: inline-block; margin-right: -3px; border: 1.5px solid #ffffff;
+  }
+  .xdn-items { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  .xdn-items::-webkit-scrollbar { display: none; }
+  .xdn-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; white-space: nowrap;
+    color: #26262b; text-decoration: none;
+    padding: 6px 11px; border-radius: 999px;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  }
+  .xdn-item:hover { background: #f7f7f8; }
+  .xdn-item:active { transform: scale(0.97); }
+  .xdn-item i {
+    font-style: normal; font-size: 10px; font-weight: 600;
+    width: 16px; height: 16px; border-radius: 6px;
+    display: inline-grid; place-items: center;
+    color: var(--c, #8e8e93);
+    background: #f2f2f3;
+    background: color-mix(in srgb, var(--c, #8e8e93) 13%, #ffffff);
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+  .xdn-item[aria-current] { background: #26262b; color: #ffffff; }
+  .xdn-item[aria-current]:hover { background: #26262b; }
+  .xdn-item[aria-current] i { background: #ffffff; color: #26262b; }
+  .xdn-hint {
+    font-size: 11px; color: #8e8e93; white-space: nowrap;
+    padding-left: 10px; border-left: 1px solid #ebebec; margin-left: 4px;
+  }
+  @media (max-width: 900px) { .xdn-hint { display: none; } }
+  @media (max-width: 640px) { .xdn-brand { display: none; } .xdn { padding-left: 6px; } }
+</style>
+<script>
+  (function () {
+    var ORDER = ['index', 'A', 'B', 'C', 'D'];
+    // 스크립트가 nav 밖(형제)에 주입되는 경우가 있어 둘 다 대응한다
+    var nav = document.currentScript.closest('.xdn') || document.querySelector('nav.xdn');
+    if (!nav) return;
+    var current = nav.getAttribute('data-draft');
+    nav.querySelectorAll('.xdn-item').forEach(function (a) {
+      if (a.getAttribute('data-key') === current) a.setAttribute('aria-current', 'page');
+    });
+    addEventListener('scroll', function () {
+      nav.classList.toggle('xdn-raised', scrollY > 8);
+    }, { passive: true });
+    addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      var el = document.activeElement;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      var i = ORDER.indexOf(current);
+      if (i < 0) return;
+      var next = e.key === 'ArrowRight' ? (i + 1) % ORDER.length : (i - 1 + ORDER.length) % ORDER.length;
+      var link = nav.querySelector('.xdn-item[data-key="' + ORDER[next] + '"]');
+      if (link) link.click();
+    });
+  })();
+</script>
