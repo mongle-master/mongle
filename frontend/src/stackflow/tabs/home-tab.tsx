@@ -1,7 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Clock3, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { homeQuery } from '@/apis/queries'
+import { personBondMutation } from '@/apis/mutations'
 import { cn } from '@/lib/utils'
 import { HomePeriodToggle } from '@/components/home/period-toggle'
 import { RelationForceMap } from '@/components/home/relation-force-map'
@@ -19,8 +20,12 @@ import type { HomePeriod } from '@/lib/home-period'
 import { featureEvents, trackFeature } from '@/lib/analytics'
 import { useAppFlow } from '@/stackflow/use-app-flow'
 
+// 사이 잇기·끊기 결과를 알리는 한 줄. 토스트 체계가 없어 지도 위에 잠깐 띄우고 스스로 사라진다.
+const BOND_NOTICE_MS = 2400
+
 export function HomeTab() {
   const { push } = useAppFlow()
+  const queryClient = useQueryClient()
   // 탭 마운트(첫 방문) 시 설정에 저장된 기본 기간으로 초기화. 탭에서 바꾼 값은 세션 동안 유지되고,
   // 설정 탭에서 기본 기간을 바꾸면 그 값으로 덮어쓴다(홈 탭은 hidden 유지라 리마운트되지 않음).
   const [period, setPeriod] = useState<HomePeriod>(() => getDefaultHomePeriod())
@@ -56,6 +61,50 @@ export function HomeTab() {
     [mapData?.edges, visibleNodeIds],
   )
 
+  // 기간 토글은 프론트에만 있는 필터라, 한쪽 끝이 걸러진 사이는 여기서 뺀다(백엔드는 관계태그 필터까지만 안다).
+  const visibleBonds = useMemo(
+    () =>
+      (mapData?.bonds ?? []).filter(
+        (b) =>
+          visibleNodeIds.has(b.personAId) && visibleNodeIds.has(b.personBId),
+      ),
+    [mapData?.bonds, visibleNodeIds],
+  )
+
+  const [bondNotice, setBondNotice] = useState<string | null>(null)
+  useEffect(() => {
+    if (!bondNotice) return
+    const timer = window.setTimeout(() => setBondNotice(null), BOND_NOTICE_MS)
+    return () => window.clearTimeout(timer)
+  }, [bondNotice])
+
+  const refreshMap = () =>
+    queryClient.invalidateQueries({ queryKey: homeQuery.allKey })
+
+  const connectBondMutation = useMutation({
+    ...personBondMutation.connect(),
+    onSuccess: () => {
+      void trackFeature(featureEvents.personBondConnected)
+      void refreshMap()
+    },
+    // 낙관적 반영을 하지 않으므로 되돌릴 것이 없다 — 지도는 서버 응답 그대로 남는다.
+    onError: () =>
+      setBondNotice('저장에 실패했어요. 잠시 후 다시 시도해 주세요.'),
+  })
+
+  const disconnectBondMutation = useMutation({
+    ...personBondMutation.disconnect(),
+    onSuccess: () => {
+      void trackFeature(featureEvents.personBondDisconnected)
+      void refreshMap()
+    },
+    onError: () =>
+      setBondNotice('저장에 실패했어요. 잠시 후 다시 시도해 주세요.'),
+  })
+
+  const bondPending =
+    connectBondMutation.isPending || disconnectBondMutation.isPending
+
   const handlePeriodChange = (next: HomePeriod) => {
     if (next === period) return
     setPeriod(next)
@@ -87,11 +136,37 @@ export function HomeTab() {
           me={mapData.me}
           nodes={graphNodes}
           edges={visibleEdges}
+          bonds={visibleBonds}
           onSelectPerson={(id) =>
             push('Person', { personId: String(id), view: 'timeline' })
           }
+          onConnectBond={(personAId, personBId) =>
+            connectBondMutation.mutate({ personAId, personBId })
+          }
+          onDisconnectBond={(bondId) => disconnectBondMutation.mutate(bondId)}
+          onDuplicateBond={() => setBondNotice('이미 이어진 사이예요.')}
+          bondPending={bondPending}
         />
       )}
+
+      {bondNotice ? (
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-x-4 z-50 flex justify-center',
+            // 회고 카드와 자리가 겹치므로, 카드가 떠 있으면 그 위로 올린다.
+            throwback && !throwbackDismissed
+              ? 'bottom-[12rem]'
+              : 'bottom-[6.25rem]',
+          )}
+        >
+          <p
+            role="status"
+            className="animate-in fade-in slide-in-from-bottom-2 rounded-full bg-foreground px-3.5 py-2 text-caption font-bold text-background shadow-e4 duration-200"
+          >
+            {bondNotice}
+          </p>
+        </div>
+      ) : null}
 
       {throwback && !throwbackDismissed ? (
         <div className="pointer-events-none absolute right-4 bottom-[6.25rem] left-4 z-40">

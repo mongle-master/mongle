@@ -6,12 +6,14 @@ import com.mongle.domain.Event
 import com.mongle.domain.EventEmotion
 import com.mongle.domain.EventPerson
 import com.mongle.domain.Person
+import com.mongle.domain.PersonBond
 import com.mongle.domain.PersonGender
 import com.mongle.domain.PersonRelationTag
 import com.mongle.repository.ChipRepository
 import com.mongle.repository.EventEmotionRepository
 import com.mongle.repository.EventPersonRepository
 import com.mongle.repository.EventRepository
+import com.mongle.repository.PersonBondRepository
 import com.mongle.repository.PersonRelationTagRepository
 import com.mongle.repository.PersonRepository
 import com.mongle.repository.UserRepository
@@ -38,6 +40,7 @@ class DemoDataSeeder(
     private val eventRepository: EventRepository,
     private val chipRepository: ChipRepository,
     private val personRelationTagRepository: PersonRelationTagRepository,
+    private val personBondRepository: PersonBondRepository,
     private val eventPersonRepository: EventPersonRepository,
     private val eventEmotionRepository: EventEmotionRepository,
 ) {
@@ -177,6 +180,13 @@ class DemoDataSeeder(
         seedEvent(ownerId, today.minusMonths(9), category["연락"]!!, null, listOf(junho.id!!), emotionIds(emotion, "그냥")) {
             memo = "협업 논의\n프로젝트 관련 메시지"
         }
+
+        // 사이 2건: 한 기록에 함께 등장하는 사람끼리 잇는다 — '같이 아는 사이'가 곧 사이의 뜻이라
+        // 시드 기록과 앞뒤가 맞는다. 준호는 아무와도 잇지 않아 '연결 없는 사람은 바깥쪽' 배치도 함께 보인다.
+        // 사이가 하나도 없으면 관계 지도가 예전과 똑같이 보여 기능이 있는지조차 알 수 없다.
+        personBondRepository.save(PersonBond(ownerId = ownerId, firstPersonId = seoyeon.id!!, secondPersonId = minji.id!!))
+        personBondRepository.save(PersonBond(ownerId = ownerId, firstPersonId = hajun.id!!, secondPersonId = yunseo.id!!))
+
         user.markDemoSeeded()
     }
 

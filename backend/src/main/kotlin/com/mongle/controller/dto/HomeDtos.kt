@@ -6,9 +6,10 @@ import java.util.UUID
 
 /**
  * 관계 지도(#40) 응답 — 프론트가 그래프로 그린다.
- * me = 중심 "나" 노드, nodes = 인물, edges = 나↔인물 연결. 인물 간 연결은 PRD 미정의라 만들지 않는다.
+ * me = 중심 "나" 노드, nodes = 인물, edges = 나↔인물 연결, bonds = 인물↔인물 '사이'.
+ * edges 와 bonds 는 다른 축이라 한 배열에 섞지 않는다 — 흐린 표시(distant)는 edges 에만 있는 개념이다.
  */
-@Schema(description = "관계 지도 응답 — 중심 '나' 노드, 인물 노드, 나↔인물 연결선으로 그래프를 그린다.")
+@Schema(description = "관계 지도 응답 — 중심 '나' 노드, 인물 노드, 나↔인물 연결선, 인물↔인물 '사이'로 그래프를 그린다.")
 data class RelationMapResponse(
     @field:Schema(description = "그래프 중심의 '나' 노드.")
     val me: MeNode,
@@ -16,6 +17,8 @@ data class RelationMapResponse(
     val nodes: List<PersonNode>,
     @field:Schema(description = "나↔인물 연결선 목록.")
     val edges: List<RelationEdge>,
+    @field:Schema(description = "인물↔인물 '사이' 목록. 양쪽 끝이 모두 nodes 에 있는 것만 담는다.")
+    val bonds: List<BondEdge>,
 )
 
 @Schema(description = "관계 지도 중심의 '나' 노드.")
@@ -68,6 +71,20 @@ data class RelationEdge(
     val personId: Long,
     @field:Schema(description = "멀어진 관계 여부.", example = "false")
     val distant: Boolean,
+)
+
+/**
+ * 인물↔인물 '사이'. 방향이 없어 personAId < personBId 로 눕혀 내린다(PersonBond).
+ * id 는 프론트가 끊기(DELETE)를 호출할 때 쓴다. distant 가 없는 것은 의도 — 흐린 표시는 나↔인물 전용이다.
+ */
+@Schema(description = "인물↔인물 '사이'. personAId < personBId 로 눕혀 내리며, id 로 끊기를 호출한다.")
+data class BondEdge(
+    @field:Schema(description = "사이 id. 끊기(DELETE /api/v1/person-bonds/{id})에 쓴다.", example = "5")
+    val id: Long,
+    @field:Schema(description = "한쪽 인물 id(작은 쪽).", example = "3")
+    val personAId: Long,
+    @field:Schema(description = "다른 쪽 인물 id(큰 쪽).", example = "9")
+    val personBId: Long,
 )
 
 /** 친밀도 판정 상태(#41). UNKNOWN=주기를 알 수 없어 판정 보류(멀어짐 아님). */

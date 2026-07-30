@@ -1,5 +1,6 @@
 import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import { optimizedImageUrl } from '@/lib/image-url'
 import { defaultPersonImageUrl } from '@/lib/default-person-image'
 import { formatPersonName } from '@/lib/format'
@@ -8,6 +9,40 @@ import type { RelationMapResponse } from '@/apis/generated/mongle-api.schemas'
 
 type RelationNode = RelationMapResponse['nodes'][number]
 type MeNode = RelationMapResponse['me']
+type BondEdge = RelationMapResponse['bonds'][number]
+
+/** 사이 선 한 줄 — 양 끝 좌표는 궤도 애니메이션이 움직인 뒤의 값이라 매 프레임 다시 계산된다. */
+type BondLine = BondEdge & {
+  ax: number
+  ay: number
+  bx: number
+  by: number
+}
+
+/** 잡고 있는 동안의 상태. targetId = 지금 놓으면 이어질 상대(없으면 null). */
+type BondDrag = {
+  pointerId: number
+  sourceId: number
+  x: number
+  y: number
+  targetId: number | null
+}
+
+type BondMenu = BondEdge & {
+  left: number
+  top: number
+}
+
+/** 인물 노드가 잡기 제스처를 화면 레이어로 되돌려 보내는 통로. 궤도 그래프에서만 넘긴다. */
+type BondDragHandlers = {
+  onPointerDown: (
+    event: ReactPointerEvent<HTMLElement>,
+    personId: number,
+  ) => void
+  onPointerMove: (event: ReactPointerEvent<HTMLElement>) => void
+  onPointerUp: (event: ReactPointerEvent<HTMLElement>) => void
+  onPointerCancel: () => void
+}
 
 type GraphPerson = RelationNode & {
   categoryLabel: string
@@ -26,6 +61,11 @@ type CategoryMeta = {
 }
 
 const GRAPH_COUNT = 3
+// 지도를 밀려는 손가락과 사람을 집으려는 손가락을 가르는 값. 이 시간을 버텨야 잡기로 친다(PRD 01 §11.2).
+const LONG_PRESS_MS = 320
+const LONG_PRESS_MOVE_TOLERANCE = 8
+// 사이 선은 얇아 그대로는 못 누른다 — 투명한 굵은 선을 겹쳐 손가락 크기의 히트 영역을 만든다(viewBox 100 기준).
+const BOND_HIT_STROKE = 4.2
 const PAN_THRESHOLD = 6
 const SWIPE_THRESHOLD = 42
 const SWIPE_VERTICAL_TOLERANCE = 1.35
@@ -58,13 +98,34 @@ export function RelationForceMap({
   me,
   nodes,
   edges: _edges,
+  bonds,
   onSelectPerson,
+  onConnectBond,
+  onDisconnectBond,
+  onDuplicateBond,
+  bondPending,
 }: {
   me: RelationMapResponse['me']
   nodes: RelationMapResponse['nodes']
   edges: RelationMapResponse['edges']
+  bonds: RelationMapResponse['bonds']
   onSelectPerson: (personId: number) => void
+  onConnectBond: (personAId: number, personBId: number) => void
+  onDisconnectBond: (bondId: number) => void
+  /** 이미 이어진 상대에 놓았을 때. 문구는 화면 레이어가 고른다. */
+  onDuplicateBond: () => void
+  bondPending: boolean
 }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const graphRef = useRef<HTMLDivElement>(null)
+  // 롱프레스 판정 중인 포인터. 잡기로 승격되면 비우고 drag 로 옮긴다.
+  const longPressRef = useRef<{
+    timer: number
+    pointerId: number
+    personId: number
+    startX: number
+    startY: number
+  } | null>(null)
   const pointerPositionsRef = useRef(
     new Map<number, { x: number; y: number }>(),
   )
@@ -80,10 +141,21 @@ export function RelationForceMap({
   const [activeGraphIndex, setActiveGraphIndex] = useState(0)
   const [orbitTime, setOrbitTime] = useState(0)
   const [viewport, setViewport] = useState({ scale: 1, x: 0, y: 0 })
+  const [drag, setDrag] = useState<BondDrag | null>(null)
+  const [menu, setMenu] = useState<BondMenu | null>(null)
   const categories = useMemo(() => buildCategories(nodes), [nodes])
+  const bondedIds = useMemo(
+    () => new Set(bonds.flatMap((bond) => [bond.personAId, bond.personBId])),
+    [bonds],
+  )
+  const bondPairKeys = useMemo(
+    () =>
+      new Set(bonds.map((bond) => bondPairKey(bond.personAId, bond.personBId))),
+    [bonds],
+  )
   const orbitPeople = useMemo(
-    () => buildOrbitPeople(nodes, categories),
-    [categories, nodes],
+    () => buildOrbitPeople(nodes, categories, bondedIds),
+    [bondedIds, categories, nodes],
   )
   const animatedOrbitPeople = useMemo(
     () => animateOrbitPeople(orbitPeople, orbitTime),
@@ -101,6 +173,151 @@ export function RelationForceMap({
     () => detailLevelForScale(viewport.scale),
     [viewport.scale],
   )
+
+  // 선을 노드 원 바깥에서 끊으려면 노드 지름(px)을 viewBox 단위로 환산해야 해서 실제 박스 폭이 필요하다.
+  const [graphWidth, setGraphWidth] = useState(0)
+  useEffect(() => {
+    const element = graphRef.current
+    if (!element) return
+    // 변형(scale)이 걸린 rect 가 아니라 원본 폭을 본다 — 좌표계는 변형 전 기준이다.
+    const measure = () => setGraphWidth(element.offsetWidth)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  const bondLines = useMemo(
+    () =>
+      buildBondLines(bonds, animatedOrbitPeople, viewport.scale, graphWidth),
+    [animatedOrbitPeople, bonds, graphWidth, viewport.scale],
+  )
+  const nameById = useMemo(
+    () => new Map(nodes.map((node) => [node.id, formatPersonName(node)])),
+    [nodes],
+  )
+  const isDragging = drag !== null
+  // 메뉴는 선 중간에 붙어 있어 궤도가 계속 돌면 앵커가 어긋난다. 잡는 동안·메뉴가 열린 동안은 궤도를 멈춘다.
+  const orbitFrozen = isDragging || menu !== null
+
+  const cancelLongPress = () => {
+    if (!longPressRef.current) return
+    window.clearTimeout(longPressRef.current.timer)
+    longPressRef.current = null
+  }
+
+  /** 화면 좌표 → 그래프 박스 안의 % 좌표. 박스에 회전이 없어 시각 rect 만으로 환산된다(줌·팬 포함). */
+  const toGraphPercent = (clientX: number, clientY: number) => {
+    const rect = graphRef.current?.getBoundingClientRect()
+    if (!rect || rect.width === 0 || rect.height === 0) return { x: 50, y: 50 }
+    return {
+      x: ((clientX - rect.left) / rect.width) * 100,
+      y: ((clientY - rect.top) / rect.height) * 100,
+    }
+  }
+
+  const handleNodePointerDown = (
+    event: ReactPointerEvent<HTMLElement>,
+    personId: number,
+  ) => {
+    if (event.button !== 0 || bondPending) return
+    // currentTarget 은 핸들러가 끝나면 비워지므로 타이머가 쓸 참조를 지금 붙잡아 둔다.
+    const element = event.currentTarget
+    const { pointerId, clientX, clientY } = event
+    cancelLongPress()
+    longPressRef.current = {
+      pointerId,
+      personId,
+      startX: clientX,
+      startY: clientY,
+      timer: window.setTimeout(() => {
+        longPressRef.current = null
+        element.setPointerCapture(pointerId)
+        // 잡기로 승격된 포인터는 클릭으로 이어지지 않는다 — 이으면서 그 사람 화면까지 열리면 안 된다.
+        suppressClickRef.current = true
+        setDrag({
+          pointerId,
+          sourceId: personId,
+          ...toGraphPercent(clientX, clientY),
+          targetId: null,
+        })
+      }, LONG_PRESS_MS),
+    }
+  }
+
+  const handleNodePointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    const pending = longPressRef.current
+    if (pending && pending.pointerId === event.pointerId) {
+      const moved = Math.hypot(
+        event.clientX - pending.startX,
+        event.clientY - pending.startY,
+      )
+      // 밀려는 의도를 잡기로 오해하지 않는다.
+      if (moved > LONG_PRESS_MOVE_TOLERANCE) cancelLongPress()
+      return
+    }
+
+    if (!drag || drag.pointerId !== event.pointerId) return
+    const point = toGraphPercent(event.clientX, event.clientY)
+    const hovered = personIdAtPoint(event.clientX, event.clientY)
+    setDrag((current) =>
+      current
+        ? {
+            ...current,
+            ...point,
+            targetId: hovered === current.sourceId ? null : hovered,
+          }
+        : current,
+    )
+  }
+
+  const handleNodePointerUp = (event: ReactPointerEvent<HTMLElement>) => {
+    cancelLongPress()
+    if (!drag || drag.pointerId !== event.pointerId) return
+
+    const dropped = personIdAtPoint(event.clientX, event.clientY)
+    setDrag(null)
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+
+    // 빈 곳·자기 자신에 놓으면 아무 일도 없다(PRD 01 §11.2).
+    if (dropped == null || dropped === drag.sourceId) return
+    if (bondPending) return
+    if (bondPairKeys.has(bondPairKey(drag.sourceId, dropped))) {
+      onDuplicateBond()
+      return
+    }
+    onConnectBond(drag.sourceId, dropped)
+  }
+
+  const handleNodePointerCancel = () => {
+    cancelLongPress()
+    setDrag(null)
+  }
+
+  /** 선 중점을 지도 컨테이너 기준 px 로 바꿔 메뉴를 붙인다(변형된 그래프 박스 밖에 띄워 줌에 딸려가지 않게). */
+  const openBondMenu = (line: BondLine) => {
+    const graphRect = graphRef.current?.getBoundingClientRect()
+    const containerRect = containerRef.current?.getBoundingClientRect()
+    if (!graphRect || !containerRect) return
+
+    const midX = (line.ax + line.bx) / 2
+    const midY = (line.ay + line.by) / 2
+    setMenu({
+      id: line.id,
+      personAId: line.personAId,
+      personBId: line.personBId,
+      left: clampWithin(
+        graphRect.left + (midX / 100) * graphRect.width - containerRect.left,
+        containerRect.width,
+      ),
+      top: clampWithin(
+        graphRect.top + (midY / 100) * graphRect.height - containerRect.top,
+        containerRect.height,
+      ),
+    })
+  }
 
   const resetViewport = () => setViewport({ scale: 1, x: 0, y: 0 })
   const zoomBy = (delta: number) =>
@@ -123,6 +340,7 @@ export function RelationForceMap({
 
   useEffect(() => {
     if (activeGraphIndex !== 0) return
+    if (orbitFrozen) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     let frameId = 0
@@ -140,7 +358,7 @@ export function RelationForceMap({
     frameId = window.requestAnimationFrame(animate)
 
     return () => window.cancelAnimationFrame(frameId)
-  }, [activeGraphIndex])
+  }, [activeGraphIndex, orbitFrozen])
 
   useEffect(() => {
     resetViewport()
@@ -148,14 +366,21 @@ export function RelationForceMap({
     activePointerRef.current = null
     pinchRef.current = null
     suppressClickRef.current = false
+    // cancelLongPress 는 ref 만 건드리므로 렌더마다 새로 만들어져도 안전하다(의존성에 넣지 않는다).
+    cancelLongPress()
+    setDrag(null)
+    setMenu(null)
   }, [activeGraphIndex])
 
   return (
     <div
+      ref={containerRef}
       className="relative mt-0 h-[480px] touch-pan-y overflow-hidden bg-background select-none"
       onPointerDown={(event) => {
         if (event.button !== 0) return
         if (isPersonNodeTarget(event.target)) return
+        // 잡고 있는 동안 두 번째 손가락이 핀치줌을 열지 못하게 막는다(PRD 01 §11.2 — 잡기가 지도 조작을 잠근다).
+        if (isDragging) return
 
         event.currentTarget.setPointerCapture(event.pointerId)
         pointerPositionsRef.current.set(event.pointerId, {
@@ -338,6 +563,7 @@ export function RelationForceMap({
       </div>
       <div className="flex h-full touch-none cursor-grab items-center justify-center pb-12 active:cursor-grabbing">
         <div
+          ref={graphRef}
           className="relative aspect-square w-full max-w-[600px] transition-transform duration-100 ease-out will-change-transform"
           style={{
             transform: `translate3d(${viewport.x}px, ${viewport.y}px, 0) scale(${viewport.scale})`,
@@ -351,6 +577,15 @@ export function RelationForceMap({
               detailLevel={nodeDetailLevel}
               viewportScale={viewport.scale}
               onPersonClick={openPersonTimeline}
+              bondLines={bondLines}
+              drag={drag}
+              onBondLineClick={openBondMenu}
+              bondHandlers={{
+                onPointerDown: handleNodePointerDown,
+                onPointerMove: handleNodePointerMove,
+                onPointerUp: handleNodePointerUp,
+                onPointerCancel: handleNodePointerCancel,
+              }}
             />
           ) : null}
           {activeGraphIndex === 1 ? (
@@ -400,6 +635,52 @@ export function RelationForceMap({
           ))}
         </div>
       </div>
+
+      {/* 사이를 하나라도 이으면 사라지는 안내 — 잇는 법이 드래그뿐이라 첫 사용자가 알 길이 없다(PRD 01 §6). */}
+      {activeGraphIndex === 0 && nodes.length >= 2 && bonds.length === 0 ? (
+        <p className="pointer-events-none absolute inset-x-4 bottom-[4.75rem] z-20 text-center text-caption font-medium text-muted-foreground">
+          사람을 꾹 눌러 다른 사람 위로 옮기면 사이를 이을 수 있어요.
+        </p>
+      ) : null}
+
+      {menu ? (
+        <>
+          {/* 메뉴 밖 아무 곳이나 누르면 닫힌다. 열려 있는 동안 지도 조작을 덮어 앵커가 어긋나지 않게 한다. */}
+          <button
+            type="button"
+            aria-label="메뉴 닫기"
+            className="absolute inset-0 z-40 cursor-default"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={() => setMenu(null)}
+          />
+          <div
+            role="menu"
+            className="absolute z-50 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-2 shadow-e4"
+            style={{ left: menu.left, top: menu.top }}
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <p
+              data-amp-mask
+              className="max-w-44 truncate px-1.5 pb-1.5 text-caption font-bold text-muted-foreground"
+            >
+              {nameById.get(menu.personAId) ?? '알 수 없음'} —{' '}
+              {nameById.get(menu.personBId) ?? '알 수 없음'}
+            </p>
+            <button
+              type="button"
+              role="menuitem"
+              disabled={bondPending}
+              className="w-full rounded-md px-2.5 py-1.5 text-left text-sm font-bold text-destructive transition-colors hover:bg-accent disabled:opacity-50"
+              onClick={() => {
+                setMenu(null)
+                onDisconnectBond(menu.id)
+              }}
+            >
+              사이 끊기
+            </button>
+          </div>
+        </>
+      ) : null}
     </div>
   )
 }
@@ -410,18 +691,35 @@ function OrbitGraph({
   detailLevel,
   viewportScale,
   onPersonClick,
+  bondLines,
+  drag,
+  onBondLineClick,
+  bondHandlers,
 }: {
   me: MeNode
   people: GraphPerson[]
   detailLevel: NodeDetailLevel
   viewportScale: number
   onPersonClick: (personId: number) => void
+  bondLines: BondLine[]
+  drag: BondDrag | null
+  onBondLineClick: (line: BondLine) => void
+  bondHandlers: BondDragHandlers
 }) {
   const imageSrc = meImageUrl(me)
+  const dragSource = drag
+    ? people.find((person) => person.id === drag.sourceId)
+    : undefined
 
   return (
     <>
       <OrbitBackground />
+      <BondLayer
+        lines={bondLines}
+        drag={drag}
+        dragOrigin={dragSource ? { x: dragSource.x, y: dragSource.y } : null}
+        onLineClick={onBondLineClick}
+      />
       <div className="absolute top-1/2 left-1/2 z-20 flex -translate-x-1/2 -translate-y-[38px] flex-col items-center">
         <div className="grid size-[76px] place-items-center rounded-full bg-background shadow-[0_0_0_1px_rgba(24,24,27,0.04),0_0_44px_rgba(255,198,109,0.58),0_0_82px_rgba(255,220,156,0.32)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_46px_rgba(255,198,109,0.34),0_0_84px_rgba(255,220,156,0.18)]">
           <img
@@ -455,9 +753,87 @@ function OrbitGraph({
           detailLevel={detailLevel}
           viewportScale={viewportScale}
           onClick={() => onPersonClick(person.id)}
+          bondHandlers={bondHandlers}
+          highlight={
+            drag?.sourceId === person.id
+              ? 'source'
+              : drag?.targetId === person.id
+                ? 'target'
+                : null
+          }
         />
       ))}
     </>
+  )
+}
+
+/**
+ * 사이 선 층. 얇은 실선 위에 투명한 굵은 선을 겹쳐 손가락으로 누를 수 있게 한다.
+ * 루트 svg 는 pointer-events 를 끄고 히트 선에서만 되살린다 — 지도 전체를 덮어 팬을 먹지 않게.
+ */
+function BondLayer({
+  lines,
+  drag,
+  dragOrigin,
+  onLineClick,
+}: {
+  lines: BondLine[]
+  drag: BondDrag | null
+  dragOrigin: { x: number; y: number } | null
+  onLineClick: (line: BondLine) => void
+}) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+      preserveAspectRatio="none"
+    >
+      {lines.map((line) => (
+        <g key={line.id}>
+          {/* 배경 궤도선(가늘고 흐린 회색 점선)과 한눈에 갈리도록 굵고 진한 실선으로 둔다.
+              얇게 두면 장식선과 구분되지 않아 사이가 있는지조차 읽히지 않는다. */}
+          <line
+            x1={line.ax}
+            y1={line.ay}
+            x2={line.bx}
+            y2={line.by}
+            className="stroke-primary"
+            strokeWidth="1.1"
+            strokeLinecap="round"
+          />
+          {/* 잡는 동안에는 선을 눌러도 반응하지 않는다 — 놓을 자리를 고르는 중이다. */}
+          {drag ? null : (
+            <line
+              x1={line.ax}
+              y1={line.ay}
+              x2={line.bx}
+              y2={line.by}
+              stroke="transparent"
+              strokeWidth={BOND_HIT_STROKE}
+              strokeLinecap="round"
+              pointerEvents="stroke"
+              className="cursor-pointer"
+              // 지도 컨테이너가 pointerdown에서 setPointerCapture를 걸면 click이 컨테이너로
+              // 리타게팅되어 이 onClick이 무시된다(줌 컨트롤·도트와 같은 함정).
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={() => onLineClick(line)}
+            />
+          )}
+        </g>
+      ))}
+      {drag && dragOrigin ? (
+        <line
+          x1={dragOrigin.x}
+          y1={dragOrigin.y}
+          x2={drag.x}
+          y2={drag.y}
+          className="stroke-primary"
+          strokeWidth="1.1"
+          strokeDasharray="1.8 1.8"
+          strokeLinecap="round"
+        />
+      ) : null}
+    </svg>
   )
 }
 
@@ -674,11 +1050,16 @@ function PersonNode({
   detailLevel,
   viewportScale,
   onClick,
+  bondHandlers,
+  highlight,
 }: {
   person: GraphPerson
   detailLevel: NodeDetailLevel
   viewportScale: number
   onClick: () => void
+  /** 없으면 잡기 제스처를 받지 않는다 — 궤도 그래프 밖에서는 사이를 잇지 않는다. */
+  bondHandlers?: BondDragHandlers
+  highlight?: 'source' | 'target' | null
 }) {
   const nodeSize = scaledPersonNodeSize(person.size, viewportScale)
   const showText = detailLevel !== 'compact'
@@ -689,17 +1070,39 @@ function PersonNode({
     <button
       type="button"
       data-person-node
+      data-person-id={person.id}
       onClick={onClick}
-      className="group absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center outline-none transition-transform duration-200 hover:z-40 hover:scale-[1.03] focus-visible:z-40"
+      onPointerDown={
+        bondHandlers
+          ? (event) => bondHandlers.onPointerDown(event, person.id)
+          : undefined
+      }
+      onPointerMove={bondHandlers?.onPointerMove}
+      onPointerUp={bondHandlers?.onPointerUp}
+      onPointerCancel={
+        bondHandlers ? () => bondHandlers.onPointerCancel() : undefined
+      }
+      // 버튼 상자를 아바타 크기로 못박는다. 이름표까지 상자에 넣으면 사람 하나가 제 크기의 두 배쯤 되는
+      // 사각형으로 주변을 덮어, 두 사람 사이에 그은 사이 선을 눌러도 노드가 먼저 먹는다(선을 끊을 수 없게 된다).
+      className={`group absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center outline-none transition-transform duration-200 hover:z-40 hover:scale-[1.03] focus-visible:z-40 ${
+        highlight ? 'z-40 scale-105' : ''
+      }`}
       style={{
         left: `${person.x}%`,
         top: `${person.y}%`,
-        width: showText ? `${nodeSize + 58}px` : `${nodeSize + 8}px`,
+        width: `${nodeSize}px`,
+        height: `${nodeSize}px`,
       }}
       aria-label={`${displayName} 상세`}
     >
       <span
-        className="relative grid place-items-center rounded-full border-[3px] bg-background shadow-e2 ring-1 ring-border"
+        className={`relative grid place-items-center rounded-full border-[3px] bg-background shadow-e2 ring-1 ring-border ${
+          highlight === 'target'
+            ? 'ring-[3px] ring-primary'
+            : highlight === 'source'
+              ? 'ring-2 ring-primary/60'
+              : ''
+        }`}
         style={{
           width: `${nodeSize}px`,
           height: `${nodeSize}px`,
@@ -709,6 +1112,9 @@ function PersonNode({
         <img
           src={person.imageSrc}
           alt={person.name}
+          // 이미지의 기본 드래그가 켜져 있으면 꾹 눌러 끄는 순간 네이티브 드래그가 시작되고,
+          // 브라우저가 pointercancel 을 쏘아 잡기가 통째로 취소된다.
+          draggable={false}
           className="size-[76%] rounded-full object-cover"
           onError={(event) => {
             const target = event.currentTarget
@@ -725,25 +1131,28 @@ function PersonNode({
           }
         />
       </span>
-      {showText ? (
-        <span
-          data-amp-mask
-          className="mt-1.5 flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-black text-foreground shadow-e1 backdrop-blur-sm"
-        >
-          <span className="min-w-0 truncate">{displayName}</span>
+      {/* 이름표는 상자 밖으로 띄우고 클릭을 받지 않는다 — 눌리는 곳은 아바타뿐이다(위 주석). */}
+      <span className="pointer-events-none absolute top-full left-1/2 mt-1.5 flex w-max max-w-[7.25rem] -translate-x-1/2 flex-col items-center">
+        {showText ? (
           <span
-            className="max-w-[3.4rem] shrink-0 truncate rounded-full px-1 py-0.5 text-[9px] font-extrabold text-white"
-            style={{ backgroundColor: person.color }}
+            data-amp-mask
+            className="flex max-w-full items-center gap-1 rounded-full bg-background/86 px-1.5 py-0.5 text-[12px] leading-none font-black text-foreground shadow-e1 backdrop-blur-sm"
           >
-            {person.categoryLabel}
+            <span className="min-w-0 truncate">{displayName}</span>
+            <span
+              className="max-w-[3.4rem] shrink-0 truncate rounded-full px-1 py-0.5 text-[9px] font-extrabold text-white"
+              style={{ backgroundColor: person.color }}
+            >
+              {person.categoryLabel}
+            </span>
           </span>
-        </span>
-      ) : null}
-      {showLastMeet && person.intimacy.daysSinceLastMeet != null ? (
-        <span className="mt-1 text-caption leading-none font-medium text-muted-foreground">
-          {formatDaysSinceLastMeet(person.intimacy.daysSinceLastMeet)}
-        </span>
-      ) : null}
+        ) : null}
+        {showLastMeet && person.intimacy.daysSinceLastMeet != null ? (
+          <span className="mt-1 text-caption leading-none font-medium text-muted-foreground">
+            {formatDaysSinceLastMeet(person.intimacy.daysSinceLastMeet)}
+          </span>
+        ) : null}
+      </span>
     </button>
   )
 }
@@ -751,11 +1160,14 @@ function PersonNode({
 function buildOrbitPeople(
   nodes: RelationNode[],
   categories: CategoryMeta[],
+  bondedIds: Set<number>,
 ): GraphPerson[] {
   const layout = layoutOrganicRelationMap(
     nodes.map((node) => ({
       id: node.id,
       recordCount: node.recordCount,
+      // 사이가 없는 사람은 바깥 링으로 밀린다(PRD 01 §11.4). 레이아웃이 판단 근거를 갖게 여기서 넘긴다.
+      bonded: bondedIds.has(node.id),
     })),
     ORBIT_CENTER.x,
     ORBIT_CENTER.y,
@@ -1012,6 +1424,77 @@ function pointerDistance(
 
 function isPersonNodeTarget(target: EventTarget | null) {
   return target instanceof Element && target.closest('[data-person-node]')
+}
+
+/** 방향 없는 쌍의 키. 서버 저장과 같은 규칙(작은 id 먼저)이라 어느 쪽에서 끌어도 같은 키가 된다. */
+function bondPairKey(first: number, second: number) {
+  return `${Math.min(first, second)}-${Math.max(first, second)}`
+}
+
+/**
+ * 사이를 화면 좌표를 가진 선으로 바꾼다.
+ * 양쪽 끝이 모두 지금 그려지는 노드일 때만 남긴다 — 기간 토글로 한쪽이 빠지면 허공에 뜬 선이 되기 때문
+ * (백엔드는 관계태그 필터만 알고, 기간 필터는 프론트에만 있다).
+ *
+ * 선은 노드 중심이 아니라 **원 바깥에서** 시작·끝난다. 중심까지 그으면 선의 상당 부분이 노드 밑에 깔리는데,
+ * 노드가 선보다 위에 있어 그 구간은 눌러도 반응하지 않는다 — 보이는 구간과 누를 수 있는 구간을 일치시킨다.
+ * 두 노드가 겹칠 만큼 붙어 있으면 그릴 여백이 없으므로 아예 내지 않는다(누를 수 없는 유령 히트 영역을 만들지 않는다).
+ */
+function buildBondLines(
+  bonds: BondEdge[],
+  people: GraphPerson[],
+  viewportScale: number,
+  graphWidth: number,
+): BondLine[] {
+  const positions = new Map(people.map((person) => [person.id, person]))
+  // 노드 크기는 px, 선 좌표는 viewBox 100 기준이라 환산이 필요하다. 폭을 아직 모르면 자르지 않는다.
+  const radiusUnits = (person: GraphPerson) =>
+    graphWidth > 0
+      ? ((scaledPersonNodeSize(person.size, viewportScale) / 2 + 2) /
+          graphWidth) *
+        100
+      : 0
+
+  return bonds.flatMap((bond) => {
+    const a = positions.get(bond.personAId)
+    const b = positions.get(bond.personBId)
+    if (!a || !b) return []
+
+    const dx = b.x - a.x
+    const dy = b.y - a.y
+    const length = Math.hypot(dx, dy)
+    const startTrim = radiusUnits(a)
+    const endTrim = radiusUnits(b)
+    if (length <= startTrim + endTrim) return []
+
+    const ux = dx / length
+    const uy = dy / length
+    return [
+      {
+        ...bond,
+        ax: a.x + ux * startTrim,
+        ay: a.y + uy * startTrim,
+        bx: b.x - ux * endTrim,
+        by: b.y - uy * endTrim,
+      },
+    ]
+  })
+}
+
+/** 손가락 아래에 있는 인물 노드의 id. 따라다니는 선이 pointer-events 를 갖지 않아야 정확하다. */
+function personIdAtPoint(clientX: number, clientY: number): number | null {
+  const element = document.elementFromPoint(clientX, clientY)
+  const node = element?.closest('[data-person-node]')
+  const raw = node?.getAttribute('data-person-id')
+  if (!raw) return null
+  const id = Number(raw)
+  return Number.isFinite(id) ? id : null
+}
+
+/** 메뉴가 지도 밖으로 새어 나가지 않게 컨테이너 안으로 당긴다. */
+function clampWithin(value: number, size: number) {
+  const margin = 72
+  return Math.min(Math.max(value, margin), Math.max(margin, size - margin))
 }
 
 function flowPathForPeople(people: GraphPerson[]) {

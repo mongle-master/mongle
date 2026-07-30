@@ -9,7 +9,7 @@
 
 - `GET /api/v1/home/relation-map` — 내 소유·active 인물만 대상. 응답 = `me`(사용자 UUID·이름·프로필 사진·성별 힌트를 가진 중심 노드) + `nodes`(인물) + `edges`(나↔인물).
 - **노드** = 인물: id·이름·프로필 사진·즐겨찾기·관계태그(id+라벨)·친밀도(#41). 관계태그 라벨은 칩 id 로 해석(소프트삭제 칩도 라벨 유지, [00-infra](00-infra.md)).
-- **엣지** = 나↔각 인물 1개씩. 인물 간 연결은 PRD 미정의라 만들지 않는다. `distant` = 그 인물이 멀어진 관계인지(#41).
+- **엣지** = 나↔각 인물 1개씩. `distant` = 그 인물이 멀어진 관계인지(#41). 인물↔인물 연결은 별도 축(`bonds`)으로 내린다 — 아래 `사이` 절.
 - **노드 정렬:** 즐겨찾기 먼저 → 이름 가나다(대소문자 무시) → id 오름차순(동명이인 타이브레이커). 그래프 표시 결정성을 위한 것(관계 점수화·서열화 아님).
 - **콜드스타트(인물 0명):** `nodes`·`edges` 빈 배열, `me` 만. (필터·회고는 프론트가 미노출.)
 
@@ -27,6 +27,23 @@
 - `GET /api/v1/home/relation-map?relationTagChipIds=1&relationTagChipIds=2` — 관계태그 chipId **다중 필터**.
 - **합집합(OR):** 인물의 관계태그 중 **하나라도** 필터에 들면 포함(좁히기 아니라 넓혀 보기, PRD §5).
 - **빈 필터 = 전체.** 필터로 빠진 인물은 노드·엣지에서 **제외**(숨김 — 흐린 표시는 멀어진 관계 전용이라 섞지 않는다).
+
+## 사이 — 인물↔인물 (must)
+
+> 근거: PRD [01-home §11](../../../docs/prd/01-home-dashboard.md#11-사이-인물인물). `나↔인물`(edges)과 **다른 축**이라 한 배열에 섞지 않는다.
+
+- **저장 정규화:** 한 쌍은 언제나 `personAId < personBId` 로 눕혀 저장한다. 드래그 방향(A→B / B→A)이 달라도 같은 한 행이 되어, 방향 없는 개념이 저장 단계에서 강제된다.
+- **유일성:** `(ownerId, personAId, personBId)` 유니크. 같은 쌍을 다시 이으면 새 행을 만들지 않고 **409 `DUPLICATE`** + 문구 `"이미 이어진 사이예요."`(기본 문구 override).
+- **자기 자신 금지:** `personAId == personBId` 면 **400 `INVALID_INPUT`**. 정규화 이전에 검사한다(정규화하면 두 값이 같은지가 가려지지 않지만, 순서 판정 전에 걸러야 min/max 가 의미를 갖는다).
+- **소유 검증:** 두 인물이 **모두** 내 소유·active 여야 한다. 하나라도 아니면 **404 `NOT_FOUND`** — 남의 인물이 존재하는지 여부를 응답으로 알려주지 않기 위해 403 이 아니라 404 다.
+- **개수 상한 없음:** 한 인물이 몇 개의 사이를 갖든 막지 않는다(PRD §11.1). 과밀은 프론트의 리스트 권유로 다룬다.
+- **끊기:** `DELETE /api/v1/person-bonds/{id}` — 내 소유 행만, 없으면 404. **하드삭제**(조인 엔티티 기본, 컨벤션 §1).
+- **인물 삭제 시:** 인물을 소프트삭제하면 그 인물에게 걸린 사이 행을 **하드삭제**한다. 관계태그 행(`PersonRelationTag`)을 남기는 것과 **다르다** — 관계태그는 과거 기록의 라벨을 해석하는 데 쓰여 남겨야 하지만, 사이는 어떤 기록도 참조하지 않아 남길 이유가 없고 PRD §11.5 가 "함께 사라진다"로 확정했다.
+- **응답 축:** 관계 지도 응답에 `bonds`(id·personAId·personBId)를 싣는다. `id` 는 프론트가 끊기를 호출할 때 쓴다.
+- **필터와의 상호작용:** 관계태그 필터로 **노드에서 빠진 인물이 한쪽 끝이면 그 사이도 내리지 않는다.** 한쪽 끝이 없는 선은 그릴 수 없기 때문(PRD §5). 즉 `bonds` 는 항상 `nodes` 안의 인물 쌍만 담는다.
+- **멀어진 관계와 무관:** 사이에는 `distant` 가 없다. 흐린 표시는 나↔인물 전용(PRD §5).
+- **정렬:** `personAId` → `personBId` 오름차순. 조회마다 순서가 흔들리지 않게(표시 결정성, 노드 정렬과 동일 취지).
+- **콜드스타트:** 인물 0명이면 `bonds` 빈 배열.
 
 ## 1년 전 오늘 회고 (must, #43)
 
@@ -47,6 +64,15 @@
 | 평균 주기 30일·마지막 만남 40일 전 | (관계 지도) | status = NORMAL (40 ≤ 60) |
 | 태그 A·B 다중 선택 | ?relationTagChipIds=A&relationTagChipIds=B | A 또는 B 가진 인물 모두(OR) |
 | 태그 필터 결과 0명 | (관계 지도) | 200, nodes·edges 빈 배열 |
+| 사이 잇기 | POST /api/v1/person-bonds `{personAId:9, personBId:3}` | 201, 저장은 `(3, 9)` 로 정규화 |
+| 반대 방향으로 다시 잇기 | POST `{personAId:3, personBId:9}` | 409 `DUPLICATE` "이미 이어진 사이예요." |
+| 자기 자신과 잇기 | POST `{personAId:3, personBId:3}` | 400 `INVALID_INPUT` |
+| 남의 인물·없는 인물과 잇기 | POST `{personAId:3, personBId:999}` | 404 `NOT_FOUND` |
+| 사이 끊기 | DELETE /api/v1/person-bonds/{id} | 204, 행 하드삭제 |
+| 없는 사이 끊기 | DELETE /api/v1/person-bonds/999 | 404 `NOT_FOUND` |
+| 사이가 걸린 인물 삭제 | DELETE /api/v1/persons/{id} | 204, 그 인물의 사이 행도 함께 사라짐 |
+| 사이 한쪽이 태그 필터에서 빠짐 | GET relation-map?relationTagChipIds=A | 그 사이는 `bonds` 에 없음 |
+| 인물 0명 | GET relation-map | `bonds` 빈 배열 |
 | 1년 전 같은 월·일 기록 없음 | GET /api/v1/home/throwback | 204 No Content |
 | 1년 전 오늘 복수 기록 | GET /api/v1/home/throwback | 200, 우선순위로 1건 |
 | 오늘이 2/29·작년 비윤년 | GET /api/v1/home/throwback | 204 No Content |
@@ -56,4 +82,4 @@
 
 - `IntimacyCalculator.of(meetingDatesDesc, today)` — 친밀도 판정 정책(#41). 임계값 상수는 `IntimacyCalculator`.
 - `ChipService.anniversaryCategoryId()` — 회고 우선순위 ③(기념일) 판정용. `meetingCategoryId()` 와 동형(공통 칩 라벨 앵커).
-</content>
+- `PersonBondService.deleteByPerson(personId)` — 인물 삭제 시 사이 정리 진입점. `PersonService.delete` 가 호출한다.

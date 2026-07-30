@@ -1,4 +1,5 @@
 export * as chipMutation from './chips'
 export * as eventMutation from './events'
+export * as personBondMutation from './person-bonds'
 export * as personMutation from './persons'
 export * as userMutation from './users'
