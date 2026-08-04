@@ -15,7 +15,7 @@ export function TimelinePersonFilters({
 }) {
   return (
     <section className="mb-3">
-      <p className="mb-2 text-caption font-extrabold text-muted-foreground">
+      <p className="mb-2 text-caption font-semibold text-muted-foreground">
         사람
       </p>
       <div className="flex flex-wrap gap-2">

@@ -28,7 +28,7 @@ export function FormPageHeader({
       >
         <ChevronLeft className="size-6" />
       </button>
-      <h1 className="text-center text-base font-extrabold">{title}</h1>
+      <h1 className="text-center text-base font-semibold">{title}</h1>
       {onSave ? (
         <button
           type="button"

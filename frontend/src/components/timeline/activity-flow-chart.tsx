@@ -101,14 +101,14 @@ export function ActivityFlowChart({
       <div className="p-4">
         <div className="relative mb-1 flex items-start justify-between gap-2">
           <div>
-            <p className="text-sm font-extrabold">활동 흐름</p>
+            <p className="text-sm font-semibold">활동 흐름</p>
           </div>
 
           <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
-              className="inline-flex h-8 items-center gap-1 rounded-full border border-border bg-background px-3 text-caption font-extrabold text-foreground"
+              className="inline-flex h-8 items-center gap-1 rounded-full border border-border bg-background px-3 text-caption font-semibold text-foreground"
               aria-expanded={menuOpen}
               aria-haspopup="listbox"
             >
@@ -177,7 +177,7 @@ export function ActivityFlowChart({
                   />
                   <span
                     data-amp-mask
-                    className="min-w-0 flex-1 truncate text-caption font-extrabold text-muted-foreground"
+                    className="min-w-0 flex-1 truncate text-caption font-semibold text-muted-foreground"
                   >
                     {lane.label}
                   </span>

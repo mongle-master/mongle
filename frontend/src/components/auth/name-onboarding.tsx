@@ -33,10 +33,10 @@ export function NameOnboarding({
           if (normalized && !pending) onSubmit(normalized)
         }}
       >
-        <p className="mb-3 text-sm font-extrabold text-primary">
+        <p className="mb-3 text-sm font-semibold text-primary">
           1 / 2 · 처음 만났네요
         </p>
-        <h1 className="text-[32px] font-black leading-[1.15] tracking-[-0.04em] text-foreground">
+        <h1 className="text-[32px] font-semibold leading-[1.15] tracking-[-0.04em] text-foreground">
           당신을 어떻게
           <br />
           부르면 좋을까요?
@@ -63,7 +63,7 @@ export function NameOnboarding({
           type="submit"
           size="lg"
           disabled={!normalized || pending}
-          className="mt-4 h-14 w-full rounded-2xl text-base font-extrabold"
+          className="mt-4 h-14 w-full rounded-2xl text-base font-semibold"
         >
           {pending ? '공간을 여는 중...' : '다음'}
         </Button>
