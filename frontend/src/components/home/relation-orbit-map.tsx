@@ -117,6 +117,13 @@ export function RelationOrbitMap({
         </span>
       ))}
 
+      {/* 멀어진 관계가 있을 때만 — 흐림의 의미를 한 줄로 환기한다(시안 A 카피). */}
+      {distantPersonIds.size > 0 ? (
+        <p className="absolute top-[2%] left-1/2 z-10 -translate-x-1/2 text-[11px] whitespace-nowrap text-muted-soft">
+          흐려진 관계는 지금 제 자리에서 조용히 쉬고 있어요
+        </p>
+      ) : null}
+
       {/* '나' 노드 — 시안 A처럼 표면 원 하나를 받치고, 사진이 없으면 먹색 원 + '나'. */}
       <div
         className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
