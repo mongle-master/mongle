@@ -98,14 +98,14 @@ export function PersonProfileView({
                 <div className="min-w-0 flex-1">
                   <h1
                     data-amp-mask
-                    className="truncate text-2xl font-black tracking-tight"
+                    className="truncate text-2xl font-semibold tracking-tight"
                   >
                     {displayName}
                   </h1>
                   {person.relationType ? (
                     <p
                       data-amp-mask
-                      className="mt-2 text-sm font-extrabold text-foreground"
+                      className="mt-2 text-sm font-semibold text-foreground"
                     >
                       {person.relationType}
                     </p>
@@ -173,7 +173,7 @@ export function PersonProfileView({
         {recentEvents.length > 0 ? (
           <section>
             <div className="mb-2 flex items-center justify-between px-3">
-              <p className="text-caption font-extrabold tracking-wide text-muted-foreground uppercase">
+              <p className="text-caption font-semibold tracking-wide text-muted-foreground uppercase">
                 최근 함께한 일
               </p>
               <button
@@ -270,7 +270,7 @@ function RecentEventRow({ event }: { event: EventResponse }) {
     >
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
-          <p data-amp-mask className="truncate text-sm font-extrabold">
+          <p data-amp-mask className="truncate text-sm font-semibold">
             {event.title}
           </p>
           {event.category ? (
@@ -300,7 +300,7 @@ function RecentEventRow({ event }: { event: EventResponse }) {
             loading="lazy"
           />
           {event.photoUrls.length > 1 ? (
-            <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1 py-0.5 text-[9px] font-extrabold text-background">
+            <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1 py-0.5 text-[9px] font-semibold text-background">
               +{event.photoUrls.length - 1}
             </span>
           ) : null}
@@ -335,7 +335,7 @@ function InfoRow({
     <ListGroupItem withDivider={withDivider}>
       <div>
         <p className="text-xs font-bold text-muted-foreground">{label}</p>
-        <p className="mt-1 text-sm font-extrabold text-foreground">{value}</p>
+        <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
       </div>
     </ListGroupItem>
   )
@@ -345,7 +345,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-xs font-bold text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-body font-extrabold text-foreground">{value}</dd>
+      <dd className="mt-1 text-body font-semibold text-foreground">{value}</dd>
     </div>
   )
 }

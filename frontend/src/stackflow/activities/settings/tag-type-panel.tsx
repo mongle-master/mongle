@@ -127,7 +127,7 @@ export function TagTypePanel({
     <section>
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-[17px] font-black tracking-tight text-foreground">
+          <h2 className="text-[17px] font-semibold tracking-tight text-foreground">
             {label}
           </h2>
           <p className="mt-1 text-xs font-medium text-muted-foreground">
@@ -158,7 +158,7 @@ export function TagTypePanel({
                         maxLength={10}
                         autoFocus
                         disabled={renameMutation.isPending}
-                        className="h-7 min-w-0 border-0 bg-transparent px-0 text-[14px] font-extrabold shadow-none focus-visible:ring-0 md:text-[14px]"
+                        className="h-7 min-w-0 border-0 bg-transparent px-0 text-[14px] font-semibold shadow-none focus-visible:ring-0 md:text-[14px]"
                       />
                       <button
                         type="button"

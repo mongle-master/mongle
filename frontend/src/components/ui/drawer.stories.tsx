@@ -35,7 +35,7 @@ const meta = {
         </div>
         <DrawerFooter>
           <DrawerClose asChild>
-            <Button type="button" className="rounded-full font-extrabold">
+            <Button type="button" className="rounded-full font-semibold">
               완료
             </Button>
           </DrawerClose>

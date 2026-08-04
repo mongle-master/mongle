@@ -1,97 +1,279 @@
 import { useQuery } from '@tanstack/react-query'
-import { Clock3, X } from 'lucide-react'
+import { CircleDot, Clock3, List, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { homeQuery } from '@/apis/queries'
-import { cn } from '@/lib/utils'
-import { HomePeriodToggle } from '@/components/home/period-toggle'
-import { RelationForceMap } from '@/components/home/relation-force-map'
-import { MongleLogo } from '@/components/brand/mongle-logo'
-import { TabShell } from '@/stackflow/components/tab-shell'
+import { chipQuery, homeQuery } from '@/apis/queries'
+import { PersonCardSheet } from '@/components/home/person-card-sheet'
+import { RelationListView } from '@/components/home/relation-list-view'
+import { RelationOrbitMap } from '@/components/home/relation-orbit-map'
+import { RelationTagFilter } from '@/components/home/relation-tag-filter'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { PageTitle } from '@/components/ui/page-title'
+import {
+  EmptyState,
+  EmptyStateAction,
+  EmptyStateDescription,
+  EmptyStateTitle,
+} from '@/components/ui/empty-state'
 import { StatusMessage } from '@/components/ui/status-message'
+import { featureEvents, trackFeature } from '@/lib/analytics'
 import {
   getDefaultHomePeriod,
   isPersonInHomePeriod,
   subscribeDefaultHomePeriod,
 } from '@/lib/home-period'
 import type { HomePeriod } from '@/lib/home-period'
-import { featureEvents, trackFeature } from '@/lib/analytics'
+import { getHomeView, setHomeView } from '@/lib/home-view'
+import type { HomeView } from '@/lib/home-view'
+import { personMatchesTags } from '@/lib/relation-list'
+import { cn } from '@/lib/utils'
+import { TabShell } from '@/stackflow/components/tab-shell'
 import { useAppFlow } from '@/stackflow/use-app-flow'
 
 export function HomeTab() {
   const { push } = useAppFlow()
-  // 탭 마운트(첫 방문) 시 설정에 저장된 기본 기간으로 초기화. 탭에서 바꾼 값은 세션 동안 유지되고,
-  // 설정 탭에서 기본 기간을 바꾸면 그 값으로 덮어쓴다(홈 탭은 hidden 유지라 리마운트되지 않음).
+  // 설정의 '홈 기본 기간'은 비노출 기준 필터로만 작동한다. 탭 마운트 시 저장값으로
+  // 초기화하고, 설정 탭에서 바뀌면 구독으로 즉시 반영한다(홈 탭은 hidden 유지라
+  // 리마운트되지 않음). 기간 토글 UI는 궤도 링이 최근성을 대신 보여주면서 제거됐다.
   const [period, setPeriod] = useState<HomePeriod>(() => getDefaultHomePeriod())
   useEffect(() => subscribeDefaultHomePeriod(setPeriod), [])
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
+  const [sheetPersonId, setSheetPersonId] = useState<number | null>(null)
   const [throwbackDismissed, setThrowbackDismissed] = useState(false)
   const [throwbackExiting, setThrowbackExiting] = useState(false)
+  // PRD: 마지막에 고른 보기를 기억한다. 기본은 궤도(홈은 지도가 주연).
+  const [view, setView] = useState<HomeView>(() => getHomeView())
+
+  const changeView = (next: HomeView) => {
+    if (next === view) return
+    setView(next)
+    setHomeView(next)
+    void trackFeature(featureEvents.homeViewChanged, { view: next })
+  }
 
   const mapQuery = useQuery(homeQuery.relationMap())
-
+  const relationTagQuery = useQuery(chipQuery.byType('RELATION_TAG'))
   const throwbackQuery = useQuery(homeQuery.throwback())
 
   const throwback = throwbackQuery.data
   const mapData = mapQuery.data
+  const allNodes = mapData?.nodes ?? []
 
-  const visibleNodes = useMemo(
+  // 기본 기간 기준 필터. 결과가 0명이면 기간 때문에 지도가 비는 것보다 전체를
+  // 보여주는 편이 나아 기존(토글 시절) 폴백을 유지한다.
+  const periodNodes = useMemo(
     () =>
-      (mapData?.nodes ?? []).filter((node) =>
+      allNodes.filter((node) =>
         isPersonInHomePeriod(node.firstMetDate, period),
       ),
-    [mapData?.nodes, period],
+    [allNodes, period],
   )
-
-  const graphNodes =
-    visibleNodes.length > 0 ? visibleNodes : (mapData?.nodes ?? [])
+  const graphNodes = periodNodes.length > 0 ? periodNodes : allNodes
 
   const visibleNodeIds = useMemo(
-    () => new Set(graphNodes.map((n) => n.id)),
+    () => new Set(graphNodes.map((node) => node.id)),
     [graphNodes],
   )
-
   const visibleEdges = useMemo(
-    () => (mapData?.edges ?? []).filter((e) => visibleNodeIds.has(e.personId)),
+    () =>
+      (mapData?.edges ?? []).filter((edge) =>
+        visibleNodeIds.has(edge.personId),
+      ),
     [mapData?.edges, visibleNodeIds],
   )
 
-  const handlePeriodChange = (next: HomePeriod) => {
-    if (next === period) return
-    setPeriod(next)
-    void trackFeature(featureEvents.homePeriodChanged, { period: next })
+  const isEmpty = mapQuery.isSuccess && allNodes.length === 0
+  // 태그 필터는 숨기지 않고 흐린다 — 매칭 0명일 때도 빈 지도 대신 전원 흐림으로
+  // 관계 맥락을 보여주고, 초기화 안내만 따로 둔다.
+  const matchedCount = useMemo(
+    () =>
+      graphNodes.filter((node) => personMatchesTags(node, selectedTagIds))
+        .length,
+    [graphNodes, selectedTagIds],
+  )
+
+  const toggleTag = (tagId: number) => {
+    setSelectedTagIds((current) => {
+      const next = current.includes(tagId)
+        ? current.filter((id) => id !== tagId)
+        : [...current, tagId]
+      void trackFeature(featureEvents.homeRelationTagFiltered, {
+        count: next.length,
+      })
+      return next
+    })
   }
+
+  const openPersonCard = (personId: number) => {
+    setSheetPersonId(personId)
+    void trackFeature(featureEvents.homePersonCardOpened)
+  }
+
+  const sheetPerson =
+    graphNodes.find((node) => node.id === sheetPersonId) ??
+    allNodes.find((node) => node.id === sheetPersonId) ??
+    null
+  const sheetDistant = sheetPerson
+    ? ((mapData?.edges ?? []).find((edge) => edge.personId === sheetPerson.id)
+        ?.distant ?? sheetPerson.intimacy.status === 'DISTANT')
+    : false
 
   return (
     <TabShell>
-      <header className="mb-3">
-        <MongleLogo className="mb-5 text-foreground" />
-        <PageTitle>
-          함께한 순간, <br /> 몽글몽글 쌓이는 중
-        </PageTitle>
+      <header className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[19px] font-semibold tracking-[-0.01em] text-foreground">
+            관계 지도
+          </h1>
+          <p className="mt-1 text-caption text-muted-foreground">
+            {isEmpty ? (
+              '기록을 남길수록 지도가 채워져요'
+            ) : (
+              <>
+                <span className="font-semibold text-foreground">
+                  {graphNodes.length}명
+                </span>{' '}
+                · 최근 만남 기준
+              </>
+            )}
+          </p>
+        </div>
+        {!isEmpty ? (
+          <button
+            type="button"
+            onClick={() => changeView(view === 'orbit' ? 'list' : 'orbit')}
+            className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors active:bg-muted"
+            aria-label={view === 'orbit' ? '리스트로 보기' : '궤도로 보기'}
+          >
+            {view === 'orbit' ? (
+              <List className="size-4.5" />
+            ) : (
+              <CircleDot className="size-4.5" />
+            )}
+          </button>
+        ) : null}
       </header>
-
-      <section className="mb-4">
-        <HomePeriodToggle value={period} onChange={handlePeriodChange} />
-      </section>
 
       {mapQuery.isPending ? (
         <StatusMessage inset="list">관계 지도를 불러오는 중…</StatusMessage>
       ) : mapQuery.isError || !mapData ? (
         <StatusMessage tone="error" inset="list">
-          관계 지도를 불러오지 못했어요.
+          관계 지도를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </StatusMessage>
       ) : (
-        <RelationForceMap
-          key={period}
-          me={mapData.me}
-          nodes={graphNodes}
-          edges={visibleEdges}
-          onSelectPerson={(id) =>
-            push('Person', { personId: String(id), view: 'timeline' })
-          }
-        />
+        <>
+          {relationTagQuery.data &&
+          relationTagQuery.data.length > 0 &&
+          !isEmpty ? (
+            <section className="mb-3">
+              <RelationTagFilter
+                tags={relationTagQuery.data.map((chip) => ({
+                  id: chip.id,
+                  label: chip.label,
+                  color: chip.color ?? null,
+                }))}
+                selectedIds={selectedTagIds}
+                onToggle={toggleTag}
+                onClear={() => setSelectedTagIds([])}
+              />
+            </section>
+          ) : null}
+
+          {view === 'orbit' &&
+          selectedTagIds.length > 0 &&
+          matchedCount === 0 ? (
+            <div className="mb-3 flex items-center justify-center gap-2.5 rounded-full border border-border bg-card px-4 py-2.5 shadow-e1">
+              <p className="text-caption text-muted-foreground">
+                이 조건에 맞는 사람이 없어요
+              </p>
+              <button
+                type="button"
+                onClick={() => setSelectedTagIds([])}
+                className="text-caption font-semibold text-foreground underline underline-offset-2"
+              >
+                필터 초기화
+              </button>
+            </div>
+          ) : null}
+
+          {view === 'orbit' && !isEmpty && graphNodes.length > 20 ? (
+            <div className="mb-3 flex items-center justify-center gap-2.5 rounded-full border border-border bg-card px-4 py-2.5 shadow-e1">
+              <p className="text-caption text-muted-foreground">
+                인원이 많아요. 리스트로 보면 한눈에 편해요.
+              </p>
+              <button
+                type="button"
+                onClick={() => changeView('list')}
+                className="text-caption font-semibold text-foreground underline underline-offset-2"
+              >
+                리스트로 보기
+              </button>
+            </div>
+          ) : null}
+
+          {view === 'orbit' ? (
+            <RelationOrbitMap
+              me={mapData.me}
+              nodes={graphNodes}
+              edges={visibleEdges}
+              selectedTagIds={selectedTagIds}
+              onSelectPerson={openPersonCard}
+            >
+              {isEmpty ? (
+                // '나' 노드(세로 약 51%)와 겹치지 않게 안내를 중심 아래에 둔다.
+                <div className="absolute inset-0 z-30 flex flex-col items-center px-8 pt-[82%] text-center">
+                  <EmptyState>
+                    <EmptyStateTitle>아직 기록한 사람이 없어요</EmptyStateTitle>
+                    <EmptyStateDescription>
+                      첫 사람을 추가해 관계를 남겨보세요. 함께한 따뜻한 순간을
+                      기록하면 관계 지도가 조금씩 채워져요.
+                    </EmptyStateDescription>
+                    <EmptyStateAction>
+                      <Button size="cta" onClick={() => push('PersonNew', {})}>
+                        ＋ 사람 추가
+                      </Button>
+                    </EmptyStateAction>
+                  </EmptyState>
+                </div>
+              ) : null}
+            </RelationOrbitMap>
+          ) : isEmpty ? (
+            <EmptyState>
+              <EmptyStateTitle>아직 기록한 사람이 없어요</EmptyStateTitle>
+              <EmptyStateDescription>
+                첫 사람을 추가해 관계를 남겨보세요.
+              </EmptyStateDescription>
+              <EmptyStateAction>
+                <Button size="cta" onClick={() => push('PersonNew', {})}>
+                  ＋ 사람 추가
+                </Button>
+              </EmptyStateAction>
+            </EmptyState>
+          ) : (
+            <RelationListView
+              nodes={graphNodes}
+              selectedTagIds={selectedTagIds}
+              onSelectPerson={openPersonCard}
+              onClearFilter={() => setSelectedTagIds([])}
+            />
+          )}
+        </>
       )}
+
+      <PersonCardSheet
+        person={sheetPerson}
+        distant={sheetDistant}
+        onOpenChange={(open) => {
+          if (!open) setSheetPersonId(null)
+        }}
+        onRecord={(personId) => {
+          setSheetPersonId(null)
+          push('Record', { personId: String(personId) })
+        }}
+        onProfile={(personId) => {
+          setSheetPersonId(null)
+          push('Person', { personId: String(personId), view: 'profile' })
+        }}
+      />
 
       {throwback && !throwbackDismissed ? (
         <div className="pointer-events-none absolute right-4 bottom-[6.25rem] left-4 z-40">
@@ -121,9 +303,9 @@ export function HomeTab() {
                 }}
                 className="min-w-0 flex-1 text-left"
               >
-                <p className="text-sm font-extrabold text-foreground">
+                <p className="text-sm font-semibold text-foreground">
                   1년 전 오늘
-                  <span className="ml-2 text-caption font-bold text-muted-foreground">
+                  <span className="ml-2 text-caption font-medium text-muted-foreground">
                     {throwback.occurredDate}
                   </span>
                 </p>

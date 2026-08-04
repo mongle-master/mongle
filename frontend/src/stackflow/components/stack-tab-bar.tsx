@@ -1,11 +1,12 @@
 import { useStepFlow } from '@stackflow/react'
-import { Clock, Home, Plus, Settings, Users } from 'lucide-react'
+import { CircleDot, Clock, Plus, Settings, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { MainTab } from '@/stackflow/stackflow.config'
 import { useAppFlow } from '@/stackflow/use-app-flow'
 
-const tabs: Array<{ tab: MainTab; label: string; icon: typeof Home }> = [
-  { tab: 'home', label: '홈', icon: Home },
+// 홈 아이콘은 시안 A의 내비 규격(궤도 = 원 + 중심 점)을 따르는 CircleDot.
+const tabs: Array<{ tab: MainTab; label: string; icon: typeof CircleDot }> = [
+  { tab: 'home', label: '홈', icon: CircleDot },
   { tab: 'timeline', label: '몽글라인', icon: Clock },
   { tab: 'people', label: '사람', icon: Users },
   { tab: 'settings', label: '설정', icon: Settings },
@@ -34,7 +35,7 @@ export function StackTabBar({ activeTab }: { activeTab: MainTab }) {
                 key="record"
                 type="button"
                 onClick={() => push('Record', {})}
-                className="-mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
+                className="-mt-5 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-e3 transition-transform active:scale-95"
                 aria-label="기록 작성"
               >
                 <Plus className="size-6" />
@@ -49,13 +50,13 @@ export function StackTabBar({ activeTab }: { activeTab: MainTab }) {
               type="button"
               onClick={() => replaceStep({ tab: item.tab })}
               className={cn(
-                'flex flex-col items-center gap-1 text-caption font-bold',
+                'flex flex-col items-center gap-1 text-[10px] font-medium transition-colors',
                 activeTab === item.tab
                   ? 'text-foreground'
                   : 'text-muted-foreground',
               )}
             >
-              <Icon className="size-5" />
+              <Icon className="size-[22px]" strokeWidth={1.6} />
               {item.label}
             </button>
           )

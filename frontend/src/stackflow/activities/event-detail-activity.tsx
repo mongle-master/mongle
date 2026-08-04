@@ -68,11 +68,11 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         >
           <ChevronLeft className="size-6" />
         </button>
-        <h1 className="text-center text-base font-extrabold">몽글 상세</h1>
+        <h1 className="text-center text-base font-semibold">몽글 상세</h1>
         <button
           type="button"
           onClick={() => push('Record', { eventId: String(id) })}
-          className="text-right text-body font-extrabold"
+          className="text-right text-body font-semibold"
         >
           수정
         </button>
@@ -82,7 +82,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
         <div className="flex items-start gap-2">
           <h2
             data-amp-mask
-            className="min-w-0 flex-1 text-[22px] leading-snug font-extrabold tracking-tight"
+            className="min-w-0 flex-1 text-[22px] leading-snug font-semibold tracking-tight"
           >
             {event.title}
           </h2>
@@ -90,7 +90,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
             <Badge
               data-amp-mask
               variant="secondary"
-              className="h-7 shrink-0 rounded-full px-3 font-extrabold"
+              className="h-7 shrink-0 rounded-full px-3 font-semibold"
             >
               {event.category.label}
             </Badge>
@@ -124,7 +124,7 @@ export const EventDetailActivity: ActivityComponentType<'EventDetail'> = ({
                   />
                   <span
                     data-amp-mask
-                    className="text-xs font-extrabold text-foreground"
+                    className="text-xs font-semibold text-foreground"
                   >
                     {person.name}
                   </span>

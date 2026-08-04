@@ -56,7 +56,7 @@ export function ProfileHero({
           onClick={onPhotoClick}
           className="min-w-0 flex-1 text-left"
         >
-          <p className="text-sm font-extrabold text-foreground">
+          <p className="text-sm font-semibold text-foreground">
             {hasPhoto ? '프로필 사진 변경' : '프로필 사진 추가'}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -81,7 +81,7 @@ export function ProfileHero({
           <Star
             className={cn('size-5', favorite && 'fill-current text-amber-500')}
           />
-          <span className="text-[10px] font-extrabold">즐겨찾기</span>
+          <span className="text-[10px] font-semibold">즐겨찾기</span>
         </button>
       </div>
     </div>

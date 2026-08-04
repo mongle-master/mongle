@@ -92,7 +92,7 @@ export function PeopleTab() {
           <button
             type="button"
             onClick={() => push('PersonNew', {})}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-label font-extrabold text-primary-foreground"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-label font-semibold text-primary-foreground"
           >
             <Plus className="size-4" />
             추가
@@ -233,7 +233,7 @@ function PersonListItem({
         <div className="min-w-0 flex-1">
           <p
             data-amp-mask
-            className="truncate text-body font-extrabold text-foreground"
+            className="truncate text-body font-semibold text-foreground"
           >
             {displayName}
           </p>

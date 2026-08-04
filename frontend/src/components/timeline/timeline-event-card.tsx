@@ -75,7 +75,7 @@ function TimelinePhotoPreview({ photoUrls }: { photoUrls: string[] }) {
         loading="lazy"
       />
       {photoUrls.length > 1 ? (
-        <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1.5 py-0.5 text-[10px] font-extrabold text-background">
+        <span className="absolute right-1 bottom-1 rounded-full bg-foreground/80 px-1.5 py-0.5 text-[10px] font-semibold text-background">
           +{photoUrls.length - 1}
         </span>
       ) : null}
@@ -105,7 +105,7 @@ export function TimelineEventCard({
           <div className="flex items-start gap-2">
             <h3
               data-amp-mask
-              className="min-w-0 flex-1 text-[17px] leading-snug font-extrabold tracking-tight"
+              className="min-w-0 flex-1 text-[17px] leading-snug font-semibold tracking-tight"
             >
               {item.title}
             </h3>
@@ -113,7 +113,7 @@ export function TimelineEventCard({
               <Badge
                 data-amp-mask
                 variant="secondary"
-                className="h-7 shrink-0 rounded-full px-3 font-extrabold"
+                className="h-7 shrink-0 rounded-full px-3 font-semibold"
               >
                 {item.category.label}
               </Badge>
@@ -132,7 +132,7 @@ export function TimelineEventCard({
                   />
                   <span
                     data-amp-mask
-                    className="text-xs font-extrabold text-foreground"
+                    className="text-xs font-semibold text-foreground"
                   >
                     {linkedPersonsLabel(persons)}
                   </span>

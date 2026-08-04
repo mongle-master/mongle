@@ -36,7 +36,7 @@ const demoBody = (
     <div className="pr-9">
       <h2
         id="dialog-shell-demo-title"
-        className="text-base font-extrabold tracking-tight text-foreground"
+        className="text-base font-semibold tracking-tight text-foreground"
       >
         다이얼로그 제목
       </h2>
